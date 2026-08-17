@@ -1,0 +1,52 @@
+{
+  "variants": {
+    "model=tripple,facing=north": {
+      "model": "trafficengine:block/traffic_light/tripple",
+      "y": 0
+    },
+    "model=tripple,facing=east": {
+      "model": "trafficengine:block/traffic_light/tripple",
+      "y": 90
+    },
+    "model=tripple,facing=south": {
+      "model": "trafficengine:block/traffic_light/tripple",
+      "y": 180
+    },
+    "model=tripple,facing=west": {
+      "model": "trafficengine:block/traffic_light/tripple",
+      "y": 270
+    },
+    "model=double,facing=north": {
+      "model": "trafficengine:block/traffic_light/double",
+      "y": 0
+    },
+    "model=double,facing=east": {
+      "model": "trafficengine:block/traffic_light/double",
+      "y": 90
+    },
+    "model=double,facing=south": {
+      "model": "trafficengine:block/traffic_light/double",
+      "y": 180
+    },
+    "model=double,facing=west": {
+      "model": "trafficengine:block/traffic_light/double",
+      "y": 270
+    },
+    "model=single,facing=north": {
+      "model": "trafficengine:block/traffic_light/single",
+      "y": 0
+    },
+    "model=single,facing=east": {
+      "model": "trafficengine:block/traffic_light/single",
+      "y": 90
+    },
+    "model=single,facing=south": {
+      "model": "trafficengine:block/traffic_light/single",
+      "y": 180
+    },
+    "model=single,facing=west": {
+      "model": "trafficengine:block/traffic_light/single",
+      "y": 270
+    }
+  }
+}

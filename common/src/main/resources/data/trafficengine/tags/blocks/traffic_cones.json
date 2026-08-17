@@ -1,0 +1,9 @@
+{
+    "replace": false,
+    "values": [
+        "trafficengine:traffic_cone",
+        "trafficengine:traffic_bollard",
+        "trafficengine:road_barrier_fence",
+        "trafficengine:traffic_barrel"
+    ]
+}

@@ -1,0 +1,15 @@
+{
+  "type": "trafficengine:damageable_item_recipe",
+  "ingredients": [
+    {
+      "item": "minecraft:iron_ingot"
+    },
+    {
+      "item": "trafficengine:hammer"
+    }
+  ],
+  "result": {
+    "item": "trafficengine:iron_plate",
+    "count": 1
+  }
+}

@@ -1,0 +1,19 @@
+{
+    "variants": {
+        "facing=north": {
+            "model": "trafficengine:block/red_delineator"
+        },
+        "facing=east": {
+            "model": "trafficengine:block/red_delineator",
+            "y": 90
+        },
+        "facing=south": {
+            "model": "trafficengine:block/red_delineator",
+            "y": 180
+        },
+        "facing=west": {
+            "model": "trafficengine:block/red_delineator",
+            "y": 270
+        }
+    }
+}

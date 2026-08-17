@@ -1,0 +1,32 @@
+{
+  "display": {
+    "icon": {
+      "item": "trafficengine:traffic_cone"
+    },
+    "title": {
+      "translate": "advancement.trafficengine.accessibility"
+    },
+    "description": {
+      "translate": "advancement.trafficengine.accessibility.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "parent": "trafficengine:craft_road",
+  "criteria": {
+    "requirement": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "tag": "trafficengine:traffic_cones"
+          }
+        ]
+      }
+    }
+  },
+  "rewards": {
+    "experience": 20
+  }
+}

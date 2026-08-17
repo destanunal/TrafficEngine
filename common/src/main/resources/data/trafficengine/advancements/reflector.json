@@ -1,0 +1,33 @@
+{
+  "display": {
+    "icon": {
+      "item": "trafficengine:reflector"
+    },
+    "title": {
+      "translate": "advancement.trafficengine.reflector"
+    },
+    "description": {
+      "translate": "advancement.trafficengine.reflector.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "parent": "trafficengine:crash_course",
+  "criteria": {
+    "req": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": [
+          {
+            "condition": "minecraft:block_state_property",
+            "block": "trafficengine:reflector"
+          }
+        ]
+      }
+    }
+  },
+  "rewards": {
+    "experience": 20
+  }
+}

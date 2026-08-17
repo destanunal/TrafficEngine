@@ -1,0 +1,20 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "trafficengine:block/light_asphalt/136",
+      "y": 0
+    },
+    "facing=east": {
+      "model": "trafficengine:block/light_asphalt/136",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "trafficengine:block/light_asphalt/136",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "trafficengine:block/light_asphalt/136",
+      "y": 270
+    }
+  }
+}

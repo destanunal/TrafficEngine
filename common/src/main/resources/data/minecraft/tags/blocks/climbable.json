@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    "trafficengine:manhole",
+    "trafficengine:manhole_cover",
+    "trafficengine:road_gully"
+  ]
+}

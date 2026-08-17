@@ -1,0 +1,34 @@
+{
+    "variants": {
+        "facing=north,lit=false": {
+            "model": "trafficengine:block/double_street_lamp"
+        },
+        "facing=east,lit=false": {
+            "model": "trafficengine:block/double_street_lamp",
+            "y": 90
+        },
+        "facing=south,lit=false": {
+            "model": "trafficengine:block/double_street_lamp",
+            "y": 180
+        },
+        "facing=west,lit=false": {
+            "model": "trafficengine:block/double_street_lamp",
+            "y": 270
+        },
+        "facing=north,lit=true": {
+            "model": "trafficengine:block/lit_double_street_lamp"
+        },
+        "facing=east,lit=true": {
+            "model": "trafficengine:block/lit_double_street_lamp",
+            "y": 90
+        },
+        "facing=south,lit=true": {
+            "model": "trafficengine:block/lit_double_street_lamp",
+            "y": 180
+        },
+        "facing=west,lit=true": {
+            "model": "trafficengine:block/lit_double_street_lamp",
+            "y": 270
+        }
+    }
+}

@@ -1,0 +1,32 @@
+{
+  "display": {
+    "icon": {
+      "item": "trafficengine:concrete_barrier"
+    },
+    "title": {
+      "translate": "advancement.trafficengine.crash_course"
+    },
+    "description": {
+      "translate": "advancement.trafficengine.crash_course.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "parent": "trafficengine:delineator",
+  "criteria": {
+    "requirement": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "tag": "trafficengine:barriers"
+          }
+        ]
+      }
+    }
+  },
+  "rewards": {
+    "experience": 20
+  }
+}

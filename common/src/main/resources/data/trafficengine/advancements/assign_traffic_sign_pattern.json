@@ -1,0 +1,45 @@
+{
+  "display": {
+    "icon": {
+      "item": "trafficengine:creative_pattern_catalogue"
+    },
+    "title": {
+      "translate": "advancement.trafficengine.assign_traffic_sign_pattern"
+    },
+    "description": {
+      "translate": "advancement.trafficengine.assign_traffic_sign_pattern.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "parent": "trafficengine:create_traffic_sign_pattern",
+  "criteria": {
+    "req": {
+      "trigger": "minecraft:item_used_on_block",
+      "conditions": {
+        "location": [
+          {
+            "condition": "minecraft:match_tool",
+            "predicate": {
+              "tag": "trafficengine:pattern_catalogues"
+            }
+          },
+          {
+            "condition": "minecraft:location_check",
+            "predicate": {
+              "block": {
+                "blocks": [
+                  "trafficengine:traffic_sign"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "rewards": {
+    "experience": 30
+  }
+}

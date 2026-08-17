@@ -1,0 +1,23 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "X",
+        "S"
+    ],
+    "key": {
+        "X": [
+            {
+                "item": "trafficengine:reflector"
+            }
+        ],
+        "S": [
+            {
+                "tag": "forge:rods/wooden"
+            }
+        ]
+    },
+    "result": {
+        "item": "trafficengine:small_white_delineator",
+        "count": 2
+    }
+}

@@ -1,0 +1,12 @@
+{
+    "parent": "trafficengine:block/road_slope_12",
+    "textures": {
+      "base": "trafficengine:block/concrete",
+      "overlay": "trafficengine:block/patterns/188",
+      "north": "trafficengine:block/patterns/0",
+      "east": "trafficengine:block/patterns/1",
+      "south": "trafficengine:block/patterns/1",
+      "west": "trafficengine:block/patterns/0",
+      "particle": "trafficengine:block/concrete"
+    }
+  }

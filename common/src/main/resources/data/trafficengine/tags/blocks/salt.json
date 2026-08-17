@@ -1,0 +1,7 @@
+{
+    "replace": false,
+    "values": [
+        "trafficengine:salt",
+        "trafficengine:road_salt"
+    ]
+}

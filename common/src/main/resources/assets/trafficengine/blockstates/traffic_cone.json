@@ -1,0 +1,7 @@
+{
+    "variants": {
+        "": {
+            "model": "trafficengine:block/traffic_cone"
+        }
+    }
+}

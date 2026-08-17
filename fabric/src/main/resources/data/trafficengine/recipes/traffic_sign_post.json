@@ -1,0 +1,18 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "#",
+        "#"
+    ],
+    "key": {
+        "#": [
+            {
+                "item": "trafficengine:iron_rod"
+            }
+        ]
+    },
+    "result": {
+        "item": "trafficengine:traffic_sign_post",
+        "count": 6
+    }
+}

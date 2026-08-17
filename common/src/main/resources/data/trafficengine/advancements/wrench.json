@@ -1,0 +1,34 @@
+{
+  "display": {
+    "icon": {
+      "item": "trafficengine:wrench"
+    },
+    "title": {
+      "translate": "advancement.trafficengine.wrench"
+    },
+    "description": {
+      "translate": "advancement.trafficengine.wrench.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "parent": "trafficengine:root",
+  "criteria": {
+    "req": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "trafficengine:wrench"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "rewards": {
+    "experience": 30
+  }
+}

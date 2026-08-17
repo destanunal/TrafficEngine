@@ -1,0 +1,11 @@
+{
+    "replace": false,
+    "values": [
+        "trafficengine:wood_road_construction_tool",
+        "trafficengine:stone_road_construction_tool",
+        "trafficengine:iron_road_construction_tool",
+        "trafficengine:gold_road_construction_tool",
+        "trafficengine:diamond_road_construction_tool",
+        "trafficengine:netherite_road_construction_tool"
+    ]
+}

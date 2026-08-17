@@ -1,0 +1,20 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "trafficengine:block/dirty_asphalt/24",
+      "y": 0
+    },
+    "facing=east": {
+      "model": "trafficengine:block/dirty_asphalt/24",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "trafficengine:block/dirty_asphalt/24",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "trafficengine:block/dirty_asphalt/24",
+      "y": 270
+    }
+  }
+}

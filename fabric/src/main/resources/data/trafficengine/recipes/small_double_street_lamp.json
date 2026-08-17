@@ -1,0 +1,16 @@
+{
+    "type": "minecraft:crafting_shapeless",
+    "group": "small_double_small_street_lamp",
+    "ingredients": [
+      {
+        "item": "trafficengine:small_street_lamp"
+      },
+      {
+        "item": "trafficengine:small_street_lamp"
+      }
+    ],
+    "result": {
+      "item": "trafficengine:small_double_street_lamp",
+      "count": 1
+    }
+  }

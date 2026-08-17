@@ -1,0 +1,12 @@
+{
+    "parent": "trafficengine:block/road_base",
+    "textures": {
+      "base": "trafficengine:block/heavy_cracked_asphalt",
+      "overlay": "trafficengine:block/patterns/33",
+      "north": "trafficengine:block/patterns/54",
+      "east": "trafficengine:block/patterns/0",
+      "south": "trafficengine:block/patterns/54",
+      "west": "trafficengine:block/patterns/0",
+      "particle": "trafficengine:block/heavy_cracked_asphalt"
+    }
+  }
