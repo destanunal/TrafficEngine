@@ -193,7 +193,11 @@ public class TrafficLightBlockEntityRenderer extends RotatableBlockEntityRendere
 
             if (isCountdown) {
                 if (slotCount == 3 && i == 1) {
-                    renderIcon = false; // 3'lü lambada orta slot her zaman sayaçtır, ikonu gizle
+                    // DÜZELTME: Sadece ekranda sayaç gösteriliyorsa orta ikonu gizle.
+                    // Sayaç gizlendiğinde (sarı veya kırmızı+sarı yanarken) sarı ışık görünür olacak!
+                    if (showTimer) {
+                        renderIcon = false;
+                    }
                 } else if (slotCount == 2) {
                     // 2'li yaya lambasında, yanan ışığa göre sayacın yerine karar veriyoruz
                     if (rawColorCode == 1 && i == 1) renderIcon = false; // Kırmızı yanarken: Sayaç alt slotta(1), alt ikonu gizle

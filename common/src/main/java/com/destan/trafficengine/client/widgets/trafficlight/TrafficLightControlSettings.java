@@ -198,12 +198,21 @@ public class TrafficLightControlSettings extends DLGuiComponent {
         statusLayout.wrap.set(false);
         schedulePanel.layout.set(statusLayout);
 
-        DLButton editScheduleButton = schedulePanel.addComponent(new DLButton(0, 0, 0, 18));        
+        DLButton editScheduleButton = schedulePanel.addComponent(new DLButton(0, 0, 0, 18));
         editScheduleButton.layoutContraint.set(FlowLayout.FlowConstraint.FILL);
         editScheduleButton.componentRenderer.set(VanillaSimpleButtonRenderer.VANILLA_BUTTON_GRAY);
         editScheduleButton.text.set(textEditSchedule);
         editScheduleButton.addEventListener(DLGuiStandardEvents.ClickEvent.class, (s, e) -> {
-            getWindowManager().createModal(mgr -> new TrafficLightScheduleEditor(mgr, config.level, config.blockPos));
+
+            com.destan.trafficengine.client.screen.TrafficLightConfigScreen.hide3DBlock = true;
+
+            getWindowManager().createModal(mgr -> new TrafficLightScheduleEditor(mgr, config.level, config.blockPos) {
+                @Override
+                public void close() throws Exception {
+                    super.close();
+                    com.destan.trafficengine.client.screen.TrafficLightConfigScreen.hide3DBlock = false;
+                }
+            });
             return false;
         });
         

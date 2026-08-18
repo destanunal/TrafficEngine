@@ -39,7 +39,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class TrafficLightConfigScreen extends DLWindow {
-    
+
+    public static boolean hide3DBlock = false;
     public static final int WINDOW_WIDTH = 256;
     public static final int WINDOW_HEIGHT = 230;
 
@@ -152,12 +153,14 @@ public class TrafficLightConfigScreen extends DLWindow {
         public void close() throws Exception {
             config.removeEventListener(TrafficLightConfig.UpdateEvent.class, eventId);
         }
-        
+
         @Override
         public void renderMainLayer(DLGuiGraphics graphics, double mouseX, double mouseY, Rectangle renderBounds) {
+            if (TrafficLightConfigScreen.hide3DBlock) return;
+
             BlockState state = ModBlocks.TRAFFIC_LIGHT.get().defaultBlockState();
             graphics.poseStack().pushPose();
-            graphics.poseStack().translate(0, 0, 200);
+            graphics.poseStack().translate(0, 0, 150);
 
             GuiUtils.renderBlockState(graphics, (int)(width() / 2 - TRAFFIC_LIGHT_WIDTH * SCALE), SCALE, SCALE, state.setValue(TrafficLightBlock.MODEL, config.model), RenderType.solid(), LightTexture.FULL_BRIGHT);
                             
@@ -201,8 +204,10 @@ public class TrafficLightConfigScreen extends DLWindow {
 
         @Override
         public void renderMainLayer(DLGuiGraphics graphics, double mouseX, double mouseY, Rectangle renderBounds) {
+            if (TrafficLightConfigScreen.hide3DBlock) return;
+
             graphics.poseStack().pushPose();
-            graphics.poseStack().translate(0, 0, 200);
+            graphics.poseStack().translate(0, 0, 160);
             GuiUtils.drawTexture(TrafficLightTextureManager.getResourceLocation(new TrafficLightTextureKey(config.icon, config.colors[signalId])), graphics, 0, 0, width(), height(), 0, 0, 16, 16, TextureFillMode.STRETCH, 16, 16);
             if (isSelected()) {
                 GuiUtils.drawBox(graphics, 0, 0, width(), height(), DLColor.fromInt(0x40FFFFFF), DLColor.WHITE);
