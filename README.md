@@ -1,7 +1,7 @@
 ### **![](https://media.forgecdn.net/attachments/description/1654475/description_a3bd7d8c-d4b3-442e-b480-db9aa9ebcf51.png)**
 ![Forge](https://img.shields.io/badge/Forge-Supported-238636?style=flat-square&logo=curseforge&logoColor=black) ![Fabric](https://img.shields.io/badge/Fabric-Supported-238636?style=flat-square&logo=fabricmc&logoColor=black)
 
-![CurseForge Downloads](https://img.shields.io/curseforge/dt/1654475?style=for-the-badge&logo=curseforge&link=https%3A%2F%2Fwww.curseforge.com%2Fminecraft%2Fmc-mods%2Ftrafficengine)
+![CurseForge Downloads](https://img.shields.io/curseforge/dt/1654475?style=for-the-badge&logo=curseforge&color=orange&link=https%3A%2F%2Fwww.curseforge.com%2Fminecraft%2Fmc-mods%2Ftrafficengine)
 
 ##  **Traffic Engine**
 
