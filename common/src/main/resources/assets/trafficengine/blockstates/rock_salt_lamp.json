@@ -1,0 +1,10 @@
+{
+    "variants": {
+        "lit=true": {
+            "model": "trafficengine:block/rock_salt_lamp_lit"
+        },
+        "lit=false": {
+            "model": "trafficengine:block/rock_salt_lamp"
+        }
+    }
+}

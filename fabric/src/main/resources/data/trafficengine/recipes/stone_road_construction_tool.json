@@ -1,0 +1,28 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "NB ",
+        " RB",
+        "R N"
+    ],
+    "key": {
+        "N": [
+            {
+                "item": "minecraft:iron_nugget"
+            }
+        ],
+        "B": [
+            {
+                "item": "minecraft:smooth_stone"
+            }
+        ],
+        "R": [
+            {
+                "item": "trafficengine:iron_rod"
+            }
+        ]
+    },
+    "result": {
+        "item": "trafficengine:stone_road_construction_tool"
+    }
+}

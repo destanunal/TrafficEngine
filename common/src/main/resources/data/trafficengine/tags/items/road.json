@@ -1,0 +1,9 @@
+{
+    "replace": false,
+    "values": [
+        "trafficengine:asphalt",
+        "trafficengine:concrete",
+        "trafficengine:asphalt_slope",
+        "trafficengine:concrete_slope"
+    ]
+}

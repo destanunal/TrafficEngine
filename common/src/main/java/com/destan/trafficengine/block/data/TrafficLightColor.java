@@ -1,0 +1,81 @@
+package com.destan.trafficengine.block.data;
+
+import java.util.Arrays;
+
+import de.mrjulsen.mcdragonlib.data.ITranslatableEnum;
+import com.destan.trafficengine.TrafficEngine;
+
+public enum TrafficLightColor implements ITranslatableEnum {
+    NONE("none", 0, TrafficLightType.values(), 0),
+	RED("red", 1, new TrafficLightType[] { TrafficLightType.NOCOUNTDOWN, TrafficLightType.COUNTDOWN }, 1),
+	YELLOW("yellow", 2, new TrafficLightType[] { TrafficLightType.NOCOUNTDOWN, TrafficLightType.COUNTDOWN }, 2),
+	GREEN("green", 3, new TrafficLightType[] { TrafficLightType.NOCOUNTDOWN, TrafficLightType.COUNTDOWN }, 3),
+	F0("f0", 4, new TrafficLightType[] {}, 1),
+	F4("f4", 5, new TrafficLightType[] {}, 2),
+	F1_F2_F3_F5("f1_f2_f3_f5", 6, new TrafficLightType[] {}, 3);
+	
+	private String name;
+	private byte index;
+	private TrafficLightType[] allowedInTypes;
+	private byte groupIndex;
+	
+	private TrafficLightColor(String name, int index, TrafficLightType[] allowedInTypes, int groupIndex) {
+		this.name = name;
+		this.index = (byte)index;
+		this.allowedInTypes = allowedInTypes;
+		this.groupIndex = (byte)groupIndex;
+	}
+	
+	public String getName() {
+		return this.name;
+	}
+
+	public byte getIndex() {
+		return this.index;
+	}
+
+	public static TrafficLightColor[] getAllowedForType(TrafficLightType type, boolean offStatusAllowed) {
+		return Arrays.stream(TrafficLightColor.values()).filter(x -> Arrays.stream(x.allowedInTypes).anyMatch(y -> y == type) && (offStatusAllowed || x != NONE)).toArray(TrafficLightColor[]::new);
+	}
+
+	public boolean isAllowedFor(TrafficLightType type) {
+		return Arrays.stream(allowedInTypes).anyMatch(x -> x == type);
+	}
+
+	public byte getGroupIndex() {
+		return groupIndex;
+	}
+
+	/**
+	 * Returns an array of {@code TrafficLightColor}s which have a similar meaning. For example: Red and H0 (both mean "stop")
+	 */
+	public TrafficLightColor[] getSimilar() {
+		return Arrays.stream(TrafficLightColor.values()).filter(x -> x.getGroupIndex() == this.getGroupIndex()).toArray(TrafficLightColor[]::new);
+	}
+
+	public boolean isSimilar(TrafficLightColor other) {
+		return getGroupIndex() == other.getGroupIndex();
+	}
+
+	public String getTranslationKey() {
+		return String.format("gui.trafficengine.trafficlightcolor.%s", name);
+	}
+
+	public static TrafficLightColor getColorByIndex(byte index) {
+		return Arrays.stream(TrafficLightColor.values()).filter(x -> x.getIndex() == index).findFirst().orElse(TrafficLightColor.NONE);
+	}
+
+	public static TrafficLightColor getColorByGroupIndex(byte index, TrafficLightType type) {
+		return Arrays.stream(TrafficLightColor.values()).filter(x -> x.getGroupIndex() == index && x.isAllowedFor(type)).findFirst().orElse(TrafficLightColor.NONE);
+	}
+
+    @Override
+    public String getSerializedName() {
+        return name;
+    }
+	
+	@Override
+	public Data getTranslationData() {
+		return new Data(TrafficEngine.MOD_ID, "trafficlightcolor", name);
+	}
+}

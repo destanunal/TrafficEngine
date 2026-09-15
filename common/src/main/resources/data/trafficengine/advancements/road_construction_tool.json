@@ -1,0 +1,25 @@
+{
+  "display": {
+    "icon": {
+      "item": "trafficengine:stone_road_construction_tool"
+    },
+    "title": {
+      "translate": "advancement.trafficengine.road_construction_tool"
+    },
+    "description": {
+      "translate": "advancement.trafficengine.road_construction_tool.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "parent": "trafficengine:craft_road",
+  "criteria": {
+    "req": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "rewards": {
+    "experience": 20
+  }
+}

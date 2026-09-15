@@ -1,0 +1,22 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "AAS"
+    ],
+    "key": {
+        "S": [
+            {
+                "item": "minecraft:stone_bricks"
+            }
+        ],
+        "A": [
+            {
+                "item": "trafficengine:asphalt"
+            }
+        ]
+    },
+    "result": {
+        "item": "trafficengine:asphalt_curb",
+        "count": 3
+    }
+}

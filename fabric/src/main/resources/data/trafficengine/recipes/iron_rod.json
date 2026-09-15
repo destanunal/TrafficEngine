@@ -1,0 +1,18 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "I",
+        "I"
+    ],
+    "key": {
+        "I": [
+            {
+                "item": "minecraft:iron_ingot"
+            }
+        ]
+    },
+    "result": {
+        "item": "trafficengine:iron_rod",
+        "count": 4
+    }
+}

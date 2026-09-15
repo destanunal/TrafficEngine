@@ -1,0 +1,17 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "OO"
+    ],
+    "key": {
+        "O": [
+            {
+                "item": "trafficengine:concrete_curb"
+            }
+        ]
+    },
+    "result": {
+        "item": "trafficengine:concrete_curb_slope",
+        "count": 8
+    }
+}

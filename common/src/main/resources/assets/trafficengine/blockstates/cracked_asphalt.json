@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "": [
+      { "model": "trafficengine:block/cracked_asphalt" },
+      { "model": "trafficengine:block/cracked_asphalt", "y": 90 },
+      { "model": "trafficengine:block/cracked_asphalt", "y": 180 },
+      { "model": "trafficengine:block/cracked_asphalt", "y": 270 }
+    ]
+  }
+}
