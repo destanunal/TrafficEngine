@@ -1,24 +1,42 @@
-Welcome to Traffic Engine! 🚦
+### **![](https://media.forgecdn.net/attachments/description/1654475/description_a3bd7d8c-d4b3-442e-b480-db9aa9ebcf51.png)**
 
-Traffic Engine is a comprehensive traffic, road, and city management mod designed to bring your modern Minecraft cities to life.
+##  **Traffic Engine**
 
-This mod is inspired by the TrafficCraft mod created by MisterJulsen. Loved the foundation it provided and decided to build upon it, expanding its capabilities with new tools, dynamic mechanics, and enhanced customization options.
+Comprehensive traffic, road, and city management mod designed to bring your modern Minecraft cities to life.
 
-✨ Key Features
-Traffic Lights with Digital Countdown: Realistic traffic lights featuring dynamic countdown displays.
-Pattern Catalogue System: Change the shape and decal of your signs on the fly using the Pattern Catalogue items.
-Road Construction Tools: Build your city streets efficiently with dedicated road construction tools.
-Smart Traffic Lights & Street Lamps: Fully configurable traffic lights and street lamps. Use the Traffic Light Linker, Wrench, and Street Lamp Config Card to set up synchronized intersections.
-Customization: Removed unnecessary clutter from the original base mod (raw bitumen, iron rod, excess crafting materials, and redundant item variants) to provide a cleaner inventory, better mod compatibility, and a focused road-building experience.
-🔄 Seamless Migration from TrafficCraft!
+This mod is inspired by the **[TrafficCraft](https://www.curseforge.com/minecraft/mc-mods/trafficcraft)** mod. Loved the foundation it provided and decided to build upon it, expanding its capabilities with new tools, dynamic mechanics, enhanced customization options, and realistic road textures.
 
-Do you already have a massive city built with the original TrafficCraft? No problem! Traffic Engine includes a built-in auto-migration system. Simply remove the old mod, drop Traffic Engine into your mods folder, and load your world. All your existing roads, signs, custom patterns, and linked traffic lights will automatically and safely convert to Traffic Engine without losing a single pixel of data!
+***
 
-🛠️ Dependencies / Requirements
+## **✨ Key Features**
+
+*   **Asphalt Variants:** Includes 6 realistic asphalt variants (Default, Damaged, Heavy Damaged, Light, Dark, and Dirty) with seamless random texture tiling to eliminate repetitive grid patterns.
+*   **Realistic Speed Bumps:** Functional speed bumps with custom multi-layered hitboxes, directional placement, and accurate 3D hand/inventory models.
+*   **Expanded Traffic Signs:** A rich collection of international road signs, including underpasses, EU divided roads, TR bus stops, TR one-way signs, radar warnings, and motorcycle restrictions.
+*   **Traffic Lights with Digital Countdown:** Realistic traffic lights featuring dynamic countdown displays.
+*   **Pattern Catalogue System:** Change the shape and decal of your signs on the fly using Pattern Catalogue items.
+*   **Smart Traffic Lights & Street Lamps:** Configurable traffic lights and street lamps. Use the Traffic Light Linker, Wrench, and Street Lamp Config Card to set up synchronized intersections.
+*   **Streamlined Building & Optimization:** Cleaned up unnecessary crafting clutter and slope redundancies for optimal mod performance, faster load times, and a focused road-building experience.
+
+***
+
+## **🔄 Seamless Migration from TrafficCraft!**
+
+Do you already have a massive city built with the original **TrafficCraft?** No problem! Traffic Engine includes a built-in **auto-migration system**. Remove the old mod, install Traffic Engine and just load your world. All your existing roads, signs, custom patterns and linked traffic lights will automatically and safely convert to **Traffic Engine** without losing a single pixel of data!
+
+***
+
+#### **❗Note:** For the countdown to work accurately and properly when enabled please wait for the controller/schedule to complete one full cycle.
+
+<div><div>If you have any questions, bug reports, or feedback please write a comment!</div><div>&nbsp;</div></div>
+
+***
+
+**🛠️ Dependencies / Requirements**
 
 To ensure Traffic Engine runs smoothly, you must install the following dependencies for Minecraft 1.20.1:
 
-Architectury API
-DragonLib
+*   Architectury API
+*   DragonLib
 
-Created by Destan
+_Created by Destan_
