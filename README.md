@@ -1,5 +1,6 @@
 ### **![](https://media.forgecdn.net/attachments/description/1654475/description_a3bd7d8c-d4b3-442e-b480-db9aa9ebcf51.png)**
 ![Fabric](https://img.shields.io/badge/Fabric-Supported-dbd4b4?style=flat-square&logo=fabric&logoColor=black) ![Forge](https://img.shields.io/badge/Forge-Supported-dfa860?style=flat-square&logo=curseforge&logoColor=black)
+[![CurseForge](https://img.shields.io/badge/CurseForge-TrafficEngine-f16436?style=flat-square&logo=curseforge&logoColor=white)](https://www.curseforge.com/minecraft/mc-mods/trafficengine) ![Release](https://img.shields.io/badge/Version-v1.2-blue?style=flat-square)
 ##  **Traffic Engine**
 
 Comprehensive traffic, road, and city management mod designed to bring your modern Minecraft cities to life.
