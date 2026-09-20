@@ -1,0 +1,32 @@
+{
+  "display": {
+    "icon": {
+      "item": "trafficengine:asphalt"
+    },
+    "title": {
+      "translate": "advancement.trafficengine.craft_road"
+    },
+    "description": {
+      "translate": "advancement.trafficengine.craft_road.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "parent": "trafficengine:root",
+  "criteria": {
+    "requirement": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "tag": "trafficengine:road"
+          }
+        ]
+      }
+    }
+  },
+  "rewards": {
+    "experience": 20
+  }
+}

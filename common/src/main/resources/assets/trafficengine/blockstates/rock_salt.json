@@ -1,0 +1,21 @@
+{
+  "variants": {
+    "": [
+      {
+        "model": "trafficengine:block/rock_salt"
+      },
+      {
+        "model": "trafficengine:block/rock_salt",
+        "y": 90
+      },
+      {
+        "model": "trafficengine:block/rock_salt",
+        "y": 180
+      },
+      {
+        "model": "trafficengine:block/rock_salt",
+        "y": 270
+      }
+    ]
+  }
+}

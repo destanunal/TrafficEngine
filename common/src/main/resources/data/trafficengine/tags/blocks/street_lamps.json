@@ -1,0 +1,11 @@
+{
+    "replace": false,
+    "values": [
+        "trafficengine:street_lamp",
+        "trafficengine:double_street_lamp",
+        "trafficengine:small_street_lamp",
+        "trafficengine:small_double_street_lamp",
+        "trafficengine:street_light",
+        "trafficengine:fluorescent_tube_lamp"
+    ]
+}

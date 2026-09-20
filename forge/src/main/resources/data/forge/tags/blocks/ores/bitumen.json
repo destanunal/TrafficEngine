@@ -1,0 +1,7 @@
+{
+  "replace": false,
+  "values": [
+    "trafficengine:bitumen_ore",
+    "trafficengine:deepslate_bitumen_ore"
+  ]
+}

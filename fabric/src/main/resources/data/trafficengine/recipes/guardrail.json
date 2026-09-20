@@ -1,0 +1,24 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "   ",
+        "III",
+        " P "
+    ],
+    "key": {
+        "I": [
+            {
+                "item": "trafficengine:iron_plate"
+            }
+        ],
+        "P": [
+            {
+                "item": "trafficengine:traffic_sign_post"
+            }
+        ]
+    },
+    "result": {
+        "item": "trafficengine:guardrail",
+        "count": 6
+    }
+}
