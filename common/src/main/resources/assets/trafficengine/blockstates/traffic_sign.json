@@ -1,206 +1,387 @@
 {
   "variants": {
-    "shape=square,facing=north": {
+    "shape=square,facing=north,wall_mounted=false": {
       "model": "trafficengine:block/sign/square",
       "y": 0
     },
-    "shape=square,facing=south": {
+    "shape=square,facing=north,wall_mounted=true": {
+      "model": "trafficengine:block/sign_wall/square",
+      "y": 0
+    },
+    "shape=square,facing=south,wall_mounted=false": {
       "model": "trafficengine:block/sign/square",
       "y": 180
     },
-    "shape=square,facing=east": {
+    "shape=square,facing=south,wall_mounted=true": {
+      "model": "trafficengine:block/sign_wall/square",
+      "y": 180
+    },
+    "shape=square,facing=east,wall_mounted=false": {
       "model": "trafficengine:block/sign/square",
       "y": 90
     },
-    "shape=square,facing=west": {
+    "shape=square,facing=east,wall_mounted=true": {
+      "model": "trafficengine:block/sign_wall/square",
+      "y": 90
+    },
+    "shape=square,facing=west,wall_mounted=false": {
       "model": "trafficengine:block/sign/square",
       "y": 270
     },
-
-    "shape=circle,facing=north": {
+    "shape=square,facing=west,wall_mounted=true": {
+      "model": "trafficengine:block/sign_wall/square",
+      "y": 270
+    },
+    "shape=circle,facing=north,wall_mounted=false": {
       "model": "trafficengine:block/sign/circle",
       "y": 0
     },
-    "shape=circle,facing=south": {
+    "shape=circle,facing=north,wall_mounted=true": {
+      "model": "trafficengine:block/sign_wall/circle",
+      "y": 0
+    },
+    "shape=circle,facing=south,wall_mounted=false": {
       "model": "trafficengine:block/sign/circle",
       "y": 180
     },
-    "shape=circle,facing=east": {
+    "shape=circle,facing=south,wall_mounted=true": {
+      "model": "trafficengine:block/sign_wall/circle",
+      "y": 180
+    },
+    "shape=circle,facing=east,wall_mounted=false": {
       "model": "trafficengine:block/sign/circle",
       "y": 90
     },
-    "shape=circle,facing=west": {
+    "shape=circle,facing=east,wall_mounted=true": {
+      "model": "trafficengine:block/sign_wall/circle",
+      "y": 90
+    },
+    "shape=circle,facing=west,wall_mounted=false": {
       "model": "trafficengine:block/sign/circle",
       "y": 270
     },
-
-    "shape=triangle,facing=north": {
+    "shape=circle,facing=west,wall_mounted=true": {
+      "model": "trafficengine:block/sign_wall/circle",
+      "y": 270
+    },
+    "shape=triangle,facing=north,wall_mounted=false": {
       "model": "trafficengine:block/sign/triangle",
       "y": 0
     },
-    "shape=triangle,facing=south": {
+    "shape=triangle,facing=north,wall_mounted=true": {
+      "model": "trafficengine:block/sign_wall/triangle",
+      "y": 0
+    },
+    "shape=triangle,facing=south,wall_mounted=false": {
       "model": "trafficengine:block/sign/triangle",
       "y": 180
     },
-    "shape=triangle,facing=east": {
+    "shape=triangle,facing=south,wall_mounted=true": {
+      "model": "trafficengine:block/sign_wall/triangle",
+      "y": 180
+    },
+    "shape=triangle,facing=east,wall_mounted=false": {
       "model": "trafficengine:block/sign/triangle",
       "y": 90
     },
-    "shape=triangle,facing=west": {
+    "shape=triangle,facing=east,wall_mounted=true": {
+      "model": "trafficengine:block/sign_wall/triangle",
+      "y": 90
+    },
+    "shape=triangle,facing=west,wall_mounted=false": {
       "model": "trafficengine:block/sign/triangle",
       "y": 270
     },
-
-    "shape=triangle_down,facing=north": {
+    "shape=triangle,facing=west,wall_mounted=true": {
+      "model": "trafficengine:block/sign_wall/triangle",
+      "y": 270
+    },
+    "shape=triangle_down,facing=north,wall_mounted=false": {
       "model": "trafficengine:block/sign/triangle_down",
       "y": 0
     },
-    "shape=triangle_down,facing=south": {
+    "shape=triangle_down,facing=north,wall_mounted=true": {
+      "model": "trafficengine:block/sign_wall/triangle_down",
+      "y": 0
+    },
+    "shape=triangle_down,facing=south,wall_mounted=false": {
       "model": "trafficengine:block/sign/triangle_down",
       "y": 180
     },
-    "shape=triangle_down,facing=east": {
+    "shape=triangle_down,facing=south,wall_mounted=true": {
+      "model": "trafficengine:block/sign_wall/triangle_down",
+      "y": 180
+    },
+    "shape=triangle_down,facing=east,wall_mounted=false": {
       "model": "trafficengine:block/sign/triangle_down",
       "y": 90
     },
-    "shape=triangle_down,facing=west": {
+    "shape=triangle_down,facing=east,wall_mounted=true": {
+      "model": "trafficengine:block/sign_wall/triangle_down",
+      "y": 90
+    },
+    "shape=triangle_down,facing=west,wall_mounted=false": {
       "model": "trafficengine:block/sign/triangle_down",
       "y": 270
     },
-
-    "shape=diamond,facing=north": {
+    "shape=triangle_down,facing=west,wall_mounted=true": {
+      "model": "trafficengine:block/sign_wall/triangle_down",
+      "y": 270
+    },
+    "shape=diamond,facing=north,wall_mounted=false": {
       "model": "trafficengine:block/sign/diamond",
       "y": 0
     },
-    "shape=diamond,facing=south": {
+    "shape=diamond,facing=north,wall_mounted=true": {
+      "model": "trafficengine:block/sign_wall/diamond",
+      "y": 0
+    },
+    "shape=diamond,facing=south,wall_mounted=false": {
       "model": "trafficengine:block/sign/diamond",
       "y": 180
     },
-    "shape=diamond,facing=east": {
+    "shape=diamond,facing=south,wall_mounted=true": {
+      "model": "trafficengine:block/sign_wall/diamond",
+      "y": 180
+    },
+    "shape=diamond,facing=east,wall_mounted=false": {
       "model": "trafficengine:block/sign/diamond",
       "y": 90
     },
-    "shape=diamond,facing=west": {
+    "shape=diamond,facing=east,wall_mounted=true": {
+      "model": "trafficengine:block/sign_wall/diamond",
+      "y": 90
+    },
+    "shape=diamond,facing=west,wall_mounted=false": {
       "model": "trafficengine:block/sign/diamond",
       "y": 270
     },
-
-    "shape=rectangle,facing=north": {
+    "shape=diamond,facing=west,wall_mounted=true": {
+      "model": "trafficengine:block/sign_wall/diamond",
+      "y": 270
+    },
+    "shape=rectangle,facing=north,wall_mounted=false": {
       "model": "trafficengine:block/sign/rectangle",
       "y": 0
     },
-    "shape=rectangle,facing=south": {
+    "shape=rectangle,facing=north,wall_mounted=true": {
+      "model": "trafficengine:block/sign_wall/rectangle",
+      "y": 0
+    },
+    "shape=rectangle,facing=south,wall_mounted=false": {
       "model": "trafficengine:block/sign/rectangle",
       "y": 180
     },
-    "shape=rectangle,facing=east": {
+    "shape=rectangle,facing=south,wall_mounted=true": {
+      "model": "trafficengine:block/sign_wall/rectangle",
+      "y": 180
+    },
+    "shape=rectangle,facing=east,wall_mounted=false": {
       "model": "trafficengine:block/sign/rectangle",
       "y": 90
     },
-    "shape=rectangle,facing=west": {
+    "shape=rectangle,facing=east,wall_mounted=true": {
+      "model": "trafficengine:block/sign_wall/rectangle",
+      "y": 90
+    },
+    "shape=rectangle,facing=west,wall_mounted=false": {
       "model": "trafficengine:block/sign/rectangle",
       "y": 270
     },
-
-    "shape=rectangle_small,facing=north": {
+    "shape=rectangle,facing=west,wall_mounted=true": {
+      "model": "trafficengine:block/sign_wall/rectangle",
+      "y": 270
+    },
+    "shape=rectangle_small,facing=north,wall_mounted=false": {
       "model": "trafficengine:block/sign/rectangle_small",
       "y": 0
     },
-    "shape=rectangle_small,facing=south": {
+    "shape=rectangle_small,facing=north,wall_mounted=true": {
+      "model": "trafficengine:block/sign_wall/rectangle_small",
+      "y": 0
+    },
+    "shape=rectangle_small,facing=south,wall_mounted=false": {
       "model": "trafficengine:block/sign/rectangle_small",
       "y": 180
     },
-    "shape=rectangle_small,facing=east": {
+    "shape=rectangle_small,facing=south,wall_mounted=true": {
+      "model": "trafficengine:block/sign_wall/rectangle_small",
+      "y": 180
+    },
+    "shape=rectangle_small,facing=east,wall_mounted=false": {
       "model": "trafficengine:block/sign/rectangle_small",
       "y": 90
     },
-    "shape=rectangle_small,facing=west": {
+    "shape=rectangle_small,facing=east,wall_mounted=true": {
+      "model": "trafficengine:block/sign_wall/rectangle_small",
+      "y": 90
+    },
+    "shape=rectangle_small,facing=west,wall_mounted=false": {
       "model": "trafficengine:block/sign/rectangle_small",
       "y": 270
     },
-
-    "shape=rectangle_horizontal,facing=north": {
+    "shape=rectangle_small,facing=west,wall_mounted=true": {
+      "model": "trafficengine:block/sign_wall/rectangle_small",
+      "y": 270
+    },
+    "shape=rectangle_horizontal,facing=north,wall_mounted=false": {
       "model": "trafficengine:block/sign/rectangle_horizontal",
       "y": 0
     },
-    "shape=rectangle_horizontal,facing=south": {
+    "shape=rectangle_horizontal,facing=north,wall_mounted=true": {
+      "model": "trafficengine:block/sign_wall/rectangle_horizontal",
+      "y": 0
+    },
+    "shape=rectangle_horizontal,facing=south,wall_mounted=false": {
       "model": "trafficengine:block/sign/rectangle_horizontal",
       "y": 180
     },
-    "shape=rectangle_horizontal,facing=east": {
+    "shape=rectangle_horizontal,facing=south,wall_mounted=true": {
+      "model": "trafficengine:block/sign_wall/rectangle_horizontal",
+      "y": 180
+    },
+    "shape=rectangle_horizontal,facing=east,wall_mounted=false": {
       "model": "trafficengine:block/sign/rectangle_horizontal",
       "y": 90
     },
-    "shape=rectangle_horizontal,facing=west": {
+    "shape=rectangle_horizontal,facing=east,wall_mounted=true": {
+      "model": "trafficengine:block/sign_wall/rectangle_horizontal",
+      "y": 90
+    },
+    "shape=rectangle_horizontal,facing=west,wall_mounted=false": {
       "model": "trafficengine:block/sign/rectangle_horizontal",
       "y": 270
     },
-
-    "shape=small_upper,facing=north": {
+    "shape=rectangle_horizontal,facing=west,wall_mounted=true": {
+      "model": "trafficengine:block/sign_wall/rectangle_horizontal",
+      "y": 270
+    },
+    "shape=small_upper,facing=north,wall_mounted=false": {
       "model": "trafficengine:block/sign/small_upper",
       "y": 0
     },
-    "shape=small_upper,facing=south": {
+    "shape=small_upper,facing=north,wall_mounted=true": {
+      "model": "trafficengine:block/sign_wall/small_upper",
+      "y": 0
+    },
+    "shape=small_upper,facing=south,wall_mounted=false": {
       "model": "trafficengine:block/sign/small_upper",
       "y": 180
     },
-    "shape=small_upper,facing=east": {
+    "shape=small_upper,facing=south,wall_mounted=true": {
+      "model": "trafficengine:block/sign_wall/small_upper",
+      "y": 180
+    },
+    "shape=small_upper,facing=east,wall_mounted=false": {
       "model": "trafficengine:block/sign/small_upper",
       "y": 90
     },
-    "shape=small_upper,facing=west": {
+    "shape=small_upper,facing=east,wall_mounted=true": {
+      "model": "trafficengine:block/sign_wall/small_upper",
+      "y": 90
+    },
+    "shape=small_upper,facing=west,wall_mounted=false": {
       "model": "trafficengine:block/sign/small_upper",
       "y": 270
     },
-
-    "shape=small_lower,facing=north": {
+    "shape=small_upper,facing=west,wall_mounted=true": {
+      "model": "trafficengine:block/sign_wall/small_upper",
+      "y": 270
+    },
+    "shape=small_lower,facing=north,wall_mounted=false": {
       "model": "trafficengine:block/sign/small_lower",
       "y": 0
     },
-    "shape=small_lower,facing=south": {
+    "shape=small_lower,facing=north,wall_mounted=true": {
+      "model": "trafficengine:block/sign_wall/small_lower",
+      "y": 0
+    },
+    "shape=small_lower,facing=south,wall_mounted=false": {
       "model": "trafficengine:block/sign/small_lower",
       "y": 180
     },
-    "shape=small_lower,facing=east": {
+    "shape=small_lower,facing=south,wall_mounted=true": {
+      "model": "trafficengine:block/sign_wall/small_lower",
+      "y": 180
+    },
+    "shape=small_lower,facing=east,wall_mounted=false": {
       "model": "trafficengine:block/sign/small_lower",
       "y": 90
     },
-    "shape=small_lower,facing=west": {
+    "shape=small_lower,facing=east,wall_mounted=true": {
+      "model": "trafficengine:block/sign_wall/small_lower",
+      "y": 90
+    },
+    "shape=small_lower,facing=west,wall_mounted=false": {
       "model": "trafficengine:block/sign/small_lower",
       "y": 270
     },
-
-    "shape=octagon,facing=north": {
+    "shape=small_lower,facing=west,wall_mounted=true": {
+      "model": "trafficengine:block/sign_wall/small_lower",
+      "y": 270
+    },
+    "shape=octagon,facing=north,wall_mounted=false": {
       "model": "trafficengine:block/sign/octagon",
       "y": 0
     },
-    "shape=octagon,facing=south": {
+    "shape=octagon,facing=north,wall_mounted=true": {
+      "model": "trafficengine:block/sign_wall/octagon",
+      "y": 0
+    },
+    "shape=octagon,facing=south,wall_mounted=false": {
       "model": "trafficengine:block/sign/octagon",
       "y": 180
     },
-    "shape=octagon,facing=east": {
+    "shape=octagon,facing=south,wall_mounted=true": {
+      "model": "trafficengine:block/sign_wall/octagon",
+      "y": 180
+    },
+    "shape=octagon,facing=east,wall_mounted=false": {
       "model": "trafficengine:block/sign/octagon",
       "y": 90
     },
-    "shape=octagon,facing=west": {
+    "shape=octagon,facing=east,wall_mounted=true": {
+      "model": "trafficengine:block/sign_wall/octagon",
+      "y": 90
+    },
+    "shape=octagon,facing=west,wall_mounted=false": {
       "model": "trafficengine:block/sign/octagon",
       "y": 270
     },
-
-    "shape=misc,facing=north": {
+    "shape=octagon,facing=west,wall_mounted=true": {
+      "model": "trafficengine:block/sign_wall/octagon",
+      "y": 270
+    },
+    "shape=misc,facing=north,wall_mounted=false": {
       "model": "trafficengine:block/sign/misc",
       "y": 0
     },
-    "shape=misc,facing=south": {
+    "shape=misc,facing=north,wall_mounted=true": {
+      "model": "trafficengine:block/sign_wall/misc",
+      "y": 0
+    },
+    "shape=misc,facing=south,wall_mounted=false": {
       "model": "trafficengine:block/sign/misc",
       "y": 180
     },
-    "shape=misc,facing=east": {
+    "shape=misc,facing=south,wall_mounted=true": {
+      "model": "trafficengine:block/sign_wall/misc",
+      "y": 180
+    },
+    "shape=misc,facing=east,wall_mounted=false": {
       "model": "trafficengine:block/sign/misc",
       "y": 90
     },
-    "shape=misc,facing=west": {
+    "shape=misc,facing=east,wall_mounted=true": {
+      "model": "trafficengine:block/sign_wall/misc",
+      "y": 90
+    },
+    "shape=misc,facing=west,wall_mounted=false": {
       "model": "trafficengine:block/sign/misc",
+      "y": 270
+    },
+    "shape=misc,facing=west,wall_mounted=true": {
+      "model": "trafficengine:block/sign_wall/misc",
       "y": 270
     }
   }

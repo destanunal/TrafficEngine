@@ -84,6 +84,16 @@ public class HorizontalTrafficLightBlock extends TrafficLightBlock {
     }
 
     @Override
+    public boolean canConnect(BlockState pState, Direction pDirection) {
+        Direction facing = pState.getValue(FACING);
+
+        // The built-in support bar always runs horizontally and perpendicular
+        // to the direction in which the traffic-light lenses face.
+        return pDirection.getAxis().isHorizontal()
+            && pDirection.getAxis() != facing.getAxis();
+    }
+
+    @Override
     public BlockEntity newBlockEntity(BlockPos pPos, BlockState pState) {
         return new TrafficLightBlockEntity(pPos, pState);
     }

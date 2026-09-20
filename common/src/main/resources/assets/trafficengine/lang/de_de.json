@@ -367,5 +367,6 @@
     "block.trafficengine.dark_asphalt": "Dunkler Asphalt",
     "block.trafficengine.dirty_asphalt": "Dreckiger Asphalt",
     "block.trafficengine.speed_bump": "Fahrbahnschwelle",
-    "block.trafficengine.wide_speed_bump": "Breite Fahrbahnschwelle"
+    "block.trafficengine.wide_speed_bump": "Breite Fahrbahnschwelle",
+    "block.trafficengine.double_traffic_sign": "Doppelseitiges Verkehrsschild"
 }

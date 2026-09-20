@@ -367,5 +367,6 @@
     "block.trafficengine.dark_asphalt": "Dark Asphalt",
     "block.trafficengine.dirty_asphalt": "Dirty Asphalt",
     "block.trafficengine.speed_bump": "Speed Bump",
-    "block.trafficengine.wide_speed_bump": "Wide Speed Bump"
+    "block.trafficengine.wide_speed_bump": "Wide Speed Bump",
+    "block.trafficengine.double_traffic_sign": "Double-Sided Traffic Sign"
 }

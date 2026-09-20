@@ -25,13 +25,18 @@ public class TrafficSignBlockEntity extends DLSyncedBlockEntity implements IBloc
 
     private static final String NBT_LEGACY_TEXTURE = "texture";
     private static final String NBT_TEXTURE = "SignTexture";
+    // Only used by DoubleSidedTrafficSignBlock. Normal signs never write this key.
+    private static final String NBT_TEXTURE_BACK = "SignTextureBack";
 
     private String textureId;
     private TrafficSignClientTexture texture;
-    
+
+    private String backTextureId;
+    private TrafficSignClientTexture backTexture;
+
 
     protected TrafficSignBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
-        super(type, pos, state);        
+        super(type, pos, state);
     }
 
     public TrafficSignBlockEntity(BlockPos pos, BlockState state) {
@@ -47,6 +52,10 @@ public class TrafficSignBlockEntity extends DLSyncedBlockEntity implements IBloc
         } else if (compound.contains(NBT_TEXTURE)) {
             setTextureId(compound.getString(NBT_TEXTURE));
         }
+
+        if (compound.contains(NBT_TEXTURE_BACK)) {
+            this.backTextureId = compound.getString(NBT_TEXTURE_BACK);
+        }
     }
 
     private void migrate(String base64) {
@@ -55,7 +64,7 @@ public class TrafficSignBlockEntity extends DLSyncedBlockEntity implements IBloc
                 try { TimeUnit.SECONDS.sleep(1); } catch (InterruptedException e) { }
             }
             if (getLevel().isClientSide) return;
-            
+
             GameInstance.getServer().execute(() -> {
                 BlockState state = getLevel().getBlockState(getBlockPos());
                 TrafficSignTextureData data = new TrafficSignTextureData(state.getValue(TrafficSignBlock.SHAPE), java.util.Base64.getDecoder().decode(base64), (short)32, (short)32, System.currentTimeMillis(), new UUID(0, 0));
@@ -70,6 +79,9 @@ public class TrafficSignBlockEntity extends DLSyncedBlockEntity implements IBloc
         if (textureId != null) {
             tag.putString(NBT_TEXTURE, getTextureId());
         }
+        if (backTextureId != null) {
+            tag.putString(NBT_TEXTURE_BACK, backTextureId);
+        }
         super.saveAdditional(tag);
     }
 
@@ -78,6 +90,8 @@ public class TrafficSignBlockEntity extends DLSyncedBlockEntity implements IBloc
         super.setRemoved();
         resetTexture();
     }
+
+    /* FRONT */
 
     public String getTextureId() {
         return textureId;
@@ -93,25 +107,67 @@ public class TrafficSignBlockEntity extends DLSyncedBlockEntity implements IBloc
         return texture;
     }
 
-    public void resetTexture() {
-        if (level.isClientSide) {
-            TrafficSignClientTexture oldTexture = texture;
-            texture = null;
-            DLUtils.doIfNotNull(oldTexture, x -> x.close());
-        }
-    }
-
     public void setAndResetTexture(NamedTrafficSignTextureReference texture) {
         setTextureId(texture.getTextureId());
-        if (!this.level.isClientSide) {
-            for (ServerPlayer player : level.players().stream().filter(p -> p instanceof ServerPlayer).toArray(ServerPlayer[]::new)) {
-                ModNetworkManager.RESET_TRAFFIC_SIGN_TEXTURE.send(NetworkDirection.toPlayer(player), new TrafficSignTextureResetPacket(getBlockPos()));
-            }
-        }
+        sendTextureResetToClients();
     }
 
     public void setTextureId(String id) {
         this.textureId = id;
         notifyUpdate();
+    }
+
+    /* BACK (double sided signs) */
+
+    public String getBackTextureId() {
+        return backTextureId;
+    }
+
+    public TrafficSignClientTexture getBackClientTexture() {
+        if (backTexture == null) {
+            if (getBackTextureId() == null || getBackTextureId().equals("empty")) {
+                return TrafficSignClientTexture.EMPTY;
+            }
+            backTexture = TrafficSignClientTexture.load(getBackTextureId(), true, null);
+        }
+        return backTexture;
+    }
+
+    public void setAndResetBackTexture(NamedTrafficSignTextureReference texture) {
+        setBackTextureId(texture.getTextureId());
+        sendTextureResetToClients();
+    }
+
+    public void setBackTextureId(String id) {
+        this.backTextureId = id;
+        notifyUpdate();
+    }
+
+    /* SHARED */
+
+    /**
+     * Resets the cached client textures of BOTH sides, so the reset packet
+     * (which calls this) works for front and back without any changes.
+     */
+    public void resetTexture() {
+        if (level.isClientSide) {
+            TrafficSignClientTexture oldTexture = texture;
+            TrafficSignClientTexture oldBackTexture = backTexture;
+            texture = null;
+            backTexture = null;
+            DLUtils.doIfNotNull(oldTexture, x -> x.close());
+            if (oldBackTexture != oldTexture) {
+                DLUtils.doIfNotNull(oldBackTexture, x -> x.close());
+            }
+        }
+    }
+
+    private void sendTextureResetToClients() {
+        if (this.level == null || this.level.isClientSide) {
+            return;
+        }
+        for (ServerPlayer player : level.players().stream().filter(p -> p instanceof ServerPlayer).toArray(ServerPlayer[]::new)) {
+            ModNetworkManager.RESET_TRAFFIC_SIGN_TEXTURE.send(NetworkDirection.toPlayer(player), new TrafficSignTextureResetPacket(getBlockPos()));
+        }
     }
 }

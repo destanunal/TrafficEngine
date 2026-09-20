@@ -367,5 +367,6 @@
   "block.trafficengine.dark_asphalt": "Koyu Renk Asfalt",
   "block.trafficengine.dirty_asphalt": "Kirli Asfalt",
   "block.trafficengine.speed_bump": "Hız Tümseği",
-  "block.trafficengine.wide_speed_bump": "Geniş Hız Tümseği"
+  "block.trafficengine.wide_speed_bump": "Geniş Hız Tümseği",
+  "block.trafficengine.double_traffic_sign": "Çift Taraflı Trafik Levhası"
 }
