@@ -11,6 +11,7 @@ import com.destan.trafficengine.TrafficEngine;
 import com.destan.trafficengine.block.*;
 import com.destan.trafficengine.block.StreetLampBaseBlock.LampType;
 import com.destan.trafficengine.block.data.RoadType;
+import com.destan.trafficengine.block.data.LedDeviceType;
 import com.destan.trafficengine.item.WearableBlockItem;
 import dev.architectury.extensions.injected.InjectedItemPropertiesExtension;
 import dev.architectury.registry.registries.DeferredRegister;
@@ -49,12 +50,19 @@ public class ModBlocks {
     public static final RegistrySupplier<Block> LIGHT_ASPHALT = registerBlock("light_asphalt", () -> new AsphaltBlock(RoadType.LIGHT_ASPHALT), ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> DARK_ASPHALT = registerBlock("dark_asphalt", () -> new AsphaltBlock(RoadType.DARK_ASPHALT), ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> DIRTY_ASPHALT = registerBlock("dirty_asphalt", () -> new AsphaltBlock(RoadType.DIRTY_ASPHALT), ModCreativeModeTab.MOD_TAB, false);
-    public static final RegistrySupplier<Block> CONCRETE = registerBlock("concrete", () -> new AsphaltBlock(RoadType.CONCRETE), ModCreativeModeTab.MOD_TAB, false);
-    public static final RegistrySupplier<Block> CONCRETE_BARRIER = registerColoredBlock("concrete_barrier", () -> new ConcreteBarrierBlock(), ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> ASPHALT_SLOPE = registerBlock("asphalt_slope", () -> new AsphaltSlope(RoadType.ASPHALT), ModCreativeModeTab.MOD_TAB, false);
+    public static final RegistrySupplier<Block> CRACKED_ASPHALT_SLOPE = registerBlock("cracked_asphalt_slope", () -> new AsphaltSlope(RoadType.CRACKED_ASPHALT), ModCreativeModeTab.MOD_TAB, false);
+    public static final RegistrySupplier<Block> HEAVY_CRACKED_ASPHALT_SLOPE = registerBlock("heavy_cracked_asphalt_slope", () -> new AsphaltSlope(RoadType.HEAVY_CRACKED_ASPHALT), ModCreativeModeTab.MOD_TAB, false);
+    public static final RegistrySupplier<Block> LIGHT_ASPHALT_SLOPE = registerBlock("light_asphalt_slope", () -> new AsphaltSlope(RoadType.LIGHT_ASPHALT), ModCreativeModeTab.MOD_TAB, false);
+    public static final RegistrySupplier<Block> DARK_ASPHALT_SLOPE = registerBlock("dark_asphalt_slope", () -> new AsphaltSlope(RoadType.DARK_ASPHALT), ModCreativeModeTab.MOD_TAB, false);
+    public static final RegistrySupplier<Block> DIRTY_ASPHALT_SLOPE = registerBlock("dirty_asphalt_slope", () -> new AsphaltSlope(RoadType.DIRTY_ASPHALT), ModCreativeModeTab.MOD_TAB, false);
+    public static final RegistrySupplier<Block> CONCRETE = registerBlock("concrete", () -> new AsphaltBlock(RoadType.CONCRETE), ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> CONCRETE_SLOPE = registerBlock("concrete_slope", () -> new AsphaltSlope(RoadType.CONCRETE), ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> SPEED_BUMP = registerBlock("speed_bump", () -> new SpeedBumpBlock(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_BLACK).strength(2.0f).requiresCorrectToolForDrops()), ModCreativeModeTab.MOD_TAB, false);
-    public static final RegistrySupplier<Block> WIDE_SPEED_BUMP = registerBlock("wide_speed_bump", () -> new CustomSpeedBumpBlock(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_BLACK).strength(2.0f).requiresCorrectToolForDrops(), Shapes.or(Block.box(0.0D, 0.0D, 1.0D, 16.0D, 0.5D, 15.0D), Block.box(0.0D, 0.5D, 3.0D, 16.0D, 1.25D, 13.0D), Block.box(0.0D, 1.25D, 6.0D, 16.0D, 2.0D, 10.0D)), Shapes.or(Block.box(1.0D, 0.0D, 0.0D, 15.0D, 0.5D, 16.0D), Block.box(3.0D, 0.5D, 0.0D, 13.0D, 1.25D, 16.0D), Block.box(6.0D, 1.25D, 0.0D, 10.0D, 2.0D, 16.0D))), ModCreativeModeTab.MOD_TAB, false);    public static final RegistrySupplier<Block> ASPHALT_CURB_SLOPE = registerBlock("asphalt_curb_slope", () -> new AsphaltCurbSlope(RoadType.ASPHALT), ModCreativeModeTab.MOD_TAB, false);
+    public static final RegistrySupplier<Block> WIDE_SPEED_BUMP = registerBlock("wide_speed_bump", () -> new CustomSpeedBumpBlock(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_BLACK).strength(2.0f).requiresCorrectToolForDrops(), Shapes.or(Block.box(0.0D, 0.0D, 1.0D, 16.0D, 0.5D, 15.0D), Block.box(0.0D, 0.5D, 3.0D, 16.0D, 1.25D, 13.0D), Block.box(0.0D, 1.25D, 6.0D, 16.0D, 2.0D, 10.0D)), Shapes.or(Block.box(1.0D, 0.0D, 0.0D, 15.0D, 0.5D, 16.0D), Block.box(3.0D, 0.5D, 0.0D, 13.0D, 1.25D, 16.0D), Block.box(6.0D, 1.25D, 0.0D, 10.0D, 2.0D, 16.0D))), ModCreativeModeTab.MOD_TAB, false);
+    public static final RegistrySupplier<Block> BIKE_LANE_SEPARATOR = registerBlock("bike_lane_separator", () -> new CustomSpeedBumpBlock(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_ORANGE).strength(2.0f).requiresCorrectToolForDrops(), Shapes.or(Block.box(3.0D, 0.0D, 1.0D, 13.0D, 0.65D, 15.0D), Block.box(4.0D, 0.65D, 1.5D, 12.0D, 1.55D, 14.5D), Block.box(5.0D, 1.55D, 2.0D, 11.0D, 2.75D, 14.0D)), Shapes.or(Block.box(1.0D, 0.0D, 3.0D, 15.0D, 0.65D, 13.0D), Block.box(1.5D, 0.65D, 4.0D, 14.5D, 1.55D, 12.0D), Block.box(2.0D, 1.55D, 5.0D, 14.0D, 2.75D, 11.0D))), ModCreativeModeTab.MOD_TAB, false);
+    public static final RegistrySupplier<Block> CONCRETE_BARRIER = registerColoredBlock("concrete_barrier", () -> new ConcreteBarrierBlock(), ModCreativeModeTab.MOD_TAB, false);
+    public static final RegistrySupplier<Block> ASPHALT_CURB_SLOPE = registerBlock("asphalt_curb_slope", () -> new AsphaltCurbSlope(RoadType.ASPHALT), ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> CONCRETE_CURB_SLOPE = registerBlock("concrete_curb_slope", () -> new AsphaltCurbSlope(RoadType.CONCRETE), ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> TRAFFIC_SIGN_WORKBENCH = registerBlock("traffic_sign_workbench", () -> new TrafficSignWorkbenchBlock(), ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> ROAD_SALT = registerBlock("road_salt", () -> new RoadSaltBlock(), ModCreativeModeTab.MOD_TAB, false);
@@ -110,6 +118,10 @@ public class ModBlocks {
     public static final RegistrySupplier<Block> TRAFFIC_BOLLARD = registerColoredBlock("traffic_bollard", () -> new TrafficBollardBlock(), ModCreativeModeTab.MOD_TAB, true);
     public static final RegistrySupplier<Block> TRAFFIC_BARREL = registerColoredBlock("traffic_barrel", () -> new TrafficBarrelBlock(), ModCreativeModeTab.MOD_TAB, true);
     public static final RegistrySupplier<Block> ROAD_BARRIER_FENCE = registerColoredBlock("road_barrier_fence", () -> new RoadBarrierFenceBlock(), ModCreativeModeTab.MOD_TAB, false);
+    public static final RegistrySupplier<Block> RETRACTABLE_BARRIER = registerBlock("retractable_barrier", () -> new RetractableBarrierBlock(), ModCreativeModeTab.MOD_TAB, false);
+    public static final RegistrySupplier<Block> LED_DEVICE_PART = registerBlockWithoutItem("led_device_part", LedDevicePartBlock::new);
+    public static final RegistrySupplier<Block> TRAFFIC_DISPLAY = registerBlock("traffic_display", () -> new LedDeviceBlock(LedDeviceType.TRAFFIC_DISPLAY), ModCreativeModeTab.MOD_TAB, false);
+    public static final RegistrySupplier<Block> LED_LIGHT = registerBlock("led_light", () -> new LedDeviceBlock(LedDeviceType.LED_LIGHT), ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> REFLECTOR = registerColoredBlock("reflector", () -> new ReflectorBlock(), ModCreativeModeTab.MOD_TAB, false);
 
     private static <T extends Block>RegistrySupplier<T> registerBlockWithoutItem(String name, Supplier<T> block) {

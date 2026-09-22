@@ -18,6 +18,7 @@ subprojects {
     apply plugin: 'dev.architectury.loom'
     apply plugin: 'architectury-plugin'
     apply plugin: 'maven-publish'
+    apply from: rootProject.file('gradle/compact-jars.gradle')
 
     configurations.configureEach {
         if (rootProject.hasProperty("lwjgl_version")) {
@@ -67,7 +68,6 @@ subprojects {
             "modpage": rootProject.modpage,
             "authors": rootProject.authors,
             "description": rootProject.description,
-            "icon": rootProject.icon,
             "next_unsupported_minecraft_version": rootProject.next_unsupported_minecraft_version,
             "dragonlib_version": "$rootProject.minecraft_version-$rootProject.dragonlib_version",
             "forge_loader_version": rootProject.forge_loader_version,
@@ -80,6 +80,25 @@ subprojects {
         }
         inputs.properties(expandProps)
         exclude ".cache" // Remove cache from generated data
+        // The removed mod-list logo and obsolete editor sheet are not runtime assets.
+        exclude "mod_icon.png", "assets/trafficengine/textures/gui/icons-old.png"
+        doLast {
+            fileTree(destinationDir) {
+                include '**/*.json', '**/*.mcmeta'
+            }.each { resource ->
+                // Compact build output only; preserve the readable source files.
+                def parsed = new groovy.json.JsonSlurper().parseText(resource.getText('UTF-8'))
+                resource.setText(groovy.json.JsonOutput.toJson(parsed), 'UTF-8')
+            }
+            // Copy tasks can retain files from older builds after source removal.
+            ['mod_icon.png', 'assets/trafficengine/textures/gui/icons-old.png',
+             'assets/trafficengine/blockstates/blinker.json',
+             'assets/trafficengine/models/block/blinker.json',
+             'assets/trafficengine/models/item/blinker.json',
+             'data/trafficengine/loot_tables/blocks/blinker.json'].each { removed ->
+                new File(destinationDir, removed).delete()
+            }
+        }
     }
 
     java {

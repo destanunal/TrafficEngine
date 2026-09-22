@@ -42,7 +42,7 @@ public class DoubleSidedTrafficSignBlock extends TrafficSignBlock {
     public static final EnumProperty<TrafficSignShape> BACK_SHAPE = EnumProperty.create("back_shape", TrafficSignShape.class);
 
     // [front shape][back shape][2D direction] -> front plate + back plate + post
-    private static final VoxelShape[][][] SHAPE_CACHE = new VoxelShape[TrafficSignShape.values().length][TrafficSignShape.values().length][4];
+    private static final VoxelShape[][][][] SHAPE_CACHE = new VoxelShape[TrafficSignShape.values().length][TrafficSignShape.values().length][4][2];
 
     public DoubleSidedTrafficSignBlock() {
         super();
@@ -61,11 +61,15 @@ public class DoubleSidedTrafficSignBlock extends TrafficSignBlock {
         TrafficSignShape backShape = pState.getValue(BACK_SHAPE);
         Direction facing = pState.getValue(FACING);
         int dir = facing.get2DDataValue();
+        int diagonal = pState.getValue(DIAGONAL) ? 1 : 0;
 
-        VoxelShape cached = SHAPE_CACHE[frontShape.ordinal()][backShape.ordinal()][dir];
+        VoxelShape cached = SHAPE_CACHE[frontShape.ordinal()][backShape.ordinal()][dir][diagonal];
         if (cached == null) {
-            cached = Shapes.or(frontShape.getVoxelShape(facing), backShape.getVoxelShape(facing.getOpposite()));
-            SHAPE_CACHE[frontShape.ordinal()][backShape.ordinal()][dir] = cached;
+            cached = Shapes.or(
+                getFreestandingShape(frontShape, facing, diagonal == 1),
+                getFreestandingShape(backShape, facing.getOpposite(), diagonal == 1)
+            );
+            SHAPE_CACHE[frontShape.ordinal()][backShape.ordinal()][dir][diagonal] = cached;
         }
         return cached;
     }
@@ -73,9 +77,13 @@ public class DoubleSidedTrafficSignBlock extends TrafficSignBlock {
     /** Both plates can be attached to, so front and back count as "back of a plate". Delete this override to keep the single sided behaviour. */
     @Override
     public boolean canAttach(BlockState pState, BlockPos pPos, Direction pDirection) {
-        return pState.getValue(SHAPE) != TrafficSignShape.SMALL_LOWER
-                && pState.getValue(BACK_SHAPE) != TrafficSignShape.SMALL_LOWER
-                && pDirection.getAxis() == pState.getValue(FACING).getAxis();
+        if (pState.getValue(SHAPE) == TrafficSignShape.SMALL_LOWER
+                || pState.getValue(BACK_SHAPE) == TrafficSignShape.SMALL_LOWER) {
+            return false;
+        }
+        return pState.getValue(DIAGONAL)
+                ? pDirection.getAxis().isHorizontal()
+                : pDirection.getAxis() == pState.getValue(FACING).getAxis();
     }
 
     @Override
@@ -86,7 +94,7 @@ public class DoubleSidedTrafficSignBlock extends TrafficSignBlock {
         boolean customPattern = item instanceof CreativePatternCatalogueItem && CreativePatternCatalogueItem.shouldUseCustomPattern(stack);
 
         if (!(item instanceof PatternCatalogueItem) || !(customPattern || PatternCatalogueItem.getSelectedPattern(stack) != null)) {
-            return InteractionResult.FAIL;
+            return super.use(pState, pLevel, pPos, pPlayer, pHand, pHit);
         }
 
         if (!(pLevel.getBlockEntity(pPos) instanceof TrafficSignBlockEntity blockEntity)) {
@@ -98,9 +106,8 @@ public class DoubleSidedTrafficSignBlock extends TrafficSignBlock {
                 : PatternCatalogueItem.getSelectedPattern(stack);
 
         // Front = the side FACING points to. Decide the side from where the block was hit.
-        Direction facing = pState.getValue(FACING);
         Vec3 offset = pHit.getLocation().subtract(Vec3.atCenterOf(pPos));
-        boolean back = offset.x * facing.getStepX() + offset.z * facing.getStepZ() < 0;
+        boolean back = offset.x * getFacingX(pState) + offset.z * getFacingZ(pState) < 0;
 
         if (back) {
             blockEntity.setAndResetBackTexture(reference);

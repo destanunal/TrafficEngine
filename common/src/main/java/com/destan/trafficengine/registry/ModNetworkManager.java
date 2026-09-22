@@ -10,6 +10,7 @@ import com.destan.trafficengine.network.packets.cts.CreateNewTrafficSignTextureP
 import com.destan.trafficengine.network.packets.cts.CreativePatternCataloguePacket;
 import com.destan.trafficengine.network.packets.cts.GetTrafficSignTexturePacket;
 import com.destan.trafficengine.network.packets.cts.LinkerModePacket;
+import com.destan.trafficengine.network.packets.cts.LedDevicePacket;
 import com.destan.trafficengine.network.packets.cts.PaintBrushPacket;
 import com.destan.trafficengine.network.packets.cts.PatternCatalogueDeletePacket;
 import com.destan.trafficengine.network.packets.cts.PatternCatalogueIndexPacket;
@@ -39,6 +40,7 @@ public class ModNetworkManager {
 
     public static final NetworkPacketType.Send<NetworkDirection.C2S, CreativePatternCataloguePacket> UPDATE_CREATIVE_PATTERN_CATALOG_ITEM = NETWORK.registerSendOnlyPacket("update_creative_pattern_catalog_item", NetworkDirection.C2S, CreativePatternCataloguePacket::handle, CreativePatternCataloguePacket::new);
     public static final NetworkPacketType.Send<NetworkDirection.C2S, LinkerModePacket> UPDATE_LINK_MODE = NETWORK.registerSendOnlyPacket("update_link_mode", NetworkDirection.C2S, LinkerModePacket::handle, LinkerModePacket::new);
+    public static final NetworkPacketType.Send<NetworkDirection.C2S, LedDevicePacket> UPDATE_LED_DEVICE = NETWORK.registerSendOnlyPacket("update_led_device", NetworkDirection.C2S, LedDevicePacket::handle, LedDevicePacket::new);
     public static final NetworkPacketType.Send<NetworkDirection.C2S, PaintBrushPacket> UPDATE_PAINT_BRUSH = NETWORK.registerSendOnlyPacket("update_paint_brush", NetworkDirection.C2S, PaintBrushPacket::handle, PaintBrushPacket::new);
     public static final NetworkPacketType.Send<NetworkDirection.C2S, PatternCatalogueIndexPacket> UPDATE_PATTERN_CATALOG_INDEX = NETWORK.registerSendOnlyPacket("update_pattern_catalog_index", NetworkDirection.C2S, PatternCatalogueIndexPacket::handle, PatternCatalogueIndexPacket::new);
     public static final NetworkPacketType.Send<NetworkDirection.C2S, RoadBuilderBuildRoadPacket> ROAD_BUILDER_BUILD_ROAD = NETWORK.registerSendOnlyPacket("road_builder_build_road", NetworkDirection.C2S, RoadBuilderBuildRoadPacket::handle, RoadBuilderBuildRoadPacket::new);

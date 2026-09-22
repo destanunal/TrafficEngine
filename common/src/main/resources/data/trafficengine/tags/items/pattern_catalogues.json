@@ -1,7 +1,6 @@
 {
     "replace": false,
     "values": [
-        "trafficengine:pattern_catalogue",
         "trafficengine:creative_pattern_catalogue"
     ]
 }

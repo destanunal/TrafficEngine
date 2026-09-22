@@ -1298,16 +1298,13 @@
     "trafficengine:concrete_slope_pattern_321",
     "trafficengine:concrete_pattern_322",
     "trafficengine:concrete_slope_pattern_322",
-    "trafficengine:bitumen_ore",
-    "trafficengine:deepslate_bitumen_ore",
     "trafficengine:bitumen_block",
     "trafficengine:concrete_barrier",
+    "trafficengine:bike_lane_separator",
     "trafficengine:manhole",
     "trafficengine:manhole_cover",
     "trafficengine:road_gully",
-    "trafficengine:asphalt_curb",
     "trafficengine:asphalt_curb_slope",
-    "trafficengine:concrete_curb",
     "trafficengine:concrete_curb_slope",
     "trafficengine:salt"
   ]

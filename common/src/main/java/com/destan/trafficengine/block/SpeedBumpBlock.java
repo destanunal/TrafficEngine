@@ -16,19 +16,19 @@ import net.minecraft.world.phys.shapes.Shapes;
 public class SpeedBumpBlock extends HorizontalDirectionalBlock {
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
 
-    // KUSURSUZ 3 KATMANLI HİTBOX (Modelin kavislerine milimetrik oturur)
-    // Kuzey/Güney Yönlü (X ekseninde uzanan)
+    // Dar ve yuksek tumsegin egimli modeline oturan kademeli hitbox.
     private static final VoxelShape SHAPE_NS = Shapes.or(
-            Block.box(0.0D, 0.0D, 4.0D, 16.0D, 1.0D, 12.0D), // En Alt Geniş Katman
-            Block.box(0.0D, 1.0D, 5.0D, 16.0D, 2.0D, 11.0D), // Orta Katman
-            Block.box(0.0D, 2.0D, 6.0D, 16.0D, 3.0D, 10.0D)  // En Üst İnce Katman
+            Block.box(0.0D, 0.0D, 4.0D, 16.0D, 0.75D, 12.0D),
+            Block.box(0.0D, 0.75D, 5.0D, 16.0D, 1.5D, 11.0D),
+            Block.box(0.0D, 1.5D, 6.0D, 16.0D, 2.25D, 10.0D),
+            Block.box(0.0D, 2.25D, 7.0D, 16.0D, 2.75D, 9.0D)
     );
 
-    // Doğu/Batı Yönlü (Z ekseninde uzanan)
     private static final VoxelShape SHAPE_EW = Shapes.or(
-            Block.box(4.0D, 0.0D, 0.0D, 12.0D, 1.0D, 16.0D), // En Alt Geniş Katman
-            Block.box(5.0D, 1.0D, 0.0D, 11.0D, 2.0D, 16.0D), // Orta Katman
-            Block.box(6.0D, 2.0D, 0.0D, 10.0D, 3.0D, 16.0D)  // En Üst İnce Katman
+            Block.box(4.0D, 0.0D, 0.0D, 12.0D, 0.75D, 16.0D),
+            Block.box(5.0D, 0.75D, 0.0D, 11.0D, 1.5D, 16.0D),
+            Block.box(6.0D, 1.5D, 0.0D, 10.0D, 2.25D, 16.0D),
+            Block.box(7.0D, 2.25D, 0.0D, 9.0D, 2.75D, 16.0D)
     );
 
     public SpeedBumpBlock(Properties properties) {
@@ -44,7 +44,6 @@ public class SpeedBumpBlock extends HorizontalDirectionalBlock {
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext pContext) {
-        // Artık tam olarak baktığın yola dik (enlemesine) oturacak!
         return this.defaultBlockState().setValue(FACING, pContext.getHorizontalDirection());
     }
 

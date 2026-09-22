@@ -5,7 +5,6 @@ import com.destan.trafficengine.item.BrushItem;
 import com.destan.trafficengine.item.ColorPaletteItem;
 import com.destan.trafficengine.item.CreativePatternCatalogueItem;
 import com.destan.trafficengine.item.HammerItem;
-import com.destan.trafficengine.item.PatternCatalogueItem;
 import com.destan.trafficengine.item.RoadConstructionTool;
 import com.destan.trafficengine.item.StreetLampConfigCardItem;
 import com.destan.trafficengine.item.TrafficLightLinkerItem;

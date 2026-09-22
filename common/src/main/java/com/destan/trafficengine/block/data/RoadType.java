@@ -70,15 +70,13 @@ public enum RoadType implements StringRepresentable {
     public Block getSlope() {
         switch (this) {
             default:
-            case ASPHALT:
-            case CRACKED_ASPHALT:
-            case HEAVY_CRACKED_ASPHALT:
-            case LIGHT_ASPHALT:
-            case DARK_ASPHALT:
-            case DIRTY_ASPHALT:
-                return ModBlocks.ASPHALT_SLOPE.get(); // Şimdilik yeni asfaltların rampaları normal asfalt rampası olacak
-            case CONCRETE:
-                return ModBlocks.CONCRETE_SLOPE.get();
+            case ASPHALT: return ModBlocks.ASPHALT_SLOPE.get();
+            case CONCRETE: return ModBlocks.CONCRETE_SLOPE.get();
+            case CRACKED_ASPHALT: return ModBlocks.CRACKED_ASPHALT_SLOPE.get();
+            case HEAVY_CRACKED_ASPHALT: return ModBlocks.HEAVY_CRACKED_ASPHALT_SLOPE.get();
+            case LIGHT_ASPHALT: return ModBlocks.LIGHT_ASPHALT_SLOPE.get();
+            case DARK_ASPHALT: return ModBlocks.DARK_ASPHALT_SLOPE.get();
+            case DIRTY_ASPHALT: return ModBlocks.DIRTY_ASPHALT_SLOPE.get();
         }
     }
 }

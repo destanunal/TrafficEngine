@@ -45,6 +45,7 @@ public class TrafficSignPostBlock extends Block implements SimpleWaterloggedBloc
     public static final BooleanProperty UP = PipeBlock.UP;
     public static final BooleanProperty DOWN = PipeBlock.DOWN;
     public static final BooleanProperty EXTEND_BOTTOM = BooleanProperty.create("bottom_extension");
+    public static final BooleanProperty DIAGONAL = BooleanProperty.create("diagonal");
 
     protected static final Map<Direction, BooleanProperty> PROPERTY_BY_DIRECTION = PipeBlock.PROPERTY_BY_DIRECTION.entrySet().stream().collect(Util.toMap());
     
@@ -56,11 +57,19 @@ public class TrafficSignPostBlock extends Block implements SimpleWaterloggedBloc
     private static final VoxelShape SHAPE_UP = Block.box(7, 9, 7, 9, 16, 9);
     private static final VoxelShape SHAPE_DOWN = Block.box(7, 0, 7, 9, 7, 9);
     private static final VoxelShape SHAPE_EXTEND_DOWN = Block.box(7, -16, 7, 9, 0, 9);
+    private static final VoxelShape SHAPE_DIAGONAL_VERTICAL = Block.box(6.5, 0, 6.5, 9.5, 16, 9.5);
+    private static final VoxelShape SHAPE_DIAGONAL_EXTEND_DOWN = Block.box(6.5, -16, 6.5, 9.5, 0, 9.5);
 
     private static final MapCache<VoxelShape, BlockState, BlockState> shapes = new MapCache<>(state -> {
-        VoxelShape shape = SHAPE_BASE;
+        boolean diagonal = state.getValue(DIAGONAL) && state.getValue(AXIS) == Axis.Y;
+        VoxelShape shape = diagonal ? SHAPE_DIAGONAL_VERTICAL : SHAPE_BASE;
 
-        if ((state.getValue(AXIS) == Axis.X) && !state.getValue(NORTH) && !state.getValue(SOUTH) && !state.getValue(UP) && !state.getValue(DOWN)) {
+        if (diagonal) {
+            if (state.getValue(NORTH)) shape = Shapes.or(shape, SHAPE_NORTH);
+            if (state.getValue(EAST)) shape = Shapes.or(shape, SHAPE_EAST);
+            if (state.getValue(SOUTH)) shape = Shapes.or(shape, SHAPE_SOUTH);
+            if (state.getValue(WEST)) shape = Shapes.or(shape, SHAPE_WEST);
+        } else if ((state.getValue(AXIS) == Axis.X) && !state.getValue(NORTH) && !state.getValue(SOUTH) && !state.getValue(UP) && !state.getValue(DOWN)) {
             shape = Shapes.or(shape, SHAPE_EAST, SHAPE_WEST);
         } else if ((state.getValue(AXIS) == Axis.Z) && !state.getValue(EAST) && !state.getValue(WEST) && !state.getValue(UP) && !state.getValue(DOWN)) {
             shape = Shapes.or(shape, SHAPE_NORTH, SHAPE_SOUTH);
@@ -88,7 +97,7 @@ public class TrafficSignPostBlock extends Block implements SimpleWaterloggedBloc
             }
         }
         if (state.getValue(EXTEND_BOTTOM)) {
-            shape = Shapes.or(shape, SHAPE_EXTEND_DOWN);
+            shape = Shapes.or(shape, diagonal ? SHAPE_DIAGONAL_EXTEND_DOWN : SHAPE_EXTEND_DOWN);
         }
         return shape;
     }, BlockState::hashCode);
@@ -110,7 +119,8 @@ public class TrafficSignPostBlock extends Block implements SimpleWaterloggedBloc
             .setValue(EAST, false)
             .setValue(UP, false)
             .setValue(DOWN, false)
-            .setValue(EXTEND_BOTTOM, false) 
+            .setValue(EXTEND_BOTTOM, false)
+            .setValue(DIAGONAL, false)
         ); 
     }
 
@@ -151,9 +161,11 @@ public class TrafficSignPostBlock extends Block implements SimpleWaterloggedBloc
   
         BlockState belowBlock = pLevel.getBlockState(pCurrentPos.below());
 
-        return pState.setValue(PROPERTY_BY_DIRECTION.get(pFacing), this.connectsTo(pLevel, pCurrentPos, pState, pFacingState, pFacingState.isFaceSturdy(pLevel, pFacingPos, pFacing.getOpposite()), pFacing.getOpposite()))
-            .setValue(EXTEND_BOTTOM, needsBottomExtension(pState, belowBlock))
-        ;
+        BlockState updated = pState
+            .setValue(PROPERTY_BY_DIRECTION.get(pFacing), this.connectsTo(pLevel, pCurrentPos, pState, pFacingState, pFacingState.isFaceSturdy(pLevel, pFacingPos, pFacing.getOpposite()), pFacing.getOpposite()))
+            .setValue(EXTEND_BOTTOM, needsBottomExtension(pState, belowBlock));
+        return updated.setValue(DIAGONAL,
+            updated.getValue(AXIS) == Axis.Y && hasDiagonalAttachment(pLevel, pCurrentPos));
     }
 
     @Override
@@ -186,15 +198,44 @@ public class TrafficSignPostBlock extends Block implements SimpleWaterloggedBloc
             .setValue(WATERLOGGED, flag)
             .setValue(AXIS, pContext.getClickedFace().getAxis());
 
-        return newState
+        BlockState placed = newState
             .setValue(NORTH, this.connectsTo(pContext.getLevel(), pContext.getClickedPos(), newState, blockstate1, blockstate1.isFaceSturdy(blockgetter, blockpos1, Direction.SOUTH), Direction.SOUTH.getOpposite()))
             .setValue(EAST, this.connectsTo(pContext.getLevel(), pContext.getClickedPos(), newState, blockstate2, blockstate2.isFaceSturdy(blockgetter, blockpos2, Direction.WEST), Direction.WEST.getOpposite()))
             .setValue(SOUTH, this.connectsTo(pContext.getLevel(), pContext.getClickedPos(), newState, blockstate3, blockstate3.isFaceSturdy(blockgetter, blockpos3, Direction.NORTH), Direction.NORTH.getOpposite()))
             .setValue(WEST, this.connectsTo(pContext.getLevel(), pContext.getClickedPos(), newState, blockstate4, blockstate4.isFaceSturdy(blockgetter, blockpos4, Direction.EAST), Direction.EAST.getOpposite()))
             .setValue(UP, this.connectsTo(pContext.getLevel(), pContext.getClickedPos(), newState, blockstate5, blockstate5.isFaceSturdy(blockgetter, blockpos3, Direction.DOWN), Direction.DOWN))
             .setValue(DOWN, this.connectsTo(pContext.getLevel(), pContext.getClickedPos(), newState, blockstate6, blockstate6.isFaceSturdy(blockgetter, blockpos4, Direction.UP), Direction.UP))
-            .setValue(EXTEND_BOTTOM, needsBottomExtension(newState, blockstate6))
-        ;
+            .setValue(EXTEND_BOTTOM, needsBottomExtension(newState, blockstate6));
+        return placed.setValue(DIAGONAL,
+            placed.getValue(AXIS) == Axis.Y && hasDiagonalAttachment(pContext.getLevel(), blockpos));
+    }
+
+    private static boolean isDiagonalDevice(BlockState state) {
+        if (state.getBlock() instanceof TrafficSignBlock && state.hasProperty(TrafficSignBlock.DIAGONAL)) {
+            return state.getValue(TrafficSignBlock.DIAGONAL);
+        }
+        if (state.getBlock() instanceof TrafficLightBlock && state.hasProperty(TrafficLightBlock.DIAGONAL)) {
+            return state.getValue(TrafficLightBlock.DIAGONAL);
+        }
+        return false;
+    }
+
+    private static boolean hasDiagonalAttachment(LevelAccessor level, BlockPos origin) {
+        for (Direction vertical : new Direction[]{Direction.UP, Direction.DOWN}) {
+            BlockPos cursor = origin;
+            while (cursor.getY() >= level.getMinBuildHeight() && cursor.getY() < level.getMaxBuildHeight()) {
+                for (Direction horizontal : Direction.Plane.HORIZONTAL) {
+                    if (isDiagonalDevice(level.getBlockState(cursor.relative(horizontal)))) return true;
+                }
+
+                BlockPos next = cursor.relative(vertical);
+                BlockState nextState = level.getBlockState(next);
+                if (isDiagonalDevice(nextState)) return true;
+                if (!(nextState.getBlock() instanceof TrafficSignPostBlock)) break;
+                cursor = next;
+            }
+        }
+        return false;
     }
 
     private boolean isSameBlock(BlockState pState) {
@@ -215,7 +256,7 @@ public class TrafficSignPostBlock extends Block implements SimpleWaterloggedBloc
     @Override
     protected void createBlockStateDefinition(Builder<Block, BlockState> pBuilder) {
         super.createBlockStateDefinition(pBuilder);
-        pBuilder.add(WATERLOGGED, AXIS, NORTH, SOUTH, WEST, EAST, UP, DOWN, EXTEND_BOTTOM);
+        pBuilder.add(WATERLOGGED, AXIS, NORTH, SOUTH, WEST, EAST, UP, DOWN, EXTEND_BOTTOM, DIAGONAL);
     }
     
     @Override

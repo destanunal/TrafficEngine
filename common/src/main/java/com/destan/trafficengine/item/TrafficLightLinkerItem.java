@@ -12,6 +12,7 @@ import com.destan.trafficengine.TrafficEngine;
 import com.destan.trafficengine.block.TrafficLightRequestButtonBlock;
 import com.destan.trafficengine.block.entity.TrafficLightControllerBlockEntity;
 import com.destan.trafficengine.block.entity.TrafficLightRequestButtonBlockEntity;
+import com.destan.trafficengine.block.entity.LedDeviceBlockEntity;
 import com.destan.trafficengine.network.packets.cts.LinkerModePacket;
 import com.destan.trafficengine.registry.ModBlocks;
 import com.destan.trafficengine.registry.ModNetworkManager;
@@ -104,11 +105,16 @@ public class TrafficLightLinkerItem extends Item implements ILinkerItem, IScroll
                             switch (mode) {
                                 case UNLINK:                                
                                     blockEntity.removeTrafficLightLocation(new WorldLocation(pos.getX(), pos.getY(), pos.getZ(), dim));
+                                    if (pContext.getLevel().getBlockEntity(pos) instanceof LedDeviceBlockEntity led) {
+                                        led.setControllerEnabled(false);
+                                        led.setManualEnabled(true);
+                                    }
                                     player.displayClientMessage(TextUtils.translate(keyRemoveLink, linkLoc.getLocationBlockPos().toShortString(), level.dimension().location()).withStyle(ChatFormatting.RED), true);
                                     break;
                                 case LINK:
                                 default:
                                     blockEntity.addTrafficLightLocation(new WorldLocation(pos.getX(), pos.getY(), pos.getZ(), dim));
+                                    if (pContext.getLevel().getBlockEntity(pos) instanceof LedDeviceBlockEntity led) led.setManualEnabled(false);
                                     player.displayClientMessage(TextUtils.translate(keySetLink, linkLoc.getLocationBlockPos().toShortString(), level.dimension().location()).withStyle(ChatFormatting.GREEN), true);
                                     break;
                             }
@@ -180,7 +186,9 @@ public class TrafficLightLinkerItem extends Item implements ILinkerItem, IScroll
 
     @Override
     public boolean isTargetBlockAccepted(Block block) {
-        return block.equals(ModBlocks.TRAFFIC_LIGHT.get()) || block.equals(ModBlocks.TRAFFIC_LIGHT_REQUEST_BUTTON.get());
+        return block.equals(ModBlocks.TRAFFIC_LIGHT.get()) || block.equals(ModBlocks.TRAFFIC_LIGHT_REQUEST_BUTTON.get())
+            || block.equals(ModBlocks.TRAFFIC_DISPLAY.get())
+            || block.equals(ModBlocks.LED_LIGHT.get());
     }
 
     @Override

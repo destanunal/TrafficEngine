@@ -7,7 +7,7 @@ public class ServerInit {
 
     public static void init() {            
         LifecycleEvent.SETUP.register(() -> {
-            TrafficEngine.LOGGER.info("Welcome to the TRAFFİCENGİNE mod by MRJULSEN.");
+            TrafficEngine.LOGGER.info("TrafficEngine by Destan");
         });
     }
     

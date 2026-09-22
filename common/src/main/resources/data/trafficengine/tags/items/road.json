@@ -1,9 +1,14 @@
 {
-    "replace": false,
-    "values": [
-        "trafficengine:asphalt",
-        "trafficengine:concrete",
-        "trafficengine:asphalt_slope",
-        "trafficengine:concrete_slope"
-    ]
+  "replace": false,
+  "values": [
+    "trafficengine:asphalt",
+    "trafficengine:concrete",
+    "trafficengine:asphalt_slope",
+    "trafficengine:concrete_slope",
+    "trafficengine:cracked_asphalt_slope",
+    "trafficengine:heavy_cracked_asphalt_slope",
+    "trafficengine:light_asphalt_slope",
+    "trafficengine:dark_asphalt_slope",
+    "trafficengine:dirty_asphalt_slope"
+  ]
 }

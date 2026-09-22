@@ -2,6 +2,8 @@
     "replace": false,
     "values": [
         "trafficengine:concrete_barrier",
-        "trafficengine:guardrail"
+        "trafficengine:guardrail",
+        "trafficengine:bike_lane_separator",
+        "trafficengine:retractable_barrier"
     ]
 }

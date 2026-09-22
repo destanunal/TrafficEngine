@@ -17,6 +17,7 @@ import com.destan.trafficengine.block.entity.StreetSignBlockEntity;
 import com.destan.trafficengine.client.TintedTextures;
 import com.destan.trafficengine.client.ber.TownSignBlockEntityRenderer;
 import com.destan.trafficengine.client.ber.TrafficLightBlockEntityRenderer;
+import com.destan.trafficengine.client.ber.LedDeviceBlockEntityRenderer;
 import com.destan.trafficengine.client.ber.TrafficSignBlockEntityRenderer;
 import com.destan.trafficengine.client.ber.WritableSignBlockEntityRenderer;
 import com.destan.trafficengine.client.screen.TrafficSignWorkbenchGui;
@@ -134,6 +135,7 @@ public class ClientInit {
             BlockEntityRendererRegistry.register(ModBlockEntities.HOUSE_NUMBER_SIGN_BLOCK_ENTITY.get(), WritableSignBlockEntityRenderer<HouseNumberSignBlockEntity>::new);
             BlockEntityRendererRegistry.register(ModBlockEntities.TRAFFIC_SIGN_BLOCK_ENTITY.get(), TrafficSignBlockEntityRenderer::new);
             BlockEntityRendererRegistry.register(ModBlockEntities.TRAFFIC_LIGHT_BLOCK_ENTITY.get(), TrafficLightBlockEntityRenderer::new);
+            BlockEntityRendererRegistry.register(ModBlockEntities.LED_DEVICE_BLOCK_ENTITY.get(), LedDeviceBlockEntityRenderer::new);
             
             if (Platform.isFabric()) {
                 ClientInit.registerTooltipComponentFactory(TrafficSignTooltip.class, (tooltip) -> {

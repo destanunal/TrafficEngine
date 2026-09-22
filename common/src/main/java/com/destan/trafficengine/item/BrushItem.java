@@ -7,6 +7,8 @@ import com.destan.trafficengine.Constants;
 import com.destan.trafficengine.client.ClientWrapper;
 import com.destan.trafficengine.data.PaintColor;
 import com.destan.trafficengine.block.PaintBucketBlock;
+import com.destan.trafficengine.block.data.RoadBlock;
+import com.destan.trafficengine.block.entity.ColoredBlockEntity;
 import com.destan.trafficengine.block.data.IColorBlockEntity;
 import com.destan.trafficengine.block.data.IPaintableBlock;
 import net.minecraft.ChatFormatting;
@@ -156,7 +158,14 @@ public class BrushItem extends Item {
             return InteractionResult.SUCCESS;
         } else {
             if (state.getBlock() instanceof IPaintableBlock block) {
-                if (level.getBlockEntity(pos) instanceof IColorBlockEntity blockEntity && blockEntity.getColor() == PaintColor.getByIndex(nbt.getInt(NBT_COLOR))) { 
+                boolean recolorRoadMarking = state.getBlock() instanceof RoadBlock
+                        && level.getBlockEntity(pos) instanceof ColoredBlockEntity coloredBlockEntity
+                        && BrushItem.getPatternId(pContext.getItemInHand()) != 0
+                        && coloredBlockEntity.getMarkingColor() != BrushItem.getColor(pContext.getItemInHand());
+
+                if (!recolorRoadMarking
+                        && level.getBlockEntity(pos) instanceof IColorBlockEntity blockEntity
+                        && blockEntity.getColor() == PaintColor.getByIndex(nbt.getInt(NBT_COLOR))) {
                     InteractionResult res = block.update(pContext);
                     if (res == InteractionResult.CONSUME) {
                         this.removePaint(player, nbt);

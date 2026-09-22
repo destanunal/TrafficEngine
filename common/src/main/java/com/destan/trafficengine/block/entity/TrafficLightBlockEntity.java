@@ -113,7 +113,7 @@ public class TrafficLightBlockEntity extends ColoredBlockEntity {
         tag.putBoolean(NBT_POWERED, powered);
         tag.putByte(NBT_CONTROL_TYPE, controlType.getIndex());
         tag.putInt(NBT_TICKS, ticker);
-        tag.putLong(NBT_TOTAL_TICKS, ticker);
+        tag.putLong(NBT_TOTAL_TICKS, totalTicks);
         tag.putBoolean(NBT_RUNNING, running);
         tag.put(NBT_SCHEDULE, schedule.toNbt());
         tag.putIntArray(NBT_COLOR_SLOTS, Arrays.stream(colorSlots).mapToInt(x -> x.getIndex()).toArray());

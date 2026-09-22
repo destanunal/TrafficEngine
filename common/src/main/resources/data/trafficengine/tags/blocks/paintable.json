@@ -10,6 +10,8 @@
         "trafficengine:street_sign",
         "trafficengine:house_number_sign",
         "trafficengine:traffic_light",
-        "trafficengine:reflector"
+        "trafficengine:reflector",
+        "trafficengine:traffic_display",
+        "trafficengine:led_light"
     ]
 }

@@ -4,6 +4,7 @@ import com.destan.trafficengine.TrafficEngine;
 import com.destan.trafficengine.block.entity.ColoredBlockEntity;
 import com.destan.trafficengine.block.entity.EmptyBlockEntity;
 import com.destan.trafficengine.block.entity.HouseNumberSignBlockEntity;
+import com.destan.trafficengine.block.entity.LedDeviceBlockEntity;
 import com.destan.trafficengine.block.entity.StreetLampBlockEntity;
 import com.destan.trafficengine.block.entity.StreetSignBlockEntity;
 import com.destan.trafficengine.block.entity.TownSignBlockEntity;
@@ -29,6 +30,15 @@ public class ModBlockEntities {
                     TrafficLightBlockEntity::new,
                     ModBlocks.TRAFFIC_LIGHT.get(),
                     ModBlocks.HORIZONTAL_TRAFFIC_LIGHT.get()
+            ).build(null)
+    );
+
+    public static final RegistrySupplier<BlockEntityType<LedDeviceBlockEntity>>
+            LED_DEVICE_BLOCK_ENTITY = BLOCK_ENTITIES.register(
+            "led_device_block_entity",
+            () -> BlockEntityType.Builder.of(
+                    LedDeviceBlockEntity::new,
+                    ModBlocks.TRAFFIC_DISPLAY.get(), ModBlocks.LED_LIGHT.get()
             ).build(null)
     );
 

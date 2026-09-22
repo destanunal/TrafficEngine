@@ -25,6 +25,39 @@ public class TrafficSignBlockEntityRenderer extends RotatableBlockEntityRenderer
 
     @Override
     public void renderBlock(BERGraphics<TrafficSignBlockEntity> graphics, float pPartialTick) {
+        BlockState state = graphics.blockEntity() == null ? null : graphics.blockEntity().getBlockState();
+        boolean diagonal = state != null
+            && state.hasProperty(TrafficSignBlock.DIAGONAL)
+            && state.getValue(TrafficSignBlock.DIAGONAL);
+        boolean postMounted = state != null
+            && state.hasProperty(TrafficSignBlock.POST_MOUNTED)
+            && state.getValue(TrafficSignBlock.POST_MOUNTED);
+
+        if (diagonal) {
+            graphics.poseStack().pushPose();
+            graphics.poseStack().translate(8.0f, 8.0f, 8.0f);
+            graphics.poseStack().mulPose(Axis.YP.rotationDegrees(-45.0f));
+            graphics.poseStack().translate(-8.0f, -8.0f, -8.0f);
+        } else if (postMounted) {
+            graphics.poseStack().pushPose();
+            // RotatableBlockEntityRenderer has already rotated the pose to the
+            // block's FACING. Work in that local NORTH-facing coordinate system.
+            graphics.poseStack().translate(0, 0, -12.0f);
+            graphics.poseStack().translate(8.0f, 8.0f, 8.0f);
+            graphics.poseStack().mulPose(Axis.XP.rotationDegrees(-22.5f));
+            graphics.poseStack().translate(-8.0f, -8.0f, -8.0f);
+        }
+
+        try {
+            renderOriented(graphics);
+        } finally {
+            if (diagonal || postMounted) {
+                graphics.poseStack().popPose();
+            }
+        }
+    }
+
+    private void renderOriented(BERGraphics<TrafficSignBlockEntity> graphics) {
 
         if (graphics.blockEntity() == null || graphics.blockEntity().isRemoved()) {
             return;

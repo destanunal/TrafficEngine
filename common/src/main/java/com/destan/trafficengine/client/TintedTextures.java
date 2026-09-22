@@ -2,6 +2,8 @@ package com.destan.trafficengine.client;
 
 import com.destan.trafficengine.block.data.IColorBlockEntity;
 import com.destan.trafficengine.block.data.IPaintableBlock;
+import com.destan.trafficengine.block.data.RoadBlock;
+import com.destan.trafficengine.block.entity.ColoredBlockEntity;
 import com.destan.trafficengine.data.PaintColor;
 import com.destan.trafficengine.item.BrushItem;
 import com.destan.trafficengine.item.ColorPaletteItem;
@@ -25,7 +27,18 @@ public class TintedTextures {
                 }
 
                 if (pLevel.getBlockEntity(pPos) instanceof IColorBlockEntity blockEntity) {
+                    if (pState.getBlock() instanceof RoadBlock && pTintIndex == 1
+                            && blockEntity instanceof ColoredBlockEntity coloredBlockEntity) {
+                        PaintColor markingColor = coloredBlockEntity.getMarkingColor();
+                        return markingColor == PaintColor.NONE
+                                ? 0xFFFFFFFF
+                                : markingColor.getTextureColor().getAsARGB();
+                    }
                     PaintColor c = blockEntity.getColor();
+                    if (pState.getBlock() instanceof RoadBlock roadBlock && pTintIndex == 0
+                            && c == PaintColor.NONE) {
+                        return roadBlock.getDefaultRoadType().getColor();
+                    }
                     return c == PaintColor.NONE ? block.getDefaultColor().getAsARGB() : c.getTextureColor().getAsARGB();
                 }
             }

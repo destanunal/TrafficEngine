@@ -1,6 +1,7 @@
 package com.destan.trafficengine.block.entity;
 
 import java.util.UUID;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import de.mrjulsen.mcdragonlib.block.DLSyncedBlockEntity;
@@ -46,15 +47,17 @@ public class TrafficSignBlockEntity extends DLSyncedBlockEntity implements IBloc
     @Override
     public void load(CompoundTag compound) {
         super.load(compound);
-
+        String newTextureId = null;
         if (compound.contains(NBT_LEGACY_TEXTURE)) {
             migrate(compound.getString(NBT_LEGACY_TEXTURE));
         } else if (compound.contains(NBT_TEXTURE)) {
-            setTextureId(compound.getString(NBT_TEXTURE));
+            newTextureId = compound.getString(NBT_TEXTURE);
         }
-
-        if (compound.contains(NBT_TEXTURE_BACK)) {
-            this.backTextureId = compound.getString(NBT_TEXTURE_BACK);
+        String newBackTextureId = compound.contains(NBT_TEXTURE_BACK) ? compound.getString(NBT_TEXTURE_BACK) : null;
+        if (!Objects.equals(textureId, newTextureId) || !Objects.equals(backTextureId, newBackTextureId)) {
+            textureId = newTextureId;
+            backTextureId = newBackTextureId;
+            resetTexture();
         }
     }
 
@@ -113,8 +116,15 @@ public class TrafficSignBlockEntity extends DLSyncedBlockEntity implements IBloc
     }
 
     public void setTextureId(String id) {
-        this.textureId = id;
-        notifyUpdate();
+        if (!Objects.equals(this.textureId, id)) {
+            this.textureId = id;
+            resetTexture();
+            notifyUpdate();
+            setChanged();
+            if (level != null && !level.isClientSide) {
+                level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+            }
+        }
     }
 
     /* BACK (double sided signs) */
@@ -139,8 +149,15 @@ public class TrafficSignBlockEntity extends DLSyncedBlockEntity implements IBloc
     }
 
     public void setBackTextureId(String id) {
-        this.backTextureId = id;
-        notifyUpdate();
+        if (!Objects.equals(this.backTextureId, id)) {
+            this.backTextureId = id;
+            resetTexture();
+            notifyUpdate();
+            setChanged();
+            if (level != null && !level.isClientSide) {
+                level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+            }
+        }
     }
 
     /* SHARED */
@@ -150,7 +167,7 @@ public class TrafficSignBlockEntity extends DLSyncedBlockEntity implements IBloc
      * (which calls this) works for front and back without any changes.
      */
     public void resetTexture() {
-        if (level.isClientSide) {
+        if (level != null && level.isClientSide) {
             TrafficSignClientTexture oldTexture = texture;
             TrafficSignClientTexture oldBackTexture = backTexture;
             texture = null;

@@ -2,6 +2,8 @@ package com.destan.trafficengine.block.data;
 
 import com.destan.trafficengine.block.PaintedAsphaltBlock;
 import com.destan.trafficengine.block.PaintedAsphaltSlope;
+import com.destan.trafficengine.block.entity.ColoredBlockEntity;
+import com.destan.trafficengine.data.PaintColor;
 import com.destan.trafficengine.item.BrushItem;
 import com.destan.trafficengine.registry.ModBlocks;
 import net.minecraft.core.BlockPos;
@@ -21,11 +23,13 @@ import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition.Builder;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 
 public abstract class RoadBlock extends ColorableBlock {
 
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
+    public static final BooleanProperty BASE_PAINTED = BooleanProperty.create("base_painted");
 
     private RoadType defaultRoadType;
 
@@ -33,7 +37,8 @@ public abstract class RoadBlock extends ColorableBlock {
         super(properties);
         this.defaultRoadType = type;
         this.registerDefaultState(this.stateDefinition.any()
-                .setValue(FACING, Direction.NORTH));
+                .setValue(FACING, Direction.NORTH)
+                .setValue(BASE_PAINTED, false));
     }
 
     public RoadType getDefaultRoadType() {
@@ -59,7 +64,7 @@ public abstract class RoadBlock extends ColorableBlock {
     @Override
     protected void createBlockStateDefinition(Builder<Block, BlockState> pBuilder) {
         super.createBlockStateDefinition(pBuilder);
-        pBuilder.add(FACING);
+        pBuilder.add(FACING, BASE_PAINTED);
     }
 
     @Override
@@ -72,22 +77,44 @@ public abstract class RoadBlock extends ColorableBlock {
         Player player = pContext.getPlayer();
         
         if (level.getBlockEntity(pos) instanceof IColorBlockEntity) {
+            PaintColor baseColor = PaintColor.NONE;
+            if (level.getBlockEntity(pos) instanceof ColoredBlockEntity coloredBlockEntity) {
+                baseColor = coloredBlockEntity.getColor();
+            }
+
+            boolean basePainted = state.getValue(BASE_PAINTED);
+            int patternId = BrushItem.getPatternId(stack);
+            // Pattern 0 is the plain road-paint mode: it changes only the
+            // road surface. All other patterns retain that surface colour.
+            if (patternId == 0) {
+                baseColor = BrushItem.getColor(stack);
+                basePainted = true;
+            }
+
             if (state.getBlock() instanceof PaintedAsphaltBlock)
-                id = this.getDefaultRoadType().getRoadType() + "_pattern_" + BrushItem.getPatternId(stack);
+                id = this.getDefaultRoadType().getRoadType() + "_pattern_" + patternId;
             else if (state.getBlock() instanceof PaintedAsphaltSlope)
-                id = this.getDefaultRoadType().getRoadType() + "_slope_pattern_" + BrushItem.getPatternId(stack);
+                id = this.getDefaultRoadType().getRoadType() + "_slope_pattern_" + patternId;
 
             if (!ModBlocks.ROAD_BLOCKS.containsKey(id)) {
                 return InteractionResult.FAIL;
             }
 
-            BlockState newState = ModBlocks.ROAD_BLOCKS.get(id).get().defaultBlockState().setValue(RoadBlock.FACING, player.getDirection());
+            BlockState newState = ModBlocks.ROAD_BLOCKS.get(id).get().defaultBlockState()
+                    .setValue(RoadBlock.FACING, player.getDirection())
+                    .setValue(RoadBlock.BASE_PAINTED, basePainted);
                 if (state.getBlock() instanceof PaintedAsphaltSlope) {
                     newState = newState.setValue(PaintedAsphaltSlope.LAYERS, state.getValue(PaintedAsphaltSlope.LAYERS));
                 }
 
                 level.setBlockAndUpdate(pos, newState);
-                super.onSetColor(pContext);
+                if (level.getBlockEntity(pos) instanceof ColoredBlockEntity coloredBlockEntity) {
+                    PaintColor markingColor = patternId == 0 ? PaintColor.NONE : BrushItem.getColor(stack);
+                    coloredBlockEntity.setRoadColors(baseColor, markingColor);
+                }
+                if (!level.isClientSide) {
+                    level.playSound(null, pos, SoundEvents.SLIME_BLOCK_PLACE, SoundSource.BLOCKS, 0.8F, 2.0F);
+                }
 
                 return InteractionResult.CONSUME;
         }

@@ -16,6 +16,7 @@ import com.destan.trafficengine.client.screen.RoadConstructionToolScreen;
 import com.destan.trafficengine.client.screen.StreetLampScheduleScreen;
 import com.destan.trafficengine.client.screen.TownSignScreen;
 import com.destan.trafficengine.client.screen.TrafficLightControllerScreen;
+import com.destan.trafficengine.client.screen.LedDeviceScreen;
 import com.destan.trafficengine.data.PaintColor;
 import com.destan.trafficengine.init.ClientInit;
 import com.destan.trafficengine.network.packets.stc.TrafficSignWorkbenchUpdateClientPacket;
@@ -59,6 +60,10 @@ public class ClientWrapper {
 
     public static void showTrafficLightControllerScreen(BlockPos pos, Level level) {
         DLWindow.openWindow(mgr -> new TrafficLightControllerScreen(mgr, pos, level));
+    }
+
+    public static void showLedDeviceScreen(Level level, BlockPos pos) {
+        Minecraft.getInstance().setScreen(new LedDeviceScreen(level, pos));
     }
 
     public static void showWritableSignScreen(DLWritableSignBlockEntity pSign) {

@@ -3,6 +3,7 @@ package com.destan.trafficengine.client.ber;
 import de.mrjulsen.mcdragonlib.client.ber.BERGraphics;
 import de.mrjulsen.mcdragonlib.client.ber.RotatableBlockEntityRenderer;
 import com.destan.trafficengine.block.TrafficLightBlock;
+import com.destan.trafficengine.block.HorizontalTrafficLightBlock;
 import com.destan.trafficengine.block.data.TrafficLightColor;
 import com.destan.trafficengine.block.data.TrafficLightIcon;
 import com.destan.trafficengine.block.data.TrafficLightType;
@@ -15,6 +16,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.RenderType;
 import org.joml.Matrix4f;
+import com.mojang.math.Axis;
 
 import java.io.File;
 import java.io.FileReader;
@@ -22,13 +24,14 @@ import java.io.FileWriter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import net.minecraft.core.BlockPos;
 
 public class TrafficLightBlockEntityRenderer extends RotatableBlockEntityRenderer<TrafficLightBlockEntity> {
 
     private static final Map<String, Long> startTimes = new HashMap<>();
     private static final Map<String, Long> knownDurations = new HashMap<>();
-    private static final Map<BlockPos, Integer> lastColorMap = new HashMap<>();
+    private static final Map<String, Integer> lastColorMap = new HashMap<>();
+    private static final Map<String, Long> lastLitTimes = new HashMap<>();
+    private static final long BLINK_HOLD_TICKS = 40L;
 
     private static boolean cacheLoaded = false;
     private static final Properties timerCache = new Properties();
@@ -109,14 +112,14 @@ public class TrafficLightBlockEntityRenderer extends RotatableBlockEntityRendere
 
             if (be.getLevel() != null && rawColorCode != 0) {
                 long currentTime = be.getLevel().getGameTime();
-                BlockPos pos = be.getBlockPos();
                 String dim = be.getLevel().dimension().location().toString();
-                String phaseKey = dim + "_" + pos.asLong() + "_" + rawColorCode;
+                String lightKey = dim + "_" + be.getBlockPos().asLong();
+                String phaseKey = lightKey + "_" + rawColorCode;
 
-                Integer lastCol = lastColorMap.get(pos);
+                Integer lastCol = lastColorMap.get(lightKey);
                 if (lastCol == null || lastCol != rawColorCode) {
                     if (lastCol != null) {
-                        String lastPhaseKey = dim + "_" + pos.asLong() + "_" + lastCol;
+                        String lastPhaseKey = lightKey + "_" + lastCol;
                         long startTime = startTimes.getOrDefault(lastPhaseKey, currentTime);
                         long duration = currentTime - startTime;
                         if (duration > 10) {
@@ -125,16 +128,15 @@ public class TrafficLightBlockEntityRenderer extends RotatableBlockEntityRendere
                         }
                     }
                     startTimes.put(phaseKey, currentTime);
-                    lastColorMap.put(pos, rawColorCode);
+                    lastColorMap.put(lightKey, rawColorCode);
                 }
 
                 if (knownDurations.containsKey(phaseKey)) {
                     long startTime = startTimes.getOrDefault(phaseKey, currentTime);
-                    long passedTicks = currentTime - startTime;
+                    long passedTicks = Math.max(0L, currentTime - startTime);
                     long totalTicks = knownDurations.get(phaseKey);
-                    long remainingTicks = totalTicks - passedTicks;
-
-                    if (remainingTicks < 0) return 0;
+                    if (totalTicks <= 0L) return -1;
+                    long remainingTicks = totalTicks - (passedTicks % totalTicks);
                     return (int) ((remainingTicks + 19) / 20);
                 }
             }
@@ -146,8 +148,31 @@ public class TrafficLightBlockEntityRenderer extends RotatableBlockEntityRendere
 
     @Override
     public void renderBlock(BERGraphics<TrafficLightBlockEntity> graphics, float pPartialTick) {
+        BlockState state = graphics.blockEntity() == null ? null : graphics.blockEntity().getBlockState();
+        boolean diagonal = state != null
+            && !(state.getBlock() instanceof HorizontalTrafficLightBlock)
+            && state.hasProperty(TrafficLightBlock.DIAGONAL)
+            && state.getValue(TrafficLightBlock.DIAGONAL);
+
+        if (diagonal) {
+            graphics.poseStack().pushPose();
+            graphics.poseStack().translate(8.0f, 8.0f, 8.0f);
+            graphics.poseStack().mulPose(Axis.YP.rotationDegrees(-45.0f));
+            graphics.poseStack().translate(-8.0f, -8.0f, -8.0f);
+        }
+
+        try {
+            renderOriented(graphics, pPartialTick);
+        } finally {
+            if (diagonal) {
+                graphics.poseStack().popPose();
+            }
+        }
+    }
+
+    private void renderOriented(BERGraphics<TrafficLightBlockEntity> graphics, float pPartialTick) {
         // YENİ EKLENEN KONTROL BLOĞU:
-        if (graphics.blockEntity().getBlockState().getBlock() instanceof com.destan.trafficengine.block.HorizontalTrafficLightBlock) {
+        if (graphics.blockEntity().getBlockState().getBlock() instanceof HorizontalTrafficLightBlock) {
             this.horizontalRenderer.renderBlock(graphics, pPartialTick);
             return;
         }
@@ -164,6 +189,21 @@ public class TrafficLightBlockEntityRenderer extends RotatableBlockEntityRendere
         else if (isRed) rawColorCode = 1;
         else if (isYellow) rawColorCode = 2;
         else if (isGreen) rawColorCode = 3;
+
+        if (isCountdown && graphics.blockEntity().getLevel() != null) {
+            String lightKey = graphics.blockEntity().getLevel().dimension().location() + "_"
+                + graphics.blockEntity().getBlockPos().asLong();
+            long gameTime = graphics.blockEntity().getLevel().getGameTime();
+            if (rawColorCode != 0) {
+                lastLitTimes.put(lightKey, gameTime);
+            } else {
+                Integer heldColor = lastColorMap.get(lightKey);
+                Long lastLit = lastLitTimes.get(lightKey);
+                if (heldColor != null && lastLit != null && gameTime >= lastLit && gameTime - lastLit <= BLINK_HOLD_TICKS) {
+                    rawColorCode = heldColor;
+                }
+            }
+        }
 
         if (graphics.blockEntity().getLevel() != null && rawColorCode != 0) {
             getRealRemainingSeconds(graphics.blockEntity(), rawColorCode);

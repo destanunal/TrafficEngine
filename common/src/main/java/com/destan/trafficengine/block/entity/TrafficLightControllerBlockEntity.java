@@ -99,6 +99,16 @@ public class TrafficLightControllerBlockEntity extends DLSyncedBlockEntity {
             return;
         }
 
+        trafficLightLocations.removeIf(a -> level.isLoaded(a.getLocationBlockPos())
+            && !(level.getBlockEntity(a.getLocationBlockPos()) instanceof TrafficLightBlockEntity)
+            && !(level.getBlockEntity(a.getLocationBlockPos()) instanceof LedDeviceBlockEntity));
+        trafficLightLocations.forEach(a -> {
+            if (level.isLoaded(a.getLocationBlockPos())
+                    && level.getBlockEntity(a.getLocationBlockPos()) instanceof LedDeviceBlockEntity led) {
+                led.setControllerEnabled(running);
+            }
+        });
+
         if (running) {
             TrafficLightSchedule schedule = this.getFirstOrMainSchedule();
             List<TrafficLightScheduleEntryData> stateData = schedule.shouldChange(ticks);
@@ -113,12 +123,6 @@ public class TrafficLightControllerBlockEntity extends DLSyncedBlockEntity {
                 for (TrafficLightScheduleEntryData entry : stateData) {
                     Collection<TrafficLightColor> colors = entry.getEnabledColors();
                     int phaseId = entry.getPhaseId();
-
-                    trafficLightLocations.removeIf(a -> 
-                        !level.isLoaded(a.getLocationBlockPos()) &&
-                        !(level.getBlockState(a.getLocationBlockPos()).getBlock() instanceof TrafficLightBlock) ||
-                        !(level.getBlockEntity(a.getLocationBlockPos()) instanceof TrafficLightBlockEntity)
-                    );
 
                     trafficLightLocations.stream().filter(x -> 
                         level.getBlockEntity(x.getLocationBlockPos()) instanceof TrafficLightBlockEntity blockEntity &&

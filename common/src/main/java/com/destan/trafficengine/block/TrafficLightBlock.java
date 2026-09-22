@@ -9,6 +9,7 @@ import com.destan.trafficengine.block.data.compat.TrafficLightDirection;
 import com.destan.trafficengine.block.data.compat.TrafficLightMode;
 import com.destan.trafficengine.block.data.compat.TrafficLightVariant;
 import com.destan.trafficengine.block.data.ColorableBlock;
+import com.destan.trafficengine.block.data.DiagonalVoxelShapes;
 import com.destan.trafficengine.block.data.ITrafficPostLike;
 import com.destan.trafficengine.block.data.TrafficLightColor;
 import com.destan.trafficengine.block.data.TrafficLightModel;
@@ -60,6 +61,7 @@ public class TrafficLightBlock extends ColorableBlock implements SimpleWaterlogg
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
+    public static final BooleanProperty DIAGONAL = BooleanProperty.create("diagonal");
     public static final EnumProperty<TrafficLightModel> MODEL = EnumProperty.create("model", TrafficLightModel.class);
 
     @Deprecated public static final EnumProperty<TrafficLightVariant> VARIANT = EnumProperty.create("variant", TrafficLightVariant.class);
@@ -69,6 +71,7 @@ public class TrafficLightBlock extends ColorableBlock implements SimpleWaterlogg
     public static final VoxelShape SHAPE_COMMON = Block.box(7, 0, 7, 9, 16, 9);
 
     private static final Map<TrafficLightModel, Map<Direction, VoxelShape>> shapes = new HashMap<>();
+    private static final Map<TrafficLightModel, Map<Direction, VoxelShape>> diagonalShapes = new HashMap<>();
     static {
         Arrays.stream(TrafficLightModel.values()).forEach(x -> {
             Map<Direction, VoxelShape> voxelShapes = new HashMap<>();
@@ -77,6 +80,13 @@ public class TrafficLightBlock extends ColorableBlock implements SimpleWaterlogg
             voxelShapes.put(Direction.EAST, Block.box(10, x.getHitboxBottom(), 4, 15, x.getHitboxTop(), 12));
             voxelShapes.put(Direction.WEST, Block.box(1, x.getHitboxBottom(), 4, 6, x.getHitboxTop(), 12));        
             shapes.put(x, voxelShapes);
+
+            Map<Direction, VoxelShape> rotated = new HashMap<>();
+            voxelShapes.forEach((direction, shape) -> rotated.put(
+                direction,
+                DiagonalVoxelShapes.rotateClockwise45(Shapes.or(SHAPE_COMMON, shape))
+            ));
+            diagonalShapes.put(x, rotated);
         });
     }
 
@@ -89,9 +99,10 @@ public class TrafficLightBlock extends ColorableBlock implements SimpleWaterlogg
         );
         this.registerDefaultState(this.stateDefinition.any()
             .setValue(FACING, Direction.NORTH)
+            .setValue(DIAGONAL, false)
             .setValue(MODEL, TrafficLightModel.THREE_LIGHTS)
         );
-        this.registerDefaultState(this.stateDefinition.any().setValue(WATERLOGGED, Boolean.valueOf(false)).setValue(FACING, Direction.NORTH).setValue(MODEL, TrafficLightModel.THREE_LIGHTS));
+        this.registerDefaultState(this.stateDefinition.any().setValue(WATERLOGGED, false).setValue(FACING, Direction.NORTH).setValue(DIAGONAL, false).setValue(MODEL, TrafficLightModel.THREE_LIGHTS));
     }
 
     @Override
@@ -101,7 +112,11 @@ public class TrafficLightBlock extends ColorableBlock implements SimpleWaterlogg
 
     @Override
     public VoxelShape getShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext) {
-        return Shapes.or(SHAPE_COMMON, shapes.get(pState.getValue(MODEL)).get((Direction)pState.getValue(FACING)));
+        TrafficLightModel model = pState.getValue(MODEL);
+        Direction facing = pState.getValue(FACING);
+        return pState.getValue(DIAGONAL)
+            ? diagonalShapes.get(model).get(facing)
+            : Shapes.or(SHAPE_COMMON, shapes.get(model).get(facing));
     }
 
     @Override
@@ -135,13 +150,34 @@ public class TrafficLightBlock extends ColorableBlock implements SimpleWaterlogg
         FluidState fluidstate = pContext.getLevel().getFluidState(pContext.getClickedPos());
         boolean flag = fluidstate.getType() == Fluids.WATER;
 
-        return this.defaultBlockState().setValue(WATERLOGGED, Boolean.valueOf(flag)).setValue(FACING, pContext.getHorizontalDirection().getOpposite());
+        float rotation = pContext.getPlayer() == null
+            ? pContext.getHorizontalDirection().toYRot()
+            : pContext.getPlayer().getYRot();
+        int sector = getPlacementSector(rotation);
+
+        return this.defaultBlockState()
+            .setValue(WATERLOGGED, flag)
+            .setValue(FACING, getEightWayFacing(sector))
+            .setValue(DIAGONAL, (sector & 1) == 1);
+    }
+
+    private static int getPlacementSector(float rotation) {
+        return Math.floorMod((int)Math.floor((rotation + 22.5f) / 45.0f), 8);
+    }
+
+    private static Direction getEightWayFacing(int sector) {
+        return switch (sector) {
+            case 0, 1 -> Direction.NORTH;
+            case 2, 3 -> Direction.EAST;
+            case 4, 5 -> Direction.SOUTH;
+            default -> Direction.WEST;
+        };
     }
 
     @Override
     protected void createBlockStateDefinition(Builder<Block, BlockState> pBuilder) {
         super.createBlockStateDefinition(pBuilder);
-        pBuilder.add(WATERLOGGED, FACING, MODEL);
+        pBuilder.add(WATERLOGGED, FACING, DIAGONAL, MODEL);
     }
 
     public boolean isPathfindable(BlockState pState, BlockGetter pLevel, BlockPos pPos, PathComputationType pType) {
@@ -233,6 +269,6 @@ public class TrafficLightBlock extends ColorableBlock implements SimpleWaterlogg
 
     @Override
     public boolean canAttach(BlockState pState, BlockPos pPos, Direction pDirection) {
-        return pDirection != pState.getValue(FACING);
+        return pState.getValue(DIAGONAL) || pDirection != pState.getValue(FACING);
     }
 }

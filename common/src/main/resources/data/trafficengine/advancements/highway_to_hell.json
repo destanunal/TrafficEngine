@@ -1,7 +1,7 @@
 {
   "display": {
     "icon": {
-      "item": "trafficengine:gold_road_construction_tool"
+      "item": "trafficengine:netherite_road_construction_tool"
     },
     "title": {
       "translate": "advancement.trafficengine.highway_to_hell"

@@ -1,132 +1,468 @@
 {
-  "variants": {
-    "facing=north,layers=1": {
-      "model": "trafficengine:block/concrete/slope/31_2",
-      "y": 0
+  "multipart": [
+    {
+      "when": {
+        "base_painted": "false",
+        "layers": "1"
+      },
+      "apply": {
+        "model": "trafficengine:block/concrete_slope_2"
+      }
     },
-    "facing=east,layers=1": {
-      "model": "trafficengine:block/concrete/slope/31_2",
-      "y": 90
+    {
+      "when": {
+        "base_painted": "true",
+        "layers": "1"
+      },
+      "apply": {
+        "model": "trafficengine:block/concrete_painted_slope_2"
+      }
     },
-    "facing=south,layers=1": {
-      "model": "trafficengine:block/concrete/slope/31_2",
-      "y": 180
+    {
+      "when": {
+        "facing": "north",
+        "layers": "1"
+      },
+      "apply": {
+        "model": "trafficengine:block/concrete/slope/31_2",
+        "y": 0
+      }
     },
-    "facing=west,layers=1": {
-      "model": "trafficengine:block/concrete/slope/31_2",
-      "y": 270
+    {
+      "when": {
+        "facing": "east",
+        "layers": "1"
+      },
+      "apply": {
+        "model": "trafficengine:block/concrete/slope/31_2",
+        "y": 90
+      }
     },
-    "facing=north,layers=2": {
-      "model": "trafficengine:block/concrete/slope/31_4",
-      "y": 0
+    {
+      "when": {
+        "facing": "south",
+        "layers": "1"
+      },
+      "apply": {
+        "model": "trafficengine:block/concrete/slope/31_2",
+        "y": 180
+      }
     },
-    "facing=east,layers=2": {
-      "model": "trafficengine:block/concrete/slope/31_4",
-      "y": 90
+    {
+      "when": {
+        "facing": "west",
+        "layers": "1"
+      },
+      "apply": {
+        "model": "trafficengine:block/concrete/slope/31_2",
+        "y": 270
+      }
     },
-    "facing=south,layers=2": {
-      "model": "trafficengine:block/concrete/slope/31_4",
-      "y": 180
+    {
+      "when": {
+        "base_painted": "false",
+        "layers": "2"
+      },
+      "apply": {
+        "model": "trafficengine:block/concrete_slope_4"
+      }
     },
-    "facing=west,layers=2": {
-      "model": "trafficengine:block/concrete/slope/31_4",
-      "y": 270
+    {
+      "when": {
+        "base_painted": "true",
+        "layers": "2"
+      },
+      "apply": {
+        "model": "trafficengine:block/concrete_painted_slope_4"
+      }
     },
-    "facing=north,layers=3": {
-      "model": "trafficengine:block/concrete/slope/31_6",
-      "y": 0
+    {
+      "when": {
+        "facing": "north",
+        "layers": "2"
+      },
+      "apply": {
+        "model": "trafficengine:block/concrete/slope/31_4",
+        "y": 0
+      }
     },
-    "facing=east,layers=3": {
-      "model": "trafficengine:block/concrete/slope/31_6",
-      "y": 90
+    {
+      "when": {
+        "facing": "east",
+        "layers": "2"
+      },
+      "apply": {
+        "model": "trafficengine:block/concrete/slope/31_4",
+        "y": 90
+      }
     },
-    "facing=south,layers=3": {
-      "model": "trafficengine:block/concrete/slope/31_6",
-      "y": 180
+    {
+      "when": {
+        "facing": "south",
+        "layers": "2"
+      },
+      "apply": {
+        "model": "trafficengine:block/concrete/slope/31_4",
+        "y": 180
+      }
     },
-    "facing=west,layers=3": {
-      "model": "trafficengine:block/concrete/slope/31_6",
-      "y": 270
+    {
+      "when": {
+        "facing": "west",
+        "layers": "2"
+      },
+      "apply": {
+        "model": "trafficengine:block/concrete/slope/31_4",
+        "y": 270
+      }
     },
-    "facing=north,layers=4": {
-      "model": "trafficengine:block/concrete/slope/31_8",
-      "y": 0
+    {
+      "when": {
+        "base_painted": "false",
+        "layers": "3"
+      },
+      "apply": {
+        "model": "trafficengine:block/concrete_slope_6"
+      }
     },
-    "facing=east,layers=4": {
-      "model": "trafficengine:block/concrete/slope/31_8",
-      "y": 90
+    {
+      "when": {
+        "base_painted": "true",
+        "layers": "3"
+      },
+      "apply": {
+        "model": "trafficengine:block/concrete_painted_slope_6"
+      }
     },
-    "facing=south,layers=4": {
-      "model": "trafficengine:block/concrete/slope/31_8",
-      "y": 180
+    {
+      "when": {
+        "facing": "north",
+        "layers": "3"
+      },
+      "apply": {
+        "model": "trafficengine:block/concrete/slope/31_6",
+        "y": 0
+      }
     },
-    "facing=west,layers=4": {
-      "model": "trafficengine:block/concrete/slope/31_8",
-      "y": 270
+    {
+      "when": {
+        "facing": "east",
+        "layers": "3"
+      },
+      "apply": {
+        "model": "trafficengine:block/concrete/slope/31_6",
+        "y": 90
+      }
     },
-    "facing=north,layers=5": {
-      "model": "trafficengine:block/concrete/slope/31_10",
-      "y": 0
+    {
+      "when": {
+        "facing": "south",
+        "layers": "3"
+      },
+      "apply": {
+        "model": "trafficengine:block/concrete/slope/31_6",
+        "y": 180
+      }
     },
-    "facing=east,layers=5": {
-      "model": "trafficengine:block/concrete/slope/31_10",
-      "y": 90
+    {
+      "when": {
+        "facing": "west",
+        "layers": "3"
+      },
+      "apply": {
+        "model": "trafficengine:block/concrete/slope/31_6",
+        "y": 270
+      }
     },
-    "facing=south,layers=5": {
-      "model": "trafficengine:block/concrete/slope/31_10",
-      "y": 180
+    {
+      "when": {
+        "base_painted": "false",
+        "layers": "4"
+      },
+      "apply": {
+        "model": "trafficengine:block/concrete_slope_8"
+      }
     },
-    "facing=west,layers=5": {
-      "model": "trafficengine:block/concrete/slope/31_10",
-      "y": 270
+    {
+      "when": {
+        "base_painted": "true",
+        "layers": "4"
+      },
+      "apply": {
+        "model": "trafficengine:block/concrete_painted_slope_8"
+      }
     },
-    "facing=north,layers=6": {
-      "model": "trafficengine:block/concrete/slope/31_12",
-      "y": 0
+    {
+      "when": {
+        "facing": "north",
+        "layers": "4"
+      },
+      "apply": {
+        "model": "trafficengine:block/concrete/slope/31_8",
+        "y": 0
+      }
     },
-    "facing=east,layers=6": {
-      "model": "trafficengine:block/concrete/slope/31_12",
-      "y": 90
+    {
+      "when": {
+        "facing": "east",
+        "layers": "4"
+      },
+      "apply": {
+        "model": "trafficengine:block/concrete/slope/31_8",
+        "y": 90
+      }
     },
-    "facing=south,layers=6": {
-      "model": "trafficengine:block/concrete/slope/31_12",
-      "y": 180
+    {
+      "when": {
+        "facing": "south",
+        "layers": "4"
+      },
+      "apply": {
+        "model": "trafficengine:block/concrete/slope/31_8",
+        "y": 180
+      }
     },
-    "facing=west,layers=6": {
-      "model": "trafficengine:block/concrete/slope/31_12",
-      "y": 270
+    {
+      "when": {
+        "facing": "west",
+        "layers": "4"
+      },
+      "apply": {
+        "model": "trafficengine:block/concrete/slope/31_8",
+        "y": 270
+      }
     },
-    "facing=north,layers=7": {
-      "model": "trafficengine:block/concrete/slope/31_14",
-      "y": 0
+    {
+      "when": {
+        "base_painted": "false",
+        "layers": "5"
+      },
+      "apply": {
+        "model": "trafficengine:block/concrete_slope_10"
+      }
     },
-    "facing=east,layers=7": {
-      "model": "trafficengine:block/concrete/slope/31_14",
-      "y": 90
+    {
+      "when": {
+        "base_painted": "true",
+        "layers": "5"
+      },
+      "apply": {
+        "model": "trafficengine:block/concrete_painted_slope_10"
+      }
     },
-    "facing=south,layers=7": {
-      "model": "trafficengine:block/concrete/slope/31_14",
-      "y": 180
+    {
+      "when": {
+        "facing": "north",
+        "layers": "5"
+      },
+      "apply": {
+        "model": "trafficengine:block/concrete/slope/31_10",
+        "y": 0
+      }
     },
-    "facing=west,layers=7": {
-      "model": "trafficengine:block/concrete/slope/31_14",
-      "y": 270
+    {
+      "when": {
+        "facing": "east",
+        "layers": "5"
+      },
+      "apply": {
+        "model": "trafficengine:block/concrete/slope/31_10",
+        "y": 90
+      }
     },
-    "facing=north,layers=8": {
-      "model": "trafficengine:block/concrete/31",
-      "y": 0
+    {
+      "when": {
+        "facing": "south",
+        "layers": "5"
+      },
+      "apply": {
+        "model": "trafficengine:block/concrete/slope/31_10",
+        "y": 180
+      }
     },
-    "facing=east,layers=8": {
-      "model": "trafficengine:block/concrete/31",
-      "y": 90
+    {
+      "when": {
+        "facing": "west",
+        "layers": "5"
+      },
+      "apply": {
+        "model": "trafficengine:block/concrete/slope/31_10",
+        "y": 270
+      }
     },
-    "facing=south,layers=8": {
-      "model": "trafficengine:block/concrete/31",
-      "y": 180
+    {
+      "when": {
+        "base_painted": "false",
+        "layers": "6"
+      },
+      "apply": {
+        "model": "trafficengine:block/concrete_slope_12"
+      }
     },
-    "facing=west,layers=8": {
-      "model": "trafficengine:block/concrete/31",
-      "y": 270
+    {
+      "when": {
+        "base_painted": "true",
+        "layers": "6"
+      },
+      "apply": {
+        "model": "trafficengine:block/concrete_painted_slope_12"
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "layers": "6"
+      },
+      "apply": {
+        "model": "trafficengine:block/concrete/slope/31_12",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "layers": "6"
+      },
+      "apply": {
+        "model": "trafficengine:block/concrete/slope/31_12",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "layers": "6"
+      },
+      "apply": {
+        "model": "trafficengine:block/concrete/slope/31_12",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "layers": "6"
+      },
+      "apply": {
+        "model": "trafficengine:block/concrete/slope/31_12",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "base_painted": "false",
+        "layers": "7"
+      },
+      "apply": {
+        "model": "trafficengine:block/concrete_slope_14"
+      }
+    },
+    {
+      "when": {
+        "base_painted": "true",
+        "layers": "7"
+      },
+      "apply": {
+        "model": "trafficengine:block/concrete_painted_slope_14"
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "layers": "7"
+      },
+      "apply": {
+        "model": "trafficengine:block/concrete/slope/31_14",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "layers": "7"
+      },
+      "apply": {
+        "model": "trafficengine:block/concrete/slope/31_14",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "layers": "7"
+      },
+      "apply": {
+        "model": "trafficengine:block/concrete/slope/31_14",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "layers": "7"
+      },
+      "apply": {
+        "model": "trafficengine:block/concrete/slope/31_14",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "base_painted": "false",
+        "layers": "8"
+      },
+      "apply": {
+        "model": "trafficengine:block/concrete"
+      }
+    },
+    {
+      "when": {
+        "base_painted": "true",
+        "layers": "8"
+      },
+      "apply": {
+        "model": "trafficengine:block/concrete_painted_base"
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "layers": "8"
+      },
+      "apply": {
+        "model": "trafficengine:block/concrete/31",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "layers": "8"
+      },
+      "apply": {
+        "model": "trafficengine:block/concrete/31",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "layers": "8"
+      },
+      "apply": {
+        "model": "trafficengine:block/concrete/31",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "layers": "8"
+      },
+      "apply": {
+        "model": "trafficengine:block/concrete/31",
+        "y": 270
+      }
     }
-  }
+  ]
 }

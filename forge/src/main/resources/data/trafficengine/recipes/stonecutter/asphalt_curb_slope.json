@@ -1,8 +1,0 @@
-{
-    "type": "minecraft:stonecutting",
-    "ingredient": {
-        "item": "trafficengine:asphalt_curb"
-    },
-    "result": "trafficengine:asphalt_curb_slope",
-    "count": 8
-}

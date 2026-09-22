@@ -1,0 +1,26 @@
+{
+  "multipart": [
+    { "when": { "facing": "north", "wall_mounted": "false", "post_above": "false", "post_mounted": "false" }, "apply": { "model": "trafficengine:block/traffic_display_aligned_positive" } },
+    { "when": { "facing": "east", "wall_mounted": "false", "post_above": "false", "post_mounted": "false" }, "apply": { "model": "trafficengine:block/traffic_display_aligned_positive", "y": 90 } },
+    { "when": { "facing": "south", "wall_mounted": "false", "post_above": "false", "post_mounted": "false" }, "apply": { "model": "trafficengine:block/traffic_display_aligned_negative", "y": 180 } },
+    { "when": { "facing": "west", "wall_mounted": "false", "post_above": "false", "post_mounted": "false" }, "apply": { "model": "trafficengine:block/traffic_display_aligned_negative", "y": 270 } },
+    { "when": { "facing": "north", "wall_mounted": "false", "post_above": "false", "post_mounted": "true" }, "apply": { "model": "trafficengine:block/traffic_display" } },
+    { "when": { "facing": "east", "wall_mounted": "false", "post_above": "false", "post_mounted": "true" }, "apply": { "model": "trafficengine:block/traffic_display", "y": 90 } },
+    { "when": { "facing": "south", "wall_mounted": "false", "post_above": "false", "post_mounted": "true" }, "apply": { "model": "trafficengine:block/traffic_display", "y": 180 } },
+    { "when": { "facing": "west", "wall_mounted": "false", "post_above": "false", "post_mounted": "true" }, "apply": { "model": "trafficengine:block/traffic_display", "y": 270 } },
+    { "when": { "facing": "north", "wall_mounted": "false", "post_above": "true" }, "apply": { "model": "trafficengine:block/traffic_display_hanging" } },
+    { "when": { "facing": "east", "wall_mounted": "false", "post_above": "true" }, "apply": { "model": "trafficengine:block/traffic_display_hanging", "y": 90 } },
+    { "when": { "facing": "south", "wall_mounted": "false", "post_above": "true" }, "apply": { "model": "trafficengine:block/traffic_display_hanging", "y": 180 } },
+    { "when": { "facing": "west", "wall_mounted": "false", "post_above": "true" }, "apply": { "model": "trafficengine:block/traffic_display_hanging", "y": 270 } },
+    { "when": { "facing": "north", "wall_mounted": "true" }, "apply": { "model": "trafficengine:block/traffic_display_wall_aligned_positive" } },
+    { "when": { "facing": "east", "wall_mounted": "true" }, "apply": { "model": "trafficengine:block/traffic_display_wall_aligned_positive", "y": 90 } },
+    { "when": { "facing": "south", "wall_mounted": "true" }, "apply": { "model": "trafficengine:block/traffic_display_wall_aligned_negative", "y": 180 } },
+    { "when": { "facing": "west", "wall_mounted": "true" }, "apply": { "model": "trafficengine:block/traffic_display_wall_aligned_negative", "y": 270 } },
+    { "when": { "post_mounted": "true", "post_above": "false", "post_side": "false" }, "apply": { "model": "trafficengine:block/led_device_post_connection" } },
+    { "when": { "post_above": "true" }, "apply": { "model": "trafficengine:block/led_device_post_connection_top" } },
+    { "when": { "facing": "north", "post_side": "true" }, "apply": { "model": "trafficengine:block/led_device_post_connection_side" } },
+    { "when": { "facing": "east", "post_side": "true" }, "apply": { "model": "trafficengine:block/led_device_post_connection_side", "y": 90 } },
+    { "when": { "facing": "south", "post_side": "true" }, "apply": { "model": "trafficengine:block/led_device_post_connection_side", "y": 180 } },
+    { "when": { "facing": "west", "post_side": "true" }, "apply": { "model": "trafficengine:block/led_device_post_connection_side", "y": 270 } }
+  ]
+}

@@ -1,7 +1,7 @@
 {
-    "parent": "trafficengine:block/road_slope_2",
+    "parent": "trafficengine:block/road_slope_overlay_2",
     "textures": {
-      "base": "trafficengine:block/cracked_asphalt",
+      "base": "trafficengine:block/cracked_asphalt_painted",
       "overlay": "trafficengine:block/patterns/134",
       "north": "trafficengine:block/patterns/23b",
       "east": "trafficengine:block/patterns/0",

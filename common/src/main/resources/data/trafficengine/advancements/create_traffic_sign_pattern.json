@@ -1,7 +1,7 @@
 {
   "display": {
     "icon": {
-      "item": "trafficengine:pattern_catalogue"
+      "item": "trafficengine:creative_pattern_catalogue"
     },
     "title": {
       "translate": "advancement.trafficengine.create_traffic_sign_pattern"

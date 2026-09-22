@@ -1,6 +1,0 @@
-{
-    "parent": "item/handheld",
-    "textures": {
-        "layer0": "trafficengine:item/stone_road_construction_tool"
-    }
-}

@@ -3,7 +3,6 @@ package com.destan.trafficengine.block;
 import com.destan.trafficengine.block.data.RoadBlock;
 import com.destan.trafficengine.block.data.RoadType;
 import com.destan.trafficengine.item.BrushItem;
-import com.destan.trafficengine.registry.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundEvents;
@@ -51,7 +50,7 @@ public class PaintedAsphaltSlope extends RoadBlock implements SimpleWaterloggedB
                 .requiresCorrectToolForDrops(), type);
 
         this.pickupBlock = pickupBlock;
-        this.registerDefaultState(this.stateDefinition.any().setValue(LAYERS, 1).setValue(WATERLOGGED, false));
+        this.registerDefaultState(this.defaultBlockState().setValue(LAYERS, 1).setValue(WATERLOGGED, false));
     }
 
     @Override
@@ -166,25 +165,16 @@ public class PaintedAsphaltSlope extends RoadBlock implements SimpleWaterloggedB
             return;
         }
 
-        if (this == ModBlocks.ASPHALT_SLOPE.get() || this == ModBlocks.CONCRETE_SLOPE.get()) {
+        Block originalSlope = this.getDefaultRoadType().getSlope();
+        if (originalSlope == null || originalSlope == this) {
             return;
         }
 
-        switch (this.getDefaultRoadType()) {
-            case ASPHALT:
-                pLevel.setBlockAndUpdate(pPos, ModBlocks.ASPHALT_SLOPE.get().defaultBlockState()
-                    .setValue(PaintedAsphaltSlope.LAYERS, pState.getValue(PaintedAsphaltSlope.LAYERS))
-                );
-                pLevel.playSound(null, pPos, SoundEvents.SLIME_BLOCK_PLACE, SoundSource.BLOCKS, 0.8F, 2.0F);
-                break;
-            case CONCRETE:
-                pLevel.setBlockAndUpdate(pPos, ModBlocks.CONCRETE_SLOPE.get().defaultBlockState()
-                    .setValue(PaintedAsphaltSlope.LAYERS, pState.getValue(PaintedAsphaltSlope.LAYERS))
-                );
-                pLevel.playSound(null, pPos, SoundEvents.SLIME_BLOCK_PLACE, SoundSource.BLOCKS, 0.8F, 2.0F);
-                break;
-            default:
-                break;
-        }
+        BlockState originalState = originalSlope.defaultBlockState()
+                .setValue(AsphaltSlope.LAYERS, pState.getValue(LAYERS))
+                .setValue(AsphaltSlope.WATERLOGGED, pState.getValue(WATERLOGGED));
+
+        pLevel.setBlockAndUpdate(pPos, originalState);
+        pLevel.playSound(null, pPos, SoundEvents.SLIME_BLOCK_PLACE, SoundSource.BLOCKS, 0.8F, 2.0F);
     }
 }

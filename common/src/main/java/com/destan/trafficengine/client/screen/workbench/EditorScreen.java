@@ -2,6 +2,7 @@ package com.destan.trafficengine.client.screen.workbench;
 
 import java.util.List;
 import java.util.function.Supplier;
+import java.lang.reflect.Field;
 
 import org.lwjgl.glfw.GLFW;
 
@@ -12,6 +13,7 @@ import de.mrjulsen.mcdragonlib.client.gui.builtin.DLColorPickerWindow;
 import de.mrjulsen.mcdragonlib.client.gui.events.DLGuiStandardEvents;
 import de.mrjulsen.mcdragonlib.client.gui.widgets.base.DLGuiComponent;
 import de.mrjulsen.mcdragonlib.client.gui.widgets.components.DLButton;
+import de.mrjulsen.mcdragonlib.client.gui.widgets.components.DLColorPicker;
 import de.mrjulsen.mcdragonlib.client.gui.widgets.components.DLRichTextEditBox;
 import de.mrjulsen.mcdragonlib.client.gui.widgets.components.DLTooltip;
 import de.mrjulsen.mcdragonlib.client.gui.widgets.layout.FlowLayout;
@@ -226,19 +228,22 @@ public class EditorScreen extends DLGuiComponent {
         });
         btnPickColor.addEventListener(DLGuiStandardEvents.ClickEvent.class, (s, e) -> {
             final DLColor safeStartColor = DLColor.of(255, config.color.getRed(), config.color.getGreen(), config.color.getBlue());
-            final boolean[] isFirstInit = { true };
 
             getWindowManager().createModal(mgr -> {
                 DLColorPickerWindow picker = new DLColorPickerWindow(mgr, false, safeStartColor, color -> {
-                    // 2. Kütüphanenin arayüzü çizerken fırlattığı hatalı koordinat rengini çöpe atıyoruz.
-                    if (isFirstInit[0]) {
-                        isFirstInit[0] = false;
-                        return;
-                    }
                     if (color != null) {
                         config.color = DLColor.of(255, color.getRed(), color.getGreen(), color.getBlue());
                     }
                 });
+
+                // DragonLib'in RGB alanlarını ilk doldururken kırmızı kanalı yeşille
+                // değiştirmesini geri al; pencere mevcut renkle birebir açılsın.
+                try {
+                    Field pickerField = DLColorPickerWindow.class.getDeclaredField("picker");
+                    pickerField.setAccessible(true);
+                    ((DLColorPicker)pickerField.get(picker)).color.set(safeStartColor);
+                } catch (ReflectiveOperationException ignored) {
+                }
 
                 return picker;
             });

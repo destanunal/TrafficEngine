@@ -37,7 +37,8 @@ dependencies {
     forge "net.minecraftforge:forge:$rootProject.forge_version"
 
     modImplementation "dev.architectury:architectury-forge:$rootProject.architectury_api_version"
-    modImplementation("de.mrjulsen.mcdragonlib:dragonlib-forge:$rootProject.minecraft_version-$rootProject.dragonlib_version")
+    // Bundle DragonLib as a nested mod so players only need the TrafficEngine jar.
+    include(modImplementation("de.mrjulsen.mcdragonlib:dragonlib-forge:$rootProject.minecraft_version-$rootProject.dragonlib_version"))
 
     compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:${rootProject.mixin_extras_version}"))
     implementation("io.github.llamalad7:mixinextras-forge:${rootProject.mixin_extras_version}")
@@ -116,5 +117,4 @@ version = "${project.mod_version}+${project.minecraft_version}"
 tasks.withType(Jar).configureEach {
     archiveBaseName.set("TrafficEngine-forge")
     archiveVersion.set("${project.mod_version}+${project.minecraft_version}")
-    archiveClassifier.set("")
 }

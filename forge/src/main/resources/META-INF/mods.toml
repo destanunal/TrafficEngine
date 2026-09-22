@@ -10,7 +10,6 @@ displayUrl="[https://github.com/destan]"
 authors = "${authors}"
 credits="This mod is inspired by TrafficCraft."
 description = '''${description}'''
-logoFile = "${icon}"
 
 [[dependencies.${modid}]]
 modId = "forge"

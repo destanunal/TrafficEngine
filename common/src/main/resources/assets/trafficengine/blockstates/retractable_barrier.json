@@ -1,0 +1,18 @@
+{
+  "multipart": [
+    {"when": {"facing": "north"}, "apply": {"model": "trafficengine:block/retractable_barrier_core"}},
+    {"when": {"facing": "east"},  "apply": {"model": "trafficengine:block/retractable_barrier_core", "y": 90}},
+    {"when": {"facing": "south"}, "apply": {"model": "trafficengine:block/retractable_barrier_core", "y": 180}},
+    {"when": {"facing": "west"},  "apply": {"model": "trafficengine:block/retractable_barrier_core", "y": 270}},
+
+    {"when": {"facing": "north", "left_connected": "false"}, "apply": {"model": "trafficengine:block/retractable_barrier_end"}},
+    {"when": {"facing": "east",  "left_connected": "false"}, "apply": {"model": "trafficengine:block/retractable_barrier_end", "y": 90}},
+    {"when": {"facing": "south", "left_connected": "false"}, "apply": {"model": "trafficengine:block/retractable_barrier_end", "y": 180}},
+    {"when": {"facing": "west",  "left_connected": "false"}, "apply": {"model": "trafficengine:block/retractable_barrier_end", "y": 270}},
+
+    {"when": {"facing": "north", "right_connected": "false"}, "apply": {"model": "trafficengine:block/retractable_barrier_end", "y": 180}},
+    {"when": {"facing": "east",  "right_connected": "false"}, "apply": {"model": "trafficengine:block/retractable_barrier_end", "y": 270}},
+    {"when": {"facing": "south", "right_connected": "false"}, "apply": {"model": "trafficengine:block/retractable_barrier_end"}},
+    {"when": {"facing": "west",  "right_connected": "false"}, "apply": {"model": "trafficengine:block/retractable_barrier_end", "y": 90}}
+  ]
+}

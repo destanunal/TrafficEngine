@@ -3,37 +3,8 @@
     {
       "when": {
         "shape": "square",
-        "facing": "north"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign/square",
-        "y": 0
-      }
-    },
-    {
-      "when": {
-        "back_shape": "square",
-        "facing": "north"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign/square",
-        "y": 180
-      }
-    },
-    {
-      "when": {
-        "shape": "square",
-        "facing": "south"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign/square",
-        "y": 180
-      }
-    },
-    {
-      "when": {
-        "back_shape": "square",
-        "facing": "south"
+        "facing": "north",
+        "diagonal": "false"
       },
       "apply": {
         "model": "trafficengine:block/sign/square",
@@ -43,7 +14,85 @@
     {
       "when": {
         "shape": "square",
-        "facing": "east"
+        "facing": "north",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/square",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "back_shape": "square",
+        "facing": "north",
+        "diagonal": "false"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/square",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "back_shape": "square",
+        "facing": "north",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/square",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "shape": "square",
+        "facing": "south",
+        "diagonal": "false"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/square",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "shape": "square",
+        "facing": "south",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/square",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "back_shape": "square",
+        "facing": "south",
+        "diagonal": "false"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/square",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "back_shape": "square",
+        "facing": "south",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/square",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "shape": "square",
+        "facing": "east",
+        "diagonal": "false"
       },
       "apply": {
         "model": "trafficengine:block/sign/square",
@@ -52,8 +101,42 @@
     },
     {
       "when": {
+        "shape": "square",
+        "facing": "east",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/square",
+        "y": 90
+      }
+    },
+    {
+      "when": {
         "back_shape": "square",
-        "facing": "east"
+        "facing": "east",
+        "diagonal": "false"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/square",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "back_shape": "square",
+        "facing": "east",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/square",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "shape": "square",
+        "facing": "west",
+        "diagonal": "false"
       },
       "apply": {
         "model": "trafficengine:block/sign/square",
@@ -63,17 +146,19 @@
     {
       "when": {
         "shape": "square",
-        "facing": "west"
+        "facing": "west",
+        "diagonal": "true"
       },
       "apply": {
-        "model": "trafficengine:block/sign/square",
+        "model": "trafficengine:block/sign/diagonal/square",
         "y": 270
       }
     },
     {
       "when": {
         "back_shape": "square",
-        "facing": "west"
+        "facing": "west",
+        "diagonal": "false"
       },
       "apply": {
         "model": "trafficengine:block/sign/square",
@@ -82,38 +167,20 @@
     },
     {
       "when": {
-        "shape": "circle",
-        "facing": "north"
+        "back_shape": "square",
+        "facing": "west",
+        "diagonal": "true"
       },
       "apply": {
-        "model": "trafficengine:block/sign/circle",
-        "y": 0
-      }
-    },
-    {
-      "when": {
-        "back_shape": "circle",
-        "facing": "north"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign/circle",
-        "y": 180
+        "model": "trafficengine:block/sign/diagonal/square",
+        "y": 90
       }
     },
     {
       "when": {
         "shape": "circle",
-        "facing": "south"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign/circle",
-        "y": 180
-      }
-    },
-    {
-      "when": {
-        "back_shape": "circle",
-        "facing": "south"
+        "facing": "north",
+        "diagonal": "false"
       },
       "apply": {
         "model": "trafficengine:block/sign/circle",
@@ -123,7 +190,85 @@
     {
       "when": {
         "shape": "circle",
-        "facing": "east"
+        "facing": "north",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/circle",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "back_shape": "circle",
+        "facing": "north",
+        "diagonal": "false"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/circle",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "back_shape": "circle",
+        "facing": "north",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/circle",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "shape": "circle",
+        "facing": "south",
+        "diagonal": "false"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/circle",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "shape": "circle",
+        "facing": "south",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/circle",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "back_shape": "circle",
+        "facing": "south",
+        "diagonal": "false"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/circle",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "back_shape": "circle",
+        "facing": "south",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/circle",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "shape": "circle",
+        "facing": "east",
+        "diagonal": "false"
       },
       "apply": {
         "model": "trafficengine:block/sign/circle",
@@ -132,8 +277,42 @@
     },
     {
       "when": {
+        "shape": "circle",
+        "facing": "east",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/circle",
+        "y": 90
+      }
+    },
+    {
+      "when": {
         "back_shape": "circle",
-        "facing": "east"
+        "facing": "east",
+        "diagonal": "false"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/circle",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "back_shape": "circle",
+        "facing": "east",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/circle",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "shape": "circle",
+        "facing": "west",
+        "diagonal": "false"
       },
       "apply": {
         "model": "trafficengine:block/sign/circle",
@@ -143,17 +322,19 @@
     {
       "when": {
         "shape": "circle",
-        "facing": "west"
+        "facing": "west",
+        "diagonal": "true"
       },
       "apply": {
-        "model": "trafficengine:block/sign/circle",
+        "model": "trafficengine:block/sign/diagonal/circle",
         "y": 270
       }
     },
     {
       "when": {
         "back_shape": "circle",
-        "facing": "west"
+        "facing": "west",
+        "diagonal": "false"
       },
       "apply": {
         "model": "trafficengine:block/sign/circle",
@@ -162,38 +343,20 @@
     },
     {
       "when": {
-        "shape": "triangle",
-        "facing": "north"
+        "back_shape": "circle",
+        "facing": "west",
+        "diagonal": "true"
       },
       "apply": {
-        "model": "trafficengine:block/sign/triangle",
-        "y": 0
-      }
-    },
-    {
-      "when": {
-        "back_shape": "triangle",
-        "facing": "north"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign/triangle",
-        "y": 180
+        "model": "trafficengine:block/sign/diagonal/circle",
+        "y": 90
       }
     },
     {
       "when": {
         "shape": "triangle",
-        "facing": "south"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign/triangle",
-        "y": 180
-      }
-    },
-    {
-      "when": {
-        "back_shape": "triangle",
-        "facing": "south"
+        "facing": "north",
+        "diagonal": "false"
       },
       "apply": {
         "model": "trafficengine:block/sign/triangle",
@@ -203,7 +366,85 @@
     {
       "when": {
         "shape": "triangle",
-        "facing": "east"
+        "facing": "north",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/triangle",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "back_shape": "triangle",
+        "facing": "north",
+        "diagonal": "false"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/triangle",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "back_shape": "triangle",
+        "facing": "north",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/triangle",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "shape": "triangle",
+        "facing": "south",
+        "diagonal": "false"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/triangle",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "shape": "triangle",
+        "facing": "south",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/triangle",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "back_shape": "triangle",
+        "facing": "south",
+        "diagonal": "false"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/triangle",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "back_shape": "triangle",
+        "facing": "south",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/triangle",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "shape": "triangle",
+        "facing": "east",
+        "diagonal": "false"
       },
       "apply": {
         "model": "trafficengine:block/sign/triangle",
@@ -212,8 +453,42 @@
     },
     {
       "when": {
+        "shape": "triangle",
+        "facing": "east",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/triangle",
+        "y": 90
+      }
+    },
+    {
+      "when": {
         "back_shape": "triangle",
-        "facing": "east"
+        "facing": "east",
+        "diagonal": "false"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/triangle",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "back_shape": "triangle",
+        "facing": "east",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/triangle",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "shape": "triangle",
+        "facing": "west",
+        "diagonal": "false"
       },
       "apply": {
         "model": "trafficengine:block/sign/triangle",
@@ -223,17 +498,19 @@
     {
       "when": {
         "shape": "triangle",
-        "facing": "west"
+        "facing": "west",
+        "diagonal": "true"
       },
       "apply": {
-        "model": "trafficengine:block/sign/triangle",
+        "model": "trafficengine:block/sign/diagonal/triangle",
         "y": 270
       }
     },
     {
       "when": {
         "back_shape": "triangle",
-        "facing": "west"
+        "facing": "west",
+        "diagonal": "false"
       },
       "apply": {
         "model": "trafficengine:block/sign/triangle",
@@ -242,38 +519,20 @@
     },
     {
       "when": {
-        "shape": "triangle_down",
-        "facing": "north"
+        "back_shape": "triangle",
+        "facing": "west",
+        "diagonal": "true"
       },
       "apply": {
-        "model": "trafficengine:block/sign/triangle_down",
-        "y": 0
-      }
-    },
-    {
-      "when": {
-        "back_shape": "triangle_down",
-        "facing": "north"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign/triangle_down",
-        "y": 180
+        "model": "trafficengine:block/sign/diagonal/triangle",
+        "y": 90
       }
     },
     {
       "when": {
         "shape": "triangle_down",
-        "facing": "south"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign/triangle_down",
-        "y": 180
-      }
-    },
-    {
-      "when": {
-        "back_shape": "triangle_down",
-        "facing": "south"
+        "facing": "north",
+        "diagonal": "false"
       },
       "apply": {
         "model": "trafficengine:block/sign/triangle_down",
@@ -283,7 +542,85 @@
     {
       "when": {
         "shape": "triangle_down",
-        "facing": "east"
+        "facing": "north",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/triangle_down",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "back_shape": "triangle_down",
+        "facing": "north",
+        "diagonal": "false"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/triangle_down",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "back_shape": "triangle_down",
+        "facing": "north",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/triangle_down",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "shape": "triangle_down",
+        "facing": "south",
+        "diagonal": "false"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/triangle_down",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "shape": "triangle_down",
+        "facing": "south",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/triangle_down",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "back_shape": "triangle_down",
+        "facing": "south",
+        "diagonal": "false"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/triangle_down",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "back_shape": "triangle_down",
+        "facing": "south",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/triangle_down",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "shape": "triangle_down",
+        "facing": "east",
+        "diagonal": "false"
       },
       "apply": {
         "model": "trafficengine:block/sign/triangle_down",
@@ -292,8 +629,42 @@
     },
     {
       "when": {
+        "shape": "triangle_down",
+        "facing": "east",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/triangle_down",
+        "y": 90
+      }
+    },
+    {
+      "when": {
         "back_shape": "triangle_down",
-        "facing": "east"
+        "facing": "east",
+        "diagonal": "false"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/triangle_down",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "back_shape": "triangle_down",
+        "facing": "east",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/triangle_down",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "shape": "triangle_down",
+        "facing": "west",
+        "diagonal": "false"
       },
       "apply": {
         "model": "trafficengine:block/sign/triangle_down",
@@ -303,17 +674,19 @@
     {
       "when": {
         "shape": "triangle_down",
-        "facing": "west"
+        "facing": "west",
+        "diagonal": "true"
       },
       "apply": {
-        "model": "trafficengine:block/sign/triangle_down",
+        "model": "trafficengine:block/sign/diagonal/triangle_down",
         "y": 270
       }
     },
     {
       "when": {
         "back_shape": "triangle_down",
-        "facing": "west"
+        "facing": "west",
+        "diagonal": "false"
       },
       "apply": {
         "model": "trafficengine:block/sign/triangle_down",
@@ -322,38 +695,20 @@
     },
     {
       "when": {
-        "shape": "diamond",
-        "facing": "north"
+        "back_shape": "triangle_down",
+        "facing": "west",
+        "diagonal": "true"
       },
       "apply": {
-        "model": "trafficengine:block/sign/diamond",
-        "y": 0
-      }
-    },
-    {
-      "when": {
-        "back_shape": "diamond",
-        "facing": "north"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign/diamond",
-        "y": 180
+        "model": "trafficengine:block/sign/diagonal/triangle_down",
+        "y": 90
       }
     },
     {
       "when": {
         "shape": "diamond",
-        "facing": "south"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign/diamond",
-        "y": 180
-      }
-    },
-    {
-      "when": {
-        "back_shape": "diamond",
-        "facing": "south"
+        "facing": "north",
+        "diagonal": "false"
       },
       "apply": {
         "model": "trafficengine:block/sign/diamond",
@@ -363,7 +718,85 @@
     {
       "when": {
         "shape": "diamond",
-        "facing": "east"
+        "facing": "north",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/diamond",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "back_shape": "diamond",
+        "facing": "north",
+        "diagonal": "false"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diamond",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "back_shape": "diamond",
+        "facing": "north",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/diamond",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "shape": "diamond",
+        "facing": "south",
+        "diagonal": "false"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diamond",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "shape": "diamond",
+        "facing": "south",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/diamond",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "back_shape": "diamond",
+        "facing": "south",
+        "diagonal": "false"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diamond",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "back_shape": "diamond",
+        "facing": "south",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/diamond",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "shape": "diamond",
+        "facing": "east",
+        "diagonal": "false"
       },
       "apply": {
         "model": "trafficengine:block/sign/diamond",
@@ -372,8 +805,42 @@
     },
     {
       "when": {
+        "shape": "diamond",
+        "facing": "east",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/diamond",
+        "y": 90
+      }
+    },
+    {
+      "when": {
         "back_shape": "diamond",
-        "facing": "east"
+        "facing": "east",
+        "diagonal": "false"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diamond",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "back_shape": "diamond",
+        "facing": "east",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/diamond",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "shape": "diamond",
+        "facing": "west",
+        "diagonal": "false"
       },
       "apply": {
         "model": "trafficengine:block/sign/diamond",
@@ -383,17 +850,19 @@
     {
       "when": {
         "shape": "diamond",
-        "facing": "west"
+        "facing": "west",
+        "diagonal": "true"
       },
       "apply": {
-        "model": "trafficengine:block/sign/diamond",
+        "model": "trafficengine:block/sign/diagonal/diamond",
         "y": 270
       }
     },
     {
       "when": {
         "back_shape": "diamond",
-        "facing": "west"
+        "facing": "west",
+        "diagonal": "false"
       },
       "apply": {
         "model": "trafficengine:block/sign/diamond",
@@ -402,38 +871,20 @@
     },
     {
       "when": {
-        "shape": "rectangle",
-        "facing": "north"
+        "back_shape": "diamond",
+        "facing": "west",
+        "diagonal": "true"
       },
       "apply": {
-        "model": "trafficengine:block/sign/rectangle",
-        "y": 0
-      }
-    },
-    {
-      "when": {
-        "back_shape": "rectangle",
-        "facing": "north"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign/rectangle",
-        "y": 180
+        "model": "trafficengine:block/sign/diagonal/diamond",
+        "y": 90
       }
     },
     {
       "when": {
         "shape": "rectangle",
-        "facing": "south"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign/rectangle",
-        "y": 180
-      }
-    },
-    {
-      "when": {
-        "back_shape": "rectangle",
-        "facing": "south"
+        "facing": "north",
+        "diagonal": "false"
       },
       "apply": {
         "model": "trafficengine:block/sign/rectangle",
@@ -443,7 +894,85 @@
     {
       "when": {
         "shape": "rectangle",
-        "facing": "east"
+        "facing": "north",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/rectangle",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "back_shape": "rectangle",
+        "facing": "north",
+        "diagonal": "false"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/rectangle",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "back_shape": "rectangle",
+        "facing": "north",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/rectangle",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "shape": "rectangle",
+        "facing": "south",
+        "diagonal": "false"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/rectangle",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "shape": "rectangle",
+        "facing": "south",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/rectangle",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "back_shape": "rectangle",
+        "facing": "south",
+        "diagonal": "false"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/rectangle",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "back_shape": "rectangle",
+        "facing": "south",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/rectangle",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "shape": "rectangle",
+        "facing": "east",
+        "diagonal": "false"
       },
       "apply": {
         "model": "trafficengine:block/sign/rectangle",
@@ -452,8 +981,42 @@
     },
     {
       "when": {
+        "shape": "rectangle",
+        "facing": "east",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/rectangle",
+        "y": 90
+      }
+    },
+    {
+      "when": {
         "back_shape": "rectangle",
-        "facing": "east"
+        "facing": "east",
+        "diagonal": "false"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/rectangle",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "back_shape": "rectangle",
+        "facing": "east",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/rectangle",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "shape": "rectangle",
+        "facing": "west",
+        "diagonal": "false"
       },
       "apply": {
         "model": "trafficengine:block/sign/rectangle",
@@ -463,17 +1026,19 @@
     {
       "when": {
         "shape": "rectangle",
-        "facing": "west"
+        "facing": "west",
+        "diagonal": "true"
       },
       "apply": {
-        "model": "trafficengine:block/sign/rectangle",
+        "model": "trafficengine:block/sign/diagonal/rectangle",
         "y": 270
       }
     },
     {
       "when": {
         "back_shape": "rectangle",
-        "facing": "west"
+        "facing": "west",
+        "diagonal": "false"
       },
       "apply": {
         "model": "trafficengine:block/sign/rectangle",
@@ -482,38 +1047,20 @@
     },
     {
       "when": {
-        "shape": "rectangle_small",
-        "facing": "north"
+        "back_shape": "rectangle",
+        "facing": "west",
+        "diagonal": "true"
       },
       "apply": {
-        "model": "trafficengine:block/sign/rectangle_small",
-        "y": 0
-      }
-    },
-    {
-      "when": {
-        "back_shape": "rectangle_small",
-        "facing": "north"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign/rectangle_small",
-        "y": 180
+        "model": "trafficengine:block/sign/diagonal/rectangle",
+        "y": 90
       }
     },
     {
       "when": {
         "shape": "rectangle_small",
-        "facing": "south"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign/rectangle_small",
-        "y": 180
-      }
-    },
-    {
-      "when": {
-        "back_shape": "rectangle_small",
-        "facing": "south"
+        "facing": "north",
+        "diagonal": "false"
       },
       "apply": {
         "model": "trafficengine:block/sign/rectangle_small",
@@ -523,7 +1070,85 @@
     {
       "when": {
         "shape": "rectangle_small",
-        "facing": "east"
+        "facing": "north",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/rectangle_small",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "back_shape": "rectangle_small",
+        "facing": "north",
+        "diagonal": "false"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/rectangle_small",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "back_shape": "rectangle_small",
+        "facing": "north",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/rectangle_small",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "shape": "rectangle_small",
+        "facing": "south",
+        "diagonal": "false"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/rectangle_small",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "shape": "rectangle_small",
+        "facing": "south",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/rectangle_small",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "back_shape": "rectangle_small",
+        "facing": "south",
+        "diagonal": "false"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/rectangle_small",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "back_shape": "rectangle_small",
+        "facing": "south",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/rectangle_small",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "shape": "rectangle_small",
+        "facing": "east",
+        "diagonal": "false"
       },
       "apply": {
         "model": "trafficengine:block/sign/rectangle_small",
@@ -532,8 +1157,42 @@
     },
     {
       "when": {
+        "shape": "rectangle_small",
+        "facing": "east",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/rectangle_small",
+        "y": 90
+      }
+    },
+    {
+      "when": {
         "back_shape": "rectangle_small",
-        "facing": "east"
+        "facing": "east",
+        "diagonal": "false"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/rectangle_small",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "back_shape": "rectangle_small",
+        "facing": "east",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/rectangle_small",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "shape": "rectangle_small",
+        "facing": "west",
+        "diagonal": "false"
       },
       "apply": {
         "model": "trafficengine:block/sign/rectangle_small",
@@ -543,17 +1202,19 @@
     {
       "when": {
         "shape": "rectangle_small",
-        "facing": "west"
+        "facing": "west",
+        "diagonal": "true"
       },
       "apply": {
-        "model": "trafficengine:block/sign/rectangle_small",
+        "model": "trafficengine:block/sign/diagonal/rectangle_small",
         "y": 270
       }
     },
     {
       "when": {
         "back_shape": "rectangle_small",
-        "facing": "west"
+        "facing": "west",
+        "diagonal": "false"
       },
       "apply": {
         "model": "trafficengine:block/sign/rectangle_small",
@@ -562,38 +1223,20 @@
     },
     {
       "when": {
-        "shape": "rectangle_horizontal",
-        "facing": "north"
+        "back_shape": "rectangle_small",
+        "facing": "west",
+        "diagonal": "true"
       },
       "apply": {
-        "model": "trafficengine:block/sign/rectangle_horizontal",
-        "y": 0
-      }
-    },
-    {
-      "when": {
-        "back_shape": "rectangle_horizontal",
-        "facing": "north"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign/rectangle_horizontal",
-        "y": 180
+        "model": "trafficengine:block/sign/diagonal/rectangle_small",
+        "y": 90
       }
     },
     {
       "when": {
         "shape": "rectangle_horizontal",
-        "facing": "south"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign/rectangle_horizontal",
-        "y": 180
-      }
-    },
-    {
-      "when": {
-        "back_shape": "rectangle_horizontal",
-        "facing": "south"
+        "facing": "north",
+        "diagonal": "false"
       },
       "apply": {
         "model": "trafficengine:block/sign/rectangle_horizontal",
@@ -603,7 +1246,85 @@
     {
       "when": {
         "shape": "rectangle_horizontal",
-        "facing": "east"
+        "facing": "north",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/rectangle_horizontal",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "back_shape": "rectangle_horizontal",
+        "facing": "north",
+        "diagonal": "false"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/rectangle_horizontal",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "back_shape": "rectangle_horizontal",
+        "facing": "north",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/rectangle_horizontal",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "shape": "rectangle_horizontal",
+        "facing": "south",
+        "diagonal": "false"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/rectangle_horizontal",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "shape": "rectangle_horizontal",
+        "facing": "south",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/rectangle_horizontal",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "back_shape": "rectangle_horizontal",
+        "facing": "south",
+        "diagonal": "false"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/rectangle_horizontal",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "back_shape": "rectangle_horizontal",
+        "facing": "south",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/rectangle_horizontal",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "shape": "rectangle_horizontal",
+        "facing": "east",
+        "diagonal": "false"
       },
       "apply": {
         "model": "trafficengine:block/sign/rectangle_horizontal",
@@ -612,8 +1333,42 @@
     },
     {
       "when": {
+        "shape": "rectangle_horizontal",
+        "facing": "east",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/rectangle_horizontal",
+        "y": 90
+      }
+    },
+    {
+      "when": {
         "back_shape": "rectangle_horizontal",
-        "facing": "east"
+        "facing": "east",
+        "diagonal": "false"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/rectangle_horizontal",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "back_shape": "rectangle_horizontal",
+        "facing": "east",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/rectangle_horizontal",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "shape": "rectangle_horizontal",
+        "facing": "west",
+        "diagonal": "false"
       },
       "apply": {
         "model": "trafficengine:block/sign/rectangle_horizontal",
@@ -623,17 +1378,19 @@
     {
       "when": {
         "shape": "rectangle_horizontal",
-        "facing": "west"
+        "facing": "west",
+        "diagonal": "true"
       },
       "apply": {
-        "model": "trafficengine:block/sign/rectangle_horizontal",
+        "model": "trafficengine:block/sign/diagonal/rectangle_horizontal",
         "y": 270
       }
     },
     {
       "when": {
         "back_shape": "rectangle_horizontal",
-        "facing": "west"
+        "facing": "west",
+        "diagonal": "false"
       },
       "apply": {
         "model": "trafficengine:block/sign/rectangle_horizontal",
@@ -642,38 +1399,20 @@
     },
     {
       "when": {
-        "shape": "small_upper",
-        "facing": "north"
+        "back_shape": "rectangle_horizontal",
+        "facing": "west",
+        "diagonal": "true"
       },
       "apply": {
-        "model": "trafficengine:block/sign/small_upper",
-        "y": 0
-      }
-    },
-    {
-      "when": {
-        "back_shape": "small_upper",
-        "facing": "north"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign/small_upper",
-        "y": 180
+        "model": "trafficengine:block/sign/diagonal/rectangle_horizontal",
+        "y": 90
       }
     },
     {
       "when": {
         "shape": "small_upper",
-        "facing": "south"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign/small_upper",
-        "y": 180
-      }
-    },
-    {
-      "when": {
-        "back_shape": "small_upper",
-        "facing": "south"
+        "facing": "north",
+        "diagonal": "false"
       },
       "apply": {
         "model": "trafficengine:block/sign/small_upper",
@@ -683,7 +1422,85 @@
     {
       "when": {
         "shape": "small_upper",
-        "facing": "east"
+        "facing": "north",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/small_upper",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "back_shape": "small_upper",
+        "facing": "north",
+        "diagonal": "false"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/small_upper",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "back_shape": "small_upper",
+        "facing": "north",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/small_upper",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "shape": "small_upper",
+        "facing": "south",
+        "diagonal": "false"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/small_upper",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "shape": "small_upper",
+        "facing": "south",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/small_upper",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "back_shape": "small_upper",
+        "facing": "south",
+        "diagonal": "false"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/small_upper",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "back_shape": "small_upper",
+        "facing": "south",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/small_upper",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "shape": "small_upper",
+        "facing": "east",
+        "diagonal": "false"
       },
       "apply": {
         "model": "trafficengine:block/sign/small_upper",
@@ -692,8 +1509,42 @@
     },
     {
       "when": {
+        "shape": "small_upper",
+        "facing": "east",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/small_upper",
+        "y": 90
+      }
+    },
+    {
+      "when": {
         "back_shape": "small_upper",
-        "facing": "east"
+        "facing": "east",
+        "diagonal": "false"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/small_upper",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "back_shape": "small_upper",
+        "facing": "east",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/small_upper",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "shape": "small_upper",
+        "facing": "west",
+        "diagonal": "false"
       },
       "apply": {
         "model": "trafficengine:block/sign/small_upper",
@@ -703,17 +1554,19 @@
     {
       "when": {
         "shape": "small_upper",
-        "facing": "west"
+        "facing": "west",
+        "diagonal": "true"
       },
       "apply": {
-        "model": "trafficengine:block/sign/small_upper",
+        "model": "trafficengine:block/sign/diagonal/small_upper",
         "y": 270
       }
     },
     {
       "when": {
         "back_shape": "small_upper",
-        "facing": "west"
+        "facing": "west",
+        "diagonal": "false"
       },
       "apply": {
         "model": "trafficengine:block/sign/small_upper",
@@ -722,38 +1575,20 @@
     },
     {
       "when": {
-        "shape": "small_lower",
-        "facing": "north"
+        "back_shape": "small_upper",
+        "facing": "west",
+        "diagonal": "true"
       },
       "apply": {
-        "model": "trafficengine:block/sign/small_lower",
-        "y": 0
-      }
-    },
-    {
-      "when": {
-        "back_shape": "small_lower",
-        "facing": "north"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign/small_lower",
-        "y": 180
+        "model": "trafficengine:block/sign/diagonal/small_upper",
+        "y": 90
       }
     },
     {
       "when": {
         "shape": "small_lower",
-        "facing": "south"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign/small_lower",
-        "y": 180
-      }
-    },
-    {
-      "when": {
-        "back_shape": "small_lower",
-        "facing": "south"
+        "facing": "north",
+        "diagonal": "false"
       },
       "apply": {
         "model": "trafficengine:block/sign/small_lower",
@@ -763,7 +1598,85 @@
     {
       "when": {
         "shape": "small_lower",
-        "facing": "east"
+        "facing": "north",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/small_lower",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "back_shape": "small_lower",
+        "facing": "north",
+        "diagonal": "false"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/small_lower",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "back_shape": "small_lower",
+        "facing": "north",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/small_lower",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "shape": "small_lower",
+        "facing": "south",
+        "diagonal": "false"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/small_lower",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "shape": "small_lower",
+        "facing": "south",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/small_lower",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "back_shape": "small_lower",
+        "facing": "south",
+        "diagonal": "false"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/small_lower",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "back_shape": "small_lower",
+        "facing": "south",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/small_lower",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "shape": "small_lower",
+        "facing": "east",
+        "diagonal": "false"
       },
       "apply": {
         "model": "trafficengine:block/sign/small_lower",
@@ -772,8 +1685,42 @@
     },
     {
       "when": {
+        "shape": "small_lower",
+        "facing": "east",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/small_lower",
+        "y": 90
+      }
+    },
+    {
+      "when": {
         "back_shape": "small_lower",
-        "facing": "east"
+        "facing": "east",
+        "diagonal": "false"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/small_lower",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "back_shape": "small_lower",
+        "facing": "east",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/small_lower",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "shape": "small_lower",
+        "facing": "west",
+        "diagonal": "false"
       },
       "apply": {
         "model": "trafficengine:block/sign/small_lower",
@@ -783,17 +1730,19 @@
     {
       "when": {
         "shape": "small_lower",
-        "facing": "west"
+        "facing": "west",
+        "diagonal": "true"
       },
       "apply": {
-        "model": "trafficengine:block/sign/small_lower",
+        "model": "trafficengine:block/sign/diagonal/small_lower",
         "y": 270
       }
     },
     {
       "when": {
         "back_shape": "small_lower",
-        "facing": "west"
+        "facing": "west",
+        "diagonal": "false"
       },
       "apply": {
         "model": "trafficengine:block/sign/small_lower",
@@ -802,38 +1751,20 @@
     },
     {
       "when": {
-        "shape": "octagon",
-        "facing": "north"
+        "back_shape": "small_lower",
+        "facing": "west",
+        "diagonal": "true"
       },
       "apply": {
-        "model": "trafficengine:block/sign/octagon",
-        "y": 0
-      }
-    },
-    {
-      "when": {
-        "back_shape": "octagon",
-        "facing": "north"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign/octagon",
-        "y": 180
+        "model": "trafficengine:block/sign/diagonal/small_lower",
+        "y": 90
       }
     },
     {
       "when": {
         "shape": "octagon",
-        "facing": "south"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign/octagon",
-        "y": 180
-      }
-    },
-    {
-      "when": {
-        "back_shape": "octagon",
-        "facing": "south"
+        "facing": "north",
+        "diagonal": "false"
       },
       "apply": {
         "model": "trafficengine:block/sign/octagon",
@@ -843,7 +1774,151 @@
     {
       "when": {
         "shape": "octagon",
-        "facing": "east"
+        "facing": "north",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/octagon",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "back_shape": "octagon",
+        "facing": "north",
+        "diagonal": "false"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/octagon",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "back_shape": "octagon",
+        "facing": "north",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/octagon",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "shape": "octagon",
+        "facing": "south",
+        "diagonal": "false"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/octagon",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "shape": "octagon",
+        "facing": "south",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/octagon",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "back_shape": "octagon",
+        "facing": "south",
+        "diagonal": "false"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/octagon",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "back_shape": "octagon",
+        "facing": "south",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/octagon",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "shape": "octagon",
+        "facing": "east",
+        "diagonal": "false"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/octagon",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "shape": "octagon",
+        "facing": "east",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/octagon",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "back_shape": "octagon",
+        "facing": "east",
+        "diagonal": "false"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/octagon",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "back_shape": "octagon",
+        "facing": "east",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/octagon",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "shape": "octagon",
+        "facing": "west",
+        "diagonal": "false"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/octagon",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "shape": "octagon",
+        "facing": "west",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/octagon",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "back_shape": "octagon",
+        "facing": "west",
+        "diagonal": "false"
       },
       "apply": {
         "model": "trafficengine:block/sign/octagon",
@@ -853,67 +1928,19 @@
     {
       "when": {
         "back_shape": "octagon",
-        "facing": "east"
+        "facing": "west",
+        "diagonal": "true"
       },
       "apply": {
-        "model": "trafficengine:block/sign/octagon",
-        "y": 270
-      }
-    },
-    {
-      "when": {
-        "shape": "octagon",
-        "facing": "west"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign/octagon",
-        "y": 270
-      }
-    },
-    {
-      "when": {
-        "back_shape": "octagon",
-        "facing": "west"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign/octagon",
+        "model": "trafficengine:block/sign/diagonal/octagon",
         "y": 90
       }
     },
     {
       "when": {
         "shape": "misc",
-        "facing": "north"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign/misc",
-        "y": 0
-      }
-    },
-    {
-      "when": {
-        "back_shape": "misc",
-        "facing": "north"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign/misc",
-        "y": 180
-      }
-    },
-    {
-      "when": {
-        "shape": "misc",
-        "facing": "south"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign/misc",
-        "y": 180
-      }
-    },
-    {
-      "when": {
-        "back_shape": "misc",
-        "facing": "south"
+        "facing": "north",
+        "diagonal": "false"
       },
       "apply": {
         "model": "trafficengine:block/sign/misc",
@@ -923,7 +1950,85 @@
     {
       "when": {
         "shape": "misc",
-        "facing": "east"
+        "facing": "north",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/misc",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "back_shape": "misc",
+        "facing": "north",
+        "diagonal": "false"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/misc",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "back_shape": "misc",
+        "facing": "north",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/misc",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "shape": "misc",
+        "facing": "south",
+        "diagonal": "false"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/misc",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "shape": "misc",
+        "facing": "south",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/misc",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "back_shape": "misc",
+        "facing": "south",
+        "diagonal": "false"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/misc",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "back_shape": "misc",
+        "facing": "south",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/misc",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "shape": "misc",
+        "facing": "east",
+        "diagonal": "false"
       },
       "apply": {
         "model": "trafficengine:block/sign/misc",
@@ -932,8 +2037,42 @@
     },
     {
       "when": {
+        "shape": "misc",
+        "facing": "east",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/misc",
+        "y": 90
+      }
+    },
+    {
+      "when": {
         "back_shape": "misc",
-        "facing": "east"
+        "facing": "east",
+        "diagonal": "false"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/misc",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "back_shape": "misc",
+        "facing": "east",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/misc",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "shape": "misc",
+        "facing": "west",
+        "diagonal": "false"
       },
       "apply": {
         "model": "trafficengine:block/sign/misc",
@@ -943,20 +2082,33 @@
     {
       "when": {
         "shape": "misc",
-        "facing": "west"
+        "facing": "west",
+        "diagonal": "true"
       },
       "apply": {
-        "model": "trafficengine:block/sign/misc",
+        "model": "trafficengine:block/sign/diagonal/misc",
         "y": 270
       }
     },
     {
       "when": {
         "back_shape": "misc",
-        "facing": "west"
+        "facing": "west",
+        "diagonal": "false"
       },
       "apply": {
         "model": "trafficengine:block/sign/misc",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "back_shape": "misc",
+        "facing": "west",
+        "diagonal": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/sign/diagonal/misc",
         "y": 90
       }
     }

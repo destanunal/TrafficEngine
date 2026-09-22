@@ -22,13 +22,14 @@ import java.io.FileWriter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import net.minecraft.core.BlockPos;
 
 public class HorizontalTrafficLightBlockEntityRenderer extends RotatableBlockEntityRenderer<TrafficLightBlockEntity> {
 
     private static final Map<String, Long> startTimes = new HashMap<>();
     private static final Map<String, Long> knownDurations = new HashMap<>();
-    private static final Map<BlockPos, Integer> lastColorMap = new HashMap<>();
+    private static final Map<String, Integer> lastColorMap = new HashMap<>();
+    private static final Map<String, Long> lastLitTimes = new HashMap<>();
+    private static final long BLINK_HOLD_TICKS = 40L;
 
     private static boolean cacheLoaded = false;
     private static final Properties timerCache = new Properties();
@@ -108,14 +109,14 @@ public class HorizontalTrafficLightBlockEntityRenderer extends RotatableBlockEnt
 
             if (be.getLevel() != null && rawColorCode != 0) {
                 long currentTime = be.getLevel().getGameTime();
-                BlockPos pos = be.getBlockPos();
                 String dim = be.getLevel().dimension().location().toString();
-                String phaseKey = dim + "_" + pos.asLong() + "_" + rawColorCode;
+                String lightKey = dim + "_" + be.getBlockPos().asLong();
+                String phaseKey = lightKey + "_" + rawColorCode;
 
-                Integer lastCol = lastColorMap.get(pos);
+                Integer lastCol = lastColorMap.get(lightKey);
                 if (lastCol == null || lastCol != rawColorCode) {
                     if (lastCol != null) {
-                        String lastPhaseKey = dim + "_" + pos.asLong() + "_" + lastCol;
+                        String lastPhaseKey = lightKey + "_" + lastCol;
                         long startTime = startTimes.getOrDefault(lastPhaseKey, currentTime);
                         long duration = currentTime - startTime;
                         if (duration > 10) {
@@ -124,16 +125,15 @@ public class HorizontalTrafficLightBlockEntityRenderer extends RotatableBlockEnt
                         }
                     }
                     startTimes.put(phaseKey, currentTime);
-                    lastColorMap.put(pos, rawColorCode);
+                    lastColorMap.put(lightKey, rawColorCode);
                 }
 
                 if (knownDurations.containsKey(phaseKey)) {
                     long startTime = startTimes.getOrDefault(phaseKey, currentTime);
-                    long passedTicks = currentTime - startTime;
+                    long passedTicks = Math.max(0L, currentTime - startTime);
                     long totalTicks = knownDurations.get(phaseKey);
-                    long remainingTicks = totalTicks - passedTicks;
-
-                    if (remainingTicks < 0) return 0;
+                    if (totalTicks <= 0L) return -1;
+                    long remainingTicks = totalTicks - (passedTicks % totalTicks);
                     return (int) ((remainingTicks + 19) / 20);
                 }
             }
@@ -157,6 +157,21 @@ public class HorizontalTrafficLightBlockEntityRenderer extends RotatableBlockEnt
         else if (isRed) rawColorCode = 1;
         else if (isYellow) rawColorCode = 2;
         else if (isGreen) rawColorCode = 3;
+
+        if (isCountdown && graphics.blockEntity().getLevel() != null) {
+            String lightKey = graphics.blockEntity().getLevel().dimension().location() + "_"
+                + graphics.blockEntity().getBlockPos().asLong();
+            long gameTime = graphics.blockEntity().getLevel().getGameTime();
+            if (rawColorCode != 0) {
+                lastLitTimes.put(lightKey, gameTime);
+            } else {
+                Integer heldColor = lastColorMap.get(lightKey);
+                Long lastLit = lastLitTimes.get(lightKey);
+                if (heldColor != null && lastLit != null && gameTime >= lastLit && gameTime - lastLit <= BLINK_HOLD_TICKS) {
+                    rawColorCode = heldColor;
+                }
+            }
+        }
 
         if (graphics.blockEntity().getLevel() != null && rawColorCode != 0) {
             getRealRemainingSeconds(graphics.blockEntity(), rawColorCode);

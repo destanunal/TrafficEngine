@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "trafficengine:asphalt_slope"
+          "name": "trafficengine:light_asphalt_slope"
         }
       ],
       "conditions": [
