@@ -3,12 +3,6 @@
 
 ![CurseForge Downloads](https://img.shields.io/curseforge/dt/1654475?style=for-the-badge&logo=curseforge&color=orange&link=https%3A%2F%2Fwww.curseforge.com%2Fminecraft%2Fmc-mods%2Ftrafficengine)
 
-### **![](https://media.forgecdn.net/attachments/description/1654475/description_a3bd7d8c-d4b3-442e-b480-db9aa9ebcf51.png)**
-
-![Forge](https://img.shields.io/badge/Forge-Supported-238636?style=flat-square&logo=curseforge&logoColor=black) ![Fabric](https://img.shields.io/badge/Fabric-Supported-238636?style=flat-square&logo=fabricmc&logoColor=black)
-
-[![GitHub: TrafficEngine](https://img.shields.io/badge/GitHub-TrafficEngine-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/destanunal/TrafficEngine)
-
 A comprehensive traffic, road, and city-management mod designed to bring modern Minecraft cities to life.
 
 Traffic Engine is inspired by **[TrafficCraft](https://www.curseforge.com/minecraft/mc-mods/trafficcraft)** and expands its foundation with new building tools, dynamic mechanics, enhanced customization, realistic road textures, and optimized performance.
