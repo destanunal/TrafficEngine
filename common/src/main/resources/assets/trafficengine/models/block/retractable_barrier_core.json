@@ -1,0 +1,43 @@
+{
+  "textures": {
+    "metal": "minecraft:block/iron_block",
+    "dark": "minecraft:block/polished_deepslate",
+    "particle": "minecraft:block/iron_block"
+  },
+  "elements": [
+    {
+      "name": "left_rising_arm",
+      "from": [-1.5, 7.8, 6.9], "to": [10.5, 9.2, 7.75],
+      "rotation": {"angle": 45, "axis": "z", "origin": [4.5, 8.5, 8]},
+      "faces": {"north": {"texture": "#metal"}, "east": {"texture": "#metal"}, "south": {"texture": "#metal"}, "west": {"texture": "#metal"}, "up": {"texture": "#metal"}, "down": {"texture": "#metal"}}
+    },
+    {
+      "name": "left_falling_arm",
+      "from": [-1.5, 7.8, 8.25], "to": [10.5, 9.2, 9.1],
+      "rotation": {"angle": -45, "axis": "z", "origin": [4.5, 8.5, 8]},
+      "faces": {"north": {"texture": "#metal"}, "east": {"texture": "#metal"}, "south": {"texture": "#metal"}, "west": {"texture": "#metal"}, "up": {"texture": "#metal"}, "down": {"texture": "#metal"}}
+    },
+    {
+      "name": "right_rising_arm",
+      "from": [5.5, 7.8, 6.9], "to": [17.5, 9.2, 7.75],
+      "rotation": {"angle": 45, "axis": "z", "origin": [11.5, 8.5, 8]},
+      "faces": {"north": {"texture": "#metal"}, "east": {"texture": "#metal"}, "south": {"texture": "#metal"}, "west": {"texture": "#metal"}, "up": {"texture": "#metal"}, "down": {"texture": "#metal"}}
+    },
+    {
+      "name": "right_falling_arm",
+      "from": [5.5, 7.8, 8.25], "to": [17.5, 9.2, 9.1],
+      "rotation": {"angle": -45, "axis": "z", "origin": [11.5, 8.5, 8]},
+      "faces": {"north": {"texture": "#metal"}, "east": {"texture": "#metal"}, "south": {"texture": "#metal"}, "west": {"texture": "#metal"}, "up": {"texture": "#metal"}, "down": {"texture": "#metal"}}
+    },
+    {
+      "name": "left_pivot",
+      "from": [3.8, 7.8, 6.35], "to": [5.2, 9.2, 6.85],
+      "faces": {"north": {"texture": "#dark"}, "east": {"texture": "#dark"}, "south": {"texture": "#dark"}, "west": {"texture": "#dark"}, "up": {"texture": "#dark"}, "down": {"texture": "#dark"}}
+    },
+    {
+      "name": "right_pivot",
+      "from": [10.8, 7.8, 6.35], "to": [12.2, 9.2, 6.85],
+      "faces": {"north": {"texture": "#dark"}, "east": {"texture": "#dark"}, "south": {"texture": "#dark"}, "west": {"texture": "#dark"}, "up": {"texture": "#dark"}, "down": {"texture": "#dark"}}
+    }
+  ]
+}

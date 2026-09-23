@@ -1,0 +1,9 @@
+{
+    "parent": "item/generated",
+    "textures": {
+        "layer0": "trafficengine:item/traffic_light_linker"
+    },
+    "overrides": [
+        {"predicate": { "trafficengine:mode": 1 }, "model": "trafficengine:item/traffic_light_linker_unlink" }
+    ]
+}

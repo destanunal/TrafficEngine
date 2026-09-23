@@ -1,0 +1,17 @@
+{
+  "required": true,
+  "package": "com.destan.trafficengine.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "minVersion": "0.8",
+  "client": [
+    "ClientTooltipComponentMixin",
+    "MinecraftAccessor",
+    "MinecraftMixin"
+  ],
+  "mixins": [
+    "TrafficCraftMigrationMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

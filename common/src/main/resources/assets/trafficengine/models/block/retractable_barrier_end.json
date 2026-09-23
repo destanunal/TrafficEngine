@@ -1,0 +1,36 @@
+{
+  "textures": {
+    "dark": "minecraft:block/polished_deepslate",
+    "wheel": "minecraft:block/black_concrete",
+    "hub": "minecraft:block/blue_concrete",
+    "reflector": "minecraft:block/yellow_concrete",
+    "particle": "minecraft:block/polished_deepslate"
+  },
+  "elements": [
+    {
+      "name": "post",
+      "from": [0.75, 2.25, 6.5], "to": [2.25, 15.5, 9.5],
+      "faces": {"north": {"texture": "#dark"}, "east": {"texture": "#dark"}, "south": {"texture": "#dark"}, "west": {"texture": "#dark"}, "up": {"texture": "#dark"}, "down": {"texture": "#dark"}}
+    },
+    {
+      "name": "foot",
+      "from": [0, 1.25, 5.5], "to": [3, 2.5, 10.5],
+      "faces": {"north": {"texture": "#dark"}, "east": {"texture": "#dark"}, "south": {"texture": "#dark"}, "west": {"texture": "#dark"}, "up": {"texture": "#dark"}, "down": {"texture": "#dark"}}
+    },
+    {
+      "name": "wheel",
+      "from": [0.5, 0, 6.25], "to": [2.5, 2, 9.75],
+      "faces": {"north": {"texture": "#wheel"}, "east": {"texture": "#wheel"}, "south": {"texture": "#wheel"}, "west": {"texture": "#wheel"}, "up": {"texture": "#wheel"}, "down": {"texture": "#wheel"}}
+    },
+    {
+      "name": "wheel_hub",
+      "from": [0.9, 0.4, 5.9], "to": [2.1, 1.6, 6.3],
+      "faces": {"north": {"texture": "#hub"}, "east": {"texture": "#hub"}, "south": {"texture": "#hub"}, "west": {"texture": "#hub"}, "up": {"texture": "#hub"}, "down": {"texture": "#hub"}}
+    },
+    {
+      "name": "reflector",
+      "from": [0.5, 13.2, 5.9], "to": [2.5, 15.0, 6.45],
+      "faces": {"north": {"texture": "#reflector"}, "east": {"texture": "#reflector"}, "south": {"texture": "#reflector"}, "west": {"texture": "#reflector"}, "up": {"texture": "#reflector"}, "down": {"texture": "#reflector"}}
+    }
+  ]
+}

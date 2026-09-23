@@ -1,0 +1,33 @@
+{
+  "display": {
+    "icon": {
+      "item": "trafficengine:road_salt"
+    },
+    "title": {
+      "translate": "advancement.trafficengine.salty"
+    },
+    "description": {
+      "translate": "advancement.trafficengine.salty.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "parent": "trafficengine:craft_road",
+  "criteria": {
+    "req": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": [
+          {
+            "condition": "minecraft:block_state_property",
+            "block": "trafficengine:road_salt"
+          }
+        ]
+      }
+    }
+  },
+  "rewards": {
+    "experience": 20
+  }
+}

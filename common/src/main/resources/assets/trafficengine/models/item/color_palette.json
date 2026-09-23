@@ -1,0 +1,13 @@
+{
+    "parent": "item/generated",
+    "textures": {
+        "layer0": "trafficengine:item/color_palette",
+        "layer1": "trafficengine:item/color_palette_color_1",
+        "layer2": "trafficengine:item/color_palette_color_2",
+        "layer3": "trafficengine:item/color_palette_color_3",
+        "layer4": "trafficengine:item/color_palette_color_4",
+        "layer5": "trafficengine:item/color_palette_color_5",
+        "layer6": "trafficengine:item/color_palette_color_6",
+        "layer7": "trafficengine:item/color_palette_color_7"
+    }
+}

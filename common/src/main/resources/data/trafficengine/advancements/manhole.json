@@ -1,0 +1,28 @@
+{
+  "display": {
+    "icon": {
+      "item": "trafficengine:manhole"
+    },
+    "title": {
+      "translate": "advancement.trafficengine.manhole"
+    },
+    "description": {
+      "translate": "advancement.trafficengine.manhole.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "parent": "trafficengine:accessibility",
+  "criteria": {
+    "requirement": {
+      "trigger": "minecraft:enter_block",
+      "conditions": {
+        "block": "trafficengine:manhole"
+      }
+    }
+  },
+  "rewards": {
+    "experience": 20
+  }
+}
