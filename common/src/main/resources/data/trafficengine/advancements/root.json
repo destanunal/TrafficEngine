@@ -1,0 +1,19 @@
+{
+  "display": {
+    "icon": {
+      "item": "trafficengine:traffic_light"
+    },
+    "title": "trafficengine",
+    "description": "Thank you for playing with trafficengine by MrJulsen!",
+    "background": "trafficengine:textures/block/asphalt.png",
+    "frame": "challenge",
+    "show_toast": false,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "requirement": {
+      "trigger": "minecraft:tick"
+    }
+  }
+}

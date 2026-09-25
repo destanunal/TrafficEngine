@@ -1,0 +1,15 @@
+{
+    "type": "minecraft:crafting_shapeless",
+    "ingredients": [
+      {
+        "item": "trafficengine:small_white_delineator"
+      },
+      {
+        "item": "minecraft:yellow_dye"
+      }
+    ],
+    "result": {
+      "item": "trafficengine:small_yellow_delineator",
+      "count": 1
+    }
+  }

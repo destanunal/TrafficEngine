@@ -1,0 +1,7 @@
+{
+    "parent": "item/handheld",
+    "textures": {
+        "layer0": "trafficengine:item/paint_brush_base",
+        "layer1": "trafficengine:item/paint_brush_overlay"
+    }
+}

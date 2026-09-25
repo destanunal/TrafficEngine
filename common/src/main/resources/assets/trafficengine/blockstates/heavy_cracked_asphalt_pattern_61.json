@@ -1,0 +1,56 @@
+{
+  "multipart": [
+    {
+      "when": {
+        "base_painted": "false"
+      },
+      "apply": {
+        "model": "trafficengine:block/heavy_cracked_asphalt"
+      }
+    },
+    {
+      "when": {
+        "base_painted": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/heavy_cracked_asphalt_painted_base"
+      }
+    },
+    {
+      "when": {
+        "facing": "north"
+      },
+      "apply": {
+        "model": "trafficengine:block/heavy_cracked_asphalt/61",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "east"
+      },
+      "apply": {
+        "model": "trafficengine:block/heavy_cracked_asphalt/61",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "south"
+      },
+      "apply": {
+        "model": "trafficengine:block/heavy_cracked_asphalt/61",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west"
+      },
+      "apply": {
+        "model": "trafficengine:block/heavy_cracked_asphalt/61",
+        "y": 270
+      }
+    }
+  ]
+}
