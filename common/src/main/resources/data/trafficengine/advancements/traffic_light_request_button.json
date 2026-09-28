@@ -1,0 +1,40 @@
+{
+  "display": {
+    "icon": {
+      "item": "trafficengine:traffic_light_request_button"
+    },
+    "title": {
+      "translate": "advancement.trafficengine.traffic_light_request_button"
+    },
+    "description": {
+      "translate": "advancement.trafficengine.traffic_light_request_button.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": true
+  },
+  "parent": "trafficengine:linker",
+  "criteria": {
+    "requirement": {
+      "trigger": "minecraft:item_used_on_block",
+      "conditions": {
+        "location": [
+          {
+            "condition": "minecraft:location_check",
+            "predicate": {
+              "block": {
+                "blocks": [
+                  "trafficengine:traffic_light_request_button"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "rewards": {
+    "experience": 30
+  }
+}

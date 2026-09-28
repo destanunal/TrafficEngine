@@ -1,0 +1,33 @@
+{
+  "display": {
+    "icon": {
+      "item": "trafficengine:traffic_light_controller"
+    },
+    "title": {
+      "translate": "advancement.trafficengine.traffic_light_controller"
+    },
+    "description": {
+      "translate": "advancement.trafficengine.traffic_light_controller.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "parent": "trafficengine:traffic_light",
+  "criteria": {
+    "req": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": [
+          {
+            "condition": "minecraft:block_state_property",
+            "block": "trafficengine:traffic_light_controller"
+          }
+        ]
+      }
+    }
+  },
+  "rewards": {
+    "experience": 30
+  }
+}

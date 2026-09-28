@@ -1,0 +1,10 @@
+{
+    "replace": false,
+    "values": [
+        "trafficengine:white_delineator",
+        "trafficengine:yellow_delineator",
+        "trafficengine:red_delineator",
+        "trafficengine:small_white_delineator",
+        "trafficengine:small_yellow_delineator"
+    ]
+}
