@@ -61,7 +61,7 @@ public enum PaintColor implements ITranslatableEnum {
 	}
 
 	public DLColor getTextureColor() {
-		return DLColor.fromInt(textureColor);
+		return DLColor.fromInt(0xFF000000 | textureColor);
 	}
 
 	public MapColor getMaterialColor() {

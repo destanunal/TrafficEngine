@@ -17,7 +17,6 @@ import de.mrjulsen.mcdragonlib.client.util.GuiUtils;
 import de.mrjulsen.mcdragonlib.client.util.GuiUtils.TextureFillMode;
 import de.mrjulsen.mcdragonlib.data.ETextAlignment;
 import de.mrjulsen.mcdragonlib.events.EventListenerId;
-import de.mrjulsen.mcdragonlib.network.NetworkDirection;
 import de.mrjulsen.mcdragonlib.util.DLColor;
 import de.mrjulsen.mcdragonlib.util.TextUtils;
 import de.mrjulsen.mcdragonlib.util.math.Rectangle;
@@ -30,9 +29,7 @@ import com.destan.trafficengine.client.widgets.trafficlight.TrafficLightConfig;
 import com.destan.trafficengine.client.widgets.trafficlight.TrafficLightControlSettings;
 import com.destan.trafficengine.client.widgets.trafficlight.TrafficLightGeneralSettings;
 import com.destan.trafficengine.client.widgets.trafficlight.TrafficLightSignalSettings;
-import com.destan.trafficengine.network.packets.cts.TrafficLightPacket;
 import com.destan.trafficengine.registry.ModBlocks;
-import com.destan.trafficengine.registry.ModNetworkManager;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
@@ -128,24 +125,7 @@ public class TrafficLightConfigScreen extends DLWindow {
 
     @Override
     public void close() throws Exception {
-        int maxSlots = TrafficLightModel.maxRequiredSlots();
-        TrafficLightColor[] safeColors = new TrafficLightColor[maxSlots];
-        for (int i = 0; i < maxSlots; i++) {
-            safeColors[i] = (i < config.colors.length && config.colors[i] != null) ? config.colors[i] : TrafficLightColor.NONE;
-        }
-
-        ModNetworkManager.UPDATE_TRAFFIC_LIGHT_PACKET.send(NetworkDirection.toServer(), new TrafficLightPacket(
-                config.blockPos,
-                config.enabledColors,
-                config.type,
-                config.model,
-                config.icon,
-                config.controlType,
-                safeColors,
-                config.phaseId,
-                config.additionalPedestrianStopIds,
-                config.scheduleEnabled
-        ));
+        config.sendToServer();
     }
 
     private static class TrafficLightPanel extends DLGuiComponent {

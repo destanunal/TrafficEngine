@@ -126,10 +126,6 @@ public class TrafficLightScheduleEditor extends DLWindow {
 
         schedule.convertToPhaseTimings(!isController);
         if (isController) schedule.convertToSequentialGreens();
-        if (!isController && schedule.getEntries().isEmpty()) {
-            createDefaultEntry(TrafficLightColor.RED, 45);
-            createDefaultEntry(TrafficLightColor.GREEN, 15);
-        }
 
         areaHeader = addComponent(new DLPanel(PADDING, TOP_PADDING, width() - PADDING * 2, 22));
         FlowLayout headerLayout = new FlowLayout();
@@ -280,7 +276,7 @@ public class TrafficLightScheduleEditor extends DLWindow {
         if (isController && level.getBlockEntity(pos) instanceof TrafficLightControllerBlockEntity blockEntity) {
             return blockEntity.getScheduleForEditing();
         } else if (level.getBlockEntity(pos) instanceof TrafficLightBlockEntity blockEntity) {
-            return blockEntity.getSchedule();
+            return blockEntity.getScheduleForEditing();
         }
 
         return new TrafficLightSchedule();
@@ -342,13 +338,6 @@ public class TrafficLightScheduleEditor extends DLWindow {
             entry.setPhaseId(nextId);
             entry.enableOnlyColors(List.of(TrafficLightColor.GREEN));
         }
-        schedule.getEntries().add(entry);
-    }
-
-    private void createDefaultEntry(TrafficLightColor color, int seconds) {
-        TrafficLightScheduleEntryData entry = new TrafficLightScheduleEntryData();
-        entry.enableOnlyColors(List.of(color));
-        entry.setDurationSeconds(seconds);
         schedule.getEntries().add(entry);
     }
 
