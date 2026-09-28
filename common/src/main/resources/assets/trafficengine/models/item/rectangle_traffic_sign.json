@@ -1,3 +1,3 @@
 {
-    "parent": "trafficengine:block/sign/rectangle/0"
+    "parent": "trafficengine:block/sign/rectangle"
 }

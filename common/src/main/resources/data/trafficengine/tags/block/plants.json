@@ -1,7 +1,7 @@
 {
     "replace": false,
     "values": [
-        "#minecraft:replaceable_plants",
+        { "id": "#minecraft:replaceable_plants", "required": false },
         "#minecraft:small_flowers",
         "#minecraft:crops"
     ]
