@@ -96,7 +96,7 @@ public class LedDevicePartBlock extends Block {
     }
 
     @Override
-    public void playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
+    public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
         if (!level.isClientSide) {
             BlockPos masterPos = masterPos(pos, state);
             BlockState masterState = level.getBlockState(masterPos);
@@ -105,10 +105,9 @@ public class LedDevicePartBlock extends Block {
                 level.destroyBlock(masterPos, !player.isCreative(), player);
             }
         }
-        super.playerWillDestroy(level, pos, state, player);
+        return super.playerWillDestroy(level, pos, state, player);
     }
 
-    @Override
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         BlockPos masterPos = masterPos(pos, state);
         BlockState masterState = level.getBlockState(masterPos);
@@ -124,4 +123,14 @@ public class LedDevicePartBlock extends Block {
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(FACING, UPPER, ROW, VERTICAL_OFFSET, SIDE, OFFSET, CENTERED, HANGING, WALL_MOUNTED);
     }
+    @Override
+    protected net.minecraft.world.ItemInteractionResult useItemOn(net.minecraft.world.item.ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        return com.destan.trafficengine.util.PortingInteractions.forItem(use(state, level, pos, player, hand, hit));
+    }
+
+    @Override
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
+        return use(state, level, pos, player, InteractionHand.MAIN_HAND, hit);
+    }
+
 }

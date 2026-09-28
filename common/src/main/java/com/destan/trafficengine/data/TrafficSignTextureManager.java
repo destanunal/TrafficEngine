@@ -29,7 +29,7 @@ public class TrafficSignTextureManager {
         File file = new File(GameInstance.getServer().getWorldPath(getResource(id.toString())).toString());    
         if (file.exists()) {
             try {
-                return TrafficSignTextureData.deserializeNbt(NbtIo.readCompressed(file));
+                return TrafficSignTextureData.deserializeNbt(NbtIo.readCompressed(file.toPath(), net.minecraft.nbt.NbtAccounter.unlimitedHeap()));
             } catch (IOException e) {
                 TrafficEngine.LOGGER.error("The traffic sign texture with id " + id + " could not be loaded.", e);
             }

@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "OO"
+  ],
+  "key": {
+    "O": {
+      "item": "trafficengine:concrete"
+    }
+  },
+  "result": {
+    "id": "trafficengine:concrete_slope",
+    "count": 8
+  }
+}

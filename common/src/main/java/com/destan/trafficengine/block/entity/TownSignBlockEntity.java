@@ -11,6 +11,7 @@ import com.destan.trafficengine.block.WritableTrafficSign;
 import com.destan.trafficengine.block.data.TownSignVariant;
 import com.destan.trafficengine.registry.ModBlockEntities;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -97,8 +98,8 @@ public class TownSignBlockEntity extends DLWritableSignBlockEntity {
     }
 
     @Override
-    public void load(CompoundTag compound) {
-        super.load(compound);
+    public void loadAdditional(CompoundTag compound, HolderLookup.Provider provider) {
+        super.loadAdditional(compound, provider);
         this.linesBack = new String[this.getTownSignRenderConfig(ETownSignSide.BACK).lineData().length];
         for (int i = 0; i < this.getTownSignRenderConfig(ETownSignSide.BACK).lineData().length; i++) {
             this.linesBack[i] = compound.getString("lineBack" + i);
@@ -106,8 +107,8 @@ public class TownSignBlockEntity extends DLWritableSignBlockEntity {
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag) {
-        super.saveAdditional(tag);
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+        super.saveAdditional(tag, provider);
         if (this.linesBack != null) {
             for (int i = 0; i < this.linesBack.length; i++) {
                 tag.putString("lineBack" + i, this.linesBack[i]);

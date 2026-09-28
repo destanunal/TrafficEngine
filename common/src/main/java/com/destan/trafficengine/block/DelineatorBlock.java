@@ -82,7 +82,7 @@ public class DelineatorBlock extends WaterloggableBlock {
         pBuilder.add(FACING);
     }
 
-    public boolean isPathfindable(BlockState pState, BlockGetter pLevel, BlockPos pPos, PathComputationType pType) {
+    public boolean isPathfindable(BlockState pState, PathComputationType pType) {
         return false;
     }
 

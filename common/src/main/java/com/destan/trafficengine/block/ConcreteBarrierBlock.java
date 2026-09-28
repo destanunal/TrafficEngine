@@ -209,7 +209,7 @@ public class ConcreteBarrierBlock extends ColorableBlock implements SimpleWaterl
         pBuilder.add(NORTH, EAST, WEST, SOUTH, FACING, WATERLOGGED);
     }
 
-    public boolean isPathfindable(BlockState pState, BlockGetter pLevel, BlockPos pPos, PathComputationType pType) {
+    public boolean isPathfindable(BlockState pState, PathComputationType pType) {
         return false;
     }
 

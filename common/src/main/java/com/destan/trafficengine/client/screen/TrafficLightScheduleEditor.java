@@ -51,7 +51,7 @@ import net.minecraft.world.level.Level;
 
 public class TrafficLightScheduleEditor extends DLWindow {
 
-    public static final ResourceLocation WIDGETS = new ResourceLocation(TrafficEngine.MOD_ID, "textures/gui/traffic_light_schedule_icons.png");
+    public static final ResourceLocation WIDGETS = ResourceLocation.fromNamespaceAndPath(TrafficEngine.MOD_ID, "textures/gui/traffic_light_schedule_icons.png");
     public static final int TEXTURE_WIDTH = 64;
     public static final int TEXTURE_HEIGHT = 64;
 
@@ -365,8 +365,8 @@ public class TrafficLightScheduleEditor extends DLWindow {
             GuiUtils.fill(graphics, TRANSITION_BUTTON_X - 1, transitionButtonY - 1,
                 TRANSITION_BUTTON_WIDTH + 2, 1, DLColor.fromInt(0xFFB8B8B8));
             MultiLineLabel.create(graphics.defaultFont(),
-                TextUtils.translate("gui.trafficengine.trafficlightschedule.transition_light"),
-                TRANSITION_BUTTON_X - 14, 2)
+                TRANSITION_BUTTON_X - 14, 2,
+                TextUtils.translate("gui.trafficengine.trafficlightschedule.transition_light"))
                 .renderLeftAlignedNoShadow(graphics.graphics(), 10, transitionButtonY + 4,
                     graphics.defaultFont().lineHeight + 2, 0xFF404040);
             GuiUtils.drawString(graphics, graphics.defaultFont(), 205, transitionButtonY + 5,
@@ -392,7 +392,7 @@ public class TrafficLightScheduleEditor extends DLWindow {
     }
 
     private void drawWrappedHelp(DLGuiGraphics graphics, int x, int y, Component message, int color) {
-        MultiLineLabel.create(graphics.defaultFont(), message, width() - x - 4, 2)
+        MultiLineLabel.create(graphics.defaultFont(), width() - x - 4, 2, message)
             .renderLeftAlignedNoShadow(graphics.graphics(), x, y, graphics.defaultFont().lineHeight + 1, color);
     }
 }

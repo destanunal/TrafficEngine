@@ -385,9 +385,9 @@ public class TrafficLightControlSettings extends DLGuiComponent {
         settingsPanel.addComponent(descriptionPanel);
         
         phaseIdDescriptionLabel = MultiLineLabel.create(Minecraft.getInstance().font,
+            (int)(Math.max(100, width() - 30) / SMALL_SCALE_VALUE), 10,
             config.icon == TrafficLightIcon.PEDESTRIAN ? textPedestrianStopDescription
-                : config.icon == TrafficLightIcon.BIKE ? textBicycleStopDescription : textPhaseIdDescription,
-            (int)(Math.max(100, width() - 30) / SMALL_SCALE_VALUE), 10);
+                : config.icon == TrafficLightIcon.BIKE ? textBicycleStopDescription : textPhaseIdDescription);
     }
 
     
