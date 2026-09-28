@@ -1,6 +1,7 @@
 package com.destan.trafficengine.client.widgets.trafficlight;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Set;
@@ -10,6 +11,7 @@ import de.mrjulsen.mcdragonlib.annotations.SupportsEvents;
 import de.mrjulsen.mcdragonlib.events.EventListenerWrapper;
 import de.mrjulsen.mcdragonlib.events.IEvent;
 import de.mrjulsen.mcdragonlib.events.IEventDispatcher;
+import de.mrjulsen.mcdragonlib.network.NetworkDirection;
 import com.destan.trafficengine.block.TrafficLightBlock;
 import com.destan.trafficengine.block.data.TrafficLightColor;
 import com.destan.trafficengine.block.data.TrafficLightControlType;
@@ -17,6 +19,8 @@ import com.destan.trafficengine.block.data.TrafficLightIcon;
 import com.destan.trafficengine.block.data.TrafficLightModel;
 import com.destan.trafficengine.block.data.TrafficLightType;
 import com.destan.trafficengine.block.entity.TrafficLightBlockEntity;
+import com.destan.trafficengine.network.packets.cts.TrafficLightPacket;
+import com.destan.trafficengine.registry.ModNetworkManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 
@@ -65,7 +69,7 @@ public class TrafficLightConfig implements IEventDispatcher<TrafficLightConfig> 
             for (int i = 0; i < slots.length && i < this.colors.length; i++) {
                 this.colors[i] = slots[i];
             }
-            this.phaseId = blockEntity.getPhaseId();
+            this.phaseId = blockEntity.getPhaseIdForEditing();
             this.additionalPedestrianStopIds.addAll(blockEntity.getAdditionalPedestrianStopIds());
             this.scheduleEnabled = blockEntity.isRunning();
         }
@@ -87,5 +91,18 @@ public class TrafficLightConfig implements IEventDispatcher<TrafficLightConfig> 
 
     public void notifyUpdate() {
         invokeEvent(this, new UpdateEvent());
+        sendToServer();
+    }
+
+    public void sendToServer() {
+        int maxSlots = TrafficLightModel.maxRequiredSlots();
+        TrafficLightColor[] safeColors = new TrafficLightColor[maxSlots];
+        for (int i = 0; i < maxSlots; i++) {
+            safeColors[i] = (i < colors.length && colors[i] != null) ? colors[i] : TrafficLightColor.NONE;
+        }
+        ModNetworkManager.UPDATE_TRAFFIC_LIGHT_PACKET.send(NetworkDirection.toServer(), new TrafficLightPacket(
+            blockPos, List.copyOf(enabledColors), type, model, icon, controlType,
+            safeColors, phaseId, List.copyOf(additionalPedestrianStopIds), scheduleEnabled
+        ));
     }
 }

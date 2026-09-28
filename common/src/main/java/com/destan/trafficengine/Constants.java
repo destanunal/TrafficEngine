@@ -10,7 +10,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.RandomSource;
 
 public class Constants {
-    public static final int MAX_ASPHALT_PATTERNS = 323;
+    public static final int MAX_ASPHALT_PATTERNS = 318;
     public static final int MAX_PAINT = 128;
 
     public static final DLColor METAL_COLOR = DLColor.fromInt(0xFF828282);

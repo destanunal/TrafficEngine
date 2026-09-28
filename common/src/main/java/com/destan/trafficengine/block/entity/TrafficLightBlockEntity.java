@@ -31,6 +31,7 @@ import net.minecraft.world.level.block.state.BlockState;
 public class TrafficLightBlockEntity extends ColoredBlockEntity {
 
     private static final String NBT_PHASE_ID = "phaseId";
+    private static final String NBT_PENDING_PHASE_ID = "pendingPhaseId";
     private static final String NBT_ADDITIONAL_STOP_IDS = "additionalPedestrianStopIds";
     private static final String NBT_CONTROL_TYPE = "controlType";
     private static final String NBT_POWERED = "powered";
@@ -38,6 +39,7 @@ public class TrafficLightBlockEntity extends ColoredBlockEntity {
     private static final String NBT_TOTAL_TICKS = "totalTicks";
     private static final String NBT_RUNNING = "running";
     private static final String NBT_SCHEDULE = "schedule";
+    private static final String NBT_PENDING_SCHEDULE = "pendingSchedule";
     private static final String NBT_ICON = "icon";
     private static final String NBT_TYPE = "type";
     private static final String NBT_COLOR_SLOTS = "colorSlots";
@@ -52,6 +54,7 @@ public class TrafficLightBlockEntity extends ColoredBlockEntity {
 
     // Properties
     private int phaseId = 0;
+    private Integer pendingPhaseId = null;
     private final Set<Integer> additionalPedestrianStopIds = new LinkedHashSet<>();
     private TrafficLightControlType controlType = TrafficLightControlType.STATIC;
     private TrafficLightIcon icon = TrafficLightIcon.NONE;
@@ -67,6 +70,7 @@ public class TrafficLightBlockEntity extends ColoredBlockEntity {
     private boolean powered = false;
 
     private TrafficLightSchedule schedule = new TrafficLightSchedule();
+    private TrafficLightSchedule pendingSchedule = null;
     private int ticker = 0;
     private long totalTicks = 0;
     private boolean running = true;
@@ -93,12 +97,13 @@ public class TrafficLightBlockEntity extends ColoredBlockEntity {
         super.loadAdditional(compound, provider);
 
         this.phaseId = compound.getInt(NBT_PHASE_ID);
+        this.pendingPhaseId = compound.contains(NBT_PENDING_PHASE_ID) ? compound.getInt(NBT_PENDING_PHASE_ID) : null;
         additionalPedestrianStopIds.clear();
         for (int id : compound.getIntArray(NBT_ADDITIONAL_STOP_IDS)) {
             if (additionalPedestrianStopIds.size() >= 8) break;
             if (id != phaseId && id >= -9999 && id <= 9999) additionalPedestrianStopIds.add(id);
         }
-        this.controlType = TrafficLightControlType.getControlTypeByIndex(compound.getTagType(NBT_COLOR_SLOTS) == Tag.TAG_INT ? (byte)compound.getInt(NBT_CONTROL_TYPE) : compound.getByte(NBT_CONTROL_TYPE));
+        this.controlType = TrafficLightControlType.getControlTypeByIndex(compound.getByte(NBT_CONTROL_TYPE));
         this.powered = compound.getBoolean(NBT_POWERED);
         this.ticker = compound.getInt(NBT_TICKS);
         this.totalTicks = compound.getLong(NBT_TOTAL_TICKS);
@@ -111,6 +116,11 @@ public class TrafficLightBlockEntity extends ColoredBlockEntity {
         this.colorPhaseStart = compound.contains(NBT_COLOR_PHASE_START) ? compound.getLong(NBT_COLOR_PHASE_START) : -1;
         this.schedule = new TrafficLightSchedule();
         this.schedule.fromNbt(compound.getCompound(NBT_SCHEDULE));
+        this.pendingSchedule = null;
+        if (compound.contains(NBT_PENDING_SCHEDULE)) {
+            this.pendingSchedule = new TrafficLightSchedule();
+            this.pendingSchedule.fromNbt(compound.getCompound(NBT_PENDING_SCHEDULE));
+        }
         this.icon = TrafficLightIcon.getIconByIndex(compound.getByte(NBT_ICON));
         this.type = TrafficLightType.getTypeByIndex(compound.getByte(NBT_TYPE));
         int[] colorSlots = compound.getIntArray(NBT_COLOR_SLOTS);
@@ -138,6 +148,7 @@ public class TrafficLightBlockEntity extends ColoredBlockEntity {
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         tag.putInt(NBT_PHASE_ID, phaseId);
+        if (pendingPhaseId != null) tag.putInt(NBT_PENDING_PHASE_ID, pendingPhaseId);
         tag.putIntArray(NBT_ADDITIONAL_STOP_IDS, additionalPedestrianStopIds.stream().mapToInt(Integer::intValue).toArray());
         tag.putBoolean(NBT_POWERED, powered);
         tag.putByte(NBT_CONTROL_TYPE, controlType.getIndex());
@@ -151,6 +162,7 @@ public class TrafficLightBlockEntity extends ColoredBlockEntity {
         tag.putBoolean(NBT_TIMED_PHASE_RUNNING, timedPhaseRunning);
         tag.putLong(NBT_COLOR_PHASE_START, colorPhaseStart);
         tag.put(NBT_SCHEDULE, schedule.toNbt());
+        if (pendingSchedule != null) tag.put(NBT_PENDING_SCHEDULE, pendingSchedule.toNbt());
         tag.putIntArray(NBT_COLOR_SLOTS, Arrays.stream(colorSlots).mapToInt(x -> x.getIndex()).toArray());
         tag.putByte(NBT_ICON, icon.getIndex());
         tag.putByte(NBT_TYPE, type.getIndex());
@@ -172,6 +184,18 @@ public class TrafficLightBlockEntity extends ColoredBlockEntity {
         
         // backwards compatibility       
         linkMigrationCheck(level, pos, state);
+
+        if (controlType == TrafficLightControlType.OWN_SCHEDULE && pendingSchedule != null) {
+            int cycle = schedule.getTotalDurationTicks();
+            if (!running || cycle <= 0 || (ticker > 0 && Math.floorMod(ticker, cycle) == 0)) {
+                schedule = pendingSchedule;
+                pendingSchedule = null;
+                ticker = 0;
+                totalTicks = 0;
+                timedPhase = false;
+                notifyUpdate();
+            }
+        }
 
         if (this.getControlType() == TrafficLightControlType.OWN_SCHEDULE && schedule.hasPhaseTimings()) {
             if (running) {
@@ -246,8 +270,27 @@ public class TrafficLightBlockEntity extends ColoredBlockEntity {
 
     public void setPhaseId(int id) {
         this.phaseId = id;
+        this.pendingPhaseId = null;
         additionalPedestrianStopIds.remove(id);
         notifyUpdate();
+    }
+
+    public void queuePhaseId(int id) {
+        if (pendingPhaseId != null && pendingPhaseId == id) return;
+        if (controlType != TrafficLightControlType.REMOTE || !timedPhase) {
+            setPhaseId(id);
+            return;
+        }
+        pendingPhaseId = id == phaseId ? null : id;
+        notifyUpdate();
+    }
+
+    public void applyPendingPhaseId() {
+        if (pendingPhaseId != null) setPhaseId(pendingPhaseId);
+    }
+
+    public int getPhaseIdForEditing() {
+        return pendingPhaseId != null ? pendingPhaseId : phaseId;
     }
 
     public Set<Integer> getAdditionalPedestrianStopIds() {
@@ -265,15 +308,31 @@ public class TrafficLightBlockEntity extends ColoredBlockEntity {
 
     public void setControlType(TrafficLightControlType controlType) {
         this.controlType = controlType;
+        if (controlType != TrafficLightControlType.REMOTE) pendingPhaseId = null;
+        if (controlType != TrafficLightControlType.OWN_SCHEDULE) pendingSchedule = null;
         this.timedPhase = false;
         notifyUpdate();
     }
 
-    public void setSchedule(TrafficLightSchedule schedule) {
-        this.schedule = schedule;
-        this.ticker = 0;
-        this.totalTicks = 0;
-        this.timedPhase = false;
+    public void setSchedule(TrafficLightSchedule updated) {
+        if (schedule.toNbt().equals(updated.toNbt())) {
+            if (pendingSchedule != null) {
+                pendingSchedule = null;
+                notifyUpdate();
+            }
+            return;
+        }
+        if (controlType == TrafficLightControlType.OWN_SCHEDULE && running
+                && schedule.getTotalDurationTicks() > 0) {
+            pendingSchedule = updated;
+            notifyUpdate();
+            return;
+        }
+        pendingSchedule = null;
+        schedule = updated;
+        ticker = 0;
+        totalTicks = 0;
+        timedPhase = false;
         notifyUpdate();
     }
 
@@ -455,6 +514,10 @@ public class TrafficLightBlockEntity extends ColoredBlockEntity {
 
     public TrafficLightSchedule getSchedule() {
         return this.schedule;
+    }
+
+    public TrafficLightSchedule getScheduleForEditing() {
+        return pendingSchedule != null ? pendingSchedule : schedule;
     }
 
     public boolean isRunning() {

@@ -6,6 +6,7 @@ import de.mrjulsen.mcdragonlib.data.DLStatus;
 import de.mrjulsen.mcdragonlib.network.NetworkPacketContext;
 import de.mrjulsen.mcdragonlib.network.NetworkPacketData;
 import de.mrjulsen.mcdragonlib.util.NbtUtils;
+import com.destan.trafficengine.block.data.TrafficLightControlType;
 import com.destan.trafficengine.block.entity.TrafficLightBlockEntity;
 import com.destan.trafficengine.block.entity.TrafficLightControllerBlockEntity;
 import com.destan.trafficengine.data.TrafficLightSchedule;
@@ -62,6 +63,10 @@ public class TrafficLightSchedulePacket extends NetworkPacketData {
                 if (level.getBlockEntity(packet.pos) instanceof TrafficLightControllerBlockEntity blockEntity) {
                     blockEntity.setSchedules(packet.schedules);
                 } else if (level.getBlockEntity(packet.pos) instanceof TrafficLightBlockEntity blockEntity) {
+                    if (packet.schedules.isEmpty()) return;
+                    if (blockEntity.getControlType() != TrafficLightControlType.OWN_SCHEDULE) {
+                        blockEntity.setControlType(TrafficLightControlType.OWN_SCHEDULE);
+                    }
                     blockEntity.setSchedule(packet.schedules.get(0));
                 }
                 level.blockEntityChanged(packet.pos);

@@ -1,6 +1,7 @@
 package com.destan.trafficengine.network.packets.cts;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Arrays;
 import java.util.List;
 import de.mrjulsen.mcdragonlib.data.DLStatus;
@@ -107,18 +108,23 @@ public class TrafficLightPacket extends NetworkPacketData {
         if (player != null) {
             Level level = player.level();
             if (level.isLoaded(packet.pos)) {
-                if (level.getBlockEntity(packet.pos) instanceof TrafficLightBlockEntity blockEntity) {
-                    blockEntity.setRunning(packet.scheduleEnabled);
-                    blockEntity.setPhaseId(packet.phaseId);
-                    blockEntity.setAdditionalPedestrianStopIds(packet.additionalPedestrianStopIds);
-                    blockEntity.setControlType(packet.controlType);
-                    blockEntity.setIcon(packet.icon);
-                    blockEntity.setColorSlots(packet.colors);
-                    blockEntity.enableOnlyColors(packet.enabledColors);
-                    blockEntity.setType(packet.type);
-                }
                 BlockState state = level.getBlockState(packet.pos);
-                level.setBlockAndUpdate(packet.pos, state.setValue(TrafficLightBlock.MODEL, packet.model));
+                if (!(state.getBlock() instanceof TrafficLightBlock)) return;
+                if (state.getValue(TrafficLightBlock.MODEL) != packet.model) {
+                    level.setBlockAndUpdate(packet.pos, state.setValue(TrafficLightBlock.MODEL, packet.model));
+                }
+                if (level.getBlockEntity(packet.pos) instanceof TrafficLightBlockEntity blockEntity) {
+                    if (blockEntity.isRunning() != packet.scheduleEnabled) blockEntity.setRunning(packet.scheduleEnabled);
+                    if (blockEntity.getControlType() != packet.controlType) blockEntity.setControlType(packet.controlType);
+                    if (blockEntity.getPhaseIdForEditing() != packet.phaseId) blockEntity.queuePhaseId(packet.phaseId);
+                    if (!blockEntity.getAdditionalPedestrianStopIds().equals(new HashSet<>(packet.additionalPedestrianStopIds))) {
+                        blockEntity.setAdditionalPedestrianStopIds(packet.additionalPedestrianStopIds);
+                    }
+                    if (blockEntity.getIcon() != packet.icon) blockEntity.setIcon(packet.icon);
+                    if (!Arrays.equals(blockEntity.getColorSlots(), packet.colors)) blockEntity.setColorSlots(packet.colors);
+                    if (packet.controlType == TrafficLightControlType.STATIC) blockEntity.enableOnlyColors(packet.enabledColors);
+                    if (blockEntity.getTLType() != packet.type) blockEntity.setType(packet.type);
+                }
                 level.blockEntityChanged(packet.pos);
             }
         };

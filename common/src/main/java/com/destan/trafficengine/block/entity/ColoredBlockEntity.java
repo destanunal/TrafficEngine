@@ -56,7 +56,7 @@ public class ColoredBlockEntity extends DLSyncedBlockEntity implements IColorBlo
     public void setColor(PaintColor color) {
         this.color = color;
         notifyUpdate();
-        getLevel().sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 512);
+        getLevel().sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
     }
 
     @Override
@@ -72,6 +72,6 @@ public class ColoredBlockEntity extends DLSyncedBlockEntity implements IColorBlo
         this.color = baseColor;
         this.markingColor = newMarkingColor;
         notifyUpdate();
-        getLevel().sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 512);
+        getLevel().sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
     }
 }
