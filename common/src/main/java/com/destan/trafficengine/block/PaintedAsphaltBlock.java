@@ -1,4 +1,5 @@
 package com.destan.trafficengine.block;
+import com.destan.trafficengine.util.ItemData;
 
 import com.destan.trafficengine.block.data.RoadBlock;
 import com.destan.trafficengine.block.data.RoadType;
@@ -31,15 +32,15 @@ public class PaintedAsphaltBlock extends RoadBlock {
     }
 
     @Override
-    public ItemStack getCloneItemStack(BlockGetter level, BlockPos pos, BlockState state) {
+    public ItemStack getCloneItemStack(net.minecraft.world.level.LevelReader level, BlockPos pos, BlockState state) {
         if (pickupBlock == null || pickupBlock == this) {
             ItemStack stack = super.getCloneItemStack(level, pos, state);
-            stack.setTag(null);
+            ItemData.set(stack, null);
             return stack;
         }
 
         ItemStack stack = this.pickupBlock.getCloneItemStack(level, pos, state);
-        stack.setTag(null);
+        ItemData.set(stack, null);
         return stack;
     }
 

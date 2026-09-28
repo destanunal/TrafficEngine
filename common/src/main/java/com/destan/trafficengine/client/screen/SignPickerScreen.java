@@ -87,7 +87,7 @@ public class SignPickerScreen extends DLWindow {
         while (Minecraft.getInstance().getResourceManager().getResource(path).isPresent()) {
             locs.add(new DLTexture(path, 32, 32));
             i++;
-            path = new ResourceLocation(TrafficEngine.MOD_ID + ":" + "textures/block/sign/" + shape.getShape() + "/" + shape.getShape() + i + ".png");
+            path = ResourceLocation.parse(TrafficEngine.MOD_ID + ":" + "textures/block/sign/" + shape.getShape() + "/" + shape.getShape() + i + ".png");
         }
         this.resources = locs.toArray(DLTexture[]::new);
         this.count = this.resources.length;

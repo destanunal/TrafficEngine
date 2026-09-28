@@ -92,4 +92,14 @@ public class TrafficSignWorkbenchBlock extends Block {
             return new TrafficSignWorkbenchMenu(containerId, inv, ContainerLevelAccess.create(pLevel, pPos));
         }, TextUtils.text(""));
     }
+    @Override
+    protected net.minecraft.world.ItemInteractionResult useItemOn(net.minecraft.world.item.ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        return com.destan.trafficengine.util.PortingInteractions.forItem(use(state, level, pos, player, hand, hit));
+    }
+
+    @Override
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
+        return use(state, level, pos, player, InteractionHand.MAIN_HAND, hit);
+    }
+
 }

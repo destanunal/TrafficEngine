@@ -6,6 +6,7 @@ import com.destan.trafficengine.block.TrafficLightRequestButtonBlock;
 import com.destan.trafficengine.block.data.TrafficLightTrigger;
 import com.destan.trafficengine.registry.ModBlockEntities;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -29,8 +30,8 @@ public class TrafficLightRequestButtonBlockEntity extends DLSyncedBlockEntity {
     }
 
     @Override
-    public void load(CompoundTag compound) {
-        super.load(compound);
+    public void loadAdditional(CompoundTag compound, HolderLookup.Provider provider) {
+        super.loadAdditional(compound, provider);
 
         this.listening = compound.getBoolean(NBT_LISTENING);
         if (compound.contains(NBT_LINKED_TO)) {
@@ -39,12 +40,12 @@ public class TrafficLightRequestButtonBlockEntity extends DLSyncedBlockEntity {
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag) {
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         tag.putBoolean(NBT_LISTENING, this.listening);
         if (this.linkLocation != null) {
             tag.put(NBT_LINKED_TO, linkLocation.toNbt());
         }
-        super.saveAdditional(tag);
+        super.saveAdditional(tag, provider);
     }
 
     private void tick(Level level, BlockPos pos, BlockState state) {

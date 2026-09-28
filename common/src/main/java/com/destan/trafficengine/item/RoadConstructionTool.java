@@ -1,4 +1,5 @@
 package com.destan.trafficengine.item;
+import com.destan.trafficengine.util.ItemData;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -68,7 +69,6 @@ public class RoadConstructionTool extends Item {
 
 
     private final float attackDamage;
-    private final Multimap<Attribute, AttributeModifier> defaultModifiers;
 
     public RoadConstructionTool(Tiers tier, Properties properties) {
         super(properties.stacksTo(1).durability(tier.getUses() * 6));
@@ -76,7 +76,6 @@ public class RoadConstructionTool extends Item {
         // DÜZELTME: Aletin saldırı gücünü sıfırladık ve hasar/hız özelliklerini tamamen sildik.
         // Artık altında "+8 Saldırı Hasarı" gibi yeşil silah yazıları çıkmayacak!
         this.attackDamage = 0f;
-        this.defaultModifiers = ImmutableMultimap.of();
     }
 
     @Override
@@ -88,7 +87,7 @@ public class RoadConstructionTool extends Item {
 
         if (!player.isShiftKeyDown()) {
             if (!level.isClientSide) {
-                CompoundTag compound = pContext.getItemInHand().getOrCreateTag();
+                CompoundTag compound = ItemData.getOrCreate(pContext.getItemInHand());
 
                 WorldLocation location = new WorldLocation(clickedPos.getX(), clickedVec.y, clickedPos.getZ(), level.dimension().location());
 
@@ -99,6 +98,7 @@ public class RoadConstructionTool extends Item {
                 } else {
                     compound.put(NBT_LOCATION1, location.toNbt());
                 }
+                ItemData.set(pContext.getItemInHand(), compound);
             }
             return InteractionResult.SUCCESS;
         }
@@ -107,11 +107,10 @@ public class RoadConstructionTool extends Item {
     }
 
     @Override
-    public void appendHoverText(ItemStack pStack, Level pLevel, List<Component> pTooltipComponents, TooltipFlag pIsAdvanced) {
+    public void appendHoverText(ItemStack pStack, TooltipContext context, List<Component> pTooltipComponents, TooltipFlag pIsAdvanced) {
 
     }
 
-    @Override
     public boolean canBeDepleted() {
         return true;
     }
@@ -121,35 +120,27 @@ public class RoadConstructionTool extends Item {
     }
 
     @Override
-    public Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(EquipmentSlot pSlot) {
-        return pSlot == EquipmentSlot.MAINHAND ? this.defaultModifiers : super.getDefaultAttributeModifiers(pSlot);
-    }
-
-    @Override
     public boolean isFoil(ItemStack pStack) {
-        CompoundTag tag = pStack.getTag();
+        CompoundTag tag = ItemData.get(pStack);
         return (tag != null && (tag.contains(NBT_LOCATION1) || tag.contains(NBT_LOCATION2))) || super.isFoil(pStack);
     }
 
     public static void reset(ItemStack stack) {
-        CompoundTag nbt = stack.getOrCreateTag();
+        CompoundTag nbt = ItemData.getOrCreate(stack);
         nbt.remove(RoadConstructionTool.NBT_LOCATION1);
         nbt.remove(RoadConstructionTool.NBT_LOCATION2);
         nbt.putBoolean(RoadConstructionTool.NBT_REPLACE_BLOCKS, DEFAULT_REPLACE_BLOCKS);
         nbt.putByte(RoadConstructionTool.NBT_ROAD_WIDTH, DEFAULT_ROAD_WIDTH);
         nbt.putInt(RoadConstructionTool.NBT_ROAD_TYPE, DEFAULT_ROAD_TYPE.getIndex());
+        ItemData.set(stack, nbt);
     }
 
     public static void initStackTag(ItemStack stack) {
-        if (!stack.getTag().contains(NBT_ROAD_WIDTH)) {
-            stack.getTag().putByte(NBT_ROAD_WIDTH, DEFAULT_ROAD_WIDTH);
-        }
-        if (!stack.getTag().contains(NBT_ROAD_TYPE)) {
-            stack.getTag().putInt(NBT_ROAD_TYPE, DEFAULT_ROAD_TYPE.getIndex());
-        }
-        if (!stack.getTag().contains(NBT_REPLACE_BLOCKS)) {
-            stack.getTag().putBoolean(NBT_REPLACE_BLOCKS, DEFAULT_REPLACE_BLOCKS);
-        }
+        ItemData.edit(stack, tag -> {
+            if (!tag.contains(NBT_ROAD_WIDTH)) tag.putByte(NBT_ROAD_WIDTH, DEFAULT_ROAD_WIDTH);
+            if (!tag.contains(NBT_ROAD_TYPE)) tag.putInt(NBT_ROAD_TYPE, DEFAULT_ROAD_TYPE.getIndex());
+            if (!tag.contains(NBT_REPLACE_BLOCKS)) tag.putBoolean(NBT_REPLACE_BLOCKS, DEFAULT_REPLACE_BLOCKS);
+        });
     }
 
     private static DLStatus isLineValid(Vec3 a, Vec3 b) {
@@ -172,16 +163,16 @@ public class RoadConstructionTool extends Item {
 
         initStackTag(itemstack);
 
-        boolean bothPositionsDefined = itemstack.getTag().contains(NBT_LOCATION1) && itemstack.getTag().contains(NBT_LOCATION2);
+        boolean bothPositionsDefined = ItemData.get(itemstack).contains(NBT_LOCATION1) && ItemData.get(itemstack).contains(NBT_LOCATION2);
 
-        WorldLocation startLoc = WorldLocation.loadFromNbt(itemstack.getTag().getCompound(NBT_LOCATION1));
-        WorldLocation endLoc = WorldLocation.loadFromNbt(itemstack.getTag().getCompound(NBT_LOCATION2));
+        WorldLocation startLoc = WorldLocation.loadFromNbt(ItemData.get(itemstack).getCompound(NBT_LOCATION1));
+        WorldLocation endLoc = WorldLocation.loadFromNbt(ItemData.get(itemstack).getCompound(NBT_LOCATION2));
         Collection<Map<BlockPos, Integer>> blockList = new ArrayList<>();
 
         if (bothPositionsDefined && endLoc != null && startLoc != null) {
             Vec3 start = startLoc.getLocationVec3();
             Vec3 end = endLoc.getLocationVec3();
-            byte roadWidth = itemstack.getTag().getByte(NBT_ROAD_WIDTH);
+            byte roadWidth = ItemData.get(itemstack).getByte(NBT_ROAD_WIDTH);
             boolean replaceBlocks = true;
             blockList = calculateRoad(pLevel, start, end, roadWidth, replaceBlocks);
         }
@@ -325,9 +316,8 @@ public class RoadConstructionTool extends Item {
         }
 
         ItemStack stack = player.getItemInHand(InteractionHand.MAIN_HAND).getItem() instanceof RoadConstructionTool ? player.getItemInHand(InteractionHand.MAIN_HAND) : player.getItemInHand(InteractionHand.OFF_HAND);
-        CompoundTag nbt = stack.getOrCreateTag();
-
         initStackTag(stack);
+        CompoundTag nbt = ItemData.getOrCreate(stack);
 
         if (!nbt.contains(NBT_LOCATION1)) {
             return;

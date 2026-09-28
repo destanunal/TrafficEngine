@@ -1,5 +1,7 @@
 package com.destan.trafficengine.item;
 
+import com.destan.trafficengine.util.ItemData;
+
 import java.util.List;
 
 import com.destan.trafficengine.Constants;
@@ -29,8 +31,8 @@ public class CreativePatternCatalogueItem extends PatternCatalogueItem {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, Level player, List<Component> list, TooltipFlag flag) {
-        super.appendHoverText(stack, player, list, flag);
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
+        super.appendHoverText(stack, context, list, flag);
         list.add(Constants.CREATIVE_MODE_ONLY_TOOLTIP);
     }
 
@@ -56,11 +58,11 @@ public class CreativePatternCatalogueItem extends PatternCatalogueItem {
     }
 
     public static void setCustomImage(ItemStack stack, NamedTrafficSignTextureReference data) {
-        checkNbt(stack).put(NBT_CUSTOM, data.toNbt());
+        ItemData.edit(stack, nbt -> nbt.put(NBT_CUSTOM, data.toNbt()));
     }
 
     public static void clearCustomImage(ItemStack stack) {
-        checkNbt(stack).remove(NBT_CUSTOM);
+        ItemData.edit(stack, nbt -> nbt.remove(NBT_CUSTOM));
     }
 
     public static NamedTrafficSignTextureReference getCustomImage(ItemStack stack) {
@@ -81,7 +83,7 @@ public class CreativePatternCatalogueItem extends PatternCatalogueItem {
 
     // --- YENİ EKLENEN SEKME HAFIZASI METOTLARI ---
     public static void setSelectedTab(ItemStack stack, String tab) {
-        checkNbt(stack).putString(NBT_SELECTED_TAB, tab);
+        ItemData.edit(stack, nbt -> nbt.putString(NBT_SELECTED_TAB, tab));
     }
 
     public static String getSelectedTab(ItemStack stack) {

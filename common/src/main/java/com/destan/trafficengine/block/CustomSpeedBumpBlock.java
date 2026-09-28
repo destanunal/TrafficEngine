@@ -39,4 +39,9 @@ public class CustomSpeedBumpBlock extends HorizontalDirectionalBlock {
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(FACING);
     }
+    @Override
+    protected com.mojang.serialization.MapCodec<? extends net.minecraft.world.level.block.HorizontalDirectionalBlock> codec() {
+        return com.mojang.serialization.MapCodec.unit(this);
+    }
+
 }

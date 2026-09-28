@@ -193,7 +193,7 @@ public class LedDeviceScreen extends Screen {
     }
 
     @Override public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        renderBackground(graphics); super.render(graphics, mouseX, mouseY, partialTick);
+        renderBackground(graphics, mouseX, mouseY, partialTick); super.render(graphics, mouseX, mouseY, partialTick);
         graphics.drawCenteredString(font, title, width / 2, 16, 0xFFFFFF);
         graphics.drawString(font, Component.translatable("gui.trafficengine.led_device.color"), paletteX, paletteY - 20, 0xA0A0A0);
         graphics.fill(paletteX, paletteY - 10, paletteX + paletteWidth + HUE_GAP + HUE_WIDTH, paletteY - 3, 0xFF000000 | selectedColor);

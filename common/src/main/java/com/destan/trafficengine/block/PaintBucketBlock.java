@@ -1,4 +1,5 @@
 package com.destan.trafficengine.block;
+import com.destan.trafficengine.util.ItemData;
 
 import de.mrjulsen.mcdragonlib.util.TextUtils;
 import com.destan.trafficengine.block.data.ColorableBlock;
@@ -105,7 +106,6 @@ public class PaintBucketBlock extends ColorableBlock implements SimpleWaterlogge
         );
     }
 
-    @Override
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result)
     {
         if (state.getValue(WATERLOGGED)) {
@@ -132,19 +132,21 @@ public class PaintBucketBlock extends ColorableBlock implements SimpleWaterlogge
             }
 
             // Generate tags if item has no nbt
-            if (!stack.hasTag())
-                stack.setTag(BrushItem.checkNbt(stack));
+            if (!ItemData.has(stack))
+                ItemData.set(stack, BrushItem.checkNbt(stack));
 
             // Set brush color
-            if ((stack.getTag().getInt("paint") < item.getMaxPaint() && paint > 0) || (stack.getTag().getInt("paint") == item.getMaxPaint() && stack.getTag().getInt("color") != blockEntity.getColor().getIndex())) {
+            if ((ItemData.get(stack).getInt("paint") < item.getMaxPaint() && paint > 0) || (ItemData.get(stack).getInt("paint") == item.getMaxPaint() && ItemData.get(stack).getInt("color") != blockEntity.getColor().getIndex())) {
                 
                 if(!level.isClientSide) {
                     
                     if(!player.isCreative())
                         level.setBlockAndUpdate(pos, state.setValue(PAINT, state.getValue(PAINT) - 1));
 
-                    stack.getTag().putInt("paint", item.getMaxPaint());
-                    stack.getTag().putInt("color", blockEntity.getColor().getIndex());
+                    ItemData.edit(stack, tag -> {
+                        tag.putInt("paint", item.getMaxPaint());
+                        tag.putInt("color", blockEntity.getColor().getIndex());
+                    });
                     level.playSound(player, pos, SoundEvents.BUCKET_EMPTY_LAVA, SoundSource.BLOCKS, 0.8F, 1.0F);
                 }
                 return InteractionResult.SUCCESS;
@@ -207,4 +209,14 @@ public class PaintBucketBlock extends ColorableBlock implements SimpleWaterlogge
     public InteractionResult onSetColor(UseOnContext pContext) {
         return InteractionResult.SUCCESS;
     }
+    @Override
+    protected net.minecraft.world.ItemInteractionResult useItemOn(net.minecraft.world.item.ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        return com.destan.trafficengine.util.PortingInteractions.forItem(use(state, level, pos, player, hand, hit));
+    }
+
+    @Override
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
+        return use(state, level, pos, player, InteractionHand.MAIN_HAND, hit);
+    }
+
 }
