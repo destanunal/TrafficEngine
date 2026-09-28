@@ -1,8 +1,10 @@
 ### **![](https://media.forgecdn.net/attachments/description/1654475/description_a3bd7d8c-d4b3-442e-b480-db9aa9ebcf51.png)**
 
-![Forge](https://img.shields.io/badge/Forge-Supported-238636?style=flat-square&logo=curseforge&logoColor=black) ![Fabric](https://img.shields.io/badge/Fabric-Supported-238636?style=flat-square&logo=fabricmc&logoColor=black)
+![NeoForge](https://img.shields.io/badge/NeoForge-Supported-238636?style=flat-square&logo=neoforged&logoColor=black) &nbsp;&nbsp;
+![Forge](https://img.shields.io/badge/Forge-Supported-238636?style=flat-square&logo=curseforge&logoColor=black) &nbsp;&nbsp;
+![Fabric](https://img.shields.io/badge/Fabric-Supported-238636?style=flat-square&logo=fabricmc&logoColor=black)
 
-[![CurseForge Downloads](https://img.shields.io/curseforge/dt/1654475?style=for-the-badge&logo=curseforge&color=orange)](https://www.curseforge.com/minecraft/mc-mods/trafficengine)
+[![CurseForge Downloads](https://img.shields.io/curseforge/dt/1654475?style=for-the-badge&logo=curseforge&color=orange)](https://www.curseforge.com/minecraft/mc-mods/trafficengine) &nbsp;&nbsp;
 [![Modrinth Downloads](https://img.shields.io/modrinth/dt/traffic-engine?style=for-the-badge&logo=modrinth&color=00AF5C)](https://modrinth.com/mod/traffic-engine)
 
 **Traffic Engine** is a comprehensive traffic, road and city-building mod designed for creating modern and realistic Minecraft cities.
