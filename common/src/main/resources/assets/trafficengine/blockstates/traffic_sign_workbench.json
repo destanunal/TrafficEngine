@@ -1,0 +1,19 @@
+{
+    "variants": {
+        "facing=north": {
+            "model": "trafficengine:block/traffic_sign_workbench"
+        },
+        "facing=east": {
+            "model": "trafficengine:block/traffic_sign_workbench",
+            "y": 90
+        },
+        "facing=south": {
+            "model": "trafficengine:block/traffic_sign_workbench",
+            "y": 180
+        },
+        "facing=west": {
+            "model": "trafficengine:block/traffic_sign_workbench",
+            "y": 270
+        }
+    }
+}

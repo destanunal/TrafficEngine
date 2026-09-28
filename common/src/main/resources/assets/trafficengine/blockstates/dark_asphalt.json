@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "": [
+      { "model": "trafficengine:block/dark_asphalt" },
+      { "model": "trafficengine:block/dark_asphalt", "y": 90 },
+      { "model": "trafficengine:block/dark_asphalt", "y": 180 },
+      { "model": "trafficengine:block/dark_asphalt", "y": 270 }
+    ]
+  }
+}

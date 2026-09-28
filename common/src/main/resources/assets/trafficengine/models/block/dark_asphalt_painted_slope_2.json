@@ -1,0 +1,7 @@
+{
+  "parent": "trafficengine:block/road_slope_color_2",
+  "textures": {
+    "base": "trafficengine:block/dark_asphalt_painted",
+    "particle": "trafficengine:block/dark_asphalt"
+  }
+}
