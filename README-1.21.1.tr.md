@@ -1,8 +1,8 @@
 # Traffic Engine 1.21.1
 
-Bu klasör, 1.20.1 kaynaklarından ayrılmış `mc-1.21.1-port` Git dalıdır. Eski
-`TrafficEngine-master` çalışma klasörü ve onun Fabric/Forge 1.20.1 sürümleri
-yerinde durur. 1.21.1 için aynı ortak kodu kullanan iki çıktı üretilir:
+Bu klasör, 1.20.1 kaynaklarından ayrılmış `mc-1.21.1-port` Git dalıdır.
+Yanındaki `TrafficEngine-1.20.1` klasörü Fabric/Forge 1.20.1 sürümlerini içerir. 1.21.1
+için aynı ortak kodu kullanan iki çıktı üretilir:
 
 | Minecraft | Yükleyici | Çıktı |
 | --- | --- | --- |
