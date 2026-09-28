@@ -1,0 +1,33 @@
+{
+  "display": {
+    "icon": {
+      "item": "trafficengine:town_sign"
+    },
+    "title": {
+      "translate": "advancement.trafficengine.town_sign"
+    },
+    "description": {
+      "translate": "advancement.trafficengine.town_sign.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "parent": "trafficengine:street_name_sign",
+  "criteria": {
+    "req": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": [
+          {
+            "condition": "minecraft:block_state_property",
+            "block": "trafficengine:town_sign"
+          }
+        ]
+      }
+    }
+  },
+  "rewards": {
+    "experience": 20
+  }
+}

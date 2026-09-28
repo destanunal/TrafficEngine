@@ -1,0 +1,48 @@
+{
+  "ambientocclusion": true,
+  "textures": {
+    "particle": "trafficengine:block/speed_bump",
+    "all": "trafficengine:block/speed_bump"
+  },
+  "elements": [
+    {
+      "name": "front_ramp",
+      "from": [0.02, 0.0, 4.0],
+      "to": [15.98, 2.45, 7.25],
+      "rotation": {"angle": -22.5, "axis": "x", "origin": [8, 2.45, 7.25]},
+      "faces": {
+        "up": {"texture": "#all"},
+        "north": {"texture": "#all"},
+        "east": {"texture": "#all"},
+        "west": {"texture": "#all"},
+        "down": {"texture": "#all", "cullface": "down"}
+      }
+    },
+    {
+      "name": "crown",
+      "from": [0.02, 0.0, 7.0],
+      "to": [15.98, 2.75, 9.0],
+      "faces": {
+        "up": {"texture": "#all"},
+        "north": {"texture": "#all"},
+        "south": {"texture": "#all"},
+        "east": {"texture": "#all"},
+        "west": {"texture": "#all"},
+        "down": {"texture": "#all", "cullface": "down"}
+      }
+    },
+    {
+      "name": "rear_ramp",
+      "from": [0.02, 0.0, 8.75],
+      "to": [15.98, 2.45, 12.0],
+      "rotation": {"angle": 22.5, "axis": "x", "origin": [8, 2.45, 8.75]},
+      "faces": {
+        "up": {"texture": "#all"},
+        "south": {"texture": "#all"},
+        "east": {"texture": "#all"},
+        "west": {"texture": "#all"},
+        "down": {"texture": "#all", "cullface": "down"}
+      }
+    }
+  ]
+}

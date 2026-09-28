@@ -1,0 +1,33 @@
+{
+  "display": {
+    "icon": {
+      "item": "trafficengine:traffic_sign_workbench"
+    },
+    "title": {
+      "translate": "advancement.trafficengine.traffic_sign_workbench"
+    },
+    "description": {
+      "translate": "advancement.trafficengine.traffic_sign_workbench.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "parent": "trafficengine:traffic_sign",
+  "criteria": {
+    "req": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": [
+          {
+            "condition": "minecraft:block_state_property",
+            "block": "trafficengine:traffic_sign_workbench"
+          }
+        ]
+      }
+    }
+  },
+  "rewards": {
+    "experience": 20
+  }
+}

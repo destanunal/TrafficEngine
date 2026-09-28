@@ -1,0 +1,75 @@
+{
+  "textures": {
+    "case": "minecraft:block/gray_concrete",
+    "metal": "trafficengine:block/sign",
+    "front": "minecraft:block/black_concrete",
+    "particle": "minecraft:block/gray_concrete"
+  },
+  "elements": [
+    {
+      "from": [
+        1,
+        0,
+        6
+      ],
+      "to": [
+        15,
+        16,
+        8
+      ],
+      "faces": {
+        "north": {
+          "texture": "#metal"
+        },
+        "east": {
+          "texture": "#metal"
+        },
+        "south": {
+          "texture": "#metal"
+        },
+        "west": {
+          "texture": "#metal"
+        },
+        "up": {
+          "texture": "#metal"
+        },
+        "down": {
+          "texture": "#metal"
+        }
+      }
+    },
+    {
+      "from": [
+        1.75,
+        0.75,
+        5.5
+      ],
+      "to": [
+        14.25,
+        15.25,
+        6.25
+      ],
+      "faces": {
+        "north": {
+          "texture": "#front",
+          "dragonlib_data": { "emissive": true }
+        },
+        "east": {
+          "texture": "#case"
+        },
+        "south": {
+          "texture": "#case"
+        },
+        "west": {
+          "texture": "#case"
+        },
+        "up": {
+          "texture": "#case"
+        },
+        "down": {
+          "texture": "#case"
+        }
+      }
+    }
+  ]
+}
