@@ -138,16 +138,32 @@ public class TrafficLightControllerBlockEntity extends DLSyncedBlockEntity {
             }
         });
 
-        if (running && getFirstOrMainSchedule().hasPhaseTimings()) {
-            TrafficLightSchedule schedule = getFirstOrMainSchedule();
-            int cycle = schedule.isSequentialGreens() ? schedule.getSequentialCycleTicks() : 0;
-            if (!pendingSchedules.isEmpty() && cycle > 0 && Math.floorMod(ticks, cycle) == 0) {
+        TrafficLightSchedule activeSchedule = getFirstOrMainSchedule();
+        int activeCycle = activeSchedule.isSequentialGreens()
+            ? activeSchedule.getSequentialCycleTicks() : activeSchedule.getLongestCycleTicks();
+        boolean cycleBoundary = running && totalTicks > 0
+            && (activeSchedule.hasPhaseTimings()
+                ? activeCycle > 0 && Math.floorMod(ticks, activeCycle) == 0
+                : ticks == 0);
+        if (cycleBoundary) {
+            if (!pendingSchedules.isEmpty()) {
                 activatePendingSchedules();
                 ticks = 0;
                 totalTicks = 0;
-                schedule = getFirstOrMainSchedule();
                 notifyUpdate();
             }
+            for (WorldLocation location : trafficLightLocations) {
+                if (level.isLoaded(location.getLocationBlockPos())
+                        && level.getBlockEntity(location.getLocationBlockPos()) instanceof TrafficLightBlockEntity light
+                        && light.getControlType() == TrafficLightControlType.REMOTE) {
+                    light.applyPendingPhaseId();
+                }
+            }
+        }
+
+        if (running && getFirstOrMainSchedule().hasPhaseTimings()) {
+            TrafficLightSchedule schedule = getFirstOrMainSchedule();
+
             Map<PhaseKey, TrafficLightSchedule.PhaseState> phaseById = new HashMap<>();
             for (WorldLocation location : trafficLightLocations) {
                 if (!level.isLoaded(location.getLocationBlockPos())) continue;
@@ -271,11 +287,19 @@ public class TrafficLightControllerBlockEntity extends DLSyncedBlockEntity {
 
     public void setSchedules(List<TrafficLightSchedule> schedules) {
         List<TrafficLightSchedule> updated = new ArrayList<>(schedules);
-        boolean keepProgress = this.schedules.size() == 1 && updated.size() == 1
-            && hasSameSequentialTiming(this.schedules.get(0), updated.get(0));
-        if (!keepProgress && running && this.schedules.size() == 1 && updated.size() == 1
-            && this.schedules.get(0).isSequentialGreens() && updated.get(0).isSequentialGreens()
-            && this.schedules.get(0).getSequentialCycleTicks() > 0) {
+        if (sameSchedules(this.schedules, updated)) {
+            if (!pendingSchedules.isEmpty()) {
+                pendingSchedules.clear();
+                notifyUpdate();
+            }
+            return;
+        }
+        if (sameSchedules(pendingSchedules, updated)) return;
+
+        TrafficLightSchedule active = getFirstOrMainSchedule();
+        int cycle = active.isSequentialGreens() ? active.getSequentialCycleTicks()
+            : active.hasPhaseTimings() ? active.getLongestCycleTicks() : active.getTotalDurationTicks();
+        if (running && cycle > 0) {
             pendingSchedules.clear();
             pendingSchedules.addAll(updated);
             notifyUpdate();
@@ -284,23 +308,15 @@ public class TrafficLightControllerBlockEntity extends DLSyncedBlockEntity {
         pendingSchedules.clear();
         this.schedules.clear();
         this.schedules.addAll(updated);
-        if (!keepProgress) {
-            this.ticks = 0;
-            this.totalTicks = 0;
-        }
+        ticks = 0;
+        totalTicks = 0;
         notifyUpdate();
     }
 
-    private static boolean hasSameSequentialTiming(TrafficLightSchedule current, TrafficLightSchedule updated) {
-        if (!current.isSequentialGreens() || !updated.isSequentialGreens()
-            || current.getRedYellowTicks() != updated.getRedYellowTicks()
-            || current.getSequentialCycleTicks() != updated.getSequentialCycleTicks()
-            || current.getEntries().size() != updated.getEntries().size()) return false;
-        for (int i = 0; i < current.getEntries().size(); i++) {
-            TrafficLightScheduleEntryData oldEntry = current.getEntries().get(i);
-            TrafficLightScheduleEntryData newEntry = updated.getEntries().get(i);
-            if (oldEntry.getPhaseId() != newEntry.getPhaseId()
-                || oldEntry.getDurationTicks() != newEntry.getDurationTicks()) return false;
+    private static boolean sameSchedules(List<TrafficLightSchedule> left, List<TrafficLightSchedule> right) {
+        if (left.size() != right.size()) return false;
+        for (int i = 0; i < left.size(); i++) {
+            if (!left.get(i).toNbt().equals(right.get(i).toNbt())) return false;
         }
         return true;
     }
@@ -320,6 +336,21 @@ public class TrafficLightControllerBlockEntity extends DLSyncedBlockEntity {
 
     public void setRunning(boolean b) {
         this.running = b;
+        if (!b) {
+            if (!pendingSchedules.isEmpty()) {
+                activatePendingSchedules();
+                ticks = 0;
+                totalTicks = 0;
+            }
+            if (level != null) {
+                for (WorldLocation location : trafficLightLocations) {
+                    if (level.isLoaded(location.getLocationBlockPos())
+                            && level.getBlockEntity(location.getLocationBlockPos()) instanceof TrafficLightBlockEntity light) {
+                        light.applyPendingPhaseId();
+                    }
+                }
+            }
+        }
         notifyUpdate();
     }
 

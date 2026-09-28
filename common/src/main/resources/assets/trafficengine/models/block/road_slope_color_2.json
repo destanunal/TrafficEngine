@@ -1,5 +1,5 @@
 {
-  "render_type": "cutout",
+  "ambientocclusion": false,
   "elements": [
     {
       "name": "base",

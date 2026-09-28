@@ -1,7 +1,7 @@
 {
   "parent": "trafficengine:block/road_slope_color_12",
   "textures": {
-    "base": "trafficengine:block/cracked_asphalt_painted",
+    "base": "trafficengine:block/sign_blank",
     "particle": "trafficengine:block/cracked_asphalt"
   }
 }
