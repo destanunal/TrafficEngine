@@ -13,4 +13,4 @@ include 'common'
 include 'fabric'
 include 'neoforge'
 
-rootProject.name = "TrafficEngine-main"
+rootProject.name = "TrafficEngine-1.21.1"

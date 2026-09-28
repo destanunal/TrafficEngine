@@ -24,7 +24,7 @@
         "layers": "1"
       },
       "apply": {
-        "model": "trafficengine:block/heavy_cracked_asphalt/slope/100_2",
+        "model": "trafficengine:block/asphalt/slope/100_2",
         "y": 0
       }
     },
@@ -34,7 +34,7 @@
         "layers": "1"
       },
       "apply": {
-        "model": "trafficengine:block/heavy_cracked_asphalt/slope/100_2",
+        "model": "trafficengine:block/asphalt/slope/100_2",
         "y": 90
       }
     },
@@ -44,7 +44,7 @@
         "layers": "1"
       },
       "apply": {
-        "model": "trafficengine:block/heavy_cracked_asphalt/slope/100_2",
+        "model": "trafficengine:block/asphalt/slope/100_2",
         "y": 180
       }
     },
@@ -54,7 +54,7 @@
         "layers": "1"
       },
       "apply": {
-        "model": "trafficengine:block/heavy_cracked_asphalt/slope/100_2",
+        "model": "trafficengine:block/asphalt/slope/100_2",
         "y": 270
       }
     },
@@ -82,7 +82,7 @@
         "layers": "2"
       },
       "apply": {
-        "model": "trafficengine:block/heavy_cracked_asphalt/slope/100_4",
+        "model": "trafficengine:block/asphalt/slope/100_4",
         "y": 0
       }
     },
@@ -92,7 +92,7 @@
         "layers": "2"
       },
       "apply": {
-        "model": "trafficengine:block/heavy_cracked_asphalt/slope/100_4",
+        "model": "trafficengine:block/asphalt/slope/100_4",
         "y": 90
       }
     },
@@ -102,7 +102,7 @@
         "layers": "2"
       },
       "apply": {
-        "model": "trafficengine:block/heavy_cracked_asphalt/slope/100_4",
+        "model": "trafficengine:block/asphalt/slope/100_4",
         "y": 180
       }
     },
@@ -112,7 +112,7 @@
         "layers": "2"
       },
       "apply": {
-        "model": "trafficengine:block/heavy_cracked_asphalt/slope/100_4",
+        "model": "trafficengine:block/asphalt/slope/100_4",
         "y": 270
       }
     },
@@ -140,7 +140,7 @@
         "layers": "3"
       },
       "apply": {
-        "model": "trafficengine:block/heavy_cracked_asphalt/slope/100_6",
+        "model": "trafficengine:block/asphalt/slope/100_6",
         "y": 0
       }
     },
@@ -150,7 +150,7 @@
         "layers": "3"
       },
       "apply": {
-        "model": "trafficengine:block/heavy_cracked_asphalt/slope/100_6",
+        "model": "trafficengine:block/asphalt/slope/100_6",
         "y": 90
       }
     },
@@ -160,7 +160,7 @@
         "layers": "3"
       },
       "apply": {
-        "model": "trafficengine:block/heavy_cracked_asphalt/slope/100_6",
+        "model": "trafficengine:block/asphalt/slope/100_6",
         "y": 180
       }
     },
@@ -170,7 +170,7 @@
         "layers": "3"
       },
       "apply": {
-        "model": "trafficengine:block/heavy_cracked_asphalt/slope/100_6",
+        "model": "trafficengine:block/asphalt/slope/100_6",
         "y": 270
       }
     },
@@ -198,7 +198,7 @@
         "layers": "4"
       },
       "apply": {
-        "model": "trafficengine:block/heavy_cracked_asphalt/slope/100_8",
+        "model": "trafficengine:block/asphalt/slope/100_8",
         "y": 0
       }
     },
@@ -208,7 +208,7 @@
         "layers": "4"
       },
       "apply": {
-        "model": "trafficengine:block/heavy_cracked_asphalt/slope/100_8",
+        "model": "trafficengine:block/asphalt/slope/100_8",
         "y": 90
       }
     },
@@ -218,7 +218,7 @@
         "layers": "4"
       },
       "apply": {
-        "model": "trafficengine:block/heavy_cracked_asphalt/slope/100_8",
+        "model": "trafficengine:block/asphalt/slope/100_8",
         "y": 180
       }
     },
@@ -228,7 +228,7 @@
         "layers": "4"
       },
       "apply": {
-        "model": "trafficengine:block/heavy_cracked_asphalt/slope/100_8",
+        "model": "trafficengine:block/asphalt/slope/100_8",
         "y": 270
       }
     },
@@ -256,7 +256,7 @@
         "layers": "5"
       },
       "apply": {
-        "model": "trafficengine:block/heavy_cracked_asphalt/slope/100_10",
+        "model": "trafficengine:block/asphalt/slope/100_10",
         "y": 0
       }
     },
@@ -266,7 +266,7 @@
         "layers": "5"
       },
       "apply": {
-        "model": "trafficengine:block/heavy_cracked_asphalt/slope/100_10",
+        "model": "trafficengine:block/asphalt/slope/100_10",
         "y": 90
       }
     },
@@ -276,7 +276,7 @@
         "layers": "5"
       },
       "apply": {
-        "model": "trafficengine:block/heavy_cracked_asphalt/slope/100_10",
+        "model": "trafficengine:block/asphalt/slope/100_10",
         "y": 180
       }
     },
@@ -286,7 +286,7 @@
         "layers": "5"
       },
       "apply": {
-        "model": "trafficengine:block/heavy_cracked_asphalt/slope/100_10",
+        "model": "trafficengine:block/asphalt/slope/100_10",
         "y": 270
       }
     },
@@ -314,7 +314,7 @@
         "layers": "6"
       },
       "apply": {
-        "model": "trafficengine:block/heavy_cracked_asphalt/slope/100_12",
+        "model": "trafficengine:block/asphalt/slope/100_12",
         "y": 0
       }
     },
@@ -324,7 +324,7 @@
         "layers": "6"
       },
       "apply": {
-        "model": "trafficengine:block/heavy_cracked_asphalt/slope/100_12",
+        "model": "trafficengine:block/asphalt/slope/100_12",
         "y": 90
       }
     },
@@ -334,7 +334,7 @@
         "layers": "6"
       },
       "apply": {
-        "model": "trafficengine:block/heavy_cracked_asphalt/slope/100_12",
+        "model": "trafficengine:block/asphalt/slope/100_12",
         "y": 180
       }
     },
@@ -344,7 +344,7 @@
         "layers": "6"
       },
       "apply": {
-        "model": "trafficengine:block/heavy_cracked_asphalt/slope/100_12",
+        "model": "trafficengine:block/asphalt/slope/100_12",
         "y": 270
       }
     },
@@ -372,7 +372,7 @@
         "layers": "7"
       },
       "apply": {
-        "model": "trafficengine:block/heavy_cracked_asphalt/slope/100_14",
+        "model": "trafficengine:block/asphalt/slope/100_14",
         "y": 0
       }
     },
@@ -382,7 +382,7 @@
         "layers": "7"
       },
       "apply": {
-        "model": "trafficengine:block/heavy_cracked_asphalt/slope/100_14",
+        "model": "trafficengine:block/asphalt/slope/100_14",
         "y": 90
       }
     },
@@ -392,7 +392,7 @@
         "layers": "7"
       },
       "apply": {
-        "model": "trafficengine:block/heavy_cracked_asphalt/slope/100_14",
+        "model": "trafficengine:block/asphalt/slope/100_14",
         "y": 180
       }
     },
@@ -402,7 +402,7 @@
         "layers": "7"
       },
       "apply": {
-        "model": "trafficengine:block/heavy_cracked_asphalt/slope/100_14",
+        "model": "trafficengine:block/asphalt/slope/100_14",
         "y": 270
       }
     },
@@ -430,7 +430,7 @@
         "layers": "8"
       },
       "apply": {
-        "model": "trafficengine:block/heavy_cracked_asphalt/100",
+        "model": "trafficengine:block/asphalt/100",
         "y": 0
       }
     },
@@ -440,7 +440,7 @@
         "layers": "8"
       },
       "apply": {
-        "model": "trafficengine:block/heavy_cracked_asphalt/100",
+        "model": "trafficengine:block/asphalt/100",
         "y": 90
       }
     },
@@ -450,7 +450,7 @@
         "layers": "8"
       },
       "apply": {
-        "model": "trafficengine:block/heavy_cracked_asphalt/100",
+        "model": "trafficengine:block/asphalt/100",
         "y": 180
       }
     },
@@ -460,7 +460,7 @@
         "layers": "8"
       },
       "apply": {
-        "model": "trafficengine:block/heavy_cracked_asphalt/100",
+        "model": "trafficengine:block/asphalt/100",
         "y": 270
       }
     }

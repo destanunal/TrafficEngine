@@ -12,6 +12,7 @@
     "MultipartPatternModelCacheMixin"
   ],
   "mixins": [
+    "DragonLibWelcomeMixin",
     "TrafficCraftMigrationMixin"
   ],
   "injectors": {
