@@ -1,0 +1,7 @@
+{
+    "parent": "trafficengine:block/slope_base_12",
+    "textures": {
+      "base": "trafficengine:block/light_asphalt",
+      "particle": "trafficengine:block/light_asphalt"
+    }
+}

@@ -1,0 +1,459 @@
+{
+  "textures": {
+    "screen": "minecraft:block/gray_concrete",
+    "metal": "minecraft:block/gray_concrete",
+    "particle": "minecraft:block/gray_concrete",
+    "front": "minecraft:block/black_concrete"
+  },
+  "elements": [
+    {
+      "from": [
+        -14.0,
+        -14,
+        6
+      ],
+      "to": [
+        14.0,
+        14,
+        7
+      ],
+      "faces": {
+        "north": {
+          "texture": "#metal",
+          "dragonlib_data": { "emissive": true },
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "east": {
+          "texture": "#metal",
+          "dragonlib_data": { "emissive": true },
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "south": {
+          "texture": "#metal",
+          "dragonlib_data": { "emissive": true },
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "west": {
+          "texture": "#metal",
+          "dragonlib_data": { "emissive": true },
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "up": {
+          "texture": "#metal",
+          "dragonlib_data": { "emissive": true },
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "down": {
+          "texture": "#metal",
+          "dragonlib_data": { "emissive": true },
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        }
+      },
+      "shade": false
+    },
+    {
+      "from": [
+        -15.0,
+        -15,
+        5.5
+      ],
+      "to": [
+        15.0,
+        15,
+        6
+      ],
+      "faces": {
+        "north": {
+          "texture": "#front",
+          "dragonlib_data": { "emissive": true },
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "east": {
+          "texture": "#screen",
+          "dragonlib_data": { "emissive": true },
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "south": {
+          "texture": "#screen",
+          "dragonlib_data": { "emissive": true },
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "west": {
+          "texture": "#screen",
+          "dragonlib_data": { "emissive": true },
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "up": {
+          "texture": "#screen",
+          "dragonlib_data": { "emissive": true },
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "down": {
+          "texture": "#screen",
+          "dragonlib_data": { "emissive": true },
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        }
+      }
+    },
+    {
+      "from": [
+        -16.0,
+        14,
+        5.75
+      ],
+      "to": [
+        16.0,
+        16,
+        7
+      ],
+      "faces": {
+        "north": {
+          "texture": "#metal",
+          "dragonlib_data": { "emissive": true },
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "east": {
+          "texture": "#metal",
+          "dragonlib_data": { "emissive": true },
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "south": {
+          "texture": "#metal",
+          "dragonlib_data": { "emissive": true },
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "west": {
+          "texture": "#metal",
+          "dragonlib_data": { "emissive": true },
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "up": {
+          "texture": "#metal",
+          "dragonlib_data": { "emissive": true },
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "down": {
+          "texture": "#metal",
+          "dragonlib_data": { "emissive": true },
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        }
+      },
+      "shade": false
+    },
+    {
+      "from": [
+        -16.0,
+        -16,
+        5.75
+      ],
+      "to": [
+        16.0,
+        -14,
+        7
+      ],
+      "faces": {
+        "north": {
+          "texture": "#metal",
+          "dragonlib_data": { "emissive": true },
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "east": {
+          "texture": "#metal",
+          "dragonlib_data": { "emissive": true },
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "south": {
+          "texture": "#metal",
+          "dragonlib_data": { "emissive": true },
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "west": {
+          "texture": "#metal",
+          "dragonlib_data": { "emissive": true },
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "up": {
+          "texture": "#metal",
+          "dragonlib_data": { "emissive": true },
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "down": {
+          "texture": "#metal",
+          "dragonlib_data": { "emissive": true },
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        }
+      },
+      "shade": false
+    },
+    {
+      "from": [
+        -16.0,
+        -14,
+        5.75
+      ],
+      "to": [
+        -14.0,
+        14,
+        7
+      ],
+      "faces": {
+        "north": {
+          "texture": "#metal",
+          "dragonlib_data": { "emissive": true },
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "east": {
+          "texture": "#metal",
+          "dragonlib_data": { "emissive": true },
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "south": {
+          "texture": "#metal",
+          "dragonlib_data": { "emissive": true },
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "west": {
+          "texture": "#metal",
+          "dragonlib_data": { "emissive": true },
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "up": {
+          "texture": "#metal",
+          "dragonlib_data": { "emissive": true },
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "down": {
+          "texture": "#metal",
+          "dragonlib_data": { "emissive": true },
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        }
+      },
+      "shade": false
+    },
+    {
+      "from": [
+        14.0,
+        -14,
+        5.75
+      ],
+      "to": [
+        16.0,
+        14,
+        7
+      ],
+      "faces": {
+        "north": {
+          "texture": "#metal",
+          "dragonlib_data": { "emissive": true },
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "east": {
+          "texture": "#metal",
+          "dragonlib_data": { "emissive": true },
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "south": {
+          "texture": "#metal",
+          "dragonlib_data": { "emissive": true },
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "west": {
+          "texture": "#metal",
+          "dragonlib_data": { "emissive": true },
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "up": {
+          "texture": "#metal",
+          "dragonlib_data": { "emissive": true },
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "down": {
+          "texture": "#metal",
+          "dragonlib_data": { "emissive": true },
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        }
+      },
+      "shade": false
+    }
+  ]
+}

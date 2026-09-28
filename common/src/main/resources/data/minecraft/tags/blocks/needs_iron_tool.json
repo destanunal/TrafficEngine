@@ -1,0 +1,19 @@
+{
+  "replace": false,
+  "values": [
+    "trafficengine:guardrail",
+    "trafficengine:traffic_sign_post",
+    "trafficengine:traffic_sign",
+    "trafficengine:street_lamp",
+    "trafficengine:double_street_lamp",
+    "trafficengine:small_street_lamp",
+    "trafficengine:small_double_street_lamp",
+    "trafficengine:paint_bucket",
+    "trafficengine:traffic_light",
+    "trafficengine:traffic_light_request_button",
+    "trafficengine:traffic_light_controller",
+    "trafficengine:town_sign",
+    "trafficengine:street_light",
+    "trafficengine:fluorescent_tube_lamp"
+  ]
+}
