@@ -54,7 +54,7 @@ public enum ModGuiIcons {
     private String id;
 
     public static final int ICON_SIZE = 16;
-    public static final DLTextureSheet ICONS = new DLTextureSheet(new ResourceLocation(TrafficEngine.MOD_ID, "textures/gui/icons.png"));
+    public static final DLTextureSheet ICONS = new DLTextureSheet(ResourceLocation.fromNamespaceAndPath(TrafficEngine.MOD_ID, "textures/gui/icons.png"));
 
     ModGuiIcons(String id) {
         this.id = id;

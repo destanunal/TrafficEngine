@@ -91,15 +91,15 @@ public class TrafficLightBlockEntityRenderer extends RotatableBlockEntityRendere
         int g = (color >> 8) & 0xFF;
         int b = color & 0xFF;
 
-        vc.vertex(m, x, y, 0).color(r, g, b, a).endVertex();
-        vc.vertex(m, x + w, y, 0).color(r, g, b, a).endVertex();
-        vc.vertex(m, x + w, y + h, 0).color(r, g, b, a).endVertex();
-        vc.vertex(m, x, y + h, 0).color(r, g, b, a).endVertex();
+        vc.addVertex(m, x, y, 0).setColor(r, g, b, a);
+        vc.addVertex(m, x + w, y, 0).setColor(r, g, b, a);
+        vc.addVertex(m, x + w, y + h, 0).setColor(r, g, b, a);
+        vc.addVertex(m, x, y + h, 0).setColor(r, g, b, a);
 
-        vc.vertex(m, x + w, y, 0).color(r, g, b, a).endVertex();
-        vc.vertex(m, x, y, 0).color(r, g, b, a).endVertex();
-        vc.vertex(m, x, y + h, 0).color(r, g, b, a).endVertex();
-        vc.vertex(m, x + w, y + h, 0).color(r, g, b, a).endVertex();
+        vc.addVertex(m, x + w, y, 0).setColor(r, g, b, a);
+        vc.addVertex(m, x, y, 0).setColor(r, g, b, a);
+        vc.addVertex(m, x, y + h, 0).setColor(r, g, b, a);
+        vc.addVertex(m, x + w, y + h, 0).setColor(r, g, b, a);
     }
 
     private void renderDigit(PoseStack poseStack, VertexConsumer vc, int digit, float width, float height, float thickness, int color) {

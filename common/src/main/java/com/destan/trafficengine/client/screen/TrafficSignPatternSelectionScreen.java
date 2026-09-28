@@ -214,7 +214,7 @@ public class TrafficSignPatternSelectionScreen extends DLWindow {
 
             for (TrafficSignShape shape : shapes) {
                 int a = 1;
-                ResourceLocation path = new ResourceLocation(TrafficEngine.MOD_ID + ":" + "textures/block/sign/" + shape.getShape() + "/" + shape.getShape() + a + ".png");
+                ResourceLocation path = ResourceLocation.parse(TrafficEngine.MOD_ID + ":" + "textures/block/sign/" + shape.getShape() + "/" + shape.getShape() + a + ".png");
                 List<TrafficSignTextureMetadata> locs = new ArrayList<>();
                 // The yellow triangle set duplicates the white warning signs above it.
                 // Keep only the Turkish-standard white set in the catalogue.
@@ -239,7 +239,7 @@ public class TrafficSignPatternSelectionScreen extends DLWindow {
                     }
 
                     a++;
-                    path = new ResourceLocation(TrafficEngine.MOD_ID + ":" + "textures/block/sign/" + shape.getShape() + "/" + shape.getShape() + a + ".png");
+                    path = ResourceLocation.parse(TrafficEngine.MOD_ID + ":" + "textures/block/sign/" + shape.getShape() + "/" + shape.getShape() + a + ".png");
                 }
 
                 final int count = locs.size();

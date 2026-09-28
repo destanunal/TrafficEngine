@@ -1,4 +1,5 @@
 package com.destan.trafficengine.item;
+import com.destan.trafficengine.util.ItemData;
 
 import java.util.List;
 import java.util.Arrays;
@@ -67,9 +68,10 @@ public class TrafficLightLinkerItem extends Item implements ILinkerItem, IScroll
             if (nbt == null && isSourceBlockAccepted(clickedBlock)) {
                 // Link
                 if (!level.isClientSide) {
-                    CompoundTag compound = pContext.getItemInHand().getOrCreateTag();
+                    CompoundTag compound = ItemData.getOrCreate(pContext.getItemInHand());
                     compound.put(NBT_LINK_TARGET, new WorldLocation(clickedPos.getX(), clickedPos.getY(), clickedPos.getZ(), level.dimension().location()).toNbt());
                     compound.putString(NBT_BLOCK, ModBlocks.BLOCKS.getRegistrar().getId(clickedBlock).toString());
+                    ItemData.set(pContext.getItemInHand(), compound);
                     player.displayClientMessage(TextUtils.translate(keySet, clickedPos.toShortString(), level.dimension().location()).withStyle(ChatFormatting.AQUA), true);
                 }
                 return InteractionResult.SUCCESS;
@@ -138,10 +140,11 @@ public class TrafficLightLinkerItem extends Item implements ILinkerItem, IScroll
         if (pPlayer.isShiftKeyDown()) {
             Level level = pPlayer.level();
             if (!level.isClientSide) {
-                if (itemstack.getTag() != null) {
-                    CompoundTag tag = itemstack.getTag();
+                if (ItemData.get(itemstack) != null) {
+                    CompoundTag tag = ItemData.get(itemstack);
                     tag.remove(NBT_LINK_TARGET);
                     tag.remove(NBT_BLOCK);
+                    ItemData.set(itemstack, tag);
                 }                
                 pPlayer.displayClientMessage(textClear, true);
             }
@@ -152,7 +155,7 @@ public class TrafficLightLinkerItem extends Item implements ILinkerItem, IScroll
     }
 
     @Override
-    public void appendHoverText(ItemStack pStack, Level pLevel, List<Component> pTooltipComponents, TooltipFlag pIsAdvanced) {
+    public void appendHoverText(ItemStack pStack, TooltipContext context, List<Component> pTooltipComponents, TooltipFlag pIsAdvanced) {
         CompoundTag tag = null;
         if ((tag = doesContainValidLinkData(pStack)) != null) {
             WorldLocation loc = WorldLocation.loadFromNbt(tag.getCompound(NBT_LINK_TARGET));
@@ -161,11 +164,11 @@ public class TrafficLightLinkerItem extends Item implements ILinkerItem, IScroll
             pTooltipComponents.add(textNoLink);
         }
         
-        CompoundTag nbt = pStack.getOrCreateTag();
+        CompoundTag nbt = ItemData.getOrCreate(pStack);
         LinkerMode mode = LinkerMode.getByIndex(nbt.getInt(NBT_MODE));
         if (nbt.contains(NBT_BLOCK)) {
             try {
-                ResourceLocation location = new ResourceLocation(nbt.getString(NBT_BLOCK));
+                ResourceLocation location = ResourceLocation.parse(nbt.getString(NBT_BLOCK));
                 pTooltipComponents.add(TextUtils.translate(keyTooltipBlock, ModBlocks.BLOCKS.getRegistrar().get(location).getName().getString()));
             } catch (Exception e) {
                 pTooltipComponents.add(TextUtils.translate(keyTooltipBlock, TextUtils.text("ERROR").withStyle(ChatFormatting.RED)));
@@ -181,7 +184,7 @@ public class TrafficLightLinkerItem extends Item implements ILinkerItem, IScroll
     }
 
     public CompoundTag doesContainValidLinkData(ItemStack stack) {
-        CompoundTag tag = stack.getTag();
+        CompoundTag tag = ItemData.get(stack);
         return tag != null && tag.contains(NBT_LINK_TARGET) ? tag : null;
     }
 
@@ -201,7 +204,7 @@ public class TrafficLightLinkerItem extends Item implements ILinkerItem, IScroll
     @Override
     public boolean mouseScroll(Player player, ItemStack itemStack, double scrollDelta) {
         if (player.isCrouching()) {
-            CompoundTag compound = itemStack.getOrCreateTag();
+            CompoundTag compound = ItemData.getOrCreate(itemStack);
             LinkerMode mode = LinkerMode.LINK;
             if (scrollDelta > 0) {
                 mode = LinkerMode.getByIndex(compound.getInt(NBT_MODE)).next();
@@ -211,15 +214,16 @@ public class TrafficLightLinkerItem extends Item implements ILinkerItem, IScroll
             setMode(itemStack, mode);
 
             ModNetworkManager.UPDATE_LINK_MODE.send(NetworkDirection.toServer(), new LinkerModePacket(mode));
-            player.displayClientMessage(TextUtils.translate(keyTooltipMode, LinkerMode.getByIndex(compound.getInt(NBT_MODE)).getValueTranslation(), LinkerMode.getByIndex(compound.getInt(NBT_MODE)).getValueTranslation()), true);
+            player.displayClientMessage(TextUtils.translate(keyTooltipMode, mode.getValueTranslation(), mode.getValueTranslation()), true);
             return true;
         }
         return false;
     }
 
     public static void setMode(ItemStack item, LinkerMode mode) {
-        CompoundTag compound = item.getOrCreateTag();
+        CompoundTag compound = ItemData.getOrCreate(item);
         compound.putInt(NBT_MODE, mode.getIndex());
+        ItemData.set(item, compound);
     }
     
 

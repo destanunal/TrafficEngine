@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "OXO",
+    "XOX",
+    "OXO"
+  ],
+  "key": {
+    "O": {
+      "tag": "c:storage_blocks/bitumen"
+    },
+    "X": {
+      "tag": "c:gravels"
+    }
+  },
+  "result": {
+    "id": "trafficengine:asphalt",
+    "count": 8
+  }
+}

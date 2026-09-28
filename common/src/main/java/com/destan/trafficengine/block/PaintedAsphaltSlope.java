@@ -54,7 +54,7 @@ public class PaintedAsphaltSlope extends RoadBlock implements SimpleWaterloggedB
     }
 
     @Override
-    public ItemStack getCloneItemStack(BlockGetter level, BlockPos pos, BlockState state) {
+    public ItemStack getCloneItemStack(net.minecraft.world.level.LevelReader level, BlockPos pos, BlockState state) {
         return pickupBlock == null || pickupBlock == this ? super.getCloneItemStack(level, pos, state) : this.pickupBlock.getCloneItemStack(level, pos, state);
     }
 
@@ -64,7 +64,7 @@ public class PaintedAsphaltSlope extends RoadBlock implements SimpleWaterloggedB
     }
 
     @Override
-    public boolean isPathfindable(BlockState pState, BlockGetter pLevel, BlockPos pPos, PathComputationType pType) {
+    public boolean isPathfindable(BlockState pState, PathComputationType pType) {
         switch (pType) {
             case LAND:
                 return pState.getValue(LAYERS) < 5;
