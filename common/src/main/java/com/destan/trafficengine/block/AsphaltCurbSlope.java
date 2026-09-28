@@ -89,9 +89,7 @@ public class AsphaltCurbSlope extends Block implements SimpleWaterloggedBlock {
             if (!(player.isCreative() || player.isSpectator())) {
                 dropResources(state.getBlock().defaultBlockState(), level, pos.offset(0, (int)(1f / 8f * (state.getValue(BlockStateProperties.LAYERS) + 1)), 0));
             }
-            tool.hurtAndBreak(1, player, (p) -> {
-                player.broadcastBreakEvent(player.getItemInHand(InteractionHand.MAIN_HAND) == tool ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND);
-            });
+            tool.hurtAndBreak(1, player, player.getItemInHand(InteractionHand.MAIN_HAND) == tool ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND);
         }
 
         if (state.getValue(BlockStateProperties.LAYERS) <= 1) { 
@@ -102,7 +100,7 @@ public class AsphaltCurbSlope extends Block implements SimpleWaterloggedBlock {
     }
 
     @Override
-    public boolean isPathfindable(BlockState pState, BlockGetter pLevel, BlockPos pPos, PathComputationType pType) {
+    public boolean isPathfindable(BlockState pState, PathComputationType pType) {
         switch (pType) {
             case LAND:
                 return pState.getValue(LAYERS) < 5;

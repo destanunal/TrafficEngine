@@ -7,6 +7,7 @@ import com.destan.trafficengine.data.PaintColor;
 import com.destan.trafficengine.registry.ModBlockEntities;
 import de.mrjulsen.mcdragonlib.block.DLSyncedBlockEntity;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
@@ -27,8 +28,8 @@ public class LedDeviceBlockEntity extends DLSyncedBlockEntity implements IColorB
     }
 
     @Override
-    public void load(CompoundTag tag) {
-        super.load(tag);
+    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+        super.loadAdditional(tag, provider);
         color = tag.contains("color") ? tag.getInt("color") : 0xFFFFA000;
         intervalTicks = tag.contains("interval") ? Math.max(2, tag.getInt("interval")) : 20;
         message = tag.contains("message") ? tag.getString("message") : "";
@@ -41,7 +42,7 @@ public class LedDeviceBlockEntity extends DLSyncedBlockEntity implements IColorB
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag) {
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         tag.putInt("color", color);
         tag.putInt("interval", intervalTicks);
         tag.putString("message", message);
@@ -49,7 +50,7 @@ public class LedDeviceBlockEntity extends DLSyncedBlockEntity implements IColorB
         tag.putBoolean("manual_enabled", manualEnabled);
         tag.putBoolean("controller_enabled", controllerEnabled);
         tag.putInt("paint_color", paintColor.getIndex());
-        super.saveAdditional(tag);
+        super.saveAdditional(tag, provider);
     }
 
     public static void tick(Level level, BlockPos pos, BlockState state, LedDeviceBlockEntity blockEntity) {

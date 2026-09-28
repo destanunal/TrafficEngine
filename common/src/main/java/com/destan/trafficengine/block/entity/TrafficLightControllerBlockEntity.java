@@ -17,6 +17,7 @@ import com.destan.trafficengine.data.TrafficLightScheduleEntryData;
 import com.destan.trafficengine.data.TrafficLightSchedule;
 import com.destan.trafficengine.registry.ModBlockEntities;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -54,8 +55,8 @@ public class TrafficLightControllerBlockEntity extends DLSyncedBlockEntity {
     }
 
     @Override
-    public void load(CompoundTag compound) {
-        super.load(compound);
+    public void loadAdditional(CompoundTag compound, HolderLookup.Provider provider) {
+        super.loadAdditional(compound, provider);
 
         this.ticks = compound.getInt(NBT_TICKS);
         this.running = compound.getBoolean(NBT_RUNNING);
@@ -88,7 +89,7 @@ public class TrafficLightControllerBlockEntity extends DLSyncedBlockEntity {
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag)
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider)
     {       
         ListTag listTag = new ListTag();
         for (TrafficLightSchedule data : schedules) {
@@ -113,7 +114,7 @@ public class TrafficLightControllerBlockEntity extends DLSyncedBlockEntity {
         tag.put(NBT_PENDING_SCHEDULES, pendingList);
         //tag.put("modes", modesTag);
         tag.put(NBT_TRAFFIC_LIGHT_LOCATIONS, trafficLightsList);
-        super.saveAdditional(tag);
+        super.saveAdditional(tag, provider);
     }
 
     private void instanceTick(Level level, BlockPos pos, BlockState state) {

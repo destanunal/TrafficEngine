@@ -1,4 +1,5 @@
 package com.destan.trafficengine.init;
+import com.destan.trafficengine.util.ItemData;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -43,8 +44,8 @@ import dev.architectury.registry.client.rendering.BlockEntityRendererRegistry;
 import dev.architectury.registry.client.rendering.ColorHandlerRegistry;
 import dev.architectury.registry.client.rendering.RenderTypeRegistry;
 import dev.architectury.registry.item.ItemPropertiesRegistry;
+import dev.architectury.registry.menu.MenuRegistry;
 import dev.architectury.registry.registries.RegistrySupplier;
-import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.RenderType;
@@ -145,20 +146,20 @@ public class ClientInit {
             }
 
             /* REGISTER MENUS */
-            MenuScreens.register(ModMenuTypes.TRAFFIC_SIGN_WORKBENCH_MENU.get(), TrafficSignWorkbenchGui::new);
+            MenuRegistry.registerScreenFactory(ModMenuTypes.TRAFFIC_SIGN_WORKBENCH_MENU.get(), TrafficSignWorkbenchGui::new);
 
             /* REGISTER CUSTOM ITEM PROPERTIES */
 
-            ItemPropertiesRegistry.register(ModItems.PAINT_BRUSH.get(), new ResourceLocation(TrafficEngine.MOD_ID, "paint"), (itemStack, world, entity, id) -> {
-                CompoundTag nbt = itemStack.getTag();
+            ItemPropertiesRegistry.register(ModItems.PAINT_BRUSH.get(), ResourceLocation.fromNamespaceAndPath(TrafficEngine.MOD_ID, "paint"), (itemStack, world, entity, id) -> {
+                CompoundTag nbt = ItemData.get(itemStack);
                 if (nbt != null) {
                     return nbt.getInt("paint");
                 }
                 return 0;
             });
 
-            ItemPropertiesRegistry.register(ModItems.TRAFFIC_LIGHT_LINKER.get(), new ResourceLocation(TrafficEngine.MOD_ID, "mode"), (itemStack, world, entity, id) -> {
-                CompoundTag nbt = itemStack.getTag();
+            ItemPropertiesRegistry.register(ModItems.TRAFFIC_LIGHT_LINKER.get(), ResourceLocation.fromNamespaceAndPath(TrafficEngine.MOD_ID, "mode"), (itemStack, world, entity, id) -> {
+                CompoundTag nbt = ItemData.get(itemStack);
                 if (nbt != null) {
                     return nbt.getInt("Mode");
                 }
@@ -203,7 +204,7 @@ public class ClientInit {
             RoadConstructionTool.clientTick();
         });
 
-        ClientRawInputEvent.MOUSE_SCROLLED.register((mc, delta) -> {
+        ClientRawInputEvent.MOUSE_SCROLLED.register((mc, amountX, delta) -> {
             LocalPlayer player = mc.player;
 
             if (player == null || delta == 0) {

@@ -1,0 +1,44 @@
+modLoader = "javafml"
+loaderVersion = "[0,)"
+license = "${license}"
+
+[[mods]]
+modId = "${modid}"
+version = "${version}"
+displayName = "${display_name}"
+displayUrl="[https://github.com/destan]"
+authors = "${authors}"
+logoFile = "mod_icon.png"
+logoBlur = false
+description = '''${description}'''
+
+[[mixins]]
+config = "trafficengine.mixins.json"
+
+[[dependencies.${modid}]]
+modId = "neoforge"
+type = "required"
+versionRange = "[${neoforge_dependency_version},)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.${modid}]]
+modId = "minecraft"
+type = "required"
+versionRange = "[${minecraft_version},${next_unsupported_minecraft_version})"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.${modid}]]
+modId = "dragonlib"
+type = "required"
+versionRange = "[0,)"
+ordering = "BEFORE"
+side = "BOTH"
+
+[[dependencies.${modid}]]
+modId = "architectury"
+type = "required"
+versionRange = "[${architectury_api_version},)"
+ordering = "NONE"
+side = "BOTH"

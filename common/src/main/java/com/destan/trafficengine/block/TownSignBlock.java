@@ -72,7 +72,6 @@ public class TownSignBlock extends WritableTrafficSign implements ITrafficPostLi
         pBuilder.add(VARIANT);
     }
 
-    @Override
     public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
         ItemStack stack = pPlayer.getInventory().getSelected();
         Item item = stack.getItem();
@@ -160,4 +159,14 @@ public class TownSignBlock extends WritableTrafficSign implements ITrafficPostLi
     public boolean canAttach(BlockState pState, BlockPos pPos, Direction pDirection) {
         return pState.getValue(VARIANT) != TownSignVariant.BOTH && pDirection == pState.getValue(FACING).getOpposite();
     }
+    @Override
+    protected net.minecraft.world.ItemInteractionResult useItemOn(net.minecraft.world.item.ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        return com.destan.trafficengine.util.PortingInteractions.forItem(use(state, level, pos, player, hand, hit));
+    }
+
+    @Override
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
+        return use(state, level, pos, player, InteractionHand.MAIN_HAND, hit);
+    }
+
 }
