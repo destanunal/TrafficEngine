@@ -31,20 +31,7 @@
         "shape": "square",
         "facing": "north",
         "wall_mounted": "true",
-        "diagonal": "false",
-        "post_mounted": "false"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign_wall/square",
-        "y": 0
-      }
-    },
-    {
-      "when": {
-        "shape": "square",
-        "facing": "north",
-        "wall_mounted": "true",
-        "diagonal": "true",
+        "diagonal": "false|true",
         "post_mounted": "false"
       },
       "apply": {
@@ -83,20 +70,7 @@
         "shape": "square",
         "facing": "south",
         "wall_mounted": "true",
-        "diagonal": "false",
-        "post_mounted": "false"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign_wall/square",
-        "y": 180
-      }
-    },
-    {
-      "when": {
-        "shape": "square",
-        "facing": "south",
-        "wall_mounted": "true",
-        "diagonal": "true",
+        "diagonal": "false|true",
         "post_mounted": "false"
       },
       "apply": {
@@ -135,20 +109,7 @@
         "shape": "square",
         "facing": "east",
         "wall_mounted": "true",
-        "diagonal": "false",
-        "post_mounted": "false"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign_wall/square",
-        "y": 90
-      }
-    },
-    {
-      "when": {
-        "shape": "square",
-        "facing": "east",
-        "wall_mounted": "true",
-        "diagonal": "true",
+        "diagonal": "false|true",
         "post_mounted": "false"
       },
       "apply": {
@@ -187,20 +148,7 @@
         "shape": "square",
         "facing": "west",
         "wall_mounted": "true",
-        "diagonal": "false",
-        "post_mounted": "false"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign_wall/square",
-        "y": 270
-      }
-    },
-    {
-      "when": {
-        "shape": "square",
-        "facing": "west",
-        "wall_mounted": "true",
-        "diagonal": "true",
+        "diagonal": "false|true",
         "post_mounted": "false"
       },
       "apply": {
@@ -239,20 +187,7 @@
         "shape": "circle",
         "facing": "north",
         "wall_mounted": "true",
-        "diagonal": "false",
-        "post_mounted": "false"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign_wall/circle",
-        "y": 0
-      }
-    },
-    {
-      "when": {
-        "shape": "circle",
-        "facing": "north",
-        "wall_mounted": "true",
-        "diagonal": "true",
+        "diagonal": "false|true",
         "post_mounted": "false"
       },
       "apply": {
@@ -291,20 +226,7 @@
         "shape": "circle",
         "facing": "south",
         "wall_mounted": "true",
-        "diagonal": "false",
-        "post_mounted": "false"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign_wall/circle",
-        "y": 180
-      }
-    },
-    {
-      "when": {
-        "shape": "circle",
-        "facing": "south",
-        "wall_mounted": "true",
-        "diagonal": "true",
+        "diagonal": "false|true",
         "post_mounted": "false"
       },
       "apply": {
@@ -343,20 +265,7 @@
         "shape": "circle",
         "facing": "east",
         "wall_mounted": "true",
-        "diagonal": "false",
-        "post_mounted": "false"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign_wall/circle",
-        "y": 90
-      }
-    },
-    {
-      "when": {
-        "shape": "circle",
-        "facing": "east",
-        "wall_mounted": "true",
-        "diagonal": "true",
+        "diagonal": "false|true",
         "post_mounted": "false"
       },
       "apply": {
@@ -395,20 +304,7 @@
         "shape": "circle",
         "facing": "west",
         "wall_mounted": "true",
-        "diagonal": "false",
-        "post_mounted": "false"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign_wall/circle",
-        "y": 270
-      }
-    },
-    {
-      "when": {
-        "shape": "circle",
-        "facing": "west",
-        "wall_mounted": "true",
-        "diagonal": "true",
+        "diagonal": "false|true",
         "post_mounted": "false"
       },
       "apply": {
@@ -447,20 +343,7 @@
         "shape": "triangle",
         "facing": "north",
         "wall_mounted": "true",
-        "diagonal": "false",
-        "post_mounted": "false"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign_wall/triangle",
-        "y": 0
-      }
-    },
-    {
-      "when": {
-        "shape": "triangle",
-        "facing": "north",
-        "wall_mounted": "true",
-        "diagonal": "true",
+        "diagonal": "false|true",
         "post_mounted": "false"
       },
       "apply": {
@@ -499,20 +382,7 @@
         "shape": "triangle",
         "facing": "south",
         "wall_mounted": "true",
-        "diagonal": "false",
-        "post_mounted": "false"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign_wall/triangle",
-        "y": 180
-      }
-    },
-    {
-      "when": {
-        "shape": "triangle",
-        "facing": "south",
-        "wall_mounted": "true",
-        "diagonal": "true",
+        "diagonal": "false|true",
         "post_mounted": "false"
       },
       "apply": {
@@ -551,20 +421,7 @@
         "shape": "triangle",
         "facing": "east",
         "wall_mounted": "true",
-        "diagonal": "false",
-        "post_mounted": "false"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign_wall/triangle",
-        "y": 90
-      }
-    },
-    {
-      "when": {
-        "shape": "triangle",
-        "facing": "east",
-        "wall_mounted": "true",
-        "diagonal": "true",
+        "diagonal": "false|true",
         "post_mounted": "false"
       },
       "apply": {
@@ -603,20 +460,7 @@
         "shape": "triangle",
         "facing": "west",
         "wall_mounted": "true",
-        "diagonal": "false",
-        "post_mounted": "false"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign_wall/triangle",
-        "y": 270
-      }
-    },
-    {
-      "when": {
-        "shape": "triangle",
-        "facing": "west",
-        "wall_mounted": "true",
-        "diagonal": "true",
+        "diagonal": "false|true",
         "post_mounted": "false"
       },
       "apply": {
@@ -655,20 +499,7 @@
         "shape": "triangle_down",
         "facing": "north",
         "wall_mounted": "true",
-        "diagonal": "false",
-        "post_mounted": "false"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign_wall/triangle_down",
-        "y": 0
-      }
-    },
-    {
-      "when": {
-        "shape": "triangle_down",
-        "facing": "north",
-        "wall_mounted": "true",
-        "diagonal": "true",
+        "diagonal": "false|true",
         "post_mounted": "false"
       },
       "apply": {
@@ -707,20 +538,7 @@
         "shape": "triangle_down",
         "facing": "south",
         "wall_mounted": "true",
-        "diagonal": "false",
-        "post_mounted": "false"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign_wall/triangle_down",
-        "y": 180
-      }
-    },
-    {
-      "when": {
-        "shape": "triangle_down",
-        "facing": "south",
-        "wall_mounted": "true",
-        "diagonal": "true",
+        "diagonal": "false|true",
         "post_mounted": "false"
       },
       "apply": {
@@ -759,20 +577,7 @@
         "shape": "triangle_down",
         "facing": "east",
         "wall_mounted": "true",
-        "diagonal": "false",
-        "post_mounted": "false"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign_wall/triangle_down",
-        "y": 90
-      }
-    },
-    {
-      "when": {
-        "shape": "triangle_down",
-        "facing": "east",
-        "wall_mounted": "true",
-        "diagonal": "true",
+        "diagonal": "false|true",
         "post_mounted": "false"
       },
       "apply": {
@@ -811,20 +616,7 @@
         "shape": "triangle_down",
         "facing": "west",
         "wall_mounted": "true",
-        "diagonal": "false",
-        "post_mounted": "false"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign_wall/triangle_down",
-        "y": 270
-      }
-    },
-    {
-      "when": {
-        "shape": "triangle_down",
-        "facing": "west",
-        "wall_mounted": "true",
-        "diagonal": "true",
+        "diagonal": "false|true",
         "post_mounted": "false"
       },
       "apply": {
@@ -863,20 +655,7 @@
         "shape": "diamond",
         "facing": "north",
         "wall_mounted": "true",
-        "diagonal": "false",
-        "post_mounted": "false"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign_wall/diamond",
-        "y": 0
-      }
-    },
-    {
-      "when": {
-        "shape": "diamond",
-        "facing": "north",
-        "wall_mounted": "true",
-        "diagonal": "true",
+        "diagonal": "false|true",
         "post_mounted": "false"
       },
       "apply": {
@@ -915,20 +694,7 @@
         "shape": "diamond",
         "facing": "south",
         "wall_mounted": "true",
-        "diagonal": "false",
-        "post_mounted": "false"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign_wall/diamond",
-        "y": 180
-      }
-    },
-    {
-      "when": {
-        "shape": "diamond",
-        "facing": "south",
-        "wall_mounted": "true",
-        "diagonal": "true",
+        "diagonal": "false|true",
         "post_mounted": "false"
       },
       "apply": {
@@ -967,20 +733,7 @@
         "shape": "diamond",
         "facing": "east",
         "wall_mounted": "true",
-        "diagonal": "false",
-        "post_mounted": "false"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign_wall/diamond",
-        "y": 90
-      }
-    },
-    {
-      "when": {
-        "shape": "diamond",
-        "facing": "east",
-        "wall_mounted": "true",
-        "diagonal": "true",
+        "diagonal": "false|true",
         "post_mounted": "false"
       },
       "apply": {
@@ -1019,20 +772,7 @@
         "shape": "diamond",
         "facing": "west",
         "wall_mounted": "true",
-        "diagonal": "false",
-        "post_mounted": "false"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign_wall/diamond",
-        "y": 270
-      }
-    },
-    {
-      "when": {
-        "shape": "diamond",
-        "facing": "west",
-        "wall_mounted": "true",
-        "diagonal": "true",
+        "diagonal": "false|true",
         "post_mounted": "false"
       },
       "apply": {
@@ -1071,20 +811,7 @@
         "shape": "rectangle",
         "facing": "north",
         "wall_mounted": "true",
-        "diagonal": "false",
-        "post_mounted": "false"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign_wall/rectangle",
-        "y": 0
-      }
-    },
-    {
-      "when": {
-        "shape": "rectangle",
-        "facing": "north",
-        "wall_mounted": "true",
-        "diagonal": "true",
+        "diagonal": "false|true",
         "post_mounted": "false"
       },
       "apply": {
@@ -1123,20 +850,7 @@
         "shape": "rectangle",
         "facing": "south",
         "wall_mounted": "true",
-        "diagonal": "false",
-        "post_mounted": "false"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign_wall/rectangle",
-        "y": 180
-      }
-    },
-    {
-      "when": {
-        "shape": "rectangle",
-        "facing": "south",
-        "wall_mounted": "true",
-        "diagonal": "true",
+        "diagonal": "false|true",
         "post_mounted": "false"
       },
       "apply": {
@@ -1175,20 +889,7 @@
         "shape": "rectangle",
         "facing": "east",
         "wall_mounted": "true",
-        "diagonal": "false",
-        "post_mounted": "false"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign_wall/rectangle",
-        "y": 90
-      }
-    },
-    {
-      "when": {
-        "shape": "rectangle",
-        "facing": "east",
-        "wall_mounted": "true",
-        "diagonal": "true",
+        "diagonal": "false|true",
         "post_mounted": "false"
       },
       "apply": {
@@ -1227,20 +928,7 @@
         "shape": "rectangle",
         "facing": "west",
         "wall_mounted": "true",
-        "diagonal": "false",
-        "post_mounted": "false"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign_wall/rectangle",
-        "y": 270
-      }
-    },
-    {
-      "when": {
-        "shape": "rectangle",
-        "facing": "west",
-        "wall_mounted": "true",
-        "diagonal": "true",
+        "diagonal": "false|true",
         "post_mounted": "false"
       },
       "apply": {
@@ -1279,20 +967,7 @@
         "shape": "rectangle_small",
         "facing": "north",
         "wall_mounted": "true",
-        "diagonal": "false",
-        "post_mounted": "false"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign_wall/rectangle_small",
-        "y": 0
-      }
-    },
-    {
-      "when": {
-        "shape": "rectangle_small",
-        "facing": "north",
-        "wall_mounted": "true",
-        "diagonal": "true",
+        "diagonal": "false|true",
         "post_mounted": "false"
       },
       "apply": {
@@ -1331,20 +1006,7 @@
         "shape": "rectangle_small",
         "facing": "south",
         "wall_mounted": "true",
-        "diagonal": "false",
-        "post_mounted": "false"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign_wall/rectangle_small",
-        "y": 180
-      }
-    },
-    {
-      "when": {
-        "shape": "rectangle_small",
-        "facing": "south",
-        "wall_mounted": "true",
-        "diagonal": "true",
+        "diagonal": "false|true",
         "post_mounted": "false"
       },
       "apply": {
@@ -1383,20 +1045,7 @@
         "shape": "rectangle_small",
         "facing": "east",
         "wall_mounted": "true",
-        "diagonal": "false",
-        "post_mounted": "false"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign_wall/rectangle_small",
-        "y": 90
-      }
-    },
-    {
-      "when": {
-        "shape": "rectangle_small",
-        "facing": "east",
-        "wall_mounted": "true",
-        "diagonal": "true",
+        "diagonal": "false|true",
         "post_mounted": "false"
       },
       "apply": {
@@ -1435,20 +1084,7 @@
         "shape": "rectangle_small",
         "facing": "west",
         "wall_mounted": "true",
-        "diagonal": "false",
-        "post_mounted": "false"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign_wall/rectangle_small",
-        "y": 270
-      }
-    },
-    {
-      "when": {
-        "shape": "rectangle_small",
-        "facing": "west",
-        "wall_mounted": "true",
-        "diagonal": "true",
+        "diagonal": "false|true",
         "post_mounted": "false"
       },
       "apply": {
@@ -1487,20 +1123,7 @@
         "shape": "rectangle_horizontal",
         "facing": "north",
         "wall_mounted": "true",
-        "diagonal": "false",
-        "post_mounted": "false"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign_wall/rectangle_horizontal",
-        "y": 0
-      }
-    },
-    {
-      "when": {
-        "shape": "rectangle_horizontal",
-        "facing": "north",
-        "wall_mounted": "true",
-        "diagonal": "true",
+        "diagonal": "false|true",
         "post_mounted": "false"
       },
       "apply": {
@@ -1539,20 +1162,7 @@
         "shape": "rectangle_horizontal",
         "facing": "south",
         "wall_mounted": "true",
-        "diagonal": "false",
-        "post_mounted": "false"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign_wall/rectangle_horizontal",
-        "y": 180
-      }
-    },
-    {
-      "when": {
-        "shape": "rectangle_horizontal",
-        "facing": "south",
-        "wall_mounted": "true",
-        "diagonal": "true",
+        "diagonal": "false|true",
         "post_mounted": "false"
       },
       "apply": {
@@ -1591,20 +1201,7 @@
         "shape": "rectangle_horizontal",
         "facing": "east",
         "wall_mounted": "true",
-        "diagonal": "false",
-        "post_mounted": "false"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign_wall/rectangle_horizontal",
-        "y": 90
-      }
-    },
-    {
-      "when": {
-        "shape": "rectangle_horizontal",
-        "facing": "east",
-        "wall_mounted": "true",
-        "diagonal": "true",
+        "diagonal": "false|true",
         "post_mounted": "false"
       },
       "apply": {
@@ -1643,20 +1240,7 @@
         "shape": "rectangle_horizontal",
         "facing": "west",
         "wall_mounted": "true",
-        "diagonal": "false",
-        "post_mounted": "false"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign_wall/rectangle_horizontal",
-        "y": 270
-      }
-    },
-    {
-      "when": {
-        "shape": "rectangle_horizontal",
-        "facing": "west",
-        "wall_mounted": "true",
-        "diagonal": "true",
+        "diagonal": "false|true",
         "post_mounted": "false"
       },
       "apply": {
@@ -1695,20 +1279,7 @@
         "shape": "small_upper",
         "facing": "north",
         "wall_mounted": "true",
-        "diagonal": "false",
-        "post_mounted": "false"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign_wall/small_upper",
-        "y": 0
-      }
-    },
-    {
-      "when": {
-        "shape": "small_upper",
-        "facing": "north",
-        "wall_mounted": "true",
-        "diagonal": "true",
+        "diagonal": "false|true",
         "post_mounted": "false"
       },
       "apply": {
@@ -1747,20 +1318,7 @@
         "shape": "small_upper",
         "facing": "south",
         "wall_mounted": "true",
-        "diagonal": "false",
-        "post_mounted": "false"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign_wall/small_upper",
-        "y": 180
-      }
-    },
-    {
-      "when": {
-        "shape": "small_upper",
-        "facing": "south",
-        "wall_mounted": "true",
-        "diagonal": "true",
+        "diagonal": "false|true",
         "post_mounted": "false"
       },
       "apply": {
@@ -1799,20 +1357,7 @@
         "shape": "small_upper",
         "facing": "east",
         "wall_mounted": "true",
-        "diagonal": "false",
-        "post_mounted": "false"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign_wall/small_upper",
-        "y": 90
-      }
-    },
-    {
-      "when": {
-        "shape": "small_upper",
-        "facing": "east",
-        "wall_mounted": "true",
-        "diagonal": "true",
+        "diagonal": "false|true",
         "post_mounted": "false"
       },
       "apply": {
@@ -1851,20 +1396,7 @@
         "shape": "small_upper",
         "facing": "west",
         "wall_mounted": "true",
-        "diagonal": "false",
-        "post_mounted": "false"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign_wall/small_upper",
-        "y": 270
-      }
-    },
-    {
-      "when": {
-        "shape": "small_upper",
-        "facing": "west",
-        "wall_mounted": "true",
-        "diagonal": "true",
+        "diagonal": "false|true",
         "post_mounted": "false"
       },
       "apply": {
@@ -1903,20 +1435,7 @@
         "shape": "small_lower",
         "facing": "north",
         "wall_mounted": "true",
-        "diagonal": "false",
-        "post_mounted": "false"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign_wall/small_lower",
-        "y": 0
-      }
-    },
-    {
-      "when": {
-        "shape": "small_lower",
-        "facing": "north",
-        "wall_mounted": "true",
-        "diagonal": "true",
+        "diagonal": "false|true",
         "post_mounted": "false"
       },
       "apply": {
@@ -1955,20 +1474,7 @@
         "shape": "small_lower",
         "facing": "south",
         "wall_mounted": "true",
-        "diagonal": "false",
-        "post_mounted": "false"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign_wall/small_lower",
-        "y": 180
-      }
-    },
-    {
-      "when": {
-        "shape": "small_lower",
-        "facing": "south",
-        "wall_mounted": "true",
-        "diagonal": "true",
+        "diagonal": "false|true",
         "post_mounted": "false"
       },
       "apply": {
@@ -2007,20 +1513,7 @@
         "shape": "small_lower",
         "facing": "east",
         "wall_mounted": "true",
-        "diagonal": "false",
-        "post_mounted": "false"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign_wall/small_lower",
-        "y": 90
-      }
-    },
-    {
-      "when": {
-        "shape": "small_lower",
-        "facing": "east",
-        "wall_mounted": "true",
-        "diagonal": "true",
+        "diagonal": "false|true",
         "post_mounted": "false"
       },
       "apply": {
@@ -2059,20 +1552,7 @@
         "shape": "small_lower",
         "facing": "west",
         "wall_mounted": "true",
-        "diagonal": "false",
-        "post_mounted": "false"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign_wall/small_lower",
-        "y": 270
-      }
-    },
-    {
-      "when": {
-        "shape": "small_lower",
-        "facing": "west",
-        "wall_mounted": "true",
-        "diagonal": "true",
+        "diagonal": "false|true",
         "post_mounted": "false"
       },
       "apply": {
@@ -2111,20 +1591,7 @@
         "shape": "octagon",
         "facing": "north",
         "wall_mounted": "true",
-        "diagonal": "false",
-        "post_mounted": "false"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign_wall/octagon",
-        "y": 0
-      }
-    },
-    {
-      "when": {
-        "shape": "octagon",
-        "facing": "north",
-        "wall_mounted": "true",
-        "diagonal": "true",
+        "diagonal": "false|true",
         "post_mounted": "false"
       },
       "apply": {
@@ -2163,20 +1630,7 @@
         "shape": "octagon",
         "facing": "south",
         "wall_mounted": "true",
-        "diagonal": "false",
-        "post_mounted": "false"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign_wall/octagon",
-        "y": 180
-      }
-    },
-    {
-      "when": {
-        "shape": "octagon",
-        "facing": "south",
-        "wall_mounted": "true",
-        "diagonal": "true",
+        "diagonal": "false|true",
         "post_mounted": "false"
       },
       "apply": {
@@ -2215,20 +1669,7 @@
         "shape": "octagon",
         "facing": "east",
         "wall_mounted": "true",
-        "diagonal": "false",
-        "post_mounted": "false"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign_wall/octagon",
-        "y": 90
-      }
-    },
-    {
-      "when": {
-        "shape": "octagon",
-        "facing": "east",
-        "wall_mounted": "true",
-        "diagonal": "true",
+        "diagonal": "false|true",
         "post_mounted": "false"
       },
       "apply": {
@@ -2267,20 +1708,7 @@
         "shape": "octagon",
         "facing": "west",
         "wall_mounted": "true",
-        "diagonal": "false",
-        "post_mounted": "false"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign_wall/octagon",
-        "y": 270
-      }
-    },
-    {
-      "when": {
-        "shape": "octagon",
-        "facing": "west",
-        "wall_mounted": "true",
-        "diagonal": "true",
+        "diagonal": "false|true",
         "post_mounted": "false"
       },
       "apply": {
@@ -2319,20 +1747,7 @@
         "shape": "misc",
         "facing": "north",
         "wall_mounted": "true",
-        "diagonal": "false",
-        "post_mounted": "false"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign_wall/misc",
-        "y": 0
-      }
-    },
-    {
-      "when": {
-        "shape": "misc",
-        "facing": "north",
-        "wall_mounted": "true",
-        "diagonal": "true",
+        "diagonal": "false|true",
         "post_mounted": "false"
       },
       "apply": {
@@ -2371,20 +1786,7 @@
         "shape": "misc",
         "facing": "south",
         "wall_mounted": "true",
-        "diagonal": "false",
-        "post_mounted": "false"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign_wall/misc",
-        "y": 180
-      }
-    },
-    {
-      "when": {
-        "shape": "misc",
-        "facing": "south",
-        "wall_mounted": "true",
-        "diagonal": "true",
+        "diagonal": "false|true",
         "post_mounted": "false"
       },
       "apply": {
@@ -2423,20 +1825,7 @@
         "shape": "misc",
         "facing": "east",
         "wall_mounted": "true",
-        "diagonal": "false",
-        "post_mounted": "false"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign_wall/misc",
-        "y": 90
-      }
-    },
-    {
-      "when": {
-        "shape": "misc",
-        "facing": "east",
-        "wall_mounted": "true",
-        "diagonal": "true",
+        "diagonal": "false|true",
         "post_mounted": "false"
       },
       "apply": {
@@ -2475,20 +1864,7 @@
         "shape": "misc",
         "facing": "west",
         "wall_mounted": "true",
-        "diagonal": "false",
-        "post_mounted": "false"
-      },
-      "apply": {
-        "model": "trafficengine:block/sign_wall/misc",
-        "y": 270
-      }
-    },
-    {
-      "when": {
-        "shape": "misc",
-        "facing": "west",
-        "wall_mounted": "true",
-        "diagonal": "true",
+        "diagonal": "false|true",
         "post_mounted": "false"
       },
       "apply": {

@@ -1,6 +1,5 @@
 package com.destan.trafficengine.block.data;
 
-import java.util.stream.IntStream;
 
 import de.mrjulsen.mcdragonlib.util.DLUtils;
 import com.destan.trafficengine.TrafficEngine;
@@ -56,7 +55,13 @@ public enum TrafficSignShape implements StringRepresentable {
 		if (x < 0 || x >= MAX_WIDTH || y < 0 || y >= MAX_HEIGHT) {
 			return false;
 		}
-		return !IntStream.of(invalidPixels).anyMatch(a -> a == DLUtils.coordsToInt((byte)Mth.clamp(x, 0, MAX_WIDTH - 1), (byte)Mth.clamp(y, 0, MAX_HEIGHT - 1)));
+		int pixel = DLUtils.coordsToInt((byte)x, (byte)y);
+		for (int invalidPixel : invalidPixels) {
+			if (invalidPixel == pixel) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	public static TrafficSignShape getShapeByIndex(int index) {
