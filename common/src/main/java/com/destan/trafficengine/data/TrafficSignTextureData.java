@@ -139,7 +139,7 @@ public class TrafficSignTextureData {
         try {
             File file = new File(GameInstance.getServer().getWorldPath(TrafficSignTextureManager.getResource(getHash().toString())).toString());
             file.getParentFile().mkdirs();
-            NbtIo.writeCompressed(serializeNbt(), file);
+            NbtIo.writeCompressed(serializeNbt(), file.toPath());
         } catch (IOException e) {
             TrafficEngine.LOGGER.error("Unable to save traffic sign texture file.", e);
         }

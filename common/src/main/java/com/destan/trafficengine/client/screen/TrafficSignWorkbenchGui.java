@@ -24,7 +24,7 @@ public class TrafficSignWorkbenchGui extends DLContainerScreen<TrafficSignWorkbe
 
     private int guiLeft;
     private int guiTop;
-    private static final ResourceLocation GUI = new ResourceLocation(TrafficEngine.MOD_ID, "textures/gui/traffic_sign_workbench.png");
+    private static final ResourceLocation GUI = ResourceLocation.fromNamespaceAndPath(TrafficEngine.MOD_ID, "textures/gui/traffic_sign_workbench.png");
 
     public TrafficSignWorkbenchGui(TrafficSignWorkbenchMenu pMenu, Inventory pPlayerInventory, Component pTitle) {
         super(pMenu, pPlayerInventory, pTitle, mgr -> new TrafficSignWorkbenchWindow(mgr, pMenu));

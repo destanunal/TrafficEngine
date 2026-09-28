@@ -90,7 +90,6 @@ public class TrafficLightRequestButtonBlock extends BaseEntityBlock implements S
         }
     }
 
-    @Override
     public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pResult) {
         if (!pState.getValue(POWERED) && !pState.getValue(ACTIVATED)) {
             Direction direction = pResult.getDirection();
@@ -179,7 +178,7 @@ public class TrafficLightRequestButtonBlock extends BaseEntityBlock implements S
         pBuilder.add(FACING, POWERED, ACTIVATED, WATERLOGGED);
     }
 
-    public boolean isPathfindable(BlockState pState, BlockGetter pLevel, BlockPos pPos, PathComputationType pType) {
+    public boolean isPathfindable(BlockState pState, PathComputationType pType) {
         return false;
     } 
 
@@ -205,4 +204,19 @@ public class TrafficLightRequestButtonBlock extends BaseEntityBlock implements S
     public boolean canAttach(BlockState pState, BlockPos pPos, Direction pDirection) {
         return pDirection != pState.getValue(FACING);
     }
+    @Override
+    protected com.mojang.serialization.MapCodec<? extends net.minecraft.world.level.block.BaseEntityBlock> codec() {
+        return com.mojang.serialization.MapCodec.unit(this);
+    }
+
+    @Override
+    protected net.minecraft.world.ItemInteractionResult useItemOn(net.minecraft.world.item.ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        return com.destan.trafficengine.util.PortingInteractions.forItem(use(state, level, pos, player, hand, hit));
+    }
+
+    @Override
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
+        return use(state, level, pos, player, InteractionHand.MAIN_HAND, hit);
+    }
+
 }

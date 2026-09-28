@@ -30,4 +30,9 @@ public abstract class ColorableBlock extends BaseEntityBlock implements IPaintab
         return new ColoredBlockEntity(pPos, pState);
     }
 
+    @Override
+    protected com.mojang.serialization.MapCodec<? extends net.minecraft.world.level.block.BaseEntityBlock> codec() {
+        return com.mojang.serialization.MapCodec.unit(this);
+    }
+
 }

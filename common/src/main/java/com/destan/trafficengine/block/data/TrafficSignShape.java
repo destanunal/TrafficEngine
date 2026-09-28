@@ -73,7 +73,7 @@ public enum TrafficSignShape implements StringRepresentable {
 	}
 
 	public final ResourceLocation getIconResourceLocation() {
-		return new ResourceLocation(TrafficEngine.MOD_ID, String.format("textures/block/sign/icons/%s.png", this.getShape()));
+		return ResourceLocation.fromNamespaceAndPath(TrafficEngine.MOD_ID, String.format("textures/block/sign/icons/%s.png", this.getShape()));
 	}
 
 	public VoxelShape getVoxelShape(Direction direction) {

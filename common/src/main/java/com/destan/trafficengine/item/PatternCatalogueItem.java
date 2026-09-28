@@ -1,4 +1,5 @@
 package com.destan.trafficengine.item;
+import com.destan.trafficengine.util.ItemData;
 
 import java.lang.ref.WeakReference;
 import java.util.Arrays;
@@ -55,7 +56,7 @@ public class PatternCatalogueItem extends Item {
 
     @SuppressWarnings("deprecation")
     protected static CompoundTag checkNbt(ItemStack stack) {
-        CompoundTag nbt = stack.getOrCreateTag();
+        CompoundTag nbt = ItemData.getOrCreate(stack);
 
         if (!nbt.contains(NBT_TEXTURES)) {            
             nbt.put(NBT_TEXTURES, new ListTag());
@@ -72,6 +73,7 @@ public class PatternCatalogueItem extends Item {
             nbt.putInt(NBT_SELECTED_INDEX, 0);
         }
 
+        ItemData.set(stack, nbt);
         return nbt;
     }
 
@@ -85,7 +87,7 @@ public class PatternCatalogueItem extends Item {
         final ItemStack stack = stck;
         WeakReference<ItemStack> stackReference = new WeakReference<>(stack);
         NonNullList<NamedTrafficSignTextureReference> nonnulllist = NonNullList.create();
-        if (stack.hasTag()) {
+        if (ItemData.has(stack)) {
             Arrays.stream(getStoredPatterns(stack)).forEach(nonnulllist::add);
         }
         return Optional.of(new TrafficSignTooltip(nonnulllist, getSelectedImageData(stack), getSelectedIndex(stack), () -> {
@@ -133,8 +135,10 @@ public class PatternCatalogueItem extends Item {
         if (getStoredPatternCount(stack) >= ((PatternCatalogueItem)stack.getItem()).getMaxPatterns())
             return false;
 
-        ListTag tag = checkNbt(stack).getList(NBT_TEXTURES, 10);
+        CompoundTag nbt = checkNbt(stack);
+        ListTag tag = nbt.getList(NBT_TEXTURES, 10);
         tag.add(pattern.toNbt());
+        ItemData.set(stack, nbt);
         setSelectedIndex(stack, tag.size() - 1);
         return true;
     }
@@ -143,7 +147,9 @@ public class PatternCatalogueItem extends Item {
         if (getStoredPatternCount(stack) >= ((PatternCatalogueItem)stack.getItem()).getMaxPatterns())
             return false;
 
-        checkNbt(stack).getList(NBT_TEXTURES, 10).set(index, pattern.toNbt());
+        CompoundTag nbt = checkNbt(stack);
+        nbt.getList(NBT_TEXTURES, 10).set(index, pattern.toNbt());
+        ItemData.set(stack, nbt);
         setSelectedIndex(stack, index);
         return true;
     }
@@ -152,7 +158,9 @@ public class PatternCatalogueItem extends Item {
         if (!indexInBounds(stack, index))
             return false;
 
-        checkNbt(stack).getList(NBT_TEXTURES, 10).remove(index);
+        CompoundTag nbt = checkNbt(stack);
+        nbt.getList(NBT_TEXTURES, 10).remove(index);
+        ItemData.set(stack, nbt);
         int count = PatternCatalogueItem.getStoredPatternCount(stack);
         if (index >= count) {
             setSelectedIndex(stack, Math.max(0, count - 1));
@@ -161,14 +169,18 @@ public class PatternCatalogueItem extends Item {
     }
 
     public static void clearPatterns(ItemStack stack) {
-        checkNbt(stack).getList(NBT_TEXTURES, 10).clear();
+        CompoundTag nbt = checkNbt(stack);
+        nbt.getList(NBT_TEXTURES, 10).clear();
 
-        if (checkNbt(stack).contains(NBT_LEGACY_PATTERNS)) {
-            checkNbt(stack).getList(NBT_LEGACY_PATTERNS, 10).clear();
+        if (nbt.contains(NBT_LEGACY_PATTERNS)) {
+            nbt.getList(NBT_LEGACY_PATTERNS, 10).clear();
         }
+        ItemData.set(stack, nbt);
     }
 
     public static void setSelectedIndex(ItemStack stack, int index) {
-        checkNbt(stack).putInt(NBT_SELECTED_INDEX, Mth.clamp(index, -1, Math.max(0, PatternCatalogueItem.getStoredPatternCount(stack) - 1)));
+        CompoundTag nbt = checkNbt(stack);
+        nbt.putInt(NBT_SELECTED_INDEX, Mth.clamp(index, -1, Math.max(0, PatternCatalogueItem.getStoredPatternCount(stack) - 1)));
+        ItemData.set(stack, nbt);
     }
 }

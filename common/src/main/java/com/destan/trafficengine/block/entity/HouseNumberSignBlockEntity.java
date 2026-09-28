@@ -9,6 +9,7 @@ import com.destan.trafficengine.block.data.IColorBlockEntity;
 import com.destan.trafficengine.data.PaintColor;
 import com.destan.trafficengine.registry.ModBlockEntities;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -39,15 +40,15 @@ public class HouseNumberSignBlockEntity extends DLWritableSignBlockEntity implem
     }
 
     @Override
-    public void load(CompoundTag compound) {
-        super.load(compound);
+    public void loadAdditional(CompoundTag compound, HolderLookup.Provider provider) {
+        super.loadAdditional(compound, provider);
         this.color = PaintColor.getByIndex(compound.getInt(NBT_COLOR));
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag) {
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         tag.putInt(NBT_COLOR, color.getIndex());
-        super.saveAdditional(tag);
+        super.saveAdditional(tag, provider);
     }
 
     @Override

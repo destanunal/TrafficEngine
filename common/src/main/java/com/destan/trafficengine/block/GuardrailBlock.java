@@ -351,7 +351,7 @@ public class GuardrailBlock extends ColorableBlock implements SimpleWaterloggedB
         pBuilder.add(FACING, SHAPE, WATERLOGGED, DIAGONAL);
     }
 
-    public boolean isPathfindable(BlockState pState, BlockGetter pLevel, BlockPos pPos, PathComputationType pType) {
+    public boolean isPathfindable(BlockState pState, PathComputationType pType) {
         return false;
     }
 

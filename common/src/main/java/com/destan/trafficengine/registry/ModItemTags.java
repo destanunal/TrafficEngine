@@ -8,7 +8,7 @@ import net.minecraft.world.item.Item;
 
 public class ModItemTags {
 
-    public static final TagKey<Item> WRENCHES = TagKey.create(Registries.ITEM, Platform.isForge() ? new ResourceLocation("forge:tools/wrench") : new ResourceLocation("c:wrenches"));
+    public static final TagKey<Item> WRENCHES = TagKey.create(Registries.ITEM, ResourceLocation.parse("c:tools/wrench"));
 
     public static void init() {
     }

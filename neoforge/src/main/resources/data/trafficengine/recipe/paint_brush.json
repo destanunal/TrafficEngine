@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "F",
+    "I",
+    "S"
+  ],
+  "key": {
+    "F": {
+      "tag": "c:feathers"
+    },
+    "I": {
+      "tag": "c:nuggets/iron"
+    },
+    "S": {
+      "tag": "c:rods/wooden"
+    }
+  },
+  "result": {
+    "id": "trafficengine:paint_brush",
+    "count": 1
+  }
+}

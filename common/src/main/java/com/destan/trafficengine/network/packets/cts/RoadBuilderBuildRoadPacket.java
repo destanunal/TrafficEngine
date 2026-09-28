@@ -126,10 +126,8 @@ public class RoadBuilderBuildRoadPacket extends NetworkPacketData {
                             int removeCount = countLeft;
                             countLeft -= Math.min(countLeft, stack.get().getCount());
                             stack.get().shrink(removeCount);
-                            data.item.hurtAndBreak(1, data.player, (player) -> {
-                                player.broadcastBreakEvent(data.hand == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND);
-                                canContinue[0] = false;
-                            });
+                            data.item.hurtAndBreak(1, data.player, data.hand == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND);
+                            if (data.item.isEmpty()) canContinue[0] = false;
                         }
                         if (countLeft > 0) {                            
                             canContinue[0] = false;
@@ -145,10 +143,8 @@ public class RoadBuilderBuildRoadPacket extends NetworkPacketData {
                         } else {
                             canContinue[0] = false;
                         }
-                        data.item.hurtAndBreak(1, data.player, (player) -> {
-                            player.broadcastBreakEvent(data.hand == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND);
-                            canContinue[0] = false;
-                        });                             
+                        data.item.hurtAndBreak(1, data.player, data.hand == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND);
+                        if (data.item.isEmpty()) canContinue[0] = false;
                     }
                 }
             }

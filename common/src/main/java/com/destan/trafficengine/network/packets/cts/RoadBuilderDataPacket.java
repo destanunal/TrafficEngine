@@ -1,4 +1,5 @@
 package com.destan.trafficengine.network.packets.cts;
+import com.destan.trafficengine.util.ItemData;
 
 import de.mrjulsen.mcdragonlib.data.DLStatus;
 import de.mrjulsen.mcdragonlib.network.NetworkPacketContext;
@@ -46,15 +47,17 @@ public class RoadBuilderDataPacket extends NetworkPacketData {
     public static void handle(RoadBuilderDataPacket packet, NetworkPacketContext context) {
         ServerPlayer sender = (ServerPlayer)context.getPlayer();
         if (sender.getMainHandItem().getItem() instanceof RoadConstructionTool) {
-            CompoundTag nbt = sender.getMainHandItem().getOrCreateTag();
+            CompoundTag nbt = ItemData.getOrCreate(sender.getMainHandItem());
             nbt.putByte(RoadConstructionTool.NBT_ROAD_WIDTH, packet.roadWidth);
             nbt.putBoolean(RoadConstructionTool.NBT_REPLACE_BLOCKS, packet.replaceBlocks);
             nbt.putInt(RoadConstructionTool.NBT_ROAD_TYPE, packet.roadType.getIndex());
+            ItemData.set(sender.getMainHandItem(), nbt);
         } else if (sender.getOffhandItem().getItem() instanceof RoadConstructionTool) {             
-            CompoundTag nbt = sender.getOffhandItem().getOrCreateTag();
+            CompoundTag nbt = ItemData.getOrCreate(sender.getOffhandItem());
             nbt.putByte(RoadConstructionTool.NBT_ROAD_WIDTH, packet.roadWidth);
             nbt.putBoolean(RoadConstructionTool.NBT_REPLACE_BLOCKS, packet.replaceBlocks);
             nbt.putInt(RoadConstructionTool.NBT_ROAD_TYPE, packet.roadType.getIndex());
+            ItemData.set(sender.getOffhandItem(), nbt);
         }
         sender.getInventory().setChanged();
     }

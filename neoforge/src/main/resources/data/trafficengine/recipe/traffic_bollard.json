@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "R",
+    "W",
+    "B"
+  ],
+  "key": {
+    "R": {
+      "tag": "c:dyes/red"
+    },
+    "W": {
+      "item": "minecraft:quartz"
+    },
+    "B": {
+      "tag": "c:storage_blocks/bitumen"
+    }
+  },
+  "result": {
+    "id": "trafficengine:traffic_bollard",
+    "count": 1
+  }
+}

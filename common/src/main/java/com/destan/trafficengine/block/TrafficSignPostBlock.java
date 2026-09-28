@@ -129,7 +129,7 @@ public class TrafficSignPostBlock extends Block implements SimpleWaterloggedBloc
         return shapes.get(pState, pState);
     } 
 
-    public boolean isPathfindable(BlockState pState, BlockGetter pLevel, BlockPos pPos, PathComputationType pType) {
+    public boolean isPathfindable(BlockState pState, PathComputationType pType) {
         return false;
     }
 

@@ -39,7 +39,7 @@ public class ModBlocks {
             .requiresCorrectToolForDrops()
     ), ModCreativeModeTab.MOD_TAB, false);
 
-    public static final RegistrySupplier<Block> SALT = registerBlock("salt", () -> new DropExperienceBlock(BlockBehaviour.Properties.of().mapColor(MapColor.STONE)
+    public static final RegistrySupplier<Block> SALT = registerBlock("salt", () -> new DropExperienceBlock(net.minecraft.util.valueproviders.UniformInt.of(0, 2), BlockBehaviour.Properties.of().mapColor(MapColor.STONE)
             .strength(3f)
             .sound(SoundType.BASALT)
             .requiresCorrectToolForDrops()

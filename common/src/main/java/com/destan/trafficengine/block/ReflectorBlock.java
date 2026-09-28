@@ -95,7 +95,7 @@ public class ReflectorBlock extends ColorableBlock implements SimpleWaterloggedB
         pBuilder.add(FACING, WATERLOGGED);
     }
 
-    public boolean isPathfindable(BlockState pState, BlockGetter pLevel, BlockPos pPos, PathComputationType pType) {
+    public boolean isPathfindable(BlockState pState, PathComputationType pType) {
         return false;
     }
 

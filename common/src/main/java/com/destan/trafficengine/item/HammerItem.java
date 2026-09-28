@@ -30,18 +30,13 @@ public class HammerItem extends DiggerItem implements IDamageableCraftingItem {
     private static final float ATTACK_SPEED = -3.0f;
 
     public HammerItem(Properties properties) {
-        super(ATTACK_DAMAGE, ATTACK_SPEED, Tiers.IRON, BlockTags.MINEABLE_WITH_PICKAXE, properties
+        super(Tiers.IRON, BlockTags.MINEABLE_WITH_PICKAXE, properties
                 .stacksTo(1)
                 .durability(Tiers.IRON.getUses()));
     }
 
     // --- BU KISIM EKLENDİ ---
     // Aletin savaş özelliklerini ve altındaki o yeşil yazıları tamamen siler!
-    @Override
-    public Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(EquipmentSlot pEquipmentSlot) {
-        return ImmutableMultimap.of();
-    }
-
     @Override
     public InteractionResult useOn(UseOnContext pContext) {
         Level level = pContext.getLevel();

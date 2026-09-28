@@ -1,4 +1,5 @@
 package com.destan.trafficengine.network.packets.cts;
+import com.destan.trafficengine.util.ItemData;
 
 import de.mrjulsen.mcdragonlib.data.DLStatus;
 import de.mrjulsen.mcdragonlib.network.NetworkPacketContext;
@@ -48,15 +49,17 @@ public class StreetLampConfigPacket extends NetworkPacketData {
         ServerPlayer sender = (ServerPlayer)context.getPlayer();
 
         if (sender.getMainHandItem().getItem() instanceof StreetLampConfigCardItem) {
-            CompoundTag nbt = sender.getMainHandItem().getOrCreateTag();
+            CompoundTag nbt = ItemData.getOrCreate(sender.getMainHandItem());
             nbt.putInt("turnOnTime", packet.turnOnTime);
             nbt.putInt("turnOffTime", packet.turnOffTime);
             nbt.putInt("timeFormat", packet.timeFormat.getIndex());
+            ItemData.set(sender.getMainHandItem(), nbt);
         } else if (sender.getOffhandItem().getItem() instanceof StreetLampConfigCardItem) {             
-            CompoundTag nbt = sender.getOffhandItem().getOrCreateTag();
+            CompoundTag nbt = ItemData.getOrCreate(sender.getOffhandItem());
             nbt.putInt("turnOnTime", packet.turnOnTime);
             nbt.putInt("turnOffTime", packet.turnOffTime);
             nbt.putInt("timeFormat", packet.timeFormat.getIndex());
+            ItemData.set(sender.getOffhandItem(), nbt);
         }
         
         sender.getInventory().setChanged();

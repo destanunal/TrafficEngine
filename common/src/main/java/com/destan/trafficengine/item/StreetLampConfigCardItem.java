@@ -1,4 +1,5 @@
 package com.destan.trafficengine.item;
+import com.destan.trafficengine.util.ItemData;
 
 import java.util.List;
 
@@ -66,7 +67,7 @@ public class StreetLampConfigCardItem extends Item {
                 if ((nbt = doesContainValidLinkData(stack)) != null) {
                     turnOn = nbt.getInt(NBT_TIME_ON);
                     turnOff = nbt.getInt(NBT_TIME_OFF);
-                    timeFormat = stack.getOrCreateTag().getInt(NBT_TIME_FORMAT);
+                    timeFormat = ItemData.getOrCreate(stack).getInt(NBT_TIME_FORMAT);
                 }
 
                 ClientWrapper.showStreetLampScheduleScreen(turnOn, turnOff, ETimeFormat.getByIndex(timeFormat));
@@ -78,8 +79,8 @@ public class StreetLampConfigCardItem extends Item {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, Level player, List<Component> list, TooltipFlag flag) {
-        super.appendHoverText(stack, player, list, flag);
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
+        super.appendHoverText(stack, context, list, flag);
         
         CompoundTag nbt = null;
         if ((nbt = doesContainValidLinkData(stack)) != null) {
@@ -99,7 +100,7 @@ public class StreetLampConfigCardItem extends Item {
     }
 
     public static CompoundTag doesContainValidLinkData(ItemStack stack) {
-        CompoundTag tag = stack.getTag();
+        CompoundTag tag = ItemData.get(stack);
         return tag != null && tag.contains(NBT_TIME_ON) && tag.contains(NBT_TIME_OFF) && tag.contains(NBT_TIME_FORMAT) ? tag : null;
     }
 

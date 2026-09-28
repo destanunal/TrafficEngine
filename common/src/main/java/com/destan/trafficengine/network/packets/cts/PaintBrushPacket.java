@@ -1,4 +1,5 @@
 package com.destan.trafficengine.network.packets.cts;
+import com.destan.trafficengine.util.ItemData;
 
 import de.mrjulsen.mcdragonlib.data.DLStatus;
 import de.mrjulsen.mcdragonlib.network.NetworkPacketContext;
@@ -36,12 +37,14 @@ public class PaintBrushPacket extends NetworkPacketData {
         ServerPlayer sender = (ServerPlayer)context.getPlayer();
 
         if(sender.getMainHandItem().getItem() instanceof BrushItem) {
-            CompoundTag nbt = sender.getMainHandItem().getTag();
+            CompoundTag nbt = ItemData.getOrCreate(sender.getMainHandItem());
             nbt.putInt(BrushItem.NBT_PATTERN, packet.pattern);
+            ItemData.set(sender.getMainHandItem(), nbt);
         } else if (sender.getOffhandItem().getItem() instanceof BrushItem) {
             
-            CompoundTag nbt = sender.getOffhandItem().getTag();
+            CompoundTag nbt = ItemData.getOrCreate(sender.getOffhandItem());
             nbt.putInt(BrushItem.NBT_PATTERN, packet.pattern);
+            ItemData.set(sender.getOffhandItem(), nbt);
         }
         sender.getInventory().setChanged();
     }

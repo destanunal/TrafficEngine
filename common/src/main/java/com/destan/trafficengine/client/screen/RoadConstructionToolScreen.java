@@ -1,4 +1,5 @@
 package com.destan.trafficengine.client.screen;
+import com.destan.trafficengine.util.ItemData;
 
 import java.util.List;
 import java.util.Optional;
@@ -104,7 +105,7 @@ public class RoadConstructionToolScreen extends DLWindow {
             throw new IllegalArgumentException(stack.getDisplayName().getString() + " is not a valid item for screen 'RoadBuilderToolScreen'.");
         }
 
-        CompoundTag nbt = stack.getOrCreateTag();
+        CompoundTag nbt = ItemData.getOrCreate(stack);
         pos1 = nbt.contains(RoadConstructionTool.NBT_LOCATION1) ? WorldLocation.loadFromNbt(nbt.getCompound(RoadConstructionTool.NBT_LOCATION1)) : null;
         pos2 = nbt.contains(RoadConstructionTool.NBT_LOCATION2) ? WorldLocation.loadFromNbt(nbt.getCompound(RoadConstructionTool.NBT_LOCATION2)) : null;
         roadWidth = nbt.getByte(RoadConstructionTool.NBT_ROAD_WIDTH);
@@ -137,7 +138,7 @@ public class RoadConstructionToolScreen extends DLWindow {
         buildButton.text.set(buildText);
         buildButton.addEventListener(DLGuiStandardEvents.ClickEvent.class, (s, e) -> {
             updateStackData();
-            CompoundTag tag = this.stack.getOrCreateTag();
+            CompoundTag tag = ItemData.getOrCreate(this.stack);
             WorldLocation pos1 = WorldLocation.loadFromNbt(tag.getCompound(RoadConstructionTool.NBT_LOCATION1));
             WorldLocation pos2 = WorldLocation.loadFromNbt(tag.getCompound(RoadConstructionTool.NBT_LOCATION2));
             byte roadWidth = tag.getByte(RoadConstructionTool.NBT_ROAD_WIDTH);
@@ -223,10 +224,11 @@ public class RoadConstructionToolScreen extends DLWindow {
 
     private void updateStackData() {
         roadWidth = this.widthSlider.value.get().byteValue();
-        CompoundTag nbt = this.stack.getOrCreateTag();
+        CompoundTag nbt = ItemData.getOrCreate(this.stack);
         nbt.putByte(RoadConstructionTool.NBT_ROAD_WIDTH, roadWidth);
         nbt.putBoolean(RoadConstructionTool.NBT_REPLACE_BLOCKS, replaceExistingBlocks);
         nbt.putInt(RoadConstructionTool.NBT_ROAD_TYPE, roadType.getIndex());
+        ItemData.set(this.stack, nbt);
         ModNetworkManager.UPDATE_ROAD_BUILDER.send(NetworkDirection.toServer(), new RoadBuilderDataPacket(replaceExistingBlocks, roadWidth, roadType));
     }
 

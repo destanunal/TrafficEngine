@@ -188,4 +188,9 @@ public class RoadSaltBlock extends BaseEntityBlock {
         }       
         
     }
+    @Override
+    protected com.mojang.serialization.MapCodec<? extends net.minecraft.world.level.block.BaseEntityBlock> codec() {
+        return com.mojang.serialization.MapCodec.unit(this);
+    }
+
 }

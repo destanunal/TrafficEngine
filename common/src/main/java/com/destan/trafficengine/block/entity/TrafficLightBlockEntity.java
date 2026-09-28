@@ -19,6 +19,7 @@ import com.destan.trafficengine.data.TrafficLightSchedule;
 import com.destan.trafficengine.registry.ModBlockEntities;
 import dev.architectury.utils.GameInstance;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.ByteTag;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -88,8 +89,8 @@ public class TrafficLightBlockEntity extends ColoredBlockEntity {
     }
 
     @Override
-    public void load(CompoundTag compound) {
-        super.load(compound);
+    public void loadAdditional(CompoundTag compound, HolderLookup.Provider provider) {
+        super.loadAdditional(compound, provider);
 
         this.phaseId = compound.getInt(NBT_PHASE_ID);
         additionalPedestrianStopIds.clear();
@@ -135,7 +136,7 @@ public class TrafficLightBlockEntity extends ColoredBlockEntity {
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag) {
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         tag.putInt(NBT_PHASE_ID, phaseId);
         tag.putIntArray(NBT_ADDITIONAL_STOP_IDS, additionalPedestrianStopIds.stream().mapToInt(Integer::intValue).toArray());
         tag.putBoolean(NBT_POWERED, powered);
@@ -161,7 +162,7 @@ public class TrafficLightBlockEntity extends ColoredBlockEntity {
         if (!linkMigrated && this.linkLocation != null) {
             tag.put(NBT_LINKED_TO, linkLocation.toNbt());
         }
-        super.saveAdditional(tag);
+        super.saveAdditional(tag, provider);
     }
 
     private void tick(Level level, BlockPos pos, BlockState state) {

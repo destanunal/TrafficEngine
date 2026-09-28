@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "T",
+    "M"
+  ],
+  "key": {
+    "T": {
+      "item": "minecraft:iron_bars"
+    },
+    "M": {
+      "item": "trafficengine:manhole"
+    }
+  },
+  "result": {
+    "id": "trafficengine:road_gully",
+    "count": 1
+  }
+}

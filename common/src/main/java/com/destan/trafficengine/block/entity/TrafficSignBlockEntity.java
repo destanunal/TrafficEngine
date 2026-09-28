@@ -17,6 +17,7 @@ import com.destan.trafficengine.registry.ModBlockEntities;
 import com.destan.trafficengine.registry.ModNetworkManager;
 import dev.architectury.utils.GameInstance;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -45,8 +46,8 @@ public class TrafficSignBlockEntity extends DLSyncedBlockEntity implements IBloc
     }
 
     @Override
-    public void load(CompoundTag compound) {
-        super.load(compound);
+    public void loadAdditional(CompoundTag compound, HolderLookup.Provider provider) {
+        super.loadAdditional(compound, provider);
         String newTextureId = null;
         if (compound.contains(NBT_LEGACY_TEXTURE)) {
             migrate(compound.getString(NBT_LEGACY_TEXTURE));
@@ -78,14 +79,14 @@ public class TrafficSignBlockEntity extends DLSyncedBlockEntity implements IBloc
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag) {
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         if (textureId != null) {
             tag.putString(NBT_TEXTURE, getTextureId());
         }
         if (backTextureId != null) {
             tag.putString(NBT_TEXTURE_BACK, backTextureId);
         }
-        super.saveAdditional(tag);
+        super.saveAdditional(tag, provider);
     }
 
     @Override

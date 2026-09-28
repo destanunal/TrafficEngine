@@ -312,7 +312,6 @@ public class LedDeviceBlock extends BaseEntityBlock implements IPaintableBlock, 
     @Override public boolean canAttach(BlockState state, BlockPos pos, Direction direction) { return false; }
     @Override public boolean canConnect(BlockState state, Direction direction) { return true; }
 
-    @Override
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         if (!player.getItemInHand(hand).is(ModItemTags.WRENCHES)) return InteractionResult.PASS;
         if (level.isClientSide && level.getBlockEntity(pos) instanceof LedDeviceBlockEntity) {
@@ -326,4 +325,19 @@ public class LedDeviceBlock extends BaseEntityBlock implements IPaintableBlock, 
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
         return createTickerHelper(type, ModBlockEntities.LED_DEVICE_BLOCK_ENTITY.get(), LedDeviceBlockEntity::tick);
     }
+    @Override
+    protected com.mojang.serialization.MapCodec<? extends net.minecraft.world.level.block.BaseEntityBlock> codec() {
+        return com.mojang.serialization.MapCodec.unit(this);
+    }
+
+    @Override
+    protected net.minecraft.world.ItemInteractionResult useItemOn(net.minecraft.world.item.ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        return com.destan.trafficengine.util.PortingInteractions.forItem(use(state, level, pos, player, hand, hit));
+    }
+
+    @Override
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
+        return use(state, level, pos, player, InteractionHand.MAIN_HAND, hit);
+    }
+
 }

@@ -1,4 +1,5 @@
 package com.destan.trafficengine.item;
+import com.destan.trafficengine.util.ItemData;
 
 import java.util.Arrays;
 import java.util.List;
@@ -26,9 +27,9 @@ public class ColorPaletteItem extends Item {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, Level player, List<Component> list, TooltipFlag flag) {
-        super.appendHoverText(stack, player, list, flag);
-        if (!stack.hasTag()) {
+    public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> list, TooltipFlag flag) {
+        super.appendHoverText(stack, context, list, flag);
+        if (!ItemData.has(stack)) {
             list.add(TextUtils.translate("item.trafficengine.color_palette.no_color").withStyle(ChatFormatting.GRAY));
             return;
         }
@@ -50,18 +51,19 @@ public class ColorPaletteItem extends Item {
     }
 
     public static CompoundTag checkNbt(ItemStack stack) {
-        CompoundTag nbt = stack.getOrCreateTag();
+        CompoundTag nbt = ItemData.getOrCreate(stack);
         if (!nbt.contains(COLORS_TAG)) {
             int[] c = new int[7];
             Arrays.fill(c, 0);
             nbt.putIntArray(COLORS_TAG, c);
+            ItemData.set(stack, nbt);
         }
 
         return nbt;
     }
 
     public static int getColorAt(ItemStack stack, int index) {
-        if (!stack.hasTag()) {
+        if (!ItemData.has(stack)) {
             return 0;
         }
 
@@ -79,7 +81,9 @@ public class ColorPaletteItem extends Item {
         
         int[] a = checkNbt(stack).getIntArray(COLORS_TAG);
         a[index] = color;
-        checkNbt(stack).putIntArray(COLORS_TAG, a);
+        CompoundTag tag = checkNbt(stack);
+        tag.putIntArray(COLORS_TAG, a);
+        ItemData.set(stack, tag);
         return true;
     }
 }
