@@ -1,0 +1,47 @@
+{
+  "display": {
+    "icon": {
+      "item": "trafficengine:traffic_light_linker"
+    },
+    "title": {
+      "translate": "advancement.trafficengine.traffic_light_linker"
+    },
+    "description": {
+      "translate": "advancement.trafficengine.traffic_light_linker.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "parent": "trafficengine:traffic_light_controller",
+  "criteria": {
+    "req": {
+      "trigger": "minecraft:item_used_on_block",
+      "conditions": {
+        "location": [
+          {
+            "condition": "minecraft:match_tool",
+            "predicate": {
+              "items": [
+                "trafficengine:traffic_light_linker"
+              ]
+            }
+          },
+          {
+            "condition": "minecraft:location_check",
+            "predicate": {
+              "block": {
+                "blocks": [
+                  "trafficengine:traffic_light"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "rewards": {
+    "experience": 30
+  }
+}

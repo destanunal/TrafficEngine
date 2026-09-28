@@ -1,0 +1,486 @@
+{
+  "credit": "TrafficEngine Horizontal Single - Slim Real Visors",
+  "textures": {
+    "base": "trafficengine:block/anvil",
+    "back": "trafficengine:block/traffic_light/background",
+    "front": "trafficengine:block/traffic_light/front",
+    "particle": "trafficengine:block/sign",
+    "post": "trafficengine:block/sign"
+  },
+  "elements": [
+    {
+      "name": "Horizontal_Pole",
+      "from": [
+        0,
+        7,
+        7
+      ],
+      "to": [
+        16,
+        9,
+        9
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            0,
+            16,
+            2
+          ],
+          "texture": "#post"
+        },
+        "east": {
+          "uv": [
+            0,
+            0,
+            2,
+            2
+          ],
+          "texture": "#post"
+        },
+        "south": {
+          "uv": [
+            0,
+            0,
+            16,
+            2
+          ],
+          "texture": "#post"
+        },
+        "west": {
+          "uv": [
+            0,
+            0,
+            2,
+            2
+          ],
+          "texture": "#post"
+        },
+        "up": {
+          "uv": [
+            0,
+            0,
+            16,
+            2
+          ],
+          "texture": "#post"
+        },
+        "down": {
+          "uv": [
+            0,
+            0,
+            16,
+            2
+          ],
+          "texture": "#post"
+        }
+      }
+    },
+    {
+      "name": "Pole_Mount",
+      "from": [
+        7,
+        6,
+        5
+      ],
+      "to": [
+        9,
+        10,
+        7
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            0,
+            2,
+            4
+          ],
+          "texture": "#post"
+        },
+        "east": {
+          "uv": [
+            0,
+            0,
+            2,
+            4
+          ],
+          "texture": "#post"
+        },
+        "south": {
+          "uv": [
+            0,
+            0,
+            2,
+            4
+          ],
+          "texture": "#post"
+        },
+        "west": {
+          "uv": [
+            0,
+            0,
+            2,
+            4
+          ],
+          "texture": "#post"
+        },
+        "up": {
+          "uv": [
+            0,
+            0,
+            2,
+            2
+          ],
+          "texture": "#post"
+        },
+        "down": {
+          "uv": [
+            0,
+            0,
+            2,
+            2
+          ],
+          "texture": "#post"
+        }
+      }
+    },
+    {
+      "name": "Housing_Back",
+      "from": [
+        5,
+        4,
+        3
+      ],
+      "to": [
+        11,
+        12,
+        5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            4,
+            0,
+            8,
+            8
+          ],
+          "texture": "#front",
+          "tintindex": 0,
+          "rotation": 90
+        },
+        "east": {
+          "uv": [
+            0,
+            0,
+            2,
+            8
+          ],
+          "texture": "#base"
+        },
+        "south": {
+          "uv": [
+            0,
+            0,
+            6,
+            8
+          ],
+          "texture": "#base"
+        },
+        "west": {
+          "uv": [
+            0,
+            0,
+            2,
+            8
+          ],
+          "texture": "#base"
+        },
+        "up": {
+          "uv": [
+            0,
+            0,
+            6,
+            2
+          ],
+          "texture": "#base"
+        },
+        "down": {
+          "uv": [
+            0,
+            0,
+            6,
+            2
+          ],
+          "texture": "#base"
+        }
+      }
+    },
+    {
+      "name": "Housing_Extension",
+      "from": [
+        6,
+        5,
+        5
+      ],
+      "to": [
+        10,
+        11,
+        6
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            0,
+            4,
+            6
+          ],
+          "texture": "#base"
+        },
+        "east": {
+          "uv": [
+            0,
+            0,
+            1,
+            6
+          ],
+          "texture": "#base"
+        },
+        "south": {
+          "uv": [
+            0,
+            0,
+            4,
+            6
+          ],
+          "texture": "#base"
+        },
+        "west": {
+          "uv": [
+            0,
+            0,
+            1,
+            6
+          ],
+          "texture": "#base"
+        },
+        "up": {
+          "uv": [
+            0,
+            0,
+            4,
+            1
+          ],
+          "texture": "#base"
+        },
+        "down": {
+          "uv": [
+            0,
+            0,
+            4,
+            1
+          ],
+          "texture": "#base"
+        }
+      }
+    },
+    {
+      "name": "Visor_Top",
+      "from": [
+        6,
+        10,
+        0.5
+      ],
+      "to": [
+        10,
+        10.5,
+        3
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            0,
+            4,
+            0.5
+          ],
+          "texture": "#back"
+        },
+        "up": {
+          "uv": [
+            0,
+            0,
+            4,
+            2.5
+          ],
+          "texture": "#back"
+        },
+        "down": {
+          "uv": [
+            0,
+            0,
+            4,
+            2.5
+          ],
+          "texture": "#back"
+        },
+        "east": {
+          "uv": [
+            0,
+            0,
+            2.5,
+            0.5
+          ],
+          "texture": "#back"
+        },
+        "west": {
+          "uv": [
+            0,
+            0,
+            2.5,
+            0.5
+          ],
+          "texture": "#back"
+        },
+        "south": {
+          "texture": "#back"
+        }
+      }
+    },
+    {
+      "name": "Visor_Left",
+      "from": [
+        5.5,
+        7.5,
+        0.5
+      ],
+      "to": [
+        6,
+        10,
+        3
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            0,
+            0.5,
+            2.5
+          ],
+          "texture": "#back"
+        },
+        "west": {
+          "uv": [
+            0,
+            0,
+            2.5,
+            2.5
+          ],
+          "texture": "#back"
+        },
+        "east": {
+          "uv": [
+            0,
+            0,
+            2.5,
+            2.5
+          ],
+          "texture": "#back"
+        },
+        "down": {
+          "uv": [
+            0,
+            0,
+            0.5,
+            2.5
+          ],
+          "texture": "#back"
+        },
+        "south": {
+          "texture": "#back"
+        },
+        "up": {
+          "texture": "#back"
+        }
+      }
+    },
+    {
+      "name": "Visor_Right",
+      "from": [
+        10,
+        7.5,
+        0.5
+      ],
+      "to": [
+        10.5,
+        10,
+        3
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            0,
+            0.5,
+            2.5
+          ],
+          "texture": "#back"
+        },
+        "east": {
+          "uv": [
+            0,
+            0,
+            2.5,
+            2.5
+          ],
+          "texture": "#back"
+        },
+        "west": {
+          "uv": [
+            0,
+            0,
+            2.5,
+            2.5
+          ],
+          "texture": "#back"
+        },
+        "down": {
+          "uv": [
+            0,
+            0,
+            0.5,
+            2.5
+          ],
+          "texture": "#back"
+        },
+        "south": {
+          "texture": "#back"
+        },
+        "up": {
+          "texture": "#back"
+        }
+      }
+    }
+  ],
+  "display": {
+    "gui": {
+      "rotation": [
+        30,
+        225,
+        0
+      ],
+      "translation": [
+        -1.5,
+        1,
+        0
+      ],
+      "scale": [
+        0.625,
+        0.625,
+        0.625
+      ]
+    }
+  }
+}

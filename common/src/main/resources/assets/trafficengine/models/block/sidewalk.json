@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "top": "trafficengine:block/sidewalk",
+    "bottom": "trafficengine:block/concrete",
+    "side": "trafficengine:block/concrete",
+    "particle": "trafficengine:block/sidewalk"
+  }
+}
