@@ -1,0 +1,32 @@
+{
+  "display": {
+    "icon": {
+      "item": "trafficengine:white_delineator"
+    },
+    "title": {
+      "translate": "advancement.trafficengine.delineator"
+    },
+    "description": {
+      "translate": "advancement.trafficengine.delineator.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "parent": "trafficengine:craft_road",
+  "criteria": {
+    "requirement": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "tag": "trafficengine:delineators"
+          }
+        ]
+      }
+    }
+  },
+  "rewards": {
+    "experience": 20
+  }
+}

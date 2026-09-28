@@ -1,0 +1,10 @@
+{
+  "parent": "trafficengine:block/traffic_light/horizontal_preview",
+  "display": {
+    "gui": {
+      "rotation": [30, 225, 0],
+      "translation": [-1.5, 1, 0],
+      "scale": [0.625, 0.625, 0.625]
+    }
+  }
+}
