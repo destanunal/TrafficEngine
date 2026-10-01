@@ -1,6 +1,6 @@
 package com.destan.trafficengine.block;
 
-import de.mrjulsen.mcdragonlib.util.TextUtils;
+import net.minecraft.network.chat.Component;
 import com.destan.trafficengine.block.data.ColorableBlock;
 import com.destan.trafficengine.block.data.IColorBlockEntity;
 import com.destan.trafficengine.block.entity.ColoredBlockEntity;
@@ -109,7 +109,7 @@ public class PaintBucketBlock extends ColorableBlock implements SimpleWaterlogge
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result)
     {
         if (state.getValue(WATERLOGGED)) {
-            player.displayClientMessage(TextUtils.translate("block.trafficengine.paint_bucket.message.underwater").withStyle(ChatFormatting.RED), true);
+            player.displayClientMessage(Component.translatable("block.trafficengine.paint_bucket.message.underwater").withStyle(ChatFormatting.RED), true);
             return InteractionResult.FAIL;
         }
 
@@ -127,7 +127,7 @@ public class PaintBucketBlock extends ColorableBlock implements SimpleWaterlogge
             // Check if bucket is empty
             if (paint <= 0) {
                 if(!level.isClientSide)
-                    player.displayClientMessage(TextUtils.translate("block.trafficengine.paint_bucket.message.empty").withStyle(ChatFormatting.RED), true);
+                    player.displayClientMessage(Component.translatable("block.trafficengine.paint_bucket.message.empty").withStyle(ChatFormatting.RED), true);
                 return InteractionResult.FAIL;
             }
 
@@ -154,7 +154,7 @@ public class PaintBucketBlock extends ColorableBlock implements SimpleWaterlogge
             if (state.getValue(PAINT) > 0) {
                 if (!blockEntity.getColor().equals(PaintColor.getByDye(dye))) {                    
                     if (!level.isClientSide) {
-                        player.displayClientMessage(TextUtils.translate("block.trafficengine.paint_bucket.message.wrong_color").withStyle(ChatFormatting.RED), true);
+                        player.displayClientMessage(Component.translatable("block.trafficengine.paint_bucket.message.wrong_color").withStyle(ChatFormatting.RED), true);
                     }
                     return InteractionResult.FAIL;
                 }
@@ -162,15 +162,15 @@ public class PaintBucketBlock extends ColorableBlock implements SimpleWaterlogge
 
             if (state.getValue(PAINT) >= MAX_PAINT) {
                 if (!level.isClientSide) {
-                    player.displayClientMessage(TextUtils.translate("block.trafficengine.paint_bucket.message.full").withStyle(ChatFormatting.YELLOW), true);
+                    player.displayClientMessage(Component.translatable("block.trafficengine.paint_bucket.message.full").withStyle(ChatFormatting.YELLOW), true);
                 }
                 return InteractionResult.FAIL;
             }
 
             if (state.getValue(PAINT) < MAX_PAINT) {
-                blockEntity.setColor(PaintColor.getByDye(dye));
-                level.setBlockAndUpdate(pos, state.setValue(PAINT, state.getValue(PAINT) + 1));
-                if (!level.isClientSide) {                
+                if (!level.isClientSide) {
+                    blockEntity.setColor(PaintColor.getByDye(dye));
+                    level.setBlockAndUpdate(pos, state.setValue(PAINT, state.getValue(PAINT) + 1));
                     if(!player.isCreative())
                         player.getItemInHand(hand).shrink(1);
                     

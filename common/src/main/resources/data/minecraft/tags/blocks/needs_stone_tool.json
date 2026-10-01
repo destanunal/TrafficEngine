@@ -1280,14 +1280,12 @@
     "trafficengine:concrete_slope_pattern_316",
     "trafficengine:concrete_pattern_317",
     "trafficengine:concrete_slope_pattern_317",
-    "trafficengine:bitumen_block",
     "trafficengine:concrete_barrier",
     "trafficengine:bike_lane_separator",
     "trafficengine:manhole",
     "trafficengine:manhole_cover",
     "trafficengine:road_gully",
     "trafficengine:asphalt_curb_slope",
-    "trafficengine:concrete_curb_slope",
-    "trafficengine:salt"
+    "trafficengine:concrete_curb_slope"
   ]
 }

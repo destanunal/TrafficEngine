@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import de.mrjulsen.mcdragonlib.util.Holder.MutableHolder;
+import com.destan.trafficengine.util.MutableHolder;
 import com.destan.trafficengine.data.IAgeable.AgingType;
 import dev.architectury.event.events.client.ClientGuiEvent;
 import dev.architectury.event.events.client.ClientTickEvent;

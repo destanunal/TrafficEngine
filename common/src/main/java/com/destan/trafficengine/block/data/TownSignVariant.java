@@ -1,9 +1,9 @@
 package com.destan.trafficengine.block.data;
 
-import de.mrjulsen.mcdragonlib.data.ITranslatableEnum;
+import com.destan.trafficengine.data.TranslatableEnum;
 import com.destan.trafficengine.TrafficEngine;
 
-public enum TownSignVariant implements ITranslatableEnum {
+public enum TownSignVariant implements TranslatableEnum {
     FRONT("front", 0),
 	BACK("back", 1),
 	BOTH("both", 2);

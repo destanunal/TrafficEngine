@@ -4,10 +4,10 @@ import org.joml.Vector3f;
 
 import com.mojang.math.Axis;
 
-import de.mrjulsen.mcdragonlib.client.ber.BERGraphics;
-import de.mrjulsen.mcdragonlib.client.ber.RotatableBlockEntityRenderer;
-import de.mrjulsen.mcdragonlib.client.util.RenderUtils;
-import de.mrjulsen.mcdragonlib.util.DLColor;
+import com.destan.trafficengine.client.ber.RenderContext;
+import com.destan.trafficengine.client.ber.RotatableBlockEntityRenderer;
+import com.destan.trafficengine.client.ber.SignRenderUtils;
+import com.destan.trafficengine.util.ColorValue;
 import com.destan.trafficengine.block.DoubleSidedTrafficSignBlock;
 import com.destan.trafficengine.block.TrafficSignBlock;
 import com.destan.trafficengine.block.data.TrafficSignShape;
@@ -24,7 +24,7 @@ public class TrafficSignBlockEntityRenderer extends RotatableBlockEntityRenderer
     }
 
     @Override
-    public void renderBlock(BERGraphics<TrafficSignBlockEntity> graphics, float pPartialTick) {
+    public void renderBlock(RenderContext<TrafficSignBlockEntity> graphics, float pPartialTick) {
         BlockState state = graphics.blockEntity() == null ? null : graphics.blockEntity().getBlockState();
         boolean diagonal = state != null
             && state.hasProperty(TrafficSignBlock.DIAGONAL)
@@ -57,7 +57,7 @@ public class TrafficSignBlockEntityRenderer extends RotatableBlockEntityRenderer
         }
     }
 
-    private void renderOriented(BERGraphics<TrafficSignBlockEntity> graphics) {
+    private void renderOriented(RenderContext<TrafficSignBlockEntity> graphics) {
 
         if (graphics.blockEntity() == null || graphics.blockEntity().isRemoved()) {
             return;
@@ -96,7 +96,7 @@ public class TrafficSignBlockEntityRenderer extends RotatableBlockEntityRenderer
         graphics.poseStack().translate(0.5f, 0.5f, 0.5f);
         graphics.poseStack().translate(-0.5d, -0.5d, z + 0.002d);
 
-        RenderUtils.renderTexture(tex.getTextureLocation(), graphics, new Vector3f(0), 1, 1, 0, 0, 1, 1, blockstate.getValue(TrafficSignBlock.FACING), DLColor.WHITE, graphics.packedLight(), true);
+        SignRenderUtils.renderTexture(tex.getTextureLocation(), graphics, new Vector3f(0), 1, 1, 0, 0, 1, 1, blockstate.getValue(TrafficSignBlock.FACING), ColorValue.WHITE, graphics.packedLight(), true);
 
         graphics.poseStack().popPose();
 
@@ -108,7 +108,7 @@ public class TrafficSignBlockEntityRenderer extends RotatableBlockEntityRenderer
             graphics.poseStack().mulPose(Axis.YP.rotationDegrees(180));
             graphics.poseStack().translate(-0.5d, -0.5d, -(p * 2) + z - 0.002d);
 
-            RenderUtils.renderTexture(tex.getBackgroundTextureLocation(), graphics, new Vector3f(0), 1, 1, 0, 0, 1, 1, blockstate.getValue(TrafficSignBlock.FACING).getOpposite(), DLColor.WHITE, graphics.packedLight(), true);
+            SignRenderUtils.renderTexture(tex.getBackgroundTextureLocation(), graphics, new Vector3f(0), 1, 1, 0, 0, 1, 1, blockstate.getValue(TrafficSignBlock.FACING).getOpposite(), ColorValue.WHITE, graphics.packedLight(), true);
 
             graphics.poseStack().popPose();
         }
@@ -124,7 +124,7 @@ public class TrafficSignBlockEntityRenderer extends RotatableBlockEntityRenderer
      * (see TrafficSignShape#getVoxelShape) and reads correctly from behind.
      * Front and back have their own shape (SHAPE / BACK_SHAPE).
      */
-    private void renderDoubleSided(BERGraphics<TrafficSignBlockEntity> graphics, BlockState blockstate) {
+    private void renderDoubleSided(RenderContext<TrafficSignBlockEntity> graphics, BlockState blockstate) {
         double p = 1 / 16f;
         double zFront = blockstate.getValue(TrafficSignBlock.SHAPE) == TrafficSignShape.MISC ? 1.0d * p : 1.5d * p;
         double zBack = blockstate.getValue(DoubleSidedTrafficSignBlock.BACK_SHAPE) == TrafficSignShape.MISC ? 1.0d * p : 1.5d * p;
@@ -138,7 +138,7 @@ public class TrafficSignBlockEntityRenderer extends RotatableBlockEntityRenderer
             graphics.poseStack().translate(0.5f, 0.5f, 0.5f);
             graphics.poseStack().translate(-0.5d, -0.5d, zFront + 0.002d);
 
-            RenderUtils.renderTexture(front.getTextureLocation(), graphics, new Vector3f(0), 1, 1, 0, 0, 1, 1, facing, DLColor.WHITE, graphics.packedLight(), true);
+            SignRenderUtils.renderTexture(front.getTextureLocation(), graphics, new Vector3f(0), 1, 1, 0, 0, 1, 1, facing, ColorValue.WHITE, graphics.packedLight(), true);
 
             graphics.poseStack().popPose();
         }
@@ -152,7 +152,7 @@ public class TrafficSignBlockEntityRenderer extends RotatableBlockEntityRenderer
             graphics.poseStack().mulPose(Axis.YP.rotationDegrees(180));
             graphics.poseStack().translate(-0.5d, -0.5d, zBack + 0.002d);
 
-            RenderUtils.renderTexture(back.getTextureLocation(), graphics, new Vector3f(0), 1, 1, 0, 0, 1, 1, facing.getOpposite(), DLColor.WHITE, graphics.packedLight(), true);
+            SignRenderUtils.renderTexture(back.getTextureLocation(), graphics, new Vector3f(0), 1, 1, 0, 0, 1, 1, facing.getOpposite(), ColorValue.WHITE, graphics.packedLight(), true);
 
             graphics.poseStack().popPose();
         }

@@ -1,8 +1,8 @@
 {
   "textures": {
-    "screen": "minecraft:block/gray_concrete",
-    "metal": "minecraft:block/gray_concrete",
-    "particle": "minecraft:block/gray_concrete",
+    "screen": "trafficengine:block/sign",
+    "metal": "trafficengine:block/sign",
+    "particle": "trafficengine:block/sign",
     "front": "minecraft:block/black_concrete"
   },
   "elements": [
@@ -25,8 +25,7 @@
             16,
             16
           ],
-          "texture": "#metal",
-          "dragonlib_data": { "emissive": true }
+          "texture": "#metal"
         },
         "east": {
           "uv": [
@@ -35,8 +34,7 @@
             16,
             16
           ],
-          "texture": "#metal",
-          "dragonlib_data": { "emissive": true }
+          "texture": "#metal"
         },
         "south": {
           "uv": [
@@ -45,8 +43,7 @@
             16,
             16
           ],
-          "texture": "#metal",
-          "dragonlib_data": { "emissive": true }
+          "texture": "#metal"
         },
         "west": {
           "uv": [
@@ -55,8 +52,7 @@
             16,
             16
           ],
-          "texture": "#metal",
-          "dragonlib_data": { "emissive": true }
+          "texture": "#metal"
         },
         "up": {
           "uv": [
@@ -65,8 +61,7 @@
             16,
             16
           ],
-          "texture": "#metal",
-          "dragonlib_data": { "emissive": true }
+          "texture": "#metal"
         },
         "down": {
           "uv": [
@@ -75,8 +70,7 @@
             16,
             16
           ],
-          "texture": "#metal",
-          "dragonlib_data": { "emissive": true }
+          "texture": "#metal"
         }
       },
       "shade": false
@@ -101,7 +95,9 @@
             16
           ],
           "texture": "#front",
-          "dragonlib_data": { "emissive": true }
+          "trafficengine_data": {
+            "emissive": true
+          }
         },
         "east": {
           "uv": [
@@ -110,8 +106,7 @@
             16,
             16
           ],
-          "texture": "#screen",
-          "dragonlib_data": { "emissive": true }
+          "texture": "#screen"
         },
         "south": {
           "uv": [
@@ -120,8 +115,7 @@
             16,
             16
           ],
-          "texture": "#screen",
-          "dragonlib_data": { "emissive": true }
+          "texture": "#screen"
         },
         "west": {
           "uv": [
@@ -130,8 +124,7 @@
             16,
             16
           ],
-          "texture": "#screen",
-          "dragonlib_data": { "emissive": true }
+          "texture": "#screen"
         },
         "up": {
           "uv": [
@@ -140,8 +133,7 @@
             16,
             16
           ],
-          "texture": "#screen",
-          "dragonlib_data": { "emissive": true }
+          "texture": "#screen"
         },
         "down": {
           "uv": [
@@ -150,8 +142,7 @@
             16,
             16
           ],
-          "texture": "#screen",
-          "dragonlib_data": { "emissive": true }
+          "texture": "#screen"
         }
       }
     },
@@ -174,8 +165,7 @@
             16,
             16
           ],
-          "texture": "#metal",
-          "dragonlib_data": { "emissive": true }
+          "texture": "#metal"
         },
         "east": {
           "uv": [
@@ -184,8 +174,7 @@
             16,
             16
           ],
-          "texture": "#metal",
-          "dragonlib_data": { "emissive": true }
+          "texture": "#metal"
         },
         "south": {
           "uv": [
@@ -194,8 +183,7 @@
             16,
             16
           ],
-          "texture": "#metal",
-          "dragonlib_data": { "emissive": true }
+          "texture": "#metal"
         },
         "west": {
           "uv": [
@@ -204,8 +192,7 @@
             16,
             16
           ],
-          "texture": "#metal",
-          "dragonlib_data": { "emissive": true }
+          "texture": "#metal"
         },
         "up": {
           "uv": [
@@ -214,8 +201,7 @@
             16,
             16
           ],
-          "texture": "#metal",
-          "dragonlib_data": { "emissive": true }
+          "texture": "#metal"
         },
         "down": {
           "uv": [
@@ -224,8 +210,7 @@
             16,
             16
           ],
-          "texture": "#metal",
-          "dragonlib_data": { "emissive": true }
+          "texture": "#metal"
         }
       },
       "shade": false
@@ -249,8 +234,7 @@
             16,
             16
           ],
-          "texture": "#metal",
-          "dragonlib_data": { "emissive": true }
+          "texture": "#metal"
         },
         "east": {
           "uv": [
@@ -259,8 +243,7 @@
             16,
             16
           ],
-          "texture": "#metal",
-          "dragonlib_data": { "emissive": true }
+          "texture": "#metal"
         },
         "south": {
           "uv": [
@@ -269,8 +252,7 @@
             16,
             16
           ],
-          "texture": "#metal",
-          "dragonlib_data": { "emissive": true }
+          "texture": "#metal"
         },
         "west": {
           "uv": [
@@ -279,8 +261,7 @@
             16,
             16
           ],
-          "texture": "#metal",
-          "dragonlib_data": { "emissive": true }
+          "texture": "#metal"
         },
         "up": {
           "uv": [
@@ -289,8 +270,7 @@
             16,
             16
           ],
-          "texture": "#metal",
-          "dragonlib_data": { "emissive": true }
+          "texture": "#metal"
         },
         "down": {
           "uv": [
@@ -299,8 +279,7 @@
             16,
             16
           ],
-          "texture": "#metal",
-          "dragonlib_data": { "emissive": true }
+          "texture": "#metal"
         }
       },
       "shade": false
@@ -324,8 +303,7 @@
             16,
             16
           ],
-          "texture": "#metal",
-          "dragonlib_data": { "emissive": true }
+          "texture": "#metal"
         },
         "east": {
           "uv": [
@@ -334,8 +312,7 @@
             16,
             16
           ],
-          "texture": "#metal",
-          "dragonlib_data": { "emissive": true }
+          "texture": "#metal"
         },
         "south": {
           "uv": [
@@ -344,8 +321,7 @@
             16,
             16
           ],
-          "texture": "#metal",
-          "dragonlib_data": { "emissive": true }
+          "texture": "#metal"
         },
         "west": {
           "uv": [
@@ -354,8 +330,7 @@
             16,
             16
           ],
-          "texture": "#metal",
-          "dragonlib_data": { "emissive": true }
+          "texture": "#metal"
         },
         "up": {
           "uv": [
@@ -364,8 +339,7 @@
             16,
             16
           ],
-          "texture": "#metal",
-          "dragonlib_data": { "emissive": true }
+          "texture": "#metal"
         },
         "down": {
           "uv": [
@@ -374,8 +348,7 @@
             16,
             16
           ],
-          "texture": "#metal",
-          "dragonlib_data": { "emissive": true }
+          "texture": "#metal"
         }
       },
       "shade": false
@@ -399,8 +372,7 @@
             16,
             16
           ],
-          "texture": "#metal",
-          "dragonlib_data": { "emissive": true }
+          "texture": "#metal"
         },
         "east": {
           "uv": [
@@ -409,8 +381,7 @@
             16,
             16
           ],
-          "texture": "#metal",
-          "dragonlib_data": { "emissive": true }
+          "texture": "#metal"
         },
         "south": {
           "uv": [
@@ -419,8 +390,7 @@
             16,
             16
           ],
-          "texture": "#metal",
-          "dragonlib_data": { "emissive": true }
+          "texture": "#metal"
         },
         "west": {
           "uv": [
@@ -429,8 +399,7 @@
             16,
             16
           ],
-          "texture": "#metal",
-          "dragonlib_data": { "emissive": true }
+          "texture": "#metal"
         },
         "up": {
           "uv": [
@@ -439,8 +408,7 @@
             16,
             16
           ],
-          "texture": "#metal",
-          "dragonlib_data": { "emissive": true }
+          "texture": "#metal"
         },
         "down": {
           "uv": [
@@ -449,8 +417,7 @@
             16,
             16
           ],
-          "texture": "#metal",
-          "dragonlib_data": { "emissive": true }
+          "texture": "#metal"
         }
       },
       "shade": false

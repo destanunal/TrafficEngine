@@ -4,10 +4,9 @@ import java.util.UUID;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-import de.mrjulsen.mcdragonlib.block.DLSyncedBlockEntity;
-import de.mrjulsen.mcdragonlib.block.IBlockEntityExtension;
-import de.mrjulsen.mcdragonlib.network.NetworkDirection;
-import de.mrjulsen.mcdragonlib.util.DLUtils;
+import com.destan.trafficengine.block.entity.SyncedBlockEntity;
+import com.destan.trafficengine.network.NetworkDirection;
+import com.destan.trafficengine.util.ModUtils;
 import com.destan.trafficengine.block.TrafficSignBlock;
 import com.destan.trafficengine.data.NamedTrafficSignTextureReference;
 import com.destan.trafficengine.data.TrafficSignClientTexture;
@@ -22,7 +21,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class TrafficSignBlockEntity extends DLSyncedBlockEntity implements IBlockEntityExtension {
+public class TrafficSignBlockEntity extends SyncedBlockEntity {
 
     private static final String NBT_LEGACY_TEXTURE = "texture";
     private static final String NBT_TEXTURE = "SignTexture";
@@ -172,9 +171,9 @@ public class TrafficSignBlockEntity extends DLSyncedBlockEntity implements IBloc
             TrafficSignClientTexture oldBackTexture = backTexture;
             texture = null;
             backTexture = null;
-            DLUtils.doIfNotNull(oldTexture, x -> x.close());
+            ModUtils.doIfNotNull(oldTexture, x -> x.close());
             if (oldBackTexture != oldTexture) {
-                DLUtils.doIfNotNull(oldBackTexture, x -> x.close());
+                ModUtils.doIfNotNull(oldBackTexture, x -> x.close());
             }
         }
     }

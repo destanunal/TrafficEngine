@@ -1,6 +1,6 @@
 package com.destan.trafficengine.block;
 
-import de.mrjulsen.mcdragonlib.util.DLColor;
+import com.destan.trafficengine.util.ColorValue;
 import com.destan.trafficengine.Constants;
 import com.destan.trafficengine.block.data.ColorableBlock;
 import com.destan.trafficengine.block.data.ITrafficPostLike;
@@ -356,7 +356,7 @@ public class GuardrailBlock extends ColorableBlock implements SimpleWaterloggedB
     }
 
     @Override
-    public DLColor getDefaultColor() {
+    public ColorValue getDefaultColor() {
         return Constants.METAL_COLOR;
     }
 

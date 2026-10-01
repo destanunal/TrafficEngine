@@ -7,9 +7,7 @@ public class ModCommonConfig {
         public static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
     public static final ForgeConfigSpec SPEC;
 
-    public static final ForgeConfigSpec.ConfigValue<Boolean> BITUMEN_GENERATION;
     
-    public static final ForgeConfigSpec.ConfigValue<Boolean> SALT_GENERATION;
 
     public static final ForgeConfigSpec.ConfigValue<Integer> ROAD_BUILDER_MAX_DISTANCE;
     public static final ForgeConfigSpec.ConfigValue<Integer> ROAD_BUILDER_MAX_ROAD_WIDTH;
@@ -23,12 +21,8 @@ public class ModCommonConfig {
     static {
         BUILDER.push(TrafficEngine.MOD_ID + "_common_config");
         
-        BITUMEN_GENERATION = BUILDER.comment("[FABRIC ONLY] Whether bitumen ore should generate in the world or not. (Default: ON)")
-            .define("world_generation.bitumen.enabled", true);
             
         
-        SALT_GENERATION = BUILDER.comment("[FABRIC ONLY] Whether salt should generate in the world or not. (Default: ON)")
-            .define("world_generation.salt.enabled", true);
             
 
         ROAD_BUILDER_MAX_DISTANCE = BUILDER.comment("The max distance in blocks the road construction tool can be used for. (Default: 32)")

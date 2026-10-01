@@ -1,11 +1,8 @@
 package com.destan.trafficengine.registry;
 
-import de.mrjulsen.mcdragonlib.network.DLNetworkManager;
-import de.mrjulsen.mcdragonlib.network.NetworkDirection;
-import de.mrjulsen.mcdragonlib.network.NetworkPacketType;
-import de.mrjulsen.mcdragonlib.util.DLUtils;
-import com.destan.trafficengine.TrafficEngine;
-import com.destan.trafficengine.network.packets.cts.ColorPaletteItemPacket;
+import com.destan.trafficengine.network.TrafficNetwork;
+import com.destan.trafficengine.network.NetworkDirection;
+import com.destan.trafficengine.network.NetworkPacketType;
 import com.destan.trafficengine.network.packets.cts.CreateNewTrafficSignTexturePacket;
 import com.destan.trafficengine.network.packets.cts.CreativePatternCataloguePacket;
 import com.destan.trafficengine.network.packets.cts.GetTrafficSignTexturePacket;
@@ -29,13 +26,12 @@ import com.destan.trafficengine.network.packets.stc.TrafficSignTextureResetPacke
 
 public class ModNetworkManager {
 
-    public static final DLNetworkManager NETWORK = new DLNetworkManager(DLUtils.resourceLocation(TrafficEngine.MOD_ID, "network"), "2");
+    public static final TrafficNetwork NETWORK = new TrafficNetwork();
 
     public static final NetworkPacketType.SendAndReceive<NetworkDirection.C2S, GetTrafficSignTexturePacket.Request, GetTrafficSignTexturePacket.Response> GET_TRAFFIC_SIGN_TEXTURE = NETWORK.registerSendAndReceivePacket("get_traffic_sign_texture", NetworkDirection.C2S, GetTrafficSignTexturePacket::handle, GetTrafficSignTexturePacket.Request::new, GetTrafficSignTexturePacket.Response::new);
     public static final NetworkPacketType.SendAndReceive<NetworkDirection.C2S, PatternCatalogueDeletePacket.Request, PatternCatalogueDeletePacket.Response> DELETE_PATTERN_CATALOG_ENTRY = NETWORK.registerSendAndReceivePacket("delete_pattern_catalog_entry", NetworkDirection.C2S, PatternCatalogueDeletePacket::handle, PatternCatalogueDeletePacket.Request::new, PatternCatalogueDeletePacket.Response::new);
     public static final NetworkPacketType.SendAndReceive<NetworkDirection.C2S, TrafficSignPatternPacket.Request, TrafficSignPatternPacket.Response> UPDATE_TRAFFIC_SIGN_PATTERN = NETWORK.registerSendAndReceivePacket("update_traffic_sign_pattern", NetworkDirection.C2S, TrafficSignPatternPacket::handle, TrafficSignPatternPacket.Request::new, TrafficSignPatternPacket.Response::new);
     public static final NetworkPacketType.SendAndReceive<NetworkDirection.C2S, CreateNewTrafficSignTexturePacket.Request, CreateNewTrafficSignTexturePacket.Response> CREATE_NEW_TRAFFIC_SIGN_TEXTURE = NETWORK.registerSendAndReceivePacket("create_new_traffic_sign_texture", NetworkDirection.C2S, CreateNewTrafficSignTexturePacket::handle, CreateNewTrafficSignTexturePacket.Request::new, CreateNewTrafficSignTexturePacket.Response::new);
-    public static final NetworkPacketType.SendAndReceive<NetworkDirection.C2S, ColorPaletteItemPacket.Request, ColorPaletteItemPacket.Response> UPDATE_COLOR_PALETTE_ITEM = NETWORK.registerSendAndReceivePacket("update_color_palette_item", NetworkDirection.C2S, ColorPaletteItemPacket::handle, ColorPaletteItemPacket.Request::new, ColorPaletteItemPacket.Response::new);
     public static final NetworkPacketType.SendAndReceive<NetworkDirection.C2S, PatternCatalogueIndexPacketGui.Request, PatternCatalogueIndexPacketGui.Response> UPDATE_PATTERN_CATALOG_INDEX_IN_GUI = NETWORK.registerSendAndReceivePacket("update_pattern_catalog_index_in_gui", NetworkDirection.C2S, PatternCatalogueIndexPacketGui::handle, PatternCatalogueIndexPacketGui.Request::new, PatternCatalogueIndexPacketGui.Response::new);
 
     public static final NetworkPacketType.Send<NetworkDirection.C2S, CreativePatternCataloguePacket> UPDATE_CREATIVE_PATTERN_CATALOG_ITEM = NETWORK.registerSendOnlyPacket("update_creative_pattern_catalog_item", NetworkDirection.C2S, CreativePatternCataloguePacket::handle, CreativePatternCataloguePacket::new);

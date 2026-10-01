@@ -1,8 +1,7 @@
 package com.destan.trafficengine.block.entity;
 
-import de.mrjulsen.mcdragonlib.block.DLSyncedBlockEntity;
-import de.mrjulsen.mcdragonlib.util.time.DLTime;
-import de.mrjulsen.mcdragonlib.util.time.VanillaTimeSystem;
+import com.destan.trafficengine.block.entity.SyncedBlockEntity;
+import com.destan.trafficengine.util.GameTime;
 import com.destan.trafficengine.block.StreetLampBaseBlock;
 import com.destan.trafficengine.registry.ModBlockEntities;
 import net.minecraft.core.BlockPos;
@@ -12,7 +11,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class StreetLampBlockEntity extends DLSyncedBlockEntity {
+public class StreetLampBlockEntity extends SyncedBlockEntity {
 
     private static final String NBT_TURN_ON_TIME = "turnOnTime";
     private static final String NBT_TURN_OFF_TIME = "turnOffTime";
@@ -49,7 +48,7 @@ public class StreetLampBlockEntity extends DLSyncedBlockEntity {
             return;
         }
 
-        if (new DLTime(level, DLTime.defaultTimeSystem()).isBetweenDaily(new DLTime(onTimeTicks, VanillaTimeSystem.INSTANCE), new DLTime(offTimeTicks, VanillaTimeSystem.INSTANCE), DLTime.defaultTimeSystem())) {
+        if (new GameTime(level).isBetweenDaily(new GameTime(onTimeTicks), new GameTime(offTimeTicks))) {
             if (!state.getValue(StreetLampBaseBlock.LIT)) {
                 level.setBlockAndUpdate(pos, state.setValue(StreetLampBaseBlock.LIT, true));
             }
@@ -73,12 +72,12 @@ public class StreetLampBlockEntity extends DLSyncedBlockEntity {
     }
 
     public void setOnTime(int time) {
-        this.onTimeTicks = Mth.clamp(time, 0, (int)(VanillaTimeSystem.INSTANCE.getTicksPerDay() - 1));
+        this.onTimeTicks = Mth.clamp(time, 0, (int)(GameTime.TICKS_PER_DAY - 1));
         notifyUpdate();
     }
 
     public void setOffTime(int time) {
-        this.offTimeTicks = Mth.clamp(time, 0, (int)(VanillaTimeSystem.INSTANCE.getTicksPerDay() - 1));
+        this.offTimeTicks = Mth.clamp(time, 0, (int)(GameTime.TICKS_PER_DAY - 1));
         notifyUpdate();
     }
 }
