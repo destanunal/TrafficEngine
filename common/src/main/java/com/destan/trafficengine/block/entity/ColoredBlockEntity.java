@@ -1,6 +1,6 @@
 package com.destan.trafficengine.block.entity;
 
-import de.mrjulsen.mcdragonlib.block.DLSyncedBlockEntity;
+import com.destan.trafficengine.block.entity.SyncedBlockEntity;
 import com.destan.trafficengine.block.data.IColorBlockEntity;
 import com.destan.trafficengine.block.data.RoadBlock;
 import com.destan.trafficengine.data.PaintColor;
@@ -11,7 +11,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class ColoredBlockEntity extends DLSyncedBlockEntity implements IColorBlockEntity {
+public class ColoredBlockEntity extends SyncedBlockEntity implements IColorBlockEntity {
 
     // Properties
     protected PaintColor color = PaintColor.NONE;
@@ -30,6 +30,8 @@ public class ColoredBlockEntity extends DLSyncedBlockEntity implements IColorBlo
 
     @Override
     public void loadAdditional(CompoundTag compound, HolderLookup.Provider provider) {
+        PaintColor previousColor = this.color;
+        PaintColor previousMarkingColor = this.markingColor;
         super.loadAdditional(compound, provider);
         this.color = PaintColor.getByIndex(compound.getInt(NBT_COLOR));
         if (compound.contains(NBT_MARKING_COLOR)) {
@@ -41,6 +43,12 @@ public class ColoredBlockEntity extends DLSyncedBlockEntity implements IColorBlo
             this.color = PaintColor.NONE;
         } else {
             this.markingColor = PaintColor.NONE;
+        }
+        // Colour arrives in block-entity data, after the block-state update.
+        // Rebuild the client mesh now instead of waiting for a second click.
+        if (level != null && level.isClientSide
+                && (previousColor != this.color || previousMarkingColor != this.markingColor)) {
+            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
         }
     }    
 

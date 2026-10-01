@@ -2,7 +2,7 @@ package com.destan.trafficengine.block;
 
 import java.util.Map;
 
-import de.mrjulsen.mcdragonlib.util.DLColor;
+import com.destan.trafficengine.util.ColorValue;
 import com.destan.trafficengine.block.data.ColorableBlock;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
@@ -214,7 +214,7 @@ public class ConcreteBarrierBlock extends ColorableBlock implements SimpleWaterl
     }
 
     @Override
-    public DLColor getDefaultColor() {
-        return DLColor.fromInt(0xFFABABAB);
+    public ColorValue getDefaultColor() {
+        return ColorValue.fromInt(0xFFABABAB);
     }
 }

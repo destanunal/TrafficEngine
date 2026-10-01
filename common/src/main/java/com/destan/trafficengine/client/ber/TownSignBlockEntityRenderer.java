@@ -1,6 +1,6 @@
 package com.destan.trafficengine.client.ber;
 
-import de.mrjulsen.mcdragonlib.client.ber.BERGraphics;
+import com.destan.trafficengine.client.ber.RenderContext;
 import com.destan.trafficengine.block.TownSignBlock;
 import com.destan.trafficengine.block.entity.TownSignBlockEntity;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider.Context;
@@ -12,7 +12,7 @@ public class TownSignBlockEntityRenderer extends WritableSignBlockEntityRenderer
     }
 
     @Override
-    public void renderSafe(BERGraphics<TownSignBlockEntity> graphics, float pPartialTick) {
+    public void renderSafe(RenderContext<TownSignBlockEntity> graphics, float pPartialTick) {
         switch (graphics.blockEntity().getBlockState().getValue(TownSignBlock.VARIANT)) {
             case FRONT:
                 renderInternal(graphics.blockEntity().getRenderConfig(), graphics.blockEntity()::getText, pPartialTick, graphics, false);

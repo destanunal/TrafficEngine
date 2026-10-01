@@ -1,9 +1,9 @@
 package com.destan.trafficengine.network.packets.cts;
 
-import de.mrjulsen.mcdragonlib.data.DLStatus;
-import de.mrjulsen.mcdragonlib.network.NetworkPacketContext;
-import de.mrjulsen.mcdragonlib.network.NetworkPacketData;
-import de.mrjulsen.mcdragonlib.util.NbtUtils;
+import com.destan.trafficengine.network.PacketStatus;
+import com.destan.trafficengine.network.NetworkPacketContext;
+import com.destan.trafficengine.network.NetworkPacketData;
+import com.destan.trafficengine.util.NbtPositions;
 import com.destan.trafficengine.block.TownSignBlock;
 import com.destan.trafficengine.block.data.TownSignVariant;
 import com.destan.trafficengine.block.entity.TownSignBlockEntity;
@@ -27,12 +27,12 @@ public class TownSignPacket extends NetworkPacketData {
     private BlockPos pos;    
     private TownSignBlock.ETownSignSide side;
 
-    public TownSignPacket(DLStatus status) {
+    public TownSignPacket(PacketStatus status) {
         super(status);
     }
 
     public TownSignPacket(BlockPos pos, String[] messages, TownSignVariant variant, TownSignBlock.ETownSignSide side) {
-        super(DLStatus.OK);
+        super(PacketStatus.OK);
         this.pos = pos;
         this.variant = variant;
         this.messages = messages;
@@ -47,7 +47,7 @@ public class TownSignPacket extends NetworkPacketData {
         }
         nbt.put(NBT_MESSAGES, msgs);
         nbt.putInt(NBT_VARIANT, variant.getIndex());
-        NbtUtils.putNbtPos(nbt, NBT_POS, pos);
+        NbtPositions.putNbtPos(nbt, NBT_POS, pos);
         nbt.putInt(NBT_SIDE, side.getIndex());
     }
 
@@ -55,7 +55,7 @@ public class TownSignPacket extends NetworkPacketData {
     protected void read(CompoundTag nbt) {
         this.messages = nbt.getList(NBT_MESSAGES, Tag.TAG_STRING).stream().map(x -> ((StringTag)x).getAsString()).toArray(String[]::new);
         this.variant = TownSignVariant.getVariantByIndex(nbt.getInt(NBT_VARIANT));
-        this.pos = NbtUtils.getNbtBlockPos(nbt, NBT_POS);
+        this.pos = NbtPositions.getNbtBlockPos(nbt, NBT_POS);
         this.side = TownSignBlock.ETownSignSide.getSideByIndex(nbt.getInt(NBT_SIDE));
     }
     

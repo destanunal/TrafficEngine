@@ -1,6 +1,6 @@
 package com.destan.trafficengine.block;
 
-import de.mrjulsen.mcdragonlib.util.DLColor;
+import com.destan.trafficengine.util.ColorValue;
 import com.destan.trafficengine.block.data.ColorableBlock;
 import com.destan.trafficengine.data.PaintColor;
 import net.minecraft.core.BlockPos;
@@ -100,7 +100,7 @@ public class ReflectorBlock extends ColorableBlock implements SimpleWaterloggedB
     }
 
     @Override
-    public DLColor getDefaultColor() {
+    public ColorValue getDefaultColor() {
         return PaintColor.WHITE.getTextureColor();
     }
 }

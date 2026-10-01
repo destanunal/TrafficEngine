@@ -2,9 +2,9 @@ package com.destan.trafficengine.block.entity;
 
 import java.util.Arrays;
 
-import de.mrjulsen.mcdragonlib.block.DLWritableSignBlockEntity;
-import de.mrjulsen.mcdragonlib.client.gui.builtin.WritableSignScreen.ConfiguredLineData;
-import de.mrjulsen.mcdragonlib.client.gui.builtin.WritableSignScreen.WritableSignConfig;
+import com.destan.trafficengine.block.entity.WritableTrafficSignBlockEntity;
+import com.destan.trafficengine.data.SignTextConfig.ConfiguredLineData;
+import com.destan.trafficengine.data.SignTextConfig.WritableSignConfig;
 import com.destan.trafficengine.block.TownSignBlock;
 import com.destan.trafficengine.block.TownSignBlock.ETownSignSide;
 import com.destan.trafficengine.block.WritableTrafficSign;
@@ -18,7 +18,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec2;
 
-public class TownSignBlockEntity extends DLWritableSignBlockEntity {
+public class TownSignBlockEntity extends WritableTrafficSignBlockEntity {
     
     private String[] linesBack = null;
 

@@ -1,47 +1,11 @@
 package com.destan.trafficengine.util;
-
-import java.util.Arrays;
-
-import de.mrjulsen.mcdragonlib.data.ITranslatableEnum;
-import de.mrjulsen.mcdragonlib.util.time.format.ITimeFormatter;
-import de.mrjulsen.mcdragonlib.util.time.format.TimeFormat12Hours;
-import de.mrjulsen.mcdragonlib.util.time.format.TimeFormat24Hours;
-import de.mrjulsen.mcdragonlib.util.time.format.TimeFormatTicks;
-import com.destan.trafficengine.TrafficEngine;
-
-public enum ETimeFormat implements ITranslatableEnum {
-    HOURS_24(1, "hours_24", TimeFormat24Hours.INSTANCE),
-    HOURS_12(2, "hours_12", TimeFormat12Hours.INSTANCE),
-    TICKS(0, "ticks", TimeFormatTicks.INSTANCE);
-
-    private final int index;
-    private final String name;
-    private final ITimeFormatter format;
-
-    ETimeFormat(int index, String name, ITimeFormatter format) {
-        this.index = index;
-        this.name = name;
-        this.format = format;
-    }
-
-    public int getIndex() {
-        return index;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public ITimeFormatter getFormat() {
-        return format;
-    }
-
-    public static ETimeFormat getByIndex(int index) {
-        return Arrays.stream(values()).filter(x -> x.getIndex() == index).findFirst().orElse(HOURS_24);
-    }
-
-    @Override
-    public Data getTranslationData() {
-        return new Data(TrafficEngine.MOD_ID, "time_format", name);
-    }
+import com.destan.trafficengine.data.TranslatableEnum;
+public enum ETimeFormat implements TranslatableEnum {
+    HOURS_24(1,"hours_24"),HOURS_12(2,"hours_12"),TICKS(0,"ticks");
+    private final int index;private final String name;
+    ETimeFormat(int index,String name) {this.index=index;this.name=name;}
+    public int getIndex() {return index;}
+    public String getName() {return name;}
+    public static ETimeFormat getByIndex(int index) {for(var format:values())if(format.index==index)return format;return HOURS_24;}
+    @Override public Data getTranslationData() {return new Data("trafficengine","time_format",name);}
 }

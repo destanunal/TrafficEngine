@@ -1286,7 +1286,6 @@
     "trafficengine:double_street_lamp",
     "trafficengine:small_street_lamp",
     "trafficengine:small_double_street_lamp",
-    "trafficengine:bitumen_block",
     "trafficengine:guardrail",
     "trafficengine:traffic_light_request_button",
     "trafficengine:paint_bucket",
@@ -1302,6 +1301,7 @@
     "trafficengine:house_number_sign",
     "trafficengine:street_light",
     "trafficengine:fluorescent_tube_lamp",
-    "trafficengine:salt"
+    "trafficengine:asphalt_curb",
+    "trafficengine:concrete_curb"
   ]
 }

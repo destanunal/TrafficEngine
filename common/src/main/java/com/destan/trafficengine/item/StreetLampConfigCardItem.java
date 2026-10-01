@@ -3,11 +3,9 @@ import com.destan.trafficengine.util.ItemData;
 
 import java.util.List;
 
-import de.mrjulsen.mcdragonlib.util.DLUtils;
-import de.mrjulsen.mcdragonlib.util.TextUtils;
-import de.mrjulsen.mcdragonlib.util.time.DLTime;
-import de.mrjulsen.mcdragonlib.util.time.TimeContext;
-import de.mrjulsen.mcdragonlib.util.time.VanillaTimeSystem;
+import com.destan.trafficengine.util.ModUtils;
+import net.minecraft.network.chat.Component;
+import com.destan.trafficengine.util.GameTime;
 import com.destan.trafficengine.TrafficEngine;
 import com.destan.trafficengine.block.StreetLampBaseBlock;
 import com.destan.trafficengine.block.entity.StreetLampBlockEntity;
@@ -16,7 +14,6 @@ import com.destan.trafficengine.util.ETimeFormat;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -35,11 +32,11 @@ public class StreetLampConfigCardItem extends Item {
     private static final String NBT_TIME_OFF = "turnOffTime";
     private static final String NBT_TIME_FORMAT = "timeFormat";
 
-    private static final Component textEmpty = TextUtils.translate("item.trafficengine.street_lamp_config_card.tooltip.empty").withStyle(ChatFormatting.GRAY);
-    private static final Component textClear = TextUtils.translate("item.trafficengine.street_lamp_config_card.use.clear");
-    private static final Component textErrorTimeEqual = TextUtils.translate("item.trafficengine.street_lamp_config_card.use.error_same_time").withStyle(ChatFormatting.RED);
-    private static final Component textApply = TextUtils.translate("item.trafficengine.street_lamp_config_card.use.set").withStyle(ChatFormatting.GREEN);
-    private static final Component textRemove = TextUtils.translate("item.trafficengine.street_lamp_config_card.use.unset").withStyle(ChatFormatting.RED);
+    private static final Component textEmpty = Component.translatable("item.trafficengine.street_lamp_config_card.tooltip.empty").withStyle(ChatFormatting.GRAY);
+    private static final Component textClear = Component.translatable("item.trafficengine.street_lamp_config_card.use.clear");
+    private static final Component textErrorTimeEqual = Component.translatable("item.trafficengine.street_lamp_config_card.use.error_same_time").withStyle(ChatFormatting.RED);
+    private static final Component textApply = Component.translatable("item.trafficengine.street_lamp_config_card.use.set").withStyle(ChatFormatting.GREEN);
+    private static final Component textRemove = Component.translatable("item.trafficengine.street_lamp_config_card.use.unset").withStyle(ChatFormatting.RED);
     private static final String keyTurnOn = "item.trafficengine.street_lamp_config_card.tooltip.turn_on_time";
     private static final String keyTurnOff = "item.trafficengine.street_lamp_config_card.tooltip.turn_off_time";
 
@@ -61,8 +58,8 @@ public class StreetLampConfigCardItem extends Item {
             return new InteractionResultHolder<>(InteractionResult.SUCCESS, stack);
         } else {
             if (level.isClientSide) {                
-                int turnOn = (int)((VanillaTimeSystem.INSTANCE.getTicksPerDay() - VanillaTimeSystem.INSTANCE.getDaytimeOffset()) + (double)VanillaTimeSystem.INSTANCE.getTicksPerDay() / (24 * 2));
-                int turnOff = (int)(VanillaTimeSystem.INSTANCE.getDaytimeOffset() - (double)VanillaTimeSystem.INSTANCE.getTicksPerDay() / (24 * 2));
+                int turnOn = (int)((GameTime.TICKS_PER_DAY - GameTime.DAYTIME_OFFSET) + (double)GameTime.TICKS_PER_DAY / (24 * 2));
+                int turnOff = (int)(GameTime.DAYTIME_OFFSET - (double)GameTime.TICKS_PER_DAY / (24 * 2));
                 int timeFormat = ETimeFormat.HOURS_24.getIndex();
                 if ((nbt = doesContainValidLinkData(stack)) != null) {
                     turnOn = nbt.getInt(NBT_TIME_ON);
@@ -85,10 +82,10 @@ public class StreetLampConfigCardItem extends Item {
         CompoundTag nbt = null;
         if ((nbt = doesContainValidLinkData(stack)) != null) {
             ETimeFormat format = ETimeFormat.getByIndex(nbt.getInt(NBT_TIME_FORMAT));
-            DLTime timeOn = new DLTime(nbt.getInt(NBT_TIME_ON), VanillaTimeSystem.INSTANCE);
-            DLTime timeOff = new DLTime(nbt.getInt(NBT_TIME_OFF), VanillaTimeSystem.INSTANCE);
-            list.add(TextUtils.translate(keyTurnOn, timeOn.format(format.getFormat(), TimeContext.INGAME, VanillaTimeSystem.INSTANCE)));
-            list.add(TextUtils.translate(keyTurnOff, timeOff.format(format.getFormat(), TimeContext.INGAME, VanillaTimeSystem.INSTANCE)));
+            GameTime timeOn = new GameTime(nbt.getInt(NBT_TIME_ON));
+            GameTime timeOff = new GameTime(nbt.getInt(NBT_TIME_OFF));
+            list.add(Component.translatable(keyTurnOn, timeOn.format(format)));
+            list.add(Component.translatable(keyTurnOff, timeOff.format(format)));
         } else {
             list.add(textEmpty);
         }        
@@ -124,7 +121,7 @@ public class StreetLampConfigCardItem extends Item {
                     blockEntity.setOnTime(nbt.getInt(NBT_TIME_ON));
                     blockEntity.setOffTime(nbt.getInt(NBT_TIME_OFF));
                     player.displayClientMessage(textApply, true);
-                    DLUtils.giveAdvancement((ServerPlayer)player, TrafficEngine.MOD_ID, "street_lamp_config", "requirement");
+                    ModUtils.giveAdvancement((ServerPlayer)player, TrafficEngine.MOD_ID, "street_lamp_config", "requirement");
                 } else {
                     blockEntity.setOnTime(-1);
                     blockEntity.setOffTime(-1);

@@ -14,7 +14,6 @@ import com.destan.trafficengine.block.data.RoadType;
 import com.destan.trafficengine.block.data.LedDeviceType;
 import com.destan.trafficengine.item.WearableBlockItem;
 import com.destan.trafficengine.item.LargeTrafficDisplayBlockItem;
-import dev.architectury.extensions.injected.InjectedItemPropertiesExtension;
 import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.RegistrySupplier;
 import net.minecraft.core.registries.Registries;
@@ -22,7 +21,6 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.DropExperienceBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
@@ -34,16 +32,6 @@ public class ModBlocks {
     public static List<RegistrySupplier<Block>> COLORED_BLOCKS = new ArrayList<>();
     public static HashMap<String, RegistrySupplier<Block>> ROAD_BLOCKS = new HashMap<>();
 
-    public static final RegistrySupplier<Block> BITUMEN_BLOCK = registerBlock("bitumen_block", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.DEEPSLATE)
-            .strength(1.5f)
-            .requiresCorrectToolForDrops()
-    ), ModCreativeModeTab.MOD_TAB, false);
-
-    public static final RegistrySupplier<Block> SALT = registerBlock("salt", () -> new DropExperienceBlock(net.minecraft.util.valueproviders.UniformInt.of(0, 2), BlockBehaviour.Properties.of().mapColor(MapColor.STONE)
-            .strength(3f)
-            .sound(SoundType.BASALT)
-            .requiresCorrectToolForDrops()
-    ), ModCreativeModeTab.MOD_TAB, false);
 
     public static final RegistrySupplier<Block> ASPHALT = registerBlock("asphalt", () -> new AsphaltBlock(RoadType.ASPHALT), ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> CRACKED_ASPHALT = registerBlock("cracked_asphalt", () -> new AsphaltBlock(RoadType.CRACKED_ASPHALT), ModCreativeModeTab.MOD_TAB, false);
@@ -63,10 +51,12 @@ public class ModBlocks {
     public static final RegistrySupplier<Block> SIDEWALK_SLOPE = registerBlock("sidewalk_slope", SidewalkSlopeBlock::new, ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> SPEED_BUMP = registerBlock("speed_bump", () -> new SpeedBumpBlock(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_BLACK).strength(2.0f).requiresCorrectToolForDrops()), ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> WIDE_SPEED_BUMP = registerBlock("wide_speed_bump", () -> new CustomSpeedBumpBlock(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_BLACK).strength(2.0f).requiresCorrectToolForDrops(), Shapes.or(Block.box(0.0D, 0.0D, 1.0D, 16.0D, 0.5D, 15.0D), Block.box(0.0D, 0.5D, 3.0D, 16.0D, 1.25D, 13.0D), Block.box(0.0D, 1.25D, 6.0D, 16.0D, 2.0D, 10.0D)), Shapes.or(Block.box(1.0D, 0.0D, 0.0D, 15.0D, 0.5D, 16.0D), Block.box(3.0D, 0.5D, 0.0D, 13.0D, 1.25D, 16.0D), Block.box(6.0D, 1.25D, 0.0D, 10.0D, 2.0D, 16.0D))), ModCreativeModeTab.MOD_TAB, false);
-    public static final RegistrySupplier<Block> BIKE_LANE_SEPARATOR = registerBlock("bike_lane_separator", () -> new CustomSpeedBumpBlock(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_ORANGE).strength(2.0f).requiresCorrectToolForDrops(), Shapes.or(Block.box(3.0D, 0.0D, 1.0D, 13.0D, 0.65D, 15.0D), Block.box(4.0D, 0.65D, 1.5D, 12.0D, 1.55D, 14.5D), Block.box(5.0D, 1.55D, 2.0D, 11.0D, 2.75D, 14.0D)), Shapes.or(Block.box(1.0D, 0.0D, 3.0D, 15.0D, 0.65D, 13.0D), Block.box(1.5D, 0.65D, 4.0D, 14.5D, 1.55D, 12.0D), Block.box(2.0D, 1.55D, 5.0D, 14.0D, 2.75D, 11.0D))), ModCreativeModeTab.MOD_TAB, false);
+    public static final RegistrySupplier<Block> BIKE_LANE_SEPARATOR = registerBlock("bike_lane_separator", () -> new com.destan.trafficengine.block.BikeLaneSeparatorBlock(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_ORANGE).strength(2.0f).requiresCorrectToolForDrops(), Shapes.or(Block.box(3.0D, 0.0D, 1.0D, 13.0D, 0.65D, 15.0D), Block.box(4.0D, 0.65D, 1.5D, 12.0D, 1.55D, 14.5D), Block.box(5.0D, 1.55D, 2.0D, 11.0D, 2.75D, 14.0D)), Shapes.or(Block.box(1.0D, 0.0D, 3.0D, 15.0D, 0.65D, 13.0D), Block.box(1.5D, 0.65D, 4.0D, 14.5D, 1.55D, 12.0D), Block.box(2.0D, 1.55D, 5.0D, 14.0D, 2.75D, 11.0D))), ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> CONCRETE_BARRIER = registerColoredBlock("concrete_barrier", () -> new ConcreteBarrierBlock(), ModCreativeModeTab.MOD_TAB, false);
-    public static final RegistrySupplier<Block> ASPHALT_CURB_SLOPE = registerBlock("asphalt_curb_slope", () -> new AsphaltCurbSlope(RoadType.ASPHALT), ModCreativeModeTab.MOD_TAB, false);
+    public static final RegistrySupplier<Block> ASPHALT_CURB = registerBlock("asphalt_curb", () -> new AsphaltCurb(RoadType.ASPHALT), ModCreativeModeTab.MOD_TAB, false);
+    public static final RegistrySupplier<Block> CONCRETE_CURB = registerBlock("concrete_curb", () -> new AsphaltCurb(RoadType.CONCRETE), ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> CONCRETE_CURB_SLOPE = registerBlock("concrete_curb_slope", () -> new AsphaltCurbSlope(RoadType.CONCRETE), ModCreativeModeTab.MOD_TAB, false);
+    public static final RegistrySupplier<Block> ASPHALT_CURB_SLOPE = registerBlock("asphalt_curb_slope", () -> new AsphaltCurbSlope(RoadType.ASPHALT), ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> TRAFFIC_SIGN_WORKBENCH = registerBlock("traffic_sign_workbench", () -> new TrafficSignWorkbenchBlock(), ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> ROAD_SALT = registerBlock("road_salt", () -> new RoadSaltBlock(), ModCreativeModeTab.MOD_TAB, false);
 
@@ -87,9 +77,6 @@ public class ModBlocks {
         }
     }
 
-    public static final RegistrySupplier<Block> MANHOLE = registerBlock("manhole", () -> new ManholeBlock(), ModCreativeModeTab.MOD_TAB, false);
-    public static final RegistrySupplier<Block> MANHOLE_COVER = registerBlock("manhole_cover", () -> new ManholeCoverBlock(), ModCreativeModeTab.MOD_TAB, false);
-    public static final RegistrySupplier<Block> ROAD_GULLY = registerBlock("road_gully", () -> new ManholeCoverBlock(), ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> TRAFFIC_SIGN_POST = registerBlock("traffic_sign_post", () -> new TrafficSignPostBlock(), ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> TRAFFIC_SIGN = registerBlock("traffic_sign", () -> new TrafficSignBlock(), ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> DOUBLE_TRAFFIC_SIGN = registerBlock("double_traffic_sign", () -> new DoubleSidedTrafficSignBlock(), ModCreativeModeTab.MOD_TAB, false);
@@ -127,6 +114,10 @@ public class ModBlocks {
     public static final RegistrySupplier<Block> LARGE_TRAFFIC_DISPLAY = registerBlock("large_traffic_display", () -> new LedDeviceBlock(LedDeviceType.LARGE_TRAFFIC_DISPLAY), ModCreativeModeTab.MOD_TAB, LargeTrafficDisplayBlockItem.class);
     public static final RegistrySupplier<Block> LED_LIGHT = registerBlock("led_light", () -> new LedDeviceBlock(LedDeviceType.LED_LIGHT), ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> REFLECTOR = registerColoredBlock("reflector", () -> new ReflectorBlock(), ModCreativeModeTab.MOD_TAB, false);
+
+    public static final RegistrySupplier<Block> MANHOLE = registerBlock("manhole", () -> new ManholeBlock(), ModCreativeModeTab.MOD_TAB, false);
+    public static final RegistrySupplier<Block> MANHOLE_COVER = registerBlock("manhole_cover", () -> new ManholeCoverBlock(), ModCreativeModeTab.MOD_TAB, false);
+    public static final RegistrySupplier<Block> ROAD_GULLY = registerBlock("road_gully", () -> new ManholeCoverBlock(), ModCreativeModeTab.MOD_TAB, false);
 
     private static <T extends Block>RegistrySupplier<T> registerBlockWithoutItem(String name, Supplier<T> block) {
         RegistrySupplier<T> toReturn = BLOCKS.register(name, block);
@@ -167,19 +158,19 @@ public class ModBlocks {
 
     private static <T extends Block>RegistrySupplier<Item> registerBlockItem(String name, RegistrySupplier<T> block, RegistrySupplier<CreativeModeTab> tab, boolean wearable) {
         if (wearable) {
-            return ModItems.ITEMS.register(name, () -> new WearableBlockItem(block.get(), ((InjectedItemPropertiesExtension)new Item.Properties()).arch$tab(tab)));
+            return ModItems.ITEMS.register(name, () -> new WearableBlockItem(block.get(), new Item.Properties()));
         }
 
-        return ModItems.ITEMS.register(name, () -> new BlockItem(block.get(), ((InjectedItemPropertiesExtension)new Item.Properties()).arch$tab(tab)));
+        return ModItems.ITEMS.register(name, () -> new BlockItem(block.get(), new Item.Properties()));
     }
 
     private static <T extends Block, I extends BlockItem>RegistrySupplier<Item> registerBlockItem(String name, RegistrySupplier<T> block, RegistrySupplier<CreativeModeTab> tab, Class<I> blockItemClass) {
         return ModItems.ITEMS.register(name, () -> {
             try {
-                return blockItemClass.getDeclaredConstructor(Block.class, Item.Properties.class).newInstance(block.get(), ((InjectedItemPropertiesExtension)new Item.Properties()).arch$tab(tab));
+                return blockItemClass.getDeclaredConstructor(Block.class, Item.Properties.class).newInstance(block.get(), new Item.Properties());
             } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
                 e.printStackTrace();
-                return new BlockItem(block.get(), ((InjectedItemPropertiesExtension)new Item.Properties()).arch$tab(tab));
+                return new BlockItem(block.get(), new Item.Properties());
             }
         });
     }

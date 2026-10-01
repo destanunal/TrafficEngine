@@ -1,9 +1,9 @@
 package com.destan.trafficengine.network.packets.cts;
 import com.destan.trafficengine.util.ItemData;
 
-import de.mrjulsen.mcdragonlib.data.DLStatus;
-import de.mrjulsen.mcdragonlib.network.NetworkPacketContext;
-import de.mrjulsen.mcdragonlib.network.NetworkPacketData;
+import com.destan.trafficengine.network.PacketStatus;
+import com.destan.trafficengine.network.NetworkPacketContext;
+import com.destan.trafficengine.network.NetworkPacketData;
 import com.destan.trafficengine.item.BrushItem;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
@@ -14,12 +14,12 @@ public class PaintBrushPacket extends NetworkPacketData {
 
     private int pattern;
 
-    public PaintBrushPacket(DLStatus status) {
+    public PaintBrushPacket(PacketStatus status) {
         super(status);
     }
 
     public PaintBrushPacket(int pattern) {
-        super(DLStatus.OK);
+        super(PacketStatus.OK);
         this.pattern = pattern;
     }
 

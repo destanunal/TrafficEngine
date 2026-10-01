@@ -1,18 +1,13 @@
 package com.destan.trafficengine.init;
 import com.destan.trafficengine.util.ItemData;
 
-import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import org.jetbrains.annotations.Nullable;
 
-import com.mojang.blaze3d.platform.NativeImage;
 
-import de.mrjulsen.mcdragonlib.util.DLColor;
-import de.mrjulsen.mcdragonlib.util.DLColor.ColorChannel;
 import com.destan.trafficengine.TrafficEngine;
-import com.destan.trafficengine.block.data.TrafficSignShape;
 import com.destan.trafficengine.block.entity.HouseNumberSignBlockEntity;
 import com.destan.trafficengine.block.entity.StreetSignBlockEntity;
 import com.destan.trafficengine.client.TintedTextures;
@@ -49,9 +44,6 @@ import dev.architectury.registry.registries.RegistrySupplier;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.block.model.ItemModelGenerator;
-import net.minecraft.client.renderer.texture.AbstractTexture;
-import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
@@ -59,9 +51,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 
 public class ClientInit {
-
-	private static final int CHECKERBOARD_COLOR_A = 0xFFE9E9E9;
-	private static final int CHECKERBOARD_COLOR_B = 0xFFD9D9D9;
     private static final Map<Class<? extends TooltipComponent>, Function<TooltipComponent, ClientTooltipComponent>> tooltipComponentFactories = new ConcurrentHashMap<>();
 
 
@@ -83,32 +72,10 @@ public class ClientInit {
         return factory == null ? null : factory.apply(component);
     }
 
-    
-
-    public static int[][] textureToIntArray(AbstractTexture texture, boolean flipRgb) {
-        if (!(texture instanceof DynamicTexture tex)) {
-            return new int[0][];
-        }
-        final int[][] a = new int[tex.getPixels().getWidth()][];
-        for (int x = 0; x < tex.getPixels().getWidth(); x++) {
-            a[x] = new int[tex.getPixels().getHeight()];
-            for (int y = 0; y < tex.getPixels().getHeight(); y++) {
-                a[x][y] = flipRgb ? DLColor.fromInt(tex.getPixels().getPixelRGBA(x, y)).swapChannels(ColorChannel.R, ColorChannel.B).getAsARGB() : tex.getPixels().getPixelRGBA(x, y);
-            }
-        }
-        return a;
-    }
-
-    public static final DynamicTexture[] SHAPE_TEXTURES = new DynamicTexture[TrafficSignShape.values().length];
-
     @SuppressWarnings("unchecked")
     public static void init() {
         ClientLifecycleEvent.CLIENT_SETUP.register(mc -> {
 
-            ItemModelGenerator.LAYERS.add("layer5");
-            ItemModelGenerator.LAYERS.add("layer6");
-            ItemModelGenerator.LAYERS.add("layer7");
-            ItemModelGenerator.LAYERS.add("layer8");
             
             /* RENDER LAYERS */
             RenderTypeRegistry.register(RenderType.cutout(),
@@ -146,7 +113,10 @@ public class ClientInit {
             }
 
             /* REGISTER MENUS */
-            MenuRegistry.registerScreenFactory(ModMenuTypes.TRAFFIC_SIGN_WORKBENCH_MENU.get(), TrafficSignWorkbenchGui::new);
+            // NeoForge registers screens in RegisterMenuScreensEvent, before client setup.
+            if (Platform.isFabric()) {
+                MenuRegistry.registerScreenFactory(ModMenuTypes.TRAFFIC_SIGN_WORKBENCH_MENU.get(), TrafficSignWorkbenchGui::new);
+            }
 
             /* REGISTER CUSTOM ITEM PROPERTIES */
 
@@ -178,26 +148,10 @@ public class ClientInit {
                 ModBlocks.TRAFFIC_BOLLARD,
                 ModBlocks.TRAFFIC_BARREL,
                 ModBlocks.ROAD_BARRIER_FENCE,
-                ModBlocks.CONCRETE_BARRIER,
-                ModItems.COLOR_PALETTE
+                ModBlocks.CONCRETE_BARRIER
             );
 
-            DynamicTexture[] textures = Arrays.stream(TrafficSignShape.values()).map(v -> {
-                NativeImage image = new NativeImage(NativeImage.Format.RGBA, TrafficSignShape.MAX_WIDTH, TrafficSignShape.MAX_HEIGHT, false);
-                for (int x = 0; x < image.getWidth(); x++) {
-                    for (int y = 0; y < image.getHeight(); y++) {
-                        if (v.isPixelValid(x, y)) {
-                            image.setPixelRGBA(x, y, x % 2 == 0 ? (y % 2 == 0 ? CHECKERBOARD_COLOR_A : CHECKERBOARD_COLOR_B) : (y % 2 == 0 ? CHECKERBOARD_COLOR_B : CHECKERBOARD_COLOR_A));
-                        } else {
-                            image.setPixelRGBA(x, y, 0);
-                        }
-                    }
-                }
-                return new DynamicTexture(image);
-            }).toArray(DynamicTexture[]::new);
-            for (int i = 0; i < textures.length; i++) {
-                SHAPE_TEXTURES[i] = textures[i];
-            }
+
         });
 
         ClientTickEvent.CLIENT_LEVEL_POST.register(level -> {            

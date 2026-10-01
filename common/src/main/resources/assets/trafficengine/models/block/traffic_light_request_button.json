@@ -1,5 +1,4 @@
 {
-	"loader": "dragonlib:advanced_json",
 	"render_type": "cutout",
 	"textures": {
 		"0": "trafficengine:block/traffic_light_request_button",

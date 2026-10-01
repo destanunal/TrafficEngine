@@ -7,7 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import de.mrjulsen.mcdragonlib.data.INBTSerializable;
+import com.destan.trafficengine.data.NbtSerializable;
 import com.destan.trafficengine.block.data.TrafficLightColor;
 import com.destan.trafficengine.block.data.TrafficLightTrigger;
 import com.destan.trafficengine.util.OrderedArrayList;
@@ -16,7 +16,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 
-public class TrafficLightSchedule implements INBTSerializable {
+public class TrafficLightSchedule implements NbtSerializable {
 
     private static final String NBT_LOOP = "loop";
     private static final String NBT_ENTRIES = "entries";
@@ -32,6 +32,12 @@ public class TrafficLightSchedule implements INBTSerializable {
     private static final int CROSSING_INTERVAL_TICKS = (SAFETY_INTERVAL_SECONDS + 1) * 20;
     private static final int PEDESTRIAN_RED_BEFORE_VEHICLE_TRANSITION_TICKS = 40;
     public static final int MAX_RED_YELLOW_SECONDS = 10;
+    public static final int MIN_PHASE_ID = 1;
+    public static final int MAX_PHASE_ID = 100;
+
+    public static boolean isValidPhaseId(int id) {
+        return id >= MIN_PHASE_ID && id <= MAX_PHASE_ID;
+    }
     
     private OrderedArrayList<TrafficLightScheduleEntryData> entries = new OrderedArrayList<>();
     private boolean loop = true;

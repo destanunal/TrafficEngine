@@ -2,7 +2,7 @@ package com.destan.trafficengine.block;
 
 import java.util.Map;
 
-import de.mrjulsen.mcdragonlib.util.MapCache;
+import java.util.HashMap;
 import com.destan.trafficengine.block.data.ITrafficPostLike;
 import com.destan.trafficengine.registry.ModBlockTags;
 import net.minecraft.Util;
@@ -60,7 +60,8 @@ public class TrafficSignPostBlock extends Block implements SimpleWaterloggedBloc
     private static final VoxelShape SHAPE_DIAGONAL_VERTICAL = Block.box(6.5, 0, 6.5, 9.5, 16, 9.5);
     private static final VoxelShape SHAPE_DIAGONAL_EXTEND_DOWN = Block.box(6.5, -16, 6.5, 9.5, 0, 9.5);
 
-    private static final MapCache<VoxelShape, BlockState, BlockState> shapes = new MapCache<>(state -> {
+    private static final Map<BlockState, VoxelShape> shapes = new HashMap<>();
+    private static VoxelShape createShape(BlockState state) {
         boolean diagonal = state.getValue(DIAGONAL) && state.getValue(AXIS) == Axis.Y;
         VoxelShape shape = diagonal ? SHAPE_DIAGONAL_VERTICAL : SHAPE_BASE;
 
@@ -100,7 +101,7 @@ public class TrafficSignPostBlock extends Block implements SimpleWaterloggedBloc
             shape = Shapes.or(shape, diagonal ? SHAPE_DIAGONAL_EXTEND_DOWN : SHAPE_EXTEND_DOWN);
         }
         return shape;
-    }, BlockState::hashCode);
+    }
 
     public TrafficSignPostBlock() {
         super(BlockBehaviour.Properties.of()
@@ -126,7 +127,7 @@ public class TrafficSignPostBlock extends Block implements SimpleWaterloggedBloc
 
     @Override
     public VoxelShape getShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext) {
-        return shapes.get(pState, pState);
+        return shapes.computeIfAbsent(pState, TrafficSignPostBlock::createShape);
     } 
 
     public boolean isPathfindable(BlockState pState, PathComputationType pType) {

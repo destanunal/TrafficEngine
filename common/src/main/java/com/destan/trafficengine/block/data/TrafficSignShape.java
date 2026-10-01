@@ -1,9 +1,8 @@
 package com.destan.trafficengine.block.data;
 
 
-import de.mrjulsen.mcdragonlib.util.DLUtils;
+import com.destan.trafficengine.util.ModUtils;
 import com.destan.trafficengine.TrafficEngine;
-import com.destan.trafficengine.client.ClientWrapper;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -55,7 +54,7 @@ public enum TrafficSignShape implements StringRepresentable {
 		if (x < 0 || x >= MAX_WIDTH || y < 0 || y >= MAX_HEIGHT) {
 			return false;
 		}
-		int pixel = DLUtils.coordsToInt((byte)x, (byte)y);
+		int pixel = ModUtils.coordsToInt((byte)x, (byte)y);
 		for (int invalidPixel : invalidPixels) {
 			if (invalidPixel == pixel) {
 				return false;
@@ -71,10 +70,6 @@ public enum TrafficSignShape implements StringRepresentable {
 			}
 		}
 		return TrafficSignShape.CIRCLE;
-	}
-
-	public int getShapeTextureId() {
-		return ClientWrapper.getShapeTextureId(getIndex());
 	}
 
 	public final ResourceLocation getIconResourceLocation() {

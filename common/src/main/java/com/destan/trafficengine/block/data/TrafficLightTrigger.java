@@ -2,15 +2,15 @@ package com.destan.trafficengine.block.data;
 
 import java.util.Arrays;
 
-import de.mrjulsen.mcdragonlib.data.IIterableEnum;
-import de.mrjulsen.mcdragonlib.data.ITranslatableEnum;
+import com.destan.trafficengine.data.IterableEnum;
+import com.destan.trafficengine.data.TranslatableEnum;
 import com.destan.trafficengine.TrafficEngine;
 import com.destan.trafficengine.registry.ModBlocks;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Blocks;
 
-public enum TrafficLightTrigger implements ITranslatableEnum, IItemIcon, IIterableEnum<TrafficLightTrigger> {
+public enum TrafficLightTrigger implements TranslatableEnum, IItemIcon, IterableEnum<TrafficLightTrigger> {
     NONE("none", 0, Blocks.BARRIER),
 	ON_REQUEST("on_request", 1, ModBlocks.TRAFFIC_LIGHT_REQUEST_BUTTON.get()),
 	REDSTONE("redstone", 2, Items.REDSTONE);

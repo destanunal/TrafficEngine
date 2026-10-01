@@ -1,7 +1,6 @@
 package com.destan.trafficengine.client.screen.menu;
 
 import com.destan.trafficengine.TrafficEngine;
-import com.destan.trafficengine.item.ColorPaletteItem;
 import com.destan.trafficengine.item.PatternCatalogueItem;
 import com.destan.trafficengine.registry.ModBlocks;
 import net.minecraft.world.Container;
@@ -16,10 +15,9 @@ import net.minecraft.world.item.ItemStack;
 public class TrafficSignWorkbenchMenu extends AbstractContainerMenu {
 
     public final ContainerLevelAccess access;
-    private static final int INVENTORY_SIZE = 2;
+    private static final int INVENTORY_SIZE = 1;
 
     // Slots
-    public final Slot colorSlot;
     public final Slot patternSlot;
 
     private final Container container = new SimpleContainer(INVENTORY_SIZE);
@@ -36,19 +34,14 @@ public class TrafficSignWorkbenchMenu extends AbstractContainerMenu {
         addPlayerInventory(inv);
         addPlayerHotbar(inv);
         
-        this.patternSlot = this.addSlot(new Slot(this.container, 0, 10, 15) {
+        this.patternSlot = this.addSlot(new Slot(this.container, 0, 20, 53) {
             @Override
             public boolean mayPlace(ItemStack pStack) {
                 return pStack.getItem() instanceof PatternCatalogueItem;
             }
         });
 
-        this.colorSlot = this.addSlot(new Slot(this.container, 1, 204, 15) {
-            @Override
-            public boolean mayPlace(ItemStack pStack) {
-                return pStack.getItem() instanceof ColorPaletteItem;
-            }
-        });
+
     }
 
     @Override
@@ -66,7 +59,7 @@ public class TrafficSignWorkbenchMenu extends AbstractContainerMenu {
     private void addPlayerInventory(Inventory playerInventory) {
         for (int i = 0; i < 3; ++i) {
             for (int l = 0; l < 9; ++l) {
-                this.addSlot(new Slot(playerInventory, l + i * 9 + 9, 6 + l * 18, 198 + i * 18));
+                this.addSlot(new Slot(playerInventory, l + i * 9 + 9, 71 + l * 18, 236 + i * 18));
             }
         }
     }
@@ -74,7 +67,7 @@ public class TrafficSignWorkbenchMenu extends AbstractContainerMenu {
     private void addPlayerHotbar(Inventory playerInventory) {
         for (int i = 0; i < 3; ++i) {
             for (int l = 0; l < 3; ++l) {
-                this.addSlot(new Slot(playerInventory, i + l * 3, 172 + i * 18, 198 + l * 18));
+                this.addSlot(new Slot(playerInventory, i + l * 3, 237 + i * 18, 236 + l * 18));
             }
         }
     }

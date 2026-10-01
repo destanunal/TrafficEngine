@@ -8,9 +8,9 @@ import java.util.UUID;
 
 import com.mojang.blaze3d.platform.NativeImage;
 
-import de.mrjulsen.mcdragonlib.network.NetworkDirection;
-import de.mrjulsen.mcdragonlib.util.DLUtils;
-import de.mrjulsen.mcdragonlib.util.Pair.MutablePair;
+import com.destan.trafficengine.network.NetworkDirection;
+import com.destan.trafficengine.util.ModUtils;
+import com.destan.trafficengine.util.MutablePair;
 import com.destan.trafficengine.TrafficEngine;
 import com.destan.trafficengine.block.data.TrafficSignShape;
 import com.destan.trafficengine.data.NamedTrafficSignTextureReference.BuildInTrafficSignCodec;
@@ -143,7 +143,7 @@ public class TrafficSignClientTexture implements AutoCloseable {
                     GameInstance.getClient().player.getUUID()
             );
             ModNetworkManager.CREATE_NEW_TRAFFIC_SIGN_TEXTURE.send(NetworkDirection.toServer(), new CreateNewTrafficSignTexturePacket.Request(data), (response) -> {
-                DLUtils.doIfNotNull(andThen, x -> x.run());
+                ModUtils.doIfNotNull(andThen, x -> x.run());
             }, () -> {});
         } catch (IOException e) {
             TrafficEngine.LOGGER.error("Unable to create new traffic sign texture.", e);
@@ -160,7 +160,10 @@ public class TrafficSignClientTexture implements AutoCloseable {
                     BuildInTrafficSignCodec codec = BuildInTrafficSignCodec.decode(id);
                     textureData.builtIn = true;
                     textureData.texture = EMPTY_TEXTURE;
-                    textureData.textureLocation = ResourceLocation.fromNamespaceAndPath(TrafficEngine.MOD_ID, String.format("textures/block/sign/%s/%s%s.png", codec.shape().getSerializedName(), codec.shape().getSerializedName(), codec.id()));
+                    ResourceLocation asset = ResourceLocation.fromNamespaceAndPath(TrafficEngine.MOD_ID, String.format("textures/block/sign/%s/%s%s.png", codec.shape().getSerializedName(), codec.shape().getSerializedName(), codec.id()));
+                    // Removed built-ins in old worlds use the existing empty
+                    // texture instead of generating a missing-texture background.
+                    textureData.textureLocation = Minecraft.getInstance().getResourceManager().getResource(asset).isPresent() ? asset : EMPTY_LOCATION;
                     textureData.rawData = new TrafficSignTextureData(codec.shape(), new byte[0], codec.width(), codec.height(), System.currentTimeMillis(), new UUID(0, 0));
                 } catch (Exception e) {
                     TrafficEngine.LOGGER.error("Error while loading TrafficSignClientTexture.", e);
@@ -168,7 +171,7 @@ public class TrafficSignClientTexture implements AutoCloseable {
             } else {
                 ModNetworkManager.GET_TRAFFIC_SIGN_TEXTURE.send(NetworkDirection.toServer(), new GetTrafficSignTexturePacket.Request(id), (response) -> {
                     textureData.init(response.getData(), allowBackground);
-                    DLUtils.doIfNotNull(afterLoad, Runnable::run);
+                    ModUtils.doIfNotNull(afterLoad, Runnable::run);
                 }, () -> {});
             }
             return new MutablePair<>(textureData, 0);
@@ -258,7 +261,7 @@ public class TrafficSignClientTexture implements AutoCloseable {
         isClosed = true;
         if (this == EMPTY || this.equals(EMPTY)) return;
         if (!this.isBuiltIn()) {
-            DLUtils.doIfNotNull(texture, DynamicTexture::close);
+            ModUtils.doIfNotNull(texture, DynamicTexture::close);
             Minecraft.getInstance().getTextureManager().release(textureLocation);
         }
         // Built-in signs use an asset for the foreground, but their generated

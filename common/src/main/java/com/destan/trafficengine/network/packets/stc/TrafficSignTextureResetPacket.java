@@ -1,9 +1,9 @@
 package com.destan.trafficengine.network.packets.stc;
 
-import de.mrjulsen.mcdragonlib.data.DLStatus;
-import de.mrjulsen.mcdragonlib.network.NetworkPacketContext;
-import de.mrjulsen.mcdragonlib.network.NetworkPacketData;
-import de.mrjulsen.mcdragonlib.util.NbtUtils;
+import com.destan.trafficengine.network.PacketStatus;
+import com.destan.trafficengine.network.NetworkPacketContext;
+import com.destan.trafficengine.network.NetworkPacketData;
+import com.destan.trafficengine.util.NbtPositions;
 import com.destan.trafficengine.block.entity.TrafficSignBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -17,23 +17,23 @@ public class TrafficSignTextureResetPacket extends NetworkPacketData {
 
     public BlockPos pos;
 
-    public TrafficSignTextureResetPacket(DLStatus status) {
+    public TrafficSignTextureResetPacket(PacketStatus status) {
         super(status);
     }
 
     public TrafficSignTextureResetPacket(BlockPos pos) {
-        super(DLStatus.OK);
+        super(PacketStatus.OK);
         this.pos = pos;
     }
 
     @Override
     protected void write(CompoundTag nbt) {
-        NbtUtils.putNbtPos(nbt, NBT_POS, pos);
+        NbtPositions.putNbtPos(nbt, NBT_POS, pos);
     }
 
     @Override
     protected void read(CompoundTag nbt) {
-        this.pos = NbtUtils.getNbtBlockPos(nbt, NBT_POS);
+        this.pos = NbtPositions.getNbtBlockPos(nbt, NBT_POS);
     }
 
     public static void handle(TrafficSignTextureResetPacket packet, NetworkPacketContext context) {

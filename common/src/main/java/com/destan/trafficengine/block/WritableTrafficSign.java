@@ -1,6 +1,6 @@
 package com.destan.trafficengine.block;
 
-import de.mrjulsen.mcdragonlib.block.DLWritableSignBlockEntity;
+import com.destan.trafficengine.block.entity.WritableTrafficSignBlockEntity;
 import com.destan.trafficengine.client.ClientWrapper;
 import com.destan.trafficengine.item.BrushItem;
 import com.destan.trafficengine.registry.ModItemTags;
@@ -109,7 +109,7 @@ public abstract class WritableTrafficSign extends BaseEntityBlock implements Sim
         }
 
         if (pLevel.isClientSide) {
-            if (stack.is(ModItemTags.WRENCHES) && pLevel.getBlockEntity(pPos) instanceof DLWritableSignBlockEntity blockEntity) {
+            if (stack.is(ModItemTags.WRENCHES) && pLevel.getBlockEntity(pPos) instanceof WritableTrafficSignBlockEntity blockEntity) {
                 if (!pPlayer.isShiftKeyDown()) {                
                     ClientWrapper.showWritableSignScreen(blockEntity);
                 }

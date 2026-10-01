@@ -30,13 +30,6 @@ ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.${modid}]]
-modId = "dragonlib"
-type = "required"
-versionRange = "[0,)"
-ordering = "BEFORE"
-side = "BOTH"
-
-[[dependencies.${modid}]]
 modId = "architectury"
 type = "required"
 versionRange = "[${architectury_api_version},)"

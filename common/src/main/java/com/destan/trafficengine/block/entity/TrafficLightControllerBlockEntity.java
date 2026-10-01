@@ -6,8 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import de.mrjulsen.mcdragonlib.block.DLSyncedBlockEntity;
-import de.mrjulsen.mcdragonlib.data.WorldLocation;
+import com.destan.trafficengine.block.entity.SyncedBlockEntity;
+import com.destan.trafficengine.data.WorldLocation;
 import com.destan.trafficengine.block.LedDeviceBlock;
 import com.destan.trafficengine.block.TrafficLightBlock;
 import com.destan.trafficengine.block.data.TrafficLightColor;
@@ -25,7 +25,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class TrafficLightControllerBlockEntity extends DLSyncedBlockEntity {
+public class TrafficLightControllerBlockEntity extends SyncedBlockEntity {
 
     private record PhaseKey(int id, boolean crossing) {}
 

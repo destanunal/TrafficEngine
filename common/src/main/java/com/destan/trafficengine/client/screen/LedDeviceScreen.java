@@ -5,18 +5,23 @@ import com.destan.trafficengine.block.data.LedDeviceType;
 import com.destan.trafficengine.block.entity.LedDeviceBlockEntity;
 import com.destan.trafficengine.network.packets.cts.LedDevicePacket;
 import com.destan.trafficengine.registry.ModNetworkManager;
-import de.mrjulsen.mcdragonlib.network.NetworkDirection;
+import com.destan.trafficengine.network.NetworkDirection;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Button;
+import com.destan.trafficengine.client.gui.TrafficEngineScreen;
+import com.destan.trafficengine.client.gui.components.TEButton;
+import com.destan.trafficengine.client.gui.components.TEPanel;
+import com.destan.trafficengine.client.gui.components.TEColorPicker;
+import com.destan.trafficengine.client.gui.theme.TEColors;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 
-public class LedDeviceScreen extends Screen {
+public class LedDeviceScreen extends TrafficEngineScreen {
     private final Level level;
+    private final Component colorLabel = Component.translatable("gui.trafficengine.led_device.color");
+    private final Component messageLabel = Component.translatable("gui.trafficengine.led_device.message");
+    private Component previewLabel;
     private final BlockPos pos;
     private final LedDeviceBlockEntity blockEntity;
     private EditBox colorBox;
@@ -25,8 +30,10 @@ public class LedDeviceScreen extends Screen {
     private long pixels;
     private int gridX, gridY, gridCell;
     private int selectedColor;
-    private float hue, saturation, value;
+    private TEColorPicker colorPicker;
+    private boolean updatingColorBox;
     private int paletteX, paletteY, paletteWidth, paletteHeight, messageLabelY;
+    private int contentX, contentWidth, previewY, previewHeight;
     private static final int HUE_GAP = 6;
     private static final int HUE_WIDTH = 12;
 
@@ -36,51 +43,71 @@ public class LedDeviceScreen extends Screen {
         this.blockEntity = (LedDeviceBlockEntity)level.getBlockEntity(pos);
         this.enabled = blockEntity.isManualEnabled(); this.pixels = blockEntity.getPixels();
         this.selectedColor = blockEntity.getLedColor() & 0xFFFFFF;
-        setHsvFromRgb(selectedColor);
     }
 
     private LedDeviceType type() { return ((LedDeviceBlock)blockEntity.getBlockState().getBlock()).getDeviceType(); }
     private int messageSlotCount() { return type().getMessageSlots(); }
 
     @Override protected void init() {
-        int x = width / 2 - 100;
-        boolean compact = height < 330;
-        paletteWidth = compact ? Math.min(140, width - 80) : 160;
-        paletteHeight = compact ? 54 : 100;
-        paletteX = width / 2 - (paletteWidth + HUE_GAP + HUE_WIDTH) / 2;
-        paletteY = compact ? 42 : 66;
-        int colorBoxY = paletteY + paletteHeight + 4;
-        int colorBoxHeight = compact ? 16 : 20;
-        colorBox = new EditBox(font, width / 2 - 45, colorBoxY, 90, colorBoxHeight, Component.literal("HEX"));
+        String[] messageLines = blockEntity.getMessage().split("\\|", -1);
+        if (messageBoxes[0] != null) {
+            messageLines = new String[messageBoxes.length];
+            for (int i = 0; i < messageBoxes.length; i++) messageLines[i] = messageBoxes[i].getValue();
+        }
+        String typedColor = colorBox == null ? String.format("#%06X", selectedColor) : colorBox.getValue();
+        layoutWindow(480, 330);
+        previewLabel = Component.translatable(type().isTrafficDisplay()
+            ? "gui.trafficengine.led_device.preview" : "gui.trafficengine.led_device.pixels");
+        int colorPanelWidth = Math.min(190, (windowWidth - 34) / 2);
+        paletteX = left + 20;
+        paletteY = top + 66;
+        paletteWidth = colorPanelWidth - 16 - HUE_GAP - HUE_WIDTH;
+        paletteHeight = Math.min(140, windowHeight - 144);
+        contentX = left + colorPanelWidth + 24;
+        contentWidth = windowWidth - colorPanelWidth - 36;
+        previewY = top + 64;
+        previewHeight = type().isTrafficDisplay()
+            ? Math.max(24, Math.min(70, windowHeight - 140 - messageSlotCount() * 14))
+            : windowHeight - 120;
+        int colorBoxY = paletteY + paletteHeight + 6;
+        colorBox = new EditBox(font, paletteX + 27, colorBoxY, paletteWidth + HUE_GAP + HUE_WIDTH - 27, 18, Component.literal("HEX"));
         colorBox.setMaxLength(7);
         colorBox.setFilter(value -> value.matches("#?[0-9a-fA-F]{0,6}"));
-        colorBox.setValue(String.format("#%06X", selectedColor));
+        colorBox.setValue(typedColor);
         colorBox.setResponder(this::applyTypedColor);
+        colorBox.setTextColor(TEColors.TEXT);
         addRenderableWidget(colorBox);
-        String[] messageLines = blockEntity.getMessage().split("\\|", -1);
-        int messageStartY = colorBoxY + colorBoxHeight + (compact ? 14 : 18);
-        messageLabelY = messageStartY - 11;
-        int boxHeight = compact ? 14 : 18;
-        int boxStep = boxHeight + 2;
+        colorPicker = addRenderableWidget(new TEColorPicker(paletteX, paletteY,
+            paletteWidth + HUE_GAP + HUE_WIDTH, paletteHeight, 0xFF000000 | selectedColor,
+            colorLabel, this::updateSelectedColor));
+        int messageStartY = previewY + previewHeight + 16;
+        messageLabelY = messageStartY - 12;
         for (int i = 0; i < messageBoxes.length; i++) {
-            EditBox box = new EditBox(font, x, messageStartY + i * boxStep, 200, boxHeight, Component.literal("Line " + (i + 1)));
+            EditBox box = new EditBox(font, contentX + 8, messageStartY + i * 14, contentWidth - 16, 12,
+                Component.translatable("gui.trafficengine.led_device.line", i + 1));
             box.setMaxLength(24);
+            box.setTextColor(TEColors.TEXT);
             box.setValue(i < messageLines.length ? messageLines[i] : "");
             box.setVisible(type().isTrafficDisplay() && i < messageSlotCount());
             messageBoxes[i] = box;
             addRenderableWidget(box);
         }
-        gridCell = compact ? 8 : 12;
-        gridX = width / 2 - gridCell * 4;
-        gridY = colorBoxY + colorBoxHeight + 10;
-        int contentBottom = type().isTrafficDisplay()
-            ? messageStartY + messageSlotCount() * boxStep
-            : gridY + gridCell * 8;
-        int buttonY = Math.min(height - 24, contentBottom + 6);
-        addRenderableWidget(Button.builder(Component.translatable(enabled ? "gui.trafficengine.led_device.on" : "gui.trafficengine.led_device.off"), b -> {
-            enabled = !enabled; b.setMessage(Component.translatable(enabled ? "gui.trafficengine.led_device.on" : "gui.trafficengine.led_device.off"));
-        }).bounds(x, buttonY, 98, 20).build());
-        addRenderableWidget(Button.builder(Component.translatable("gui.done"), b -> saveAndClose()).bounds(x + 102, buttonY, 98, 20).build());
+        gridCell = Math.min(18, Math.min((contentWidth - 20) / 8, previewHeight / 8));
+        gridX = contentX + (contentWidth - gridCell * 8) / 2;
+        gridY = previewY + (previewHeight - gridCell * 8) / 2;
+        int buttonY = top + windowHeight - 30;
+        TEButton toggle = addRenderableWidget(new TEButton(left + 12, buttonY, 94, 20,
+            Component.translatable(enabled ? "gui.trafficengine.led_device.on" : "gui.trafficengine.led_device.off"), b -> {
+                enabled = !enabled;
+                b.setMessage(Component.translatable(enabled ? "gui.trafficengine.led_device.on" : "gui.trafficengine.led_device.off"));
+                ((TEButton)b).setSelected(enabled);
+            }));
+        toggle.setSelected(enabled);
+        addRenderableWidget(new TEButton(left + windowWidth - 160, buttonY, 70, 20,
+            Component.translatable("gui.cancel"), b -> onClose()));
+        addRenderableWidget(new TEButton(left + windowWidth - 84, buttonY, 72, 20,
+            Component.translatable("gui.done"), b -> saveAndClose(), true));
+        addCloseButton();
     }
 
     private void saveAndClose() {
@@ -97,7 +124,6 @@ public class LedDeviceScreen extends Screen {
     }
 
     @Override public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (button == 0 && updateColorFromMouse(mouseX, mouseY)) return true;
         int gridSize = gridCell * 8;
         if (type() == LedDeviceType.LED_LIGHT && mouseX >= gridX && mouseX < gridX + gridSize && mouseY >= gridY && mouseY < gridY + gridSize) {
             int px = (int)(mouseX - gridX) / gridCell, py = (int)(mouseY - gridY) / gridCell;
@@ -106,107 +132,71 @@ public class LedDeviceScreen extends Screen {
         return super.mouseClicked(mouseX, mouseY, button);
     }
 
-    @Override
-    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
-        if (button == 0 && updateColorFromMouse(mouseX, mouseY)) return true;
-        return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
-    }
-
-    private boolean updateColorFromMouse(double mouseX, double mouseY) {
-        if (mouseX >= paletteX && mouseX < paletteX + paletteWidth
-            && mouseY >= paletteY && mouseY < paletteY + paletteHeight) {
-            saturation = Mth.clamp((float)(mouseX - paletteX) / (paletteWidth - 1), 0.0F, 1.0F);
-            value = 1.0F - Mth.clamp((float)(mouseY - paletteY) / (paletteHeight - 1), 0.0F, 1.0F);
-            updateSelectedColor();
-            return true;
-        }
-        int hueX = paletteX + paletteWidth + HUE_GAP;
-        if (mouseX >= hueX && mouseX < hueX + HUE_WIDTH
-            && mouseY >= paletteY && mouseY < paletteY + paletteHeight) {
-            hue = Mth.clamp((float)(mouseY - paletteY) / (paletteHeight - 1), 0.0F, 1.0F);
-            updateSelectedColor();
-            return true;
-        }
-        return false;
-    }
-
-    private void updateSelectedColor() {
-        selectedColor = Mth.hsvToRgb(hue, saturation, value) & 0xFFFFFF;
-        if (colorBox != null) {
-            String value = String.format("#%06X", selectedColor);
-            if (!value.equalsIgnoreCase(colorBox.getValue())) colorBox.setValue(value);
-        }
+    private void updateSelectedColor(int argb) {
+        selectedColor = argb & 0xFFFFFF;
+        if (colorBox == null) return;
+        String hex = String.format("#%06X", selectedColor);
+        if (hex.equalsIgnoreCase(colorBox.getValue())) return;
+        updatingColorBox = true;
+        colorBox.setValue(hex);
+        updatingColorBox = false;
     }
 
     private void applyTypedColor(String text) {
-        String value = text.startsWith("#") ? text.substring(1) : text;
-        if (value.length() != 6) return;
+        if (updatingColorBox) return;
+        String hex = text.startsWith("#") ? text.substring(1) : text;
+        if (hex.length() != 6) return;
         try {
-            selectedColor = Integer.parseInt(value, 16) & 0xFFFFFF;
-            setHsvFromRgb(selectedColor);
+            selectedColor = Integer.parseInt(hex, 16) & 0xFFFFFF;
+            if (colorPicker != null) colorPicker.setColor(0xFF000000 | selectedColor);
         } catch (NumberFormatException ignored) {
         }
     }
 
-    private void setHsvFromRgb(int color) {
-        float red = ((color >> 16) & 0xFF) / 255.0F;
-        float green = ((color >> 8) & 0xFF) / 255.0F;
-        float blue = (color & 0xFF) / 255.0F;
-        float max = Math.max(red, Math.max(green, blue));
-        float min = Math.min(red, Math.min(green, blue));
-        float delta = max - min;
-        value = max;
-        saturation = max == 0.0F ? 0.0F : delta / max;
-        if (delta == 0.0F) hue = 0.0F;
-        else if (max == red) hue = ((green - blue) / delta) / 6.0F;
-        else if (max == green) hue = (2.0F + (blue - red) / delta) / 6.0F;
-        else hue = (4.0F + (red - green) / delta) / 6.0F;
-        if (hue < 0.0F) hue += 1.0F;
-    }
 
-    private void renderPalette(GuiGraphics graphics) {
-        for (int y = 0; y < paletteHeight; y += 2) {
-            float brightness = 1.0F - (float)y / (paletteHeight - 1);
-            for (int x = 0; x < paletteWidth; x += 2) {
-                float sat = (float)x / (paletteWidth - 1);
-                int color = 0xFF000000 | Mth.hsvToRgb(hue, sat, brightness);
-                graphics.fill(paletteX + x, paletteY + y, paletteX + Math.min(x + 2, paletteWidth), paletteY + Math.min(y + 2, paletteHeight), color);
-            }
-        }
-        int hueX = paletteX + paletteWidth + HUE_GAP;
-        for (int y = 0; y < paletteHeight; y += 2) {
-            int color = 0xFF000000 | Mth.hsvToRgb((float)y / (paletteHeight - 1), 1.0F, 1.0F);
-            graphics.fill(hueX, paletteY + y, hueX + HUE_WIDTH, paletteY + Math.min(y + 2, paletteHeight), color);
-        }
-        int cursorX = paletteX + Math.round(saturation * (paletteWidth - 1));
-        int cursorY = paletteY + Math.round((1.0F - value) * (paletteHeight - 1));
-        outline(graphics, cursorX - 2, cursorY - 2, 5, 5, 0xFFFFFFFF);
-        int hueY = paletteY + Math.round(hue * (paletteHeight - 1));
-        outline(graphics, hueX - 1, hueY - 1, HUE_WIDTH + 2, 3, 0xFFFFFFFF);
-    }
-
-    private static void outline(GuiGraphics graphics, int x, int y, int width, int height, int color) {
-        graphics.fill(x, y, x + width, y + 1, color);
-        graphics.fill(x, y + height - 1, x + width, y + height, color);
-        graphics.fill(x, y, x + 1, y + height, color);
-        graphics.fill(x + width - 1, y, x + width, y + height, color);
-    }
 
     @Override public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        renderBackground(graphics, mouseX, mouseY, partialTick); super.render(graphics, mouseX, mouseY, partialTick);
-        graphics.drawCenteredString(font, title, width / 2, 16, 0xFFFFFF);
-        graphics.drawString(font, Component.translatable("gui.trafficengine.led_device.color"), paletteX, paletteY - 20, 0xA0A0A0);
-        graphics.fill(paletteX, paletteY - 10, paletteX + paletteWidth + HUE_GAP + HUE_WIDTH, paletteY - 3, 0xFF000000 | selectedColor);
-        renderPalette(graphics);
-        graphics.drawString(font, "HEX", width / 2 - 69, paletteY + paletteHeight + 8, 0xA0A0A0);
-        if (type().isTrafficDisplay()) graphics.drawString(font, Component.translatable("gui.trafficengine.led_device.message"), width / 2 - 100, messageLabelY, 0xA0A0A0);
-        if (type() == LedDeviceType.LED_LIGHT) {
+        renderWindow(graphics);
+        int colorPanelWidth = contentX - left - 24;
+        TEPanel.draw(graphics, left + 12, top + 47, colorPanelWidth, windowHeight - 89);
+        TEPanel.draw(graphics, contentX, top + 47, contentWidth, windowHeight - 89);
+        graphics.drawString(font, colorLabel, paletteX, top + 52, TEColors.MUTED, false);
+        graphics.fill(paletteX, top + 61, paletteX + paletteWidth + HUE_GAP + HUE_WIDTH, top + 63, 0xFF000000 | selectedColor);
+        graphics.drawString(font, "HEX", paletteX, paletteY + paletteHeight + 11, TEColors.MUTED, false);
+        graphics.drawString(font, previewLabel, contentX + 8, top + 52, TEColors.MUTED, false);
+        if (type().isTrafficDisplay()) {
+            renderMessagePreview(graphics);
+            graphics.drawString(font, messageLabel, contentX + 8, messageLabelY, TEColors.MUTED, false);
+        } else {
             for (int y = 0; y < 8; y++) for (int x = 0; x < 8; x++) {
                 boolean on = (pixels & (1L << (y * 8 + x))) != 0;
                 int x1 = gridX + x * gridCell, y1 = gridY + y * gridCell;
-                graphics.fill(x1, y1, x1 + gridCell - 2, y1 + gridCell - 2, on ? 0xFF000000 | selectedColor : 0xFF202020);
+                graphics.fill(x1, y1, x1 + gridCell - 1, y1 + gridCell - 1, on ? 0xFF000000 | selectedColor : TEColors.FIELD);
+                if (mouseX >= x1 && mouseX < x1 + gridCell && mouseY >= y1 && mouseY < y1 + gridCell)
+                    TEPanel.outline(graphics, x1, y1, gridCell, gridCell, TEColors.ACCENT);
             }
         }
+        super.render(graphics, mouseX, mouseY, partialTick);
     }
-    @Override public boolean isPauseScreen() { return false; }
+
+    private void renderMessagePreview(GuiGraphics graphics) {
+        int x = contentX + 8, w = contentWidth - 16;
+        graphics.fill(x, previewY, x + w, previewY + previewHeight, TEColors.FIELD);
+        TEPanel.outline(graphics, x, previewY, w, previewHeight, TEColors.BORDER);
+        if (!enabled) return;
+        int lastLine = messageSlotCount() - 1;
+        while (lastLine >= 0 && messageBoxes[lastLine].getValue().isBlank()) lastLine--;
+        int count = lastLine + 1;
+        if (count == 0) return;
+        float step = (previewHeight - 6f) / count;
+        for (int i = 0; i < count; i++) {
+            String text = messageBoxes[i].getValue();
+            float scale = Math.min(step / (font.lineHeight + 1f), (w - 10f) / Math.max(1, font.width(text)));
+            graphics.pose().pushPose();
+            graphics.pose().translate(x + w / 2f, previewY + 3 + step * (i + 0.5f) - font.lineHeight * scale / 2f, 0);
+            graphics.pose().scale(scale, scale, 1);
+            graphics.drawString(font, text, -font.width(text) / 2, 0, 0xFF000000 | selectedColor, false);
+            graphics.pose().popPose();
+        }
+    }
 }

@@ -1,5 +1,4 @@
 {
-	"loader": "dragonlib:advanced_json",
 	"render_type": "cutout",
 	"textures": {
 		"0": "trafficengine:block/traffic_light_request_button",
@@ -48,7 +47,7 @@
 			"from": [6, 8.45, 4.25],
 			"to": [10, 9.45, 7],
 			"faces": {
-				"up": {"uv": [6, 11, 14, 16], "texture": "#1", "dragonlib_data": { "emissive": true }}
+				"up": {"uv": [6, 11, 14, 16], "texture": "#1", "trafficengine_data": { "emissive": true }}
 			}
 		},
 		{
@@ -69,7 +68,7 @@
 			"to": [10.89858, 9.2, 7.51746],
 			"rotation": {"angle": 22.5, "axis": "y", "origin": [9.14858, 4.7, 6.51746]},
 			"faces": {
-				"east": {"uv": [3, 0, 6, 8], "texture": "#1", "dragonlib_data": { "emissive": true }}
+				"east": {"uv": [3, 0, 6, 8], "texture": "#1", "trafficengine_data": { "emissive": true }}
 			}
 		},
 		{
@@ -90,7 +89,7 @@
 			"to": [7.77754, 9.2, 7.13477],
 			"rotation": {"angle": -22.5, "axis": "y", "origin": [5.92754, 4.7, 6.13477]},
 			"faces": {
-				"west": {"uv": [3, 0, 6, 8], "texture": "#1", "dragonlib_data": { "emissive": true }}
+				"west": {"uv": [3, 0, 6, 8], "texture": "#1", "trafficengine_data": { "emissive": true }}
 			}
 		},
 		{

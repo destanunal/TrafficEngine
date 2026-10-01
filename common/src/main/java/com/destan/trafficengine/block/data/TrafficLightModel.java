@@ -3,23 +3,23 @@ package com.destan.trafficengine.block.data;
 import java.util.Arrays;
 import java.util.function.Supplier;
 
-import de.mrjulsen.mcdragonlib.client.util.DLSprite;
-import de.mrjulsen.mcdragonlib.data.ITranslatableEnum;
+import com.destan.trafficengine.client.gui.GuiIcon;
+import com.destan.trafficengine.data.TranslatableEnum;
 import com.destan.trafficengine.TrafficEngine;
 import com.destan.trafficengine.client.ModGuiIcons;
 
-public enum TrafficLightModel implements ITranslatableEnum {
+public enum TrafficLightModel implements TranslatableEnum {
 	ONE_LIGHT("single", () -> ModGuiIcons.TRAFFIC_LIGHT_1_LIGHT.getAsSprite(16, 16), 1, 9, 16),
 	TWO_LIGHTS("double", () -> ModGuiIcons.TRAFFIC_LIGHT_2_LIGHTS.getAsSprite(16, 16), 2, 4.5f, 16),
 	THREE_LIGHTS("tripple", () -> ModGuiIcons.TRAFFIC_LIGHT_3_LIGHTS.getAsSprite(16, 16), 3, -0.5f, 16),
 	FOUR_LIGHTS("quadruple", () -> ModGuiIcons.TRAFFIC_LIGHT_4_LIGHTS.getAsSprite(16, 16), 4, -6.5f, 16);
 	private String name;
-	private Supplier<DLSprite> icon;
+	private Supplier<GuiIcon> icon;
 	private byte lightsCount;
 	private float hitboxBottom;
 	private float hitboxTop;
 
-	private TrafficLightModel(String name, Supplier<DLSprite> icon, int lightsCount, float hitboxBottom, float hitboxTop) {
+	private TrafficLightModel(String name, Supplier<GuiIcon> icon, int lightsCount, float hitboxBottom, float hitboxTop) {
 		this.name = name;
 		this.icon = icon;
 		this.lightsCount = (byte)lightsCount;
@@ -31,7 +31,7 @@ public enum TrafficLightModel implements ITranslatableEnum {
 		return this.name;
 	}
 
-	public DLSprite getIcon() {
+	public GuiIcon getIcon() {
 		return icon.get();
 	}
 
