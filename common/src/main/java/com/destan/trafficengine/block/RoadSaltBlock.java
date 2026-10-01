@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import de.mrjulsen.mcdragonlib.data.IIterableEnum;
+import com.destan.trafficengine.data.IterableEnum;
 import com.destan.trafficengine.block.entity.EmptyBlockEntity;
 import com.destan.trafficengine.config.ModCommonConfig;
 import net.minecraft.core.BlockPos;
@@ -156,7 +156,7 @@ public class RoadSaltBlock extends BaseEntityBlock {
         return null;
     }
 
-    public static enum RoadSaltQuality implements StringRepresentable, IIterableEnum<RoadSaltQuality> {
+    public static enum RoadSaltQuality implements StringRepresentable, IterableEnum<RoadSaltQuality> {
         FRESH(0, "fresh"),
         MUDDY(1, "muddy"),
         DILUTED(2, "diluted");

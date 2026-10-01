@@ -1,8 +1,8 @@
 {
   "textures": {
-    "screen": "minecraft:block/gray_concrete",
-    "metal": "minecraft:block/gray_concrete",
-    "particle": "minecraft:block/gray_concrete",
+    "screen": "trafficengine:block/sign",
+    "metal": "trafficengine:block/sign",
+    "particle": "trafficengine:block/sign",
     "front": "minecraft:block/black_concrete"
   },
   "elements": [
@@ -20,9 +20,6 @@
       "faces": {
         "north": {
           "texture": "#metal",
-          "dragonlib_data": {
-            "emissive": true
-          },
           "uv": [
             0,
             0,
@@ -32,9 +29,6 @@
         },
         "east": {
           "texture": "#metal",
-          "dragonlib_data": {
-            "emissive": true
-          },
           "uv": [
             0,
             0,
@@ -44,9 +38,6 @@
         },
         "south": {
           "texture": "#metal",
-          "dragonlib_data": {
-            "emissive": true
-          },
           "uv": [
             0,
             0,
@@ -56,9 +47,6 @@
         },
         "west": {
           "texture": "#metal",
-          "dragonlib_data": {
-            "emissive": true
-          },
           "uv": [
             0,
             0,
@@ -68,9 +56,6 @@
         },
         "up": {
           "texture": "#metal",
-          "dragonlib_data": {
-            "emissive": true
-          },
           "uv": [
             0,
             0,
@@ -80,9 +65,6 @@
         },
         "down": {
           "texture": "#metal",
-          "dragonlib_data": {
-            "emissive": true
-          },
           "uv": [
             0,
             0,
@@ -107,7 +89,7 @@
       "faces": {
         "north": {
           "texture": "#front",
-          "dragonlib_data": {
+          "trafficengine_data": {
             "emissive": true
           },
           "uv": [
@@ -119,9 +101,6 @@
         },
         "east": {
           "texture": "#screen",
-          "dragonlib_data": {
-            "emissive": true
-          },
           "uv": [
             0,
             0,
@@ -131,9 +110,6 @@
         },
         "south": {
           "texture": "#screen",
-          "dragonlib_data": {
-            "emissive": true
-          },
           "uv": [
             0,
             0,
@@ -143,9 +119,6 @@
         },
         "west": {
           "texture": "#screen",
-          "dragonlib_data": {
-            "emissive": true
-          },
           "uv": [
             0,
             0,
@@ -155,9 +128,6 @@
         },
         "up": {
           "texture": "#screen",
-          "dragonlib_data": {
-            "emissive": true
-          },
           "uv": [
             0,
             0,
@@ -167,9 +137,6 @@
         },
         "down": {
           "texture": "#screen",
-          "dragonlib_data": {
-            "emissive": true
-          },
           "uv": [
             0,
             0,
@@ -193,9 +160,6 @@
       "faces": {
         "north": {
           "texture": "#metal",
-          "dragonlib_data": {
-            "emissive": true
-          },
           "uv": [
             0,
             0,
@@ -205,9 +169,6 @@
         },
         "east": {
           "texture": "#metal",
-          "dragonlib_data": {
-            "emissive": true
-          },
           "uv": [
             0,
             0,
@@ -217,9 +178,6 @@
         },
         "south": {
           "texture": "#metal",
-          "dragonlib_data": {
-            "emissive": true
-          },
           "uv": [
             0,
             0,
@@ -229,9 +187,6 @@
         },
         "west": {
           "texture": "#metal",
-          "dragonlib_data": {
-            "emissive": true
-          },
           "uv": [
             0,
             0,
@@ -241,9 +196,6 @@
         },
         "up": {
           "texture": "#metal",
-          "dragonlib_data": {
-            "emissive": true
-          },
           "uv": [
             0,
             0,
@@ -253,9 +205,6 @@
         },
         "down": {
           "texture": "#metal",
-          "dragonlib_data": {
-            "emissive": true
-          },
           "uv": [
             0,
             0,
@@ -280,9 +229,6 @@
       "faces": {
         "north": {
           "texture": "#metal",
-          "dragonlib_data": {
-            "emissive": true
-          },
           "uv": [
             0,
             0,
@@ -292,9 +238,6 @@
         },
         "east": {
           "texture": "#metal",
-          "dragonlib_data": {
-            "emissive": true
-          },
           "uv": [
             0,
             0,
@@ -304,9 +247,6 @@
         },
         "south": {
           "texture": "#metal",
-          "dragonlib_data": {
-            "emissive": true
-          },
           "uv": [
             0,
             0,
@@ -316,9 +256,6 @@
         },
         "west": {
           "texture": "#metal",
-          "dragonlib_data": {
-            "emissive": true
-          },
           "uv": [
             0,
             0,
@@ -328,9 +265,6 @@
         },
         "up": {
           "texture": "#metal",
-          "dragonlib_data": {
-            "emissive": true
-          },
           "uv": [
             0,
             0,
@@ -340,9 +274,6 @@
         },
         "down": {
           "texture": "#metal",
-          "dragonlib_data": {
-            "emissive": true
-          },
           "uv": [
             0,
             0,
@@ -367,9 +298,6 @@
       "faces": {
         "north": {
           "texture": "#metal",
-          "dragonlib_data": {
-            "emissive": true
-          },
           "uv": [
             0,
             0,
@@ -379,9 +307,6 @@
         },
         "east": {
           "texture": "#metal",
-          "dragonlib_data": {
-            "emissive": true
-          },
           "uv": [
             0,
             0,
@@ -391,9 +316,6 @@
         },
         "south": {
           "texture": "#metal",
-          "dragonlib_data": {
-            "emissive": true
-          },
           "uv": [
             0,
             0,
@@ -403,9 +325,6 @@
         },
         "west": {
           "texture": "#metal",
-          "dragonlib_data": {
-            "emissive": true
-          },
           "uv": [
             0,
             0,
@@ -415,9 +334,6 @@
         },
         "up": {
           "texture": "#metal",
-          "dragonlib_data": {
-            "emissive": true
-          },
           "uv": [
             0,
             0,
@@ -427,9 +343,6 @@
         },
         "down": {
           "texture": "#metal",
-          "dragonlib_data": {
-            "emissive": true
-          },
           "uv": [
             0,
             0,
@@ -454,9 +367,6 @@
       "faces": {
         "north": {
           "texture": "#metal",
-          "dragonlib_data": {
-            "emissive": true
-          },
           "uv": [
             0,
             0,
@@ -466,9 +376,6 @@
         },
         "east": {
           "texture": "#metal",
-          "dragonlib_data": {
-            "emissive": true
-          },
           "uv": [
             0,
             0,
@@ -478,9 +385,6 @@
         },
         "south": {
           "texture": "#metal",
-          "dragonlib_data": {
-            "emissive": true
-          },
           "uv": [
             0,
             0,
@@ -490,9 +394,6 @@
         },
         "west": {
           "texture": "#metal",
-          "dragonlib_data": {
-            "emissive": true
-          },
           "uv": [
             0,
             0,
@@ -502,9 +403,6 @@
         },
         "up": {
           "texture": "#metal",
-          "dragonlib_data": {
-            "emissive": true
-          },
           "uv": [
             0,
             0,
@@ -514,9 +412,6 @@
         },
         "down": {
           "texture": "#metal",
-          "dragonlib_data": {
-            "emissive": true
-          },
           "uv": [
             0,
             0,

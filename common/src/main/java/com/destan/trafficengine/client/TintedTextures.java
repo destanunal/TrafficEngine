@@ -6,7 +6,6 @@ import com.destan.trafficengine.block.data.RoadBlock;
 import com.destan.trafficengine.block.entity.ColoredBlockEntity;
 import com.destan.trafficengine.data.PaintColor;
 import com.destan.trafficengine.item.BrushItem;
-import com.destan.trafficengine.item.ColorPaletteItem;
 import net.minecraft.client.color.block.BlockColor;
 import net.minecraft.client.color.item.ItemColor;
 import net.minecraft.core.BlockPos;
@@ -101,15 +100,6 @@ public class TintedTextures {
                 } else {
                     return 0xFFFFFFFF;
                 }
-            } else if (pStack.getItem() instanceof ColorPaletteItem) {
-                if (pTintIndex == 0) {
-                    return 0xFFFFFFFF;
-                }
-                int color = ColorPaletteItem.getColorAt(pStack, pTintIndex - 1);
-                if (color == 0) {
-                    color = 0xFFFFFFFF;
-                }
-                return color;
             }
             return 0;
         }

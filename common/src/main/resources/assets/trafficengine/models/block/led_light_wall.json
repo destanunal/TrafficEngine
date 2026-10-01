@@ -1,9 +1,9 @@
 {
   "textures": {
-    "case": "minecraft:block/gray_concrete",
+    "case": "trafficengine:block/sign",
     "metal": "trafficengine:block/sign",
     "front": "minecraft:block/black_concrete",
-    "particle": "minecraft:block/gray_concrete"
+    "particle": "trafficengine:block/sign"
   },
   "elements": [
     {
@@ -52,7 +52,9 @@
       "faces": {
         "north": {
           "texture": "#front",
-          "dragonlib_data": { "emissive": true }
+          "trafficengine_data": {
+            "emissive": true
+          }
         },
         "east": {
           "texture": "#case"

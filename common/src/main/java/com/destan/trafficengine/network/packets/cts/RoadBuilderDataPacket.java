@@ -1,8 +1,8 @@
 package com.destan.trafficengine.network.packets.cts;
 
-import de.mrjulsen.mcdragonlib.data.DLStatus;
-import de.mrjulsen.mcdragonlib.network.NetworkPacketContext;
-import de.mrjulsen.mcdragonlib.network.NetworkPacketData;
+import com.destan.trafficengine.network.PacketStatus;
+import com.destan.trafficengine.network.NetworkPacketContext;
+import com.destan.trafficengine.network.NetworkPacketData;
 import com.destan.trafficengine.block.data.RoadType;
 import com.destan.trafficengine.item.RoadConstructionTool;
 import net.minecraft.nbt.CompoundTag;
@@ -18,12 +18,12 @@ public class RoadBuilderDataPacket extends NetworkPacketData {
     private byte roadWidth;
     private RoadType roadType;
 
-    public RoadBuilderDataPacket(DLStatus status) {
+    public RoadBuilderDataPacket(PacketStatus status) {
         super(status);
     }
     
     public RoadBuilderDataPacket(boolean replaceBlocks, byte roadWidth, RoadType roadType) {
-        super(DLStatus.OK);
+        super(PacketStatus.OK);
         this.replaceBlocks = replaceBlocks;
         this.roadWidth = roadWidth;
         this.roadType = roadType;

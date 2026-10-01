@@ -1,6 +1,6 @@
 package com.destan.trafficengine.block.data;
 
-import de.mrjulsen.mcdragonlib.util.DLColor;
+import com.destan.trafficengine.util.ColorValue;
 import com.destan.trafficengine.data.PaintColor;
 import com.destan.trafficengine.item.BrushItem;
 import net.minecraft.core.BlockPos;
@@ -52,7 +52,7 @@ public interface IPaintableBlock {
         return InteractionResult.FAIL;
     }
 
-    default DLColor getDefaultColor() {
-        return DLColor.WHITE;
+    default ColorValue getDefaultColor() {
+        return ColorValue.WHITE;
     }
 }
