@@ -2,14 +2,14 @@ package com.destan.trafficengine.block.data;
 
 import java.util.Arrays;
 
-import de.mrjulsen.mcdragonlib.data.IIterableEnum;
-import de.mrjulsen.mcdragonlib.data.ITranslatableEnum;
+import com.destan.trafficengine.data.IterableEnum;
+import com.destan.trafficengine.data.TranslatableEnum;
 import com.destan.trafficengine.TrafficEngine;
 import com.destan.trafficengine.registry.ModBlocks;
 import com.destan.trafficengine.registry.ModItems;
 import net.minecraft.world.level.ItemLike;
 
-public enum TrafficLightControlType implements ITranslatableEnum, IItemIcon, IIterableEnum<TrafficLightControlType> {
+public enum TrafficLightControlType implements TranslatableEnum, IItemIcon, IterableEnum<TrafficLightControlType> {
     STATIC("static", 0, ModBlocks.TRAFFIC_LIGHT.get()),
 	OWN_SCHEDULE("own_schedule", 1, ModItems.CREATIVE_PATTERN_CATALOGUE.get()),
 	REMOTE("remote", 2, ModBlocks.TRAFFIC_LIGHT_CONTROLLER.get());

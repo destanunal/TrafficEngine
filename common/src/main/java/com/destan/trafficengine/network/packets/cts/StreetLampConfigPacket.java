@@ -1,8 +1,8 @@
 package com.destan.trafficengine.network.packets.cts;
 
-import de.mrjulsen.mcdragonlib.data.DLStatus;
-import de.mrjulsen.mcdragonlib.network.NetworkPacketContext;
-import de.mrjulsen.mcdragonlib.network.NetworkPacketData;
+import com.destan.trafficengine.network.PacketStatus;
+import com.destan.trafficengine.network.NetworkPacketContext;
+import com.destan.trafficengine.network.NetworkPacketData;
 import com.destan.trafficengine.item.StreetLampConfigCardItem;
 import com.destan.trafficengine.util.ETimeFormat;
 import net.minecraft.nbt.CompoundTag;
@@ -18,12 +18,12 @@ public class StreetLampConfigPacket extends NetworkPacketData {
     private int turnOffTime;
     private ETimeFormat timeFormat;
 
-    public StreetLampConfigPacket(DLStatus status) {
+    public StreetLampConfigPacket(PacketStatus status) {
         super(status);
     }
 
     public StreetLampConfigPacket(int turnOnTime, int turnOffTime, ETimeFormat timeFormat) {
-        super(DLStatus.OK);
+        super(PacketStatus.OK);
         this.turnOnTime = turnOnTime;
         this.turnOffTime = turnOffTime;
         this.timeFormat = timeFormat;

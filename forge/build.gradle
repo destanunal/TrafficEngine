@@ -36,9 +36,8 @@ configurations {
 dependencies {
     forge "net.minecraftforge:forge:$rootProject.forge_version"
 
-    modImplementation "dev.architectury:architectury-forge:$rootProject.architectury_api_version"
-    // Bundle DragonLib as a nested mod so players only need the TrafficEngine jar.
-    include(modImplementation("de.mrjulsen.mcdragonlib:dragonlib-forge:$rootProject.minecraft_version-$rootProject.dragonlib_version"))
+    // This platform API was previously nested inside the removed GUI library.
+    include(modImplementation("dev.architectury:architectury-forge:$rootProject.architectury_api_version"))
 
     // Keep optional development mods on Loom's runtime classpath so production
     // (obfuscated) jars are remapped before the development client loads them.

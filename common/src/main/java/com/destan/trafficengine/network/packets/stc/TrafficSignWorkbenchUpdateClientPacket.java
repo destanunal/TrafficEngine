@@ -1,19 +1,19 @@
 package com.destan.trafficengine.network.packets.stc;
 
-import de.mrjulsen.mcdragonlib.data.DLStatus;
-import de.mrjulsen.mcdragonlib.network.NetworkPacketContext;
-import de.mrjulsen.mcdragonlib.network.NetworkPacketData;
+import com.destan.trafficengine.network.PacketStatus;
+import com.destan.trafficengine.network.NetworkPacketContext;
+import com.destan.trafficengine.network.NetworkPacketData;
 import com.destan.trafficengine.client.ClientWrapper;
 import net.minecraft.nbt.CompoundTag;
 
 public class TrafficSignWorkbenchUpdateClientPacket extends NetworkPacketData {
 
-    public TrafficSignWorkbenchUpdateClientPacket(DLStatus status) {
+    public TrafficSignWorkbenchUpdateClientPacket(PacketStatus status) {
         super(status);
     }
     
     public TrafficSignWorkbenchUpdateClientPacket() {
-        super(DLStatus.OK);
+        super(PacketStatus.OK);
     }
 
     @Override

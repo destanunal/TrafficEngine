@@ -1,5 +1,4 @@
 {
-	"loader": "dragonlib:advanced_json",
 	"render_type": "cutout",
 	"textures": {
 		"0": "trafficengine:block/ger_delineator",
@@ -25,8 +24,8 @@
 			"to": [8, 7, 9],
 			"rotation": {"angle": 0, "axis": "y", "origin": [0, -5, 0]},
 			"faces": {
-				"north": {"uv": [15, 0, 16, 3], "texture": "#0", "dragonlib_data": { "emissive": true }},
-				"south": {"uv": [15, 3, 16, 6], "texture": "#0", "dragonlib_data": { "emissive": true }}
+				"north": {"uv": [15, 0, 16, 3], "texture": "#0", "trafficengine_data": { "emissive": true }},
+				"south": {"uv": [15, 3, 16, 6], "texture": "#0", "trafficengine_data": { "emissive": true }}
 			}
 		},
 		{

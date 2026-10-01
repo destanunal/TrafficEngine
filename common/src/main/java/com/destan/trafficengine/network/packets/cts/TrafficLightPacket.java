@@ -3,10 +3,10 @@ package com.destan.trafficengine.network.packets.cts;
 import java.util.Collection;
 import java.util.Arrays;
 import java.util.List;
-import de.mrjulsen.mcdragonlib.data.DLStatus;
-import de.mrjulsen.mcdragonlib.network.NetworkPacketContext;
-import de.mrjulsen.mcdragonlib.network.NetworkPacketData;
-import de.mrjulsen.mcdragonlib.util.NbtUtils;
+import com.destan.trafficengine.network.PacketStatus;
+import com.destan.trafficengine.network.NetworkPacketContext;
+import com.destan.trafficengine.network.NetworkPacketData;
+import com.destan.trafficengine.util.NbtPositions;
 import com.destan.trafficengine.block.TrafficLightBlock;
 import com.destan.trafficengine.block.data.TrafficLightColor;
 import com.destan.trafficengine.block.data.TrafficLightControlType;
@@ -47,12 +47,12 @@ public class TrafficLightPacket extends NetworkPacketData {
     private Collection<Integer> additionalPedestrianStopIds = List.of();
     private boolean scheduleEnabled;
 
-    public TrafficLightPacket(DLStatus status) {
+    public TrafficLightPacket(PacketStatus status) {
         super(status);
     }
 
     public TrafficLightPacket(BlockPos pos, Collection<TrafficLightColor> enabledColors, TrafficLightType type, TrafficLightModel model, TrafficLightIcon icon, TrafficLightControlType controlType, TrafficLightColor[] colorSlots, int phaseId, Collection<Integer> additionalPedestrianStopIds, boolean scheduleEnabled) {
-        super(DLStatus.OK);
+        super(PacketStatus.OK);
         this.pos = pos;
         this.enabledColors = enabledColors;
         this.type = type;
@@ -67,7 +67,7 @@ public class TrafficLightPacket extends NetworkPacketData {
 
     @Override
     protected void write(CompoundTag nbt) {
-        NbtUtils.putNbtPos(nbt, NBT_POS, pos);
+        NbtPositions.putNbtPos(nbt, NBT_POS, pos);
         ListTag enabledColorsList = new ListTag();
         for (TrafficLightColor color : enabledColors) {
             enabledColorsList.add(ByteTag.valueOf(color.getGroupIndex()));
@@ -89,7 +89,7 @@ public class TrafficLightPacket extends NetworkPacketData {
 
     @Override
     protected void read(CompoundTag nbt) {
-        this.pos = NbtUtils.getNbtBlockPos(nbt, NBT_POS);
+        this.pos = NbtPositions.getNbtBlockPos(nbt, NBT_POS);
         this.type = TrafficLightType.getTypeByIndex(nbt.getByte(NBT_TYPE));
         this.enabledColors = nbt.getList(NBT_ENABLED_COLORS, Tag.TAG_BYTE).stream().map(x -> TrafficLightColor.getColorByGroupIndex(((ByteTag)x).getAsByte(), type)).toList();
         this.model = TrafficLightModel.getModelByLightsCount(nbt.getByte(NBT_MODEL));

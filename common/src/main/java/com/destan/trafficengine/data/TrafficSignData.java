@@ -6,9 +6,9 @@ import java.util.UUID;
 
 import com.mojang.blaze3d.platform.NativeImage;
 
-import de.mrjulsen.mcdragonlib.data.IIdentifiable;
-import de.mrjulsen.mcdragonlib.network.NetworkDirection;
-import de.mrjulsen.mcdragonlib.util.TextUtils;
+import com.destan.trafficengine.data.Identifiable;
+import com.destan.trafficengine.network.NetworkDirection;
+import net.minecraft.network.chat.Component;
 import com.destan.trafficengine.block.data.TrafficSignShape;
 import com.destan.trafficengine.network.packets.cts.CreateNewTrafficSignTexturePacket;
 import com.destan.trafficengine.registry.ModNetworkManager;
@@ -17,7 +17,7 @@ import dev.architectury.utils.Env;
 import net.minecraft.nbt.CompoundTag;
 
 @Deprecated
-public class TrafficSignData implements Closeable, IIdentifiable {
+public class TrafficSignData implements Closeable, Identifiable {
 
     private static final String NBT_WIDTH = "width";
     private static final String NBT_HEIGHT = "height";
@@ -57,7 +57,7 @@ public class TrafficSignData implements Closeable, IIdentifiable {
     }
 
     public String getName() {
-        return name == null || name.isEmpty() ? TextUtils.translate("gui.trafficengine.trafficsignworkbench.pattern.name_unknown").getString(): name;
+        return name == null || name.isEmpty() ? Component.translatable("gui.trafficengine.trafficsignworkbench.pattern.name_unknown").getString(): name;
     }
 
     public void setName(String name) {
@@ -79,36 +79,6 @@ public class TrafficSignData implements Closeable, IIdentifiable {
     public void setFromBase64(String base64) {
         texture = base64;
     }
-
-    /*
-    public void setPixelRGBA(int x, int y, int rgba) {
-        if (!shape.isPixelValid(x, y))
-            return;
-
-        DynamicTexture tex = TrafficSignTextureCacheClient.getTexture(this, texture, false, (texture) -> {
-            this.texture = TrafficSignTextureCacheClient.textureToBase64(this);
-        });
-        
-        NativeImage texture = tex.getPixels();
-        texture.setPixelRGBA(Mth.clamp(x, 0, width), Mth.clamp(y, 0, height), rgba); 
-        tex.upload();
-    }
-
-    public void render(Graphics graphics, int x, int y, int w, int h) {
-        DynamicTexture tex = TrafficSignTextureCacheClient.getTexture(this, texture, false, (texture) -> {
-            this.texture = TrafficSignTextureCacheClient.textureToBase64(this);
-        });
-
-        GuiUtils.setTint(0, 0, 0, 1);
-        GuiUtils.drawTexture(shape.getShapeTextureId(), graphics, x - 1, y - 1, w, h, 0, 0, 32, 32, 32, 32);
-        GuiUtils.drawTexture(shape.getShapeTextureId(), graphics, x + 1, y - 1, w, h, 0, 0, 32, 32, 32, 32);
-        GuiUtils.drawTexture(shape.getShapeTextureId(), graphics, x - 1, y + 1, w, h, 0, 0, 32, 32, 32, 32);
-        GuiUtils.drawTexture(shape.getShapeTextureId(), graphics, x + 1, y + 1, w, h, 0, 0, 32, 32, 32, 32);
-        GuiUtils.resetTint();
-        GuiUtils.drawTexture(shape.getShapeTextureId(), graphics, x, y, w, h, 0, 0, 32, 32, 32, 32);
-        GuiUtils.drawTexture(tex.getId(), graphics, x, y, w, h, 0, 0, width, height, width, height);
-    }
-        */
 
 
     /* DATA STORAGE */
@@ -134,10 +104,6 @@ public class TrafficSignData implements Closeable, IIdentifiable {
     public void close() {
     }
 
-    @Override
-    protected void finalize() {
-        this.close();
-    }
 
     public static NamedTrafficSignTextureReference migrate(CompoundTag nbt) {
         TrafficSignData src = TrafficSignData.fromNbt(nbt);

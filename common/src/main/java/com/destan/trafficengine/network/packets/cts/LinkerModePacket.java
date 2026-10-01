@@ -1,8 +1,8 @@
 package com.destan.trafficengine.network.packets.cts;
 
-import de.mrjulsen.mcdragonlib.data.DLStatus;
-import de.mrjulsen.mcdragonlib.network.NetworkPacketContext;
-import de.mrjulsen.mcdragonlib.network.NetworkPacketData;
+import com.destan.trafficengine.network.PacketStatus;
+import com.destan.trafficengine.network.NetworkPacketContext;
+import com.destan.trafficengine.network.NetworkPacketData;
 import com.destan.trafficengine.item.TrafficLightLinkerItem;
 import com.destan.trafficengine.item.TrafficLightLinkerItem.LinkerMode;
 import net.minecraft.nbt.CompoundTag;
@@ -14,12 +14,12 @@ public class LinkerModePacket extends NetworkPacketData {
 
     private LinkerMode mode;
 
-    public LinkerModePacket(DLStatus status) {
+    public LinkerModePacket(PacketStatus status) {
         super(status);
     }
 
     public LinkerModePacket(LinkerMode mode) {
-        super(DLStatus.OK);
+        super(PacketStatus.OK);
         this.mode = mode;
     }
 

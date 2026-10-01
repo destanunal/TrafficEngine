@@ -2,10 +2,10 @@ package com.destan.trafficengine.network.packets.cts;
 
 import java.util.ArrayList;
 import java.util.List;
-import de.mrjulsen.mcdragonlib.data.DLStatus;
-import de.mrjulsen.mcdragonlib.network.NetworkPacketContext;
-import de.mrjulsen.mcdragonlib.network.NetworkPacketData;
-import de.mrjulsen.mcdragonlib.util.NbtUtils;
+import com.destan.trafficengine.network.PacketStatus;
+import com.destan.trafficengine.network.NetworkPacketContext;
+import com.destan.trafficengine.network.NetworkPacketData;
+import com.destan.trafficengine.util.NbtPositions;
 import com.destan.trafficengine.block.entity.TrafficLightBlockEntity;
 import com.destan.trafficengine.block.entity.TrafficLightControllerBlockEntity;
 import com.destan.trafficengine.data.TrafficLightSchedule;
@@ -24,19 +24,19 @@ public class TrafficLightSchedulePacket extends NetworkPacketData {
     private BlockPos pos;
     private List<TrafficLightSchedule> schedules = new ArrayList<>();
 
-    public TrafficLightSchedulePacket(DLStatus status) {
+    public TrafficLightSchedulePacket(PacketStatus status) {
         super(status);
     }
 
     public TrafficLightSchedulePacket(BlockPos pos, List<TrafficLightSchedule> schedules) {
-        super(DLStatus.OK);
+        super(PacketStatus.OK);
         this.pos = pos;
         this.schedules = schedules;
     }
 
     @Override
     protected void write(CompoundTag nbt) {
-        NbtUtils.putNbtPos(nbt, NBT_POS, pos);
+        NbtPositions.putNbtPos(nbt, NBT_POS, pos);
         ListTag list = new ListTag();
         for (TrafficLightSchedule schedule : schedules) {
             list.add(schedule.toNbt());
@@ -46,7 +46,7 @@ public class TrafficLightSchedulePacket extends NetworkPacketData {
 
     @Override
     protected void read(CompoundTag nbt) {
-        this.pos = NbtUtils.getNbtBlockPos(nbt, NBT_POS);
+        this.pos = NbtPositions.getNbtBlockPos(nbt, NBT_POS);
         this.schedules = nbt.getList(NBT_SCHEDULES, Tag.TAG_COMPOUND).stream().map(x -> {
             TrafficLightSchedule schedule = new TrafficLightSchedule();
             schedule.fromNbt((CompoundTag)x);

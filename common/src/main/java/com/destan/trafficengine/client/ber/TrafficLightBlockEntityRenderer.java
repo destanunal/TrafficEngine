@@ -1,7 +1,7 @@
 package com.destan.trafficengine.client.ber;
 
-import de.mrjulsen.mcdragonlib.client.ber.BERGraphics;
-import de.mrjulsen.mcdragonlib.client.ber.RotatableBlockEntityRenderer;
+import com.destan.trafficengine.client.ber.RenderContext;
+import com.destan.trafficengine.client.ber.RotatableBlockEntityRenderer;
 import com.destan.trafficengine.block.TrafficLightBlock;
 import com.destan.trafficengine.block.HorizontalTrafficLightBlock;
 import com.destan.trafficengine.block.data.TrafficLightColor;
@@ -162,7 +162,7 @@ public class TrafficLightBlockEntityRenderer extends RotatableBlockEntityRendere
     }
 
     @Override
-    public void renderBlock(BERGraphics<TrafficLightBlockEntity> graphics, float pPartialTick) {
+    public void renderBlock(RenderContext<TrafficLightBlockEntity> graphics, float pPartialTick) {
         BlockState state = graphics.blockEntity() == null ? null : graphics.blockEntity().getBlockState();
         boolean diagonal = state != null
             && !(state.getBlock() instanceof HorizontalTrafficLightBlock)
@@ -185,7 +185,7 @@ public class TrafficLightBlockEntityRenderer extends RotatableBlockEntityRendere
         }
     }
 
-    private void renderOriented(BERGraphics<TrafficLightBlockEntity> graphics, float pPartialTick) {
+    private void renderOriented(RenderContext<TrafficLightBlockEntity> graphics, float pPartialTick) {
         // YENİ EKLENEN KONTROL BLOĞU:
         if (graphics.blockEntity().getBlockState().getBlock() instanceof HorizontalTrafficLightBlock) {
             this.horizontalRenderer.renderBlock(graphics, pPartialTick);

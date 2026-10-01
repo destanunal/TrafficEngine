@@ -7,7 +7,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import de.mrjulsen.mcdragonlib.data.WorldLocation;
+import com.destan.trafficengine.data.WorldLocation;
 import com.destan.trafficengine.TrafficEngine;
 import com.destan.trafficengine.block.TrafficLightControllerBlock;
 import com.destan.trafficengine.block.data.TrafficLightColor;

@@ -1,6 +1,6 @@
 package com.destan.trafficengine.block;
 
-import de.mrjulsen.mcdragonlib.util.TextUtils;
+import net.minecraft.network.chat.Component;
 import com.destan.trafficengine.block.data.ITrafficPostLike;
 import com.destan.trafficengine.block.entity.StreetLampBlockEntity;
 import com.destan.trafficengine.registry.ModItemTags;
@@ -134,7 +134,7 @@ public class StreetLampBaseBlock extends BaseEntityBlock implements SimpleWaterl
             if (!pLevel.isClientSide) {
                 if (pLevel.getBlockEntity(pPos) instanceof StreetLampBlockEntity blockEntity && blockEntity.getOnTime() != blockEntity.getOffTime()) {
                     if (!pLevel.isClientSide) {
-                        pPlayer.displayClientMessage(TextUtils.translate("block.trafficengine.street_lamp.use.error_scheduled"), true);  
+                        pPlayer.displayClientMessage(Component.translatable("block.trafficengine.street_lamp.use.error_scheduled"), true);
                         return InteractionResult.FAIL;
                     }
                 } else {                    

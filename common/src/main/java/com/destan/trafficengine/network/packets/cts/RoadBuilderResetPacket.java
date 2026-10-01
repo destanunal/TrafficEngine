@@ -1,20 +1,20 @@
 package com.destan.trafficengine.network.packets.cts;
 
-import de.mrjulsen.mcdragonlib.data.DLStatus;
-import de.mrjulsen.mcdragonlib.network.NetworkPacketContext;
-import de.mrjulsen.mcdragonlib.network.NetworkPacketData;
+import com.destan.trafficengine.network.PacketStatus;
+import com.destan.trafficengine.network.NetworkPacketContext;
+import com.destan.trafficengine.network.NetworkPacketData;
 import com.destan.trafficengine.item.RoadConstructionTool;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 
 public class RoadBuilderResetPacket extends NetworkPacketData {
     
-    public RoadBuilderResetPacket(DLStatus status) {
+    public RoadBuilderResetPacket(PacketStatus status) {
         super(status);
     }
 
     public RoadBuilderResetPacket() {
-        super(DLStatus.OK);
+        super(PacketStatus.OK);
     }
 
     @Override

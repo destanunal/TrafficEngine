@@ -25,50 +25,9 @@ public class RetractableBarrierBlock extends HorizontalDirectionalBlock {
     public static final BooleanProperty LEFT_CONNECTED = BooleanProperty.create("left_connected");
     public static final BooleanProperty RIGHT_CONNECTED = BooleanProperty.create("right_connected");
 
-    private static final VoxelShape NORTH_SOUTH_CORE_SHAPE = Shapes.or(
-        Block.box(-2.0D, 2.0D, 6.5D, 0.0D, 5.0D, 9.5D),
-        Block.box(-2.0D, 12.0D, 6.5D, 0.0D, 15.0D, 9.5D),
-        Block.box(0.0D, 3.5D, 6.5D, 2.0D, 6.5D, 9.5D),
-        Block.box(0.0D, 10.5D, 6.5D, 2.0D, 13.5D, 9.5D),
-        Block.box(2.0D, 5.5D, 6.5D, 4.0D, 8.5D, 9.5D),
-        Block.box(2.0D, 8.5D, 6.5D, 4.0D, 11.5D, 9.5D),
-        Block.box(4.0D, 5.5D, 6.5D, 6.0D, 8.5D, 9.5D),
-        Block.box(4.0D, 8.5D, 6.5D, 6.0D, 11.5D, 9.5D),
-        Block.box(6.0D, 3.5D, 6.5D, 8.0D, 6.5D, 9.5D),
-        Block.box(6.0D, 10.5D, 6.5D, 8.0D, 13.5D, 9.5D),
-        Block.box(8.0D, 3.5D, 6.5D, 10.0D, 6.5D, 9.5D),
-        Block.box(8.0D, 10.5D, 6.5D, 10.0D, 13.5D, 9.5D),
-        Block.box(10.0D, 5.5D, 6.5D, 12.0D, 8.5D, 9.5D),
-        Block.box(10.0D, 8.5D, 6.5D, 12.0D, 11.5D, 9.5D),
-        Block.box(12.0D, 5.5D, 6.5D, 14.0D, 8.5D, 9.5D),
-        Block.box(12.0D, 8.5D, 6.5D, 14.0D, 11.5D, 9.5D),
-        Block.box(14.0D, 3.5D, 6.5D, 16.0D, 6.5D, 9.5D),
-        Block.box(14.0D, 10.5D, 6.5D, 16.0D, 13.5D, 9.5D),
-        Block.box(16.0D, 2.0D, 6.5D, 18.0D, 5.0D, 9.5D),
-        Block.box(16.0D, 12.0D, 6.5D, 18.0D, 15.0D, 9.5D)
-    );
-    private static final VoxelShape EAST_WEST_CORE_SHAPE = Shapes.or(
-        Block.box(6.5D, 2.0D, -2.0D, 9.5D, 5.0D, 0.0D),
-        Block.box(6.5D, 12.0D, -2.0D, 9.5D, 15.0D, 0.0D),
-        Block.box(6.5D, 3.5D, 0.0D, 9.5D, 6.5D, 2.0D),
-        Block.box(6.5D, 10.5D, 0.0D, 9.5D, 13.5D, 2.0D),
-        Block.box(6.5D, 5.5D, 2.0D, 9.5D, 8.5D, 4.0D),
-        Block.box(6.5D, 8.5D, 2.0D, 9.5D, 11.5D, 4.0D),
-        Block.box(6.5D, 5.5D, 4.0D, 9.5D, 8.5D, 6.0D),
-        Block.box(6.5D, 8.5D, 4.0D, 9.5D, 11.5D, 6.0D),
-        Block.box(6.5D, 3.5D, 6.0D, 9.5D, 6.5D, 8.0D),
-        Block.box(6.5D, 10.5D, 6.0D, 9.5D, 13.5D, 8.0D),
-        Block.box(6.5D, 3.5D, 8.0D, 9.5D, 6.5D, 10.0D),
-        Block.box(6.5D, 10.5D, 8.0D, 9.5D, 13.5D, 10.0D),
-        Block.box(6.5D, 5.5D, 10.0D, 9.5D, 8.5D, 12.0D),
-        Block.box(6.5D, 8.5D, 10.0D, 9.5D, 11.5D, 12.0D),
-        Block.box(6.5D, 5.5D, 12.0D, 9.5D, 8.5D, 14.0D),
-        Block.box(6.5D, 8.5D, 12.0D, 9.5D, 11.5D, 14.0D),
-        Block.box(6.5D, 3.5D, 14.0D, 9.5D, 6.5D, 16.0D),
-        Block.box(6.5D, 10.5D, 14.0D, 9.5D, 13.5D, 16.0D),
-        Block.box(6.5D, 2.0D, 16.0D, 9.5D, 5.0D, 18.0D),
-        Block.box(6.5D, 12.0D, 16.0D, 9.5D, 15.0D, 18.0D)
-    );
+    // A continuous panel avoids producing break particles for every scissor strut.
+    private static final VoxelShape NORTH_SOUTH_CORE_SHAPE = Block.box(-2, 2, 6.5, 18, 15, 9.5);
+    private static final VoxelShape EAST_WEST_CORE_SHAPE = Block.box(6.5, 2, -2, 9.5, 15, 18);
     private static final VoxelShape WEST_SUPPORT_SHAPE = Shapes.or(
         Block.box(0.75D, 2.25D, 6.5D, 2.25D, 15.5D, 9.5D),
         Block.box(0.0D, 0.0D, 5.5D, 3.0D, 2.5D, 10.5D)
@@ -86,6 +45,20 @@ public class RetractableBarrierBlock extends HorizontalDirectionalBlock {
         Block.box(5.5D, 0.0D, 13.0D, 10.5D, 2.5D, 16.0D)
     );
 
+    private static final VoxelShape[][] SHAPES = new VoxelShape[4][2];
+
+    static {
+        for (Direction facing : Direction.Plane.HORIZONTAL) {
+            VoxelShape core = facing.getAxis() == Direction.Axis.Z
+                ? NORTH_SOUTH_CORE_SHAPE : EAST_WEST_CORE_SHAPE;
+            boolean positiveFacing = facing == Direction.NORTH || facing == Direction.EAST;
+            Direction side = positiveFacing ? facing.getCounterClockWise() : facing.getClockWise();
+            VoxelShape oneSupport = Shapes.or(core, supportShape(side.getOpposite())).optimize();
+            SHAPES[facing.get2DDataValue()][1] = oneSupport;
+            SHAPES[facing.get2DDataValue()][0] = Shapes.or(oneSupport, supportShape(side)).optimize();
+        }
+    }
+
     public RetractableBarrierBlock() {
         super(BlockBehaviour.Properties.of()
             .mapColor(MapColor.METAL)
@@ -102,15 +75,9 @@ public class RetractableBarrierBlock extends HorizontalDirectionalBlock {
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         Direction facing = state.getValue(FACING);
-        VoxelShape shape = facing.getAxis() == Direction.Axis.Z
-            ? NORTH_SOUTH_CORE_SHAPE
-            : EAST_WEST_CORE_SHAPE;
         boolean positiveFacing = facing == Direction.NORTH || facing == Direction.EAST;
-        Direction conditionalSide = positiveFacing ? facing.getCounterClockWise() : facing.getClockWise();
-        if (!state.getValue(positiveFacing ? LEFT_CONNECTED : RIGHT_CONNECTED)) {
-            shape = Shapes.or(shape, supportShape(conditionalSide));
-        }
-        return Shapes.or(shape, supportShape(conditionalSide.getOpposite()));
+        boolean connected = state.getValue(positiveFacing ? LEFT_CONNECTED : RIGHT_CONNECTED);
+        return SHAPES[facing.get2DDataValue()][connected ? 1 : 0];
     }
 
     @Override

@@ -1,8 +1,8 @@
 package com.destan.trafficengine.network.packets.cts;
 
-import de.mrjulsen.mcdragonlib.data.DLStatus;
-import de.mrjulsen.mcdragonlib.network.NetworkPacketContext;
-import de.mrjulsen.mcdragonlib.network.NetworkPacketData;
+import com.destan.trafficengine.network.PacketStatus;
+import com.destan.trafficengine.network.NetworkPacketContext;
+import com.destan.trafficengine.network.NetworkPacketData;
 import com.destan.trafficengine.item.CreativePatternCatalogueItem;
 import com.destan.trafficengine.item.PatternCatalogueItem;
 import net.minecraft.nbt.CompoundTag;
@@ -14,12 +14,12 @@ public class PatternCatalogueIndexPacket extends NetworkPacketData {
 
     private int index;
 
-    public PatternCatalogueIndexPacket(DLStatus status) {
+    public PatternCatalogueIndexPacket(PacketStatus status) {
         super(status);
     }
 
     public PatternCatalogueIndexPacket(int index) {
-        super(DLStatus.OK);
+        super(PacketStatus.OK);
         this.index = index;
     }
 

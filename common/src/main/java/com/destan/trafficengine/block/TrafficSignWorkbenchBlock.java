@@ -1,6 +1,6 @@
 package com.destan.trafficengine.block;
 
-import de.mrjulsen.mcdragonlib.util.TextUtils;
+import net.minecraft.network.chat.Component;
 import com.destan.trafficengine.client.screen.menu.TrafficSignWorkbenchMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -90,6 +90,6 @@ public class TrafficSignWorkbenchBlock extends Block {
     public MenuProvider getMenuProvider(BlockState pState, Level pLevel, BlockPos pPos) {
         return new SimpleMenuProvider((containerId, inv, player) -> {
             return new TrafficSignWorkbenchMenu(containerId, inv, ContainerLevelAccess.create(pLevel, pPos));
-        }, TextUtils.text(""));
+        }, Component.literal(""));
     }
 }

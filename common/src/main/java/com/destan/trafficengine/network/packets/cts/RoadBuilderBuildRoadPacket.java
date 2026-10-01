@@ -3,13 +3,13 @@ package com.destan.trafficengine.network.packets.cts;
 import java.util.Map.Entry;
 import java.util.Optional;
 
-import de.mrjulsen.mcdragonlib.data.DLStatus;
-import de.mrjulsen.mcdragonlib.data.WorldLocation;
-import de.mrjulsen.mcdragonlib.network.NetworkPacketContext;
-import de.mrjulsen.mcdragonlib.network.NetworkPacketData;
-import de.mrjulsen.mcdragonlib.util.DLUtils;
-import de.mrjulsen.mcdragonlib.util.ScheduledTask;
-import de.mrjulsen.mcdragonlib.util.ScheduledTask.ScheduledTaskContext;
+import com.destan.trafficengine.network.PacketStatus;
+import com.destan.trafficengine.data.WorldLocation;
+import com.destan.trafficengine.network.NetworkPacketContext;
+import com.destan.trafficengine.network.NetworkPacketData;
+import com.destan.trafficengine.util.ModUtils;
+import com.destan.trafficengine.util.ScheduledTask;
+import com.destan.trafficengine.util.ScheduledTask.ScheduledTaskContext;
 import com.destan.trafficengine.TrafficEngine;
 import com.destan.trafficengine.block.AsphaltSlope;
 import com.destan.trafficengine.block.data.RoadType;
@@ -40,12 +40,12 @@ public class RoadBuilderBuildRoadPacket extends NetworkPacketData {
     private boolean replaceBlocks;
     private RoadType roadType;
 
-    public RoadBuilderBuildRoadPacket(DLStatus status) {
+    public RoadBuilderBuildRoadPacket(PacketStatus status) {
         super(status);
     }
     
     public RoadBuilderBuildRoadPacket(WorldLocation pos1, WorldLocation pos2, byte roadWidth, boolean replaceBlocks, RoadType roadType) {
-        super(DLStatus.OK);
+        super(PacketStatus.OK);
         this.pos1 = pos1;
         this.pos2 = pos2;
         this.roadWidth = roadWidth;
@@ -156,9 +156,9 @@ public class RoadBuilderBuildRoadPacket extends NetworkPacketData {
 
         if (context.iteration() >= data.blocks.size() - 1) {
             if (context.level().dimension().location().equals(BuiltinDimensionTypes.NETHER.location())) {
-                DLUtils.giveAdvancement((ServerPlayer)data.player, TrafficEngine.MOD_ID, "highway_to_hell", "req");
+                ModUtils.giveAdvancement((ServerPlayer)data.player, TrafficEngine.MOD_ID, "highway_to_hell", "req");
             } else if (context.level().dimension().location().equals(BuiltinDimensionTypes.END.location())) {
-                DLUtils.giveAdvancement((ServerPlayer)data.player, TrafficEngine.MOD_ID, "final_destination", "req");
+                ModUtils.giveAdvancement((ServerPlayer)data.player, TrafficEngine.MOD_ID, "final_destination", "req");
             }
         }
 

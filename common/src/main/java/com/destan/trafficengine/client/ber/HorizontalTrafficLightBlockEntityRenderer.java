@@ -1,7 +1,7 @@
 package com.destan.trafficengine.client.ber;
 
-import de.mrjulsen.mcdragonlib.client.ber.BERGraphics;
-import de.mrjulsen.mcdragonlib.client.ber.RotatableBlockEntityRenderer;
+import com.destan.trafficengine.client.ber.RenderContext;
+import com.destan.trafficengine.client.ber.RotatableBlockEntityRenderer;
 import com.destan.trafficengine.block.TrafficLightBlock;
 import com.destan.trafficengine.block.data.TrafficLightColor;
 import com.destan.trafficengine.block.data.TrafficLightIcon;
@@ -159,7 +159,7 @@ public class HorizontalTrafficLightBlockEntityRenderer extends RotatableBlockEnt
     }
 
     @Override
-    public void renderBlock(BERGraphics<TrafficLightBlockEntity> graphics, float pPartialTick) {
+    public void renderBlock(RenderContext<TrafficLightBlockEntity> graphics, float pPartialTick) {
         BlockState blockstate = graphics.blockEntity().getBlockState();
         boolean isCountdown = graphics.blockEntity().getTLType() == TrafficLightType.COUNTDOWN;
 

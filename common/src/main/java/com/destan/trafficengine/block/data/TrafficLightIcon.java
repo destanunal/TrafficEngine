@@ -2,11 +2,11 @@ package com.destan.trafficengine.block.data;
 
 import java.util.Arrays;
 
-import de.mrjulsen.mcdragonlib.client.util.DLSprite;
-import de.mrjulsen.mcdragonlib.data.ITranslatableEnum;
+import com.destan.trafficengine.client.gui.GuiIcon;
+import com.destan.trafficengine.data.TranslatableEnum;
 import com.destan.trafficengine.TrafficEngine;
 
-public enum TrafficLightIcon implements ITranslatableEnum, IIconEnum {
+public enum TrafficLightIcon implements TranslatableEnum, IIconEnum {
 	NONE("none", 0, 0, 1, TrafficLightType.values(), TrafficLightColor.values()),
 	RIGHT("right", 1, 1, 1, new TrafficLightType[] { TrafficLightType.NOCOUNTDOWN, TrafficLightType.COUNTDOWN }, new TrafficLightColor[] { TrafficLightColor.RED, TrafficLightColor.YELLOW, TrafficLightColor.GREEN, TrafficLightColor.F1_F2_F3_F5 }),
 	LEFT("left", 2, 2, 1, new TrafficLightType[] { TrafficLightType.NOCOUNTDOWN, TrafficLightType.COUNTDOWN }, new TrafficLightColor[] { TrafficLightColor.RED, TrafficLightColor.YELLOW, TrafficLightColor.GREEN, TrafficLightColor.F1_F2_F3_F5 }),
@@ -80,8 +80,8 @@ public enum TrafficLightIcon implements ITranslatableEnum, IIconEnum {
 		return Arrays.stream(TrafficLightIcon.values()).filter(x -> x.getIndex() == index).findFirst().orElse(TrafficLightIcon.NONE);
 	}
 
-	public DLSprite getSprite(TrafficLightType type) {
-		return new DLSprite(ICON_TEXTURE, DEFAULT_SPRITE_SIZE, DEFAULT_SPRITE_SIZE, DEFAULT_SPRITE_SIZE * getUMultiplier(), DEFAULT_SPRITE_SIZE * getVMultiplier(), DEFAULT_SPRITE_SIZE, DEFAULT_SPRITE_SIZE);
+	public GuiIcon getSprite(TrafficLightType type) {
+		return new GuiIcon(ICON_TEXTURE, DEFAULT_SPRITE_SIZE * getUMultiplier(), DEFAULT_SPRITE_SIZE * getVMultiplier(), DEFAULT_SPRITE_SIZE, DEFAULT_SPRITE_SIZE, 256, 256);
 	}
 
 	@Override

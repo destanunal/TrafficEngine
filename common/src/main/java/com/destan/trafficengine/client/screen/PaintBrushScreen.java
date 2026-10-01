@@ -1,179 +1,273 @@
 package com.destan.trafficengine.client.screen;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
-
-import de.mrjulsen.mcdragonlib.DragonLib;
-import de.mrjulsen.mcdragonlib.client.gui.events.DLGuiStandardEvents;
-import de.mrjulsen.mcdragonlib.client.gui.widgets.base.DLWindow;
-import de.mrjulsen.mcdragonlib.client.gui.widgets.base.DLWindowManager;
-import de.mrjulsen.mcdragonlib.client.gui.widgets.components.DLPanel;
-import de.mrjulsen.mcdragonlib.client.gui.widgets.components.DLScrollBar;
-import de.mrjulsen.mcdragonlib.client.gui.widgets.components.DLToggleButton;
-import de.mrjulsen.mcdragonlib.client.gui.widgets.components.DLScrollBar.Orientation;
-import de.mrjulsen.mcdragonlib.client.gui.widgets.layout.FlowLayout;
-import de.mrjulsen.mcdragonlib.client.gui.widgets.layout.FlowLayout.Direction;
-import de.mrjulsen.mcdragonlib.client.gui.widgets.render.VanillaSimpleButtonRenderer;
-import de.mrjulsen.mcdragonlib.client.gui.widgets.util.EAlign;
-import de.mrjulsen.mcdragonlib.client.gui.widgets.util.RenderLayer;
-import de.mrjulsen.mcdragonlib.client.render.DLTextureSheet;
-import de.mrjulsen.mcdragonlib.client.util.DLGuiGraphics;
-import de.mrjulsen.mcdragonlib.client.util.DLSprite;
-import de.mrjulsen.mcdragonlib.client.util.DLTexture;
-import de.mrjulsen.mcdragonlib.client.util.GuiUtils;
-import de.mrjulsen.mcdragonlib.client.util.GuiUtils.TextureFillMode;
-import de.mrjulsen.mcdragonlib.data.ETextAlignment;
-import de.mrjulsen.mcdragonlib.network.NetworkDirection;
-import de.mrjulsen.mcdragonlib.util.DLColor;
-import de.mrjulsen.mcdragonlib.util.DLUtils;
-import de.mrjulsen.mcdragonlib.util.TextUtils;
-import de.mrjulsen.mcdragonlib.util.math.Rectangle;
-import com.destan.trafficengine.Constants;
-import com.destan.trafficengine.TrafficEngine;
+import com.destan.trafficengine.client.gui.PatternCatalog;
+import com.destan.trafficengine.client.gui.PatternCatalog.Category;
+import com.destan.trafficengine.client.gui.PatternCatalog.Pattern;
+import com.destan.trafficengine.client.gui.PatternFavorites;
+import com.destan.trafficengine.client.gui.TrafficEngineScreen;
+import com.destan.trafficengine.client.gui.TEChrome;
+import com.destan.trafficengine.client.gui.components.TEButton;
+import com.destan.trafficengine.client.gui.components.TEPanel;
+import com.destan.trafficengine.client.gui.components.TESearchBox;
+import com.destan.trafficengine.client.gui.theme.TEColors;
 import com.destan.trafficengine.data.PaintColor;
 import com.destan.trafficengine.network.packets.cts.PaintBrushPacket;
 import com.destan.trafficengine.registry.ModNetworkManager;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.destan.trafficengine.network.NetworkDirection;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.narration.NarratedElementType;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 
-public class PaintBrushScreen extends DLWindow {
-
-    public static final Component title = TextUtils.translate("gui.trafficengine.paint_brush.title");
-    public static final Component titleOpenFileDialog = TextUtils.translate("gui.trafficengine.signpicker.openfiledialog");
-    public static final Component btnDoneText = TextUtils.translate("gui.trafficengine.signpicker.load");
-    public static final Component tooltipImport = TextUtils.translate("gui.trafficengine.signpicker.tooltip.import");
-
-    private static final int WIDTH = 187;
-    private static final int HEIGHT = 171;
-    private static final int MAX_ENTRIES_IN_ROW = 9;
-    private static final int MAX_ROWS = 6;
-    private static final int ICON_BUTTON_WIDTH = 18;
-    private static final int ICON_BUTTON_HEIGHT = 18;
-      
-    private DLTexture preview;
-    
-    private final int paint;
+public class PaintBrushScreen extends TrafficEngineScreen {
     private final PaintColor color;
-    private final DLColor diffuseColor;
+    private final List<Pattern> patterns = PatternCatalog.all();
+    private final Component previewLabel = Component.translatable("gui.trafficengine.patterns.preview");
+    private Component emptyLabel;
+    private String colorLabel, selectionLabel;
+    private ResourceLocation previewTexture;
+    private final int tint;
     private int patternId;
+    private boolean saved;
+    private Category category = Category.ALL;
+    private String query = "";
+    private int rowOffset, columns, rows, gridX, gridY, gridWidth, gridHeight, previewX, previewHeight;
+    private static final int CELL = 29;
+    private static final double UI_SCALE = 0.9;
+    private TESearchBox search;
+    private TEButton favoriteButton;
+    private List<Pattern> filtered = List.of();
+    private final List<PatternButton> patternButtons = new ArrayList<>();
+    private final EnumMap<Category, TEButton> tabs = new EnumMap<>(Category.class);
+    private boolean draggingScrollbar;
 
-    private final DLPanel groupPatterns;
-    private final DLScrollBar scrollbar;
-
-    private DLTexture[] resources;
-    private int[] patternIds;
-    private int count;
-
-    public PaintBrushScreen(DLWindowManager manager, int patternId, int paint, PaintColor color) {
-        super(manager);
-        setSize(WIDTH, HEIGHT);
-        windowSpawnPosition.set(WindowPosition.CENTER);
-
+    public PaintBrushScreen(int patternId, PaintColor color) {
+        super(Component.translatable("gui.trafficengine.paint_brush.title"));
         this.patternId = patternId;
-        this.paint = paint;
         this.color = color;
-        this.diffuseColor = color.getTextureColor();
-
-        List<DLTexture> locs = new ArrayList<>();
-        List<Integer> ids = new ArrayList<>();
-
-        locs.add(new DLTexture(DLUtils.resourceLocation(TrafficEngine.MOD_ID, "textures/block/sign_blank.png"), 32, 32));
-        ids.add(0);
-
-        // Keep existing IDs intact; show each narrower variant beside its original.
-        for (int i = 1; i <= 314; i++) {
-            locs.add(new DLTexture(DLUtils.resourceLocation(TrafficEngine.MOD_ID, "textures/block/patterns/" + i + ".png"), 32, 32));
-            ids.add(i);
-            if (i == 1 || i == 246) {
-                int narrowPattern = i == 1 ? 316 : 317;
-                locs.add(new DLTexture(DLUtils.resourceLocation(TrafficEngine.MOD_ID,
-                    "textures/block/patterns/" + narrowPattern + ".png"), 32, 32));
-                ids.add(narrowPattern);
-            }
-            if (i == 299) {
-                locs.add(new DLTexture(DLUtils.resourceLocation(TrafficEngine.MOD_ID, "textures/block/patterns/315.png"), 32, 32));
-                ids.add(315);
-            }
-        }
-        this.resources = locs.toArray(DLTexture[]::new);
-        this.patternIds = ids.stream().mapToInt(Integer::intValue).toArray();
-        this.count = this.resources.length;
-
-
-        groupPatterns = addComponent(new DLPanel(7, 16, ICON_BUTTON_WIDTH * MAX_ENTRIES_IN_ROW + 2, ICON_BUTTON_WIDTH * MAX_ROWS + 2));
-        groupPatterns.inputConsumptionPolicy.set(c -> c != ConsumptionType.SCROLL);
-        groupPatterns.addEventListener(DLGuiStandardEvents.RenderEvent.class, (s, e) -> {
-            if (e.layer() == RenderLayer.MAIN) {
-                DLTextureSheet.DRAGONLIB_UI.getSprite("button_brown_down").render(e.graphics(), 0, 0, s.width(), s.height());
-            }
-            return false;
-        });
-        DLPanel innerPanel = groupPatterns.addComponent(new DLPanel(1, 1, groupPatterns.width() - 2, groupPatterns.height() - 2));
-        FlowLayout layout = new FlowLayout();
-        layout.flowDirection.set(Direction.HORIZONTAL);
-        layout.wrap.set(true);        
-        innerPanel.layout.set(layout);
-        innerPanel.inputConsumptionPolicy.set(c -> c != ConsumptionType.SCROLL);
-        
-        for (int i = 0; i < count; i++) {
-            final int j = i;
-            DLSprite sprite = new DLSprite(resources[j], ICON_BUTTON_WIDTH - 2, ICON_BUTTON_HEIGHT - 2, 0, 0, 32, 32);   
-            DLToggleButton btnImport = new DLToggleButton(0, 0, ICON_BUTTON_WIDTH, ICON_BUTTON_HEIGHT);
-
-            btnImport.componentRenderer.set(VanillaSimpleButtonRenderer.VANILLA_BUTTON_BROWN);
-            btnImport.radioButtonMode.set(true);
-            btnImport.text.set(TextUtils.EMPTY);
-            btnImport.icon.set(sprite);
-            btnImport.iconAlignment.set(ETextAlignment.CENTER);
-            btnImport.inputConsumptionPolicy.set(c -> c != ConsumptionType.SCROLL);
-            btnImport.addEventListener(DLGuiStandardEvents.ClickEvent.class, (s, e) -> {
-                this.preview = resources[j];
-                this.patternId = patternIds[j];
-                return false;
-            });
-
-            if (patternId == patternIds[j]) {
-                btnImport.checked.set(true);
-                preview = resources[j];
-            }
-            innerPanel.addComponent(btnImport);
-        }        
-
-        this.scrollbar = addComponent(new DLScrollBar(groupPatterns.x() + groupPatterns.width(), groupPatterns.y(), 8, groupPatterns.height(), Orientation.VERTICAL));
-        scrollbar.anchor.set2(EAlign.BOTTOM, EAlign.TOP, EAlign.RIGHT);
-        scrollbar.scrollerSize.set(0);
-        scrollbar.screenSize.set(innerPanel.height());
-        scrollbar.max.set((int)Math.ceil(count / MAX_ENTRIES_IN_ROW * ICON_BUTTON_HEIGHT));
-        scrollbar.inputConsumptionPolicy.set(c -> true);
-        scrollbar.scrollSteps.set(ICON_BUTTON_HEIGHT);
-        scrollbar.addEventListener(DLScrollBar.ValueChangedEvent.class, (s, e) -> {
-            innerPanel.setScrollOffsetY(e.value());
-            return false;
-        });
-        addEventListener(DLGuiStandardEvents.ScrollEvent.class, scrollbar::invokeEvent);
+        // This is the same diffuse tint used by the old preview.
+        this.tint = color.getTextureColor().getAsARGB();
     }
 
-    @Override
-    public void close() {
-        ModNetworkManager.UPDATE_PAINT_BRUSH.send(NetworkDirection.toServer(), new PaintBrushPacket(patternId));
+    @Override protected void init() {
+        int screenWidth = width, screenHeight = height;
+        width = (int)(width / UI_SCALE);
+        height = (int)(height / UI_SCALE);
+        initLayout();
+        width = screenWidth;
+        height = screenHeight;
+    }
+    private void initLayout() {
+        layoutWindow(504, 293);
+        tabs.clear();
+        patternButtons.clear();
+        previewX = left + windowWidth - 124;
+        gridX = left + 12;
+        gridY = top + 99;
+        columns = Math.max(1, (previewX - gridX - 16) / CELL);
+        rows = Math.max(1, (windowHeight - (windowHeight >= 266 ? 112 : 148)) / CELL);
+        gridWidth = columns * CELL;
+        gridHeight = rows * CELL;
+        previewHeight = windowHeight - 141;
+        colorLabel = font.plainSubstrByWidth(color.getValueTranslation().getString(), 96);
+        select(patternId);
+        search = addRenderableWidget(new TESearchBox(font, left + 17, top + 47, windowWidth - 34, 12,
+            Component.translatable("gui.trafficengine.patterns.search")));
+        search.setValue(query);
+        search.setResponder(value -> { query = value; rowOffset = 0; filter(); });
+        Category[] categories = Category.values();
+        int tabWidth = (windowWidth - 24) / categories.length;
+        for (int i = 0; i < categories.length; i++) {
+            Category tab = categories[i];
+            TEButton button = addRenderableWidget(new TEButton(left + 12 + i * tabWidth, top + 71,
+                tabWidth - 2, 20, tab.title(), b -> { category = tab; rowOffset = 0; filter(); }));
+            tabs.put(tab, button);
+        }
+        addCloseButton();
+        addRenderableWidget(new TEButton(left + windowWidth - 112, top + windowHeight - 30, 100, 20,
+            Component.translatable("gui.done"), b -> onClose(), true));
+        int favoriteY = previewHeight >= 125 ? gridY + previewHeight - 29 : top + windowHeight - 30;
+        int favoriteX = previewHeight >= 125 ? previewX + 6 : left + 12;
+        favoriteButton = addRenderableWidget(new TEButton(favoriteX, favoriteY, 100, 18, Component.empty(), b -> {
+            PatternFavorites.toggle(patternId);
+            updateFavoriteButton();
+            if (category == Category.FAVORITES) filter();
+        }));
+        updateFavoriteButton();
+        filter();
     }
 
-    @Override
-    public void renderMainLayer(DLGuiGraphics graphics, double mouseX, double mouseY, Rectangle renderBounds) {
-        DLTextureSheet.DRAGONLIB_UI.getSprite(DLTextureSheet.SPRITE_NAME_WINDOW_ROUNDED).render(graphics, 0, 0, width(), height());                
-        GuiUtils.drawString(graphics, graphics.defaultFont(), WIDTH / 2, 6, title, DragonLib.VANILLA_UI_FONT_COLOR, ETextAlignment.CENTER, false);
-        
-        if (preview != null) {
-            GuiUtils.setTint(diffuseColor);
-            GuiUtils.drawTexture(preview, graphics, 8, 130, 32, 32, 0, 0, 32, 32, TextureFillMode.STRETCH);
-            GuiUtils.resetTint();        
+    private void updateFavoriteButton() {
+        if (favoriteButton == null) return;
+        boolean favorite = PatternFavorites.contains(patternId);
+        favoriteButton.setMessage(Component.translatable(favorite
+            ? "gui.trafficengine.patterns.remove_favorite" : "gui.trafficengine.patterns.add_favorite"));
+        favoriteButton.setSelected(favorite);
+        favoriteButton.active = patternId >= 0 && patternId < 318;
+    }
+    private void filter() {
+        if (category == Category.FAVORITES) {
+            filtered = patterns.stream().filter(p -> PatternFavorites.contains(p.id()) && p.matches(query)).toList();
+        } else {
+            filtered = patterns.stream().filter(p -> (category == Category.ALL || p.category() == category)
+                && p.matches(query)).toList();
         }
+        emptyLabel = Component.translatable(category == Category.FAVORITES
+            ? "gui.trafficengine.patterns.no_favorites" : "gui.trafficengine.patterns.no_results");
+        tabs.forEach((tab, button) -> button.setSelected(tab == category));
+        rowOffset = Math.min(rowOffset, maxOffset());
+        rebuildGrid();
+    }
 
-        Component textPattern = TextUtils.translate("item.trafficengine.paint_brush.tooltip.pattern", patternId);
-        Component textColor = TextUtils.translate("item.trafficengine.paint_brush.tooltip.color", color.getValueTranslation().getString());
-        Component textPaint = TextUtils.translate("item.trafficengine.paint_brush.tooltip.paint", (int)(100.0f / Constants.MAX_PAINT * paint));
+    private int maxOffset() { return Math.max(0, (filtered.size() + columns - 1) / columns - rows); }
+    private void rebuildGrid() {
+        int start = rowOffset * columns;
+        int count = Math.min(filtered.size() - start, columns * rows);
+        while (patternButtons.size() > count) {
+            PatternButton button = patternButtons.remove(patternButtons.size() - 1);
+            if (getFocused() == button) setFocused(null);
+            removeWidget(button);
+        }
+        for (int cell = 0; cell < count; cell++) {
+            Pattern pattern = filtered.get(start + cell);
+            if (cell < patternButtons.size()) patternButtons.get(cell).setPattern(pattern);
+            else patternButtons.add(addRenderableWidget(new PatternButton(gridX + cell % columns * CELL,
+                gridY + cell / columns * CELL, pattern)));
+        }
+    }
 
-        GuiUtils.drawString(graphics, graphics.defaultFont(), WIDTH - 7, 130, textPattern, DragonLib.VANILLA_UI_FONT_COLOR, ETextAlignment.RIGHT, false);
-        GuiUtils.drawString(graphics, graphics.defaultFont(), WIDTH - 7, 130 + graphics.defaultFont().lineHeight, textColor, DragonLib.VANILLA_UI_FONT_COLOR, ETextAlignment.RIGHT, false);
-        GuiUtils.drawString(graphics, graphics.defaultFont(), WIDTH - 7, 130 + graphics.defaultFont().lineHeight * 2, textPaint, DragonLib.VANILLA_UI_FONT_COLOR, ETextAlignment.RIGHT, false);
+    private void select(int id) {
+        patternId = id;
+        Pattern selected = PatternCatalog.byId(id);
+        previewTexture = selected == null ? null : selected.texture();
+        selectionLabel = "#" + id;
+        updateFavoriteButton();
+        patternButtons.forEach(b -> b.setSelected(b.pattern.id() == patternId));
+    }
+
+    @Override public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+        mouseX /= UI_SCALE;
+        mouseY /= UI_SCALE;
+        if (mouseX >= gridX && mouseX <= previewX - 8 && mouseY >= gridY && mouseY < gridY + gridHeight) {
+            setRowOffset(Math.max(0, Math.min(maxOffset(), rowOffset - (int)Math.signum(delta))));
+            return true;
+        }
+        return super.mouseScrolled(mouseX, mouseY, delta);
+    }
+
+    @Override public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        mouseX /= UI_SCALE;
+        mouseY /= UI_SCALE;
+        if (button == 0 && maxOffset() > 0 && mouseX >= gridX + gridWidth + 2 && mouseX < gridX + gridWidth + 9
+            && mouseY >= gridY && mouseY < gridY + gridHeight) {
+            draggingScrollbar = true;
+            scrollTo(mouseY);
+            return true;
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    private void scrollTo(double mouseY) {
+        int thumb = Math.max(16, gridHeight * rows / (maxOffset() + rows));
+        setRowOffset(Math.max(0, Math.min(maxOffset(), (int)Math.round((mouseY - gridY - thumb / 2.0)
+            / Math.max(1, gridHeight - thumb) * maxOffset()))));
+    }
+    private void setRowOffset(int offset) {
+        if (offset == rowOffset) return;
+        rowOffset = offset;
+        rebuildGrid();
+    }
+    @Override public boolean mouseDragged(double mouseX, double mouseY, int button, double dx, double dy) {
+        mouseX /= UI_SCALE;
+        mouseY /= UI_SCALE;
+        dx /= UI_SCALE;
+        dy /= UI_SCALE;
+        if (draggingScrollbar) { scrollTo(mouseY); return true; }
+        return super.mouseDragged(mouseX, mouseY, button, dx, dy);
+    }
+    @Override public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        draggingScrollbar = false;
+        return super.mouseReleased(mouseX / UI_SCALE, mouseY / UI_SCALE, button);
+    }
+    @Override public void mouseMoved(double x, double y) { super.mouseMoved(x / UI_SCALE, y / UI_SCALE); }
+
+    @Override public void tick() { search.tick(); }
+    @Override public void onClose() {
+        // Match the old screen: closing with Escape or Done applies the selection.
+        if (!saved) {
+            saved = true;
+            ModNetworkManager.UPDATE_PAINT_BRUSH.send(NetworkDirection.toServer(), new PaintBrushPacket(patternId));
+        }
+        super.onClose();
+    }
+
+    @Override public void render(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
+        g.fill(0, 0, width, height, 0x801A2028);
+        g.pose().pushPose();
+        g.pose().scale((float)UI_SCALE, (float)UI_SCALE, 1);
+        TEChrome.draw(g, font, left, top, windowWidth, windowHeight, title);
+        TEPanel.draw(g, gridX - 3, gridY - 3, gridWidth + 13, gridHeight + 6);
+        TEPanel.draw(g, previewX, gridY - 3, 112, previewHeight + 6);
+        if (filtered.isEmpty()) {
+            g.drawWordWrap(font, emptyLabel,
+                gridX + 9, gridY + 12, gridWidth - 18, TEColors.MUTED);
+        }
+        if (maxOffset() > 0) {
+            int thumb = Math.max(16, gridHeight * rows / (maxOffset() + rows));
+            int thumbY = gridY + (gridHeight - thumb) * rowOffset / maxOffset();
+            g.fill(gridX + gridWidth + 3, gridY, gridX + gridWidth + 7, gridY + gridHeight, TEColors.FIELD);
+            g.fill(gridX + gridWidth + 3, thumbY, gridX + gridWidth + 7, thumbY + thumb, TEColors.ACCENT);
+        }
+        g.drawString(font, previewLabel, previewX + 8, gridY + 5, TEColors.MUTED, false);
+        int size = Math.max(24, Math.min(66, previewHeight - 78));
+        int px = previewX + (112 - size) / 2;
+        g.fill(px, gridY + 19, px + size, gridY + 19 + size, TEColors.FIELD);
+        if (previewTexture != null) drawPattern(g, previewTexture, px + 4, gridY + 23, size - 8);
+        int detailsY = gridY + 22 + size;
+        g.drawString(font, selectionLabel, previewX + 8, detailsY, TEColors.ACCENT, false);
+        g.drawString(font, colorLabel, previewX + 8,
+            detailsY + 11, TEColors.TEXT, false);
+        super.render(g, (int)(mouseX / UI_SCALE), (int)(mouseY / UI_SCALE), partialTick);
+        g.pose().popPose();
+    }
+
+    private void drawPattern(GuiGraphics g, ResourceLocation texture, int x, int y, int size) {
+        RenderSystem.enableBlend();
+        g.setColor(((tint >> 16) & 255) / 255f, ((tint >> 8) & 255) / 255f, (tint & 255) / 255f, 1f);
+        g.blit(texture, x, y, size, size, 0, 0, 32, 32, 32, 32);
+        g.setColor(1f, 1f, 1f, 1f);
+        RenderSystem.disableBlend();
+    }
+
+    private final class PatternButton extends TEButton {
+        private Pattern pattern;
+        private ResourceLocation texture;
+        PatternButton(int x, int y, Pattern pattern) {
+            super(x, y, CELL - 2, CELL - 2, Component.empty(), b -> select(((PatternButton)b).pattern.id()));
+            setPattern(pattern);
+        }
+        private void setPattern(Pattern pattern) {
+            if (this.pattern != pattern) {
+                this.pattern = pattern;
+                texture = pattern.texture();
+                setTooltip(Tooltip.create(pattern.name().copy().append(" (#" + pattern.id() + ")")));
+            }
+            setSelected(pattern.id() == patternId);
+        }
+        @Override protected void renderLabel(GuiGraphics g, int color) {
+            // Keep road marking contrast even on the amber selection border.
+            g.fill(getX() + 2, getY() + 2, getX() + width - 2, getY() + height - 2, TEColors.FIELD);
+            drawPattern(g, texture, getX() + 4, getY() + 4, CELL - 10);
+        }
+        @Override public void updateWidgetNarration(NarrationElementOutput output) {
+            output.add(NarratedElementType.TITLE, pattern.name().copy().append(" #" + pattern.id()));
+            output.add(NarratedElementType.USAGE, Component.translatable("narration.button.usage.focused"));
+        }
     }
 }

@@ -2,10 +2,10 @@ package com.destan.trafficengine.block.data;
 
 import java.util.Arrays;
 
-import de.mrjulsen.mcdragonlib.data.ITranslatableEnum;
+import com.destan.trafficengine.data.TranslatableEnum;
 import com.destan.trafficengine.TrafficEngine;
 
-public enum TrafficLightColor implements ITranslatableEnum {
+public enum TrafficLightColor implements TranslatableEnum {
     NONE("none", 0, TrafficLightType.values(), 0),
 	RED("red", 1, new TrafficLightType[] { TrafficLightType.NOCOUNTDOWN, TrafficLightType.COUNTDOWN }, 1),
 	YELLOW("yellow", 2, new TrafficLightType[] { TrafficLightType.NOCOUNTDOWN, TrafficLightType.COUNTDOWN }, 2),

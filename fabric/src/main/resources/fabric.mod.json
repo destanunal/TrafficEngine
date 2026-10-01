@@ -24,7 +24,8 @@
     "fabricloader": ">=${fabric_loader_version}",
     "minecraft": "~${minecraft_version}",
     "java": ">=${java_version}",
-    "dragonlib": ">=${dragonlib_version}",
+    "architectury": ">=${architectury_api_version}",
+    "forgeconfigapiport": ">=${forge_config_api_port_version}",
     "fabric-api": "*"
   },
   "accessWidener": "${modid}.accesswidener"
