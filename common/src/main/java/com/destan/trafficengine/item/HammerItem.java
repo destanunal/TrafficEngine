@@ -1,6 +1,6 @@
 package com.destan.trafficengine.item;
 
-import de.mrjulsen.mcdragonlib.util.DLUtils;
+import com.destan.trafficengine.util.ModUtils;
 import com.destan.trafficengine.recipe.IDamageableCraftingItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
@@ -49,7 +49,7 @@ public class HammerItem extends DiggerItem implements IDamageableCraftingItem {
         BlockState block = level.getBlockState(pos);
 
         if (block.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) {
-            if (DLUtils.rotateBlock(level, pos, Rotation.CLOCKWISE_90)) {
+            if (ModUtils.rotateBlock(level, pos, Rotation.CLOCKWISE_90)) {
                 level.playLocalSound(pos.getX(), pos.getY(), pos.getZ(), SoundEvents.ANVIL_PLACE, SoundSource.BLOCKS, 0.5f, 2.0f, false);
                 level.levelEvent(pContext.getPlayer(), LevelEvent.PARTICLES_SCRAPE, pos, Block.getId(pContext.getLevel().getBlockState(pContext.getClickedPos())));
                 pContext.getPlayer().getCooldowns().addCooldown(pContext.getItemInHand().getItem(), 10);

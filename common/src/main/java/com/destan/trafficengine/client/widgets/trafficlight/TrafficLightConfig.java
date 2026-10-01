@@ -1,15 +1,8 @@
 package com.destan.trafficengine.client.widgets.trafficlight;
 
 import java.util.HashSet;
-import java.util.Map;
-import java.util.PriorityQueue;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
-import de.mrjulsen.mcdragonlib.annotations.SupportsEvents;
-import de.mrjulsen.mcdragonlib.events.EventListenerWrapper;
-import de.mrjulsen.mcdragonlib.events.IEvent;
-import de.mrjulsen.mcdragonlib.events.IEventDispatcher;
 import com.destan.trafficengine.block.TrafficLightBlock;
 import com.destan.trafficengine.block.data.TrafficLightColor;
 import com.destan.trafficengine.block.data.TrafficLightControlType;
@@ -20,19 +13,7 @@ import com.destan.trafficengine.block.entity.TrafficLightBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 
-@SupportsEvents({
-    TrafficLightConfig.UpdateEvent.class
-})
-public class TrafficLightConfig implements IEventDispatcher<TrafficLightConfig> {
-
-    public record UpdateEvent() implements IEvent {}
-
-    private final Map<Class<? extends IEvent>, PriorityQueue<EventListenerWrapper<?>>> listeners = new ConcurrentHashMap<>();
-
-    @Override
-    public Map<Class<? extends IEvent>, PriorityQueue<EventListenerWrapper<?>>> getEventListeners() {
-        return listeners;
-    }
+public class TrafficLightConfig {
     
     public final Level level;
     public final BlockPos blockPos;
@@ -85,7 +66,4 @@ public class TrafficLightConfig implements IEventDispatcher<TrafficLightConfig> 
         }
     }
 
-    public void notifyUpdate() {
-        invokeEvent(this, new UpdateEvent());
-    }
 }

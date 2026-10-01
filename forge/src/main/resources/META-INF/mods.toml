@@ -27,8 +27,8 @@ ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.${modid}]]
-modId = "dragonlib"
+modId = "architectury"
 mandatory = true
-versionRange = "[beta-3.0.19,)"
+versionRange = "[${architectury_api_version},)"
 ordering = "BEFORE"
 side = "BOTH"

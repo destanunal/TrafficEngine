@@ -11,11 +11,10 @@ import org.joml.Vector3f;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.ImmutableMultimap;
 
-import de.mrjulsen.mcdragonlib.data.DLStatus;
-import de.mrjulsen.mcdragonlib.data.WorldLocation;
-import de.mrjulsen.mcdragonlib.util.DLUtils;
-import de.mrjulsen.mcdragonlib.util.TextUtils;
-import de.mrjulsen.mcdragonlib.util.math.MathUtils;
+import com.destan.trafficengine.network.PacketStatus;
+import com.destan.trafficengine.data.WorldLocation;
+import com.destan.trafficengine.util.ModUtils;
+import net.minecraft.network.chat.Component;
 import com.destan.trafficengine.TrafficEngine;
 import com.destan.trafficengine.block.data.RoadType;
 import com.destan.trafficengine.client.ClientWrapper;
@@ -27,7 +26,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -93,7 +91,7 @@ public class RoadConstructionTool extends Item {
                 WorldLocation location = new WorldLocation(clickedPos.getX(), clickedVec.y, clickedPos.getZ(), level.dimension().location());
 
                 if (compound.contains(NBT_LOCATION1)) {
-                    if (isLineValid(WorldLocation.loadFromNbt(compound.getCompound(NBT_LOCATION1)).getLocationVec3(), location.getLocationVec3()).flag() == DLStatus.FLAG_OK) {
+                    if (isLineValid(WorldLocation.loadFromNbt(compound.getCompound(NBT_LOCATION1)).getLocationVec3(), location.getLocationVec3()).flag() == PacketStatus.FLAG_OK) {
                         compound.put(NBT_LOCATION2, location.toNbt());
                     }
                 } else {
@@ -152,9 +150,9 @@ public class RoadConstructionTool extends Item {
         }
     }
 
-    private static DLStatus isLineValid(Vec3 a, Vec3 b) {
+    private static PacketStatus isLineValid(Vec3 a, Vec3 b) {
         boolean flag1 = a.distanceTo(b) < ModCommonConfig.ROAD_BUILDER_MAX_DISTANCE.get();
-        boolean flag2 = MathUtils.slope(a.toVector3f(), b.toVector3f()) >= ModCommonConfig.ROAD_BUILDER_MAX_SLOPE.get();
+        boolean flag2 = ModUtils.slope(a.toVector3f(), b.toVector3f()) >= ModCommonConfig.ROAD_BUILDER_MAX_SLOPE.get();
         int status = 0;
 
         if (!flag1) {
@@ -163,7 +161,7 @@ public class RoadConstructionTool extends Item {
             status = ERROR_SLOPE_TOO_STEEP;
         }
 
-        return new DLStatus(flag1 && flag2 ? DLStatus.FLAG_OK : DLStatus.FLAG_ERROR, status, "");
+        return new PacketStatus(flag1 && flag2 ? PacketStatus.FLAG_OK : PacketStatus.FLAG_ERROR, status, "");
     }
 
     @Override
@@ -242,7 +240,7 @@ public class RoadConstructionTool extends Item {
         pPlayer.getCooldowns().addCooldown(pStack.getItem(), blockList.size() * BUILD_DELAY_TICKS);
 
         if (!pLevel.isClientSide) {
-            DLUtils.giveAdvancement((ServerPlayer)pPlayer, TrafficEngine.MOD_ID, "road_construction_tool", "req");
+            ModUtils.giveAdvancement((ServerPlayer)pPlayer, TrafficEngine.MOD_ID, "road_construction_tool", "req");
         }
 
         return new RoadBuildingData(blockList, pPlayer, pHand, pStack, start, end, roadWidth, replaceBlocks, roadType);
@@ -349,13 +347,13 @@ public class RoadConstructionTool extends Item {
                 end = null;
             }
 
-            player.displayClientMessage(TextUtils.translate("item.trafficengine.road_construction_tool.status_pos1",
+            player.displayClientMessage(Component.translatable("item.trafficengine.road_construction_tool.status_pos1",
                     WorldLocation.loadFromNbt(nbt.getCompound(NBT_LOCATION1)).getLocationBlockPos().toShortString()
             ), true);
 
         } else if (nbt.contains(NBT_LOCATION1) && nbt.contains(NBT_LOCATION2)) {
             end = WorldLocation.loadFromNbt(nbt.getCompound(NBT_LOCATION2)).getLocationVec3().add(0.5d, 0, 0.5d);
-            player.displayClientMessage(TextUtils.translate("item.trafficengine.road_construction_tool.status_pos2",
+            player.displayClientMessage(Component.translatable("item.trafficengine.road_construction_tool.status_pos2",
                     WorldLocation.loadFromNbt(nbt.getCompound(NBT_LOCATION1)).getLocationBlockPos().toShortString(),
                     WorldLocation.loadFromNbt(nbt.getCompound(NBT_LOCATION2)).getLocationBlockPos().toShortString()
             ).withStyle(ChatFormatting.GREEN), true);
@@ -381,10 +379,10 @@ public class RoadConstructionTool extends Item {
             int lineStatus = isLineValid(start, end).code();
             switch (lineStatus) {
                 case ERROR_TOO_FAR:
-                    player.displayClientMessage(TextUtils.translate("item.trafficengine.road_construction_tool.status_too_far").withStyle(ChatFormatting.RED), true);
+                    player.displayClientMessage(Component.translatable("item.trafficengine.road_construction_tool.status_too_far").withStyle(ChatFormatting.RED), true);
                     break;
                 case ERROR_SLOPE_TOO_STEEP:
-                    player.displayClientMessage(TextUtils.translate("item.trafficengine.road_construction_tool.status_slope_too_steep").withStyle(ChatFormatting.RED), true);
+                    player.displayClientMessage(Component.translatable("item.trafficengine.road_construction_tool.status_slope_too_steep").withStyle(ChatFormatting.RED), true);
                     break;
                 default:
                     break;
@@ -393,7 +391,7 @@ public class RoadConstructionTool extends Item {
             if (clientTicks == 0) {
                 for (double d = 0; d < 1; d += mul) {
                     Vec3 vecPos = new Vec3(line.x * d, line.y * d, line.z * d).add(start);
-                    level.addParticle(new DustParticleOptions(isLineValid(start, end).flag() == DLStatus.FLAG_OK ? new Vector3f(0.2f, 0.9f, 0.2f) : new Vector3f(0.9f, 0.2f, 0.2f), 1f), vecPos.x, vecPos.y, vecPos.z, 0, 0, 0);
+                    level.addParticle(new DustParticleOptions(isLineValid(start, end).flag() == PacketStatus.FLAG_OK ? new Vector3f(0.2f, 0.9f, 0.2f) : new Vector3f(0.9f, 0.2f, 0.2f), 1f), vecPos.x, vecPos.y, vecPos.z, 0, 0, 0);
 
                     Vec3 rightVec = vecPos.add(new Vec3(line.z * d, 0, -line.x * d).normalize().scale(halfWidth));
                     level.addParticle(new DustParticleOptions(new Vector3f(1f, 1f, 0.6f), 0.5f), rightVec.x, rightVec.y, rightVec.z, 0, 0, 0);
