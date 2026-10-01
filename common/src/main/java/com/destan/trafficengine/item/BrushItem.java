@@ -3,7 +3,7 @@ import com.destan.trafficengine.util.ItemData;
 
 import java.util.List;
 
-import de.mrjulsen.mcdragonlib.util.TextUtils;
+import net.minecraft.network.chat.Component;
 import com.destan.trafficengine.Constants;
 import com.destan.trafficengine.client.ClientWrapper;
 import com.destan.trafficengine.data.PaintColor;
@@ -16,7 +16,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -63,7 +62,7 @@ public class BrushItem extends Item {
         ItemData.set(stack, nbt);
 
         if (level.isClientSide) {
-            ClientWrapper.showPaintBrushScreen(nbt.getInt(NBT_PATTERN), nbt.getInt(NBT_PAINT), PaintColor.getByIndex(nbt.getInt(NBT_COLOR)));
+            ClientWrapper.showPaintBrushScreen(nbt.getInt(NBT_PATTERN), PaintColor.getByIndex(nbt.getInt(NBT_COLOR)));
         }
 
         return new InteractionResultHolder<>(InteractionResult.SUCCESS, stack);
@@ -77,13 +76,12 @@ public class BrushItem extends Item {
             PaintColor paintColor = PaintColor.getByIndex(ItemData.get(stack).getInt(NBT_COLOR));
             String color = paintColor.getValueTranslation().getString();
 
-            list.add(TextUtils.translate("item.trafficengine.paint_brush.tooltip.pattern", "§f" + ItemData.get(stack).getInt(NBT_PATTERN)).withStyle(ChatFormatting.GRAY));
+            list.add(Component.translatable("item.trafficengine.paint_brush.tooltip.pattern", "§f" + ItemData.get(stack).getInt(NBT_PATTERN)).withStyle(ChatFormatting.GRAY));
             if (ItemData.get(stack).getInt(NBT_PAINT) == 0) {
-                list.add(TextUtils.translate("item.trafficengine.paint_brush.tooltip.color", TextUtils.translate("item.trafficengine.paint_brush.tooltip.color_empty")).withStyle(ChatFormatting.GRAY));
+                list.add(Component.translatable("item.trafficengine.paint_brush.tooltip.color", Component.translatable("item.trafficengine.paint_brush.tooltip.color_empty")).withStyle(ChatFormatting.GRAY));
             } else {
-                list.add(TextUtils.translate("item.trafficengine.paint_brush.tooltip.color", TextUtils.text(color).withStyle(Style.EMPTY.applyFormat(ChatFormatting.WHITE).withColor(paintColor.getTextureColor().getAsARGB()))).withStyle(ChatFormatting.GRAY));
+                list.add(Component.translatable("item.trafficengine.paint_brush.tooltip.color", Component.literal(color).withStyle(Style.EMPTY.applyFormat(ChatFormatting.WHITE).withColor(paintColor.getTextureColor().getAsARGB()))).withStyle(ChatFormatting.GRAY));
             }
-            list.add(TextUtils.translate("item.trafficengine.paint_brush.tooltip.paint", "§f" + (int)(100.0f / Constants.MAX_PAINT * ItemData.get(stack).getInt(NBT_PAINT))).withStyle(ChatFormatting.GRAY));
         }
 
         list.add(Component.translatable("item.trafficengine.paint_brush.tooltip.copy").withStyle(ChatFormatting.DARK_GRAY));

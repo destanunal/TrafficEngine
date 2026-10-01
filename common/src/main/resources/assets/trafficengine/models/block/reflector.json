@@ -1,5 +1,4 @@
 {
-	"loader": "dragonlib:advanced_json",
 	"render_type": "cutout",
 	"textures": {
 		"0": "trafficengine:block/reflector",
@@ -24,8 +23,8 @@
 			"from": [6, 0, 5],
 			"to": [10, 1, 11],
 			"faces": {
-				"north": {"uv": [1, 8, 5, 9], "texture": "#0", "tintindex": 0, "dragonlib_data": { "emissive": true }},
-				"south": {"uv": [1, 8, 5, 9], "texture": "#0", "tintindex": 0, "dragonlib_data": { "emissive": true }}
+				"north": {"uv": [1, 8, 5, 9], "texture": "#0", "tintindex": 0, "trafficengine_data": { "emissive": true }},
+				"south": {"uv": [1, 8, 5, 9], "texture": "#0", "tintindex": 0, "trafficengine_data": { "emissive": true }}
 			}
 		},
 		{

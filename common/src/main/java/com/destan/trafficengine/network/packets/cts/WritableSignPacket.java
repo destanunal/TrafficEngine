@@ -1,10 +1,10 @@
 package com.destan.trafficengine.network.packets.cts;
 
-import de.mrjulsen.mcdragonlib.block.DLWritableSignBlockEntity;
-import de.mrjulsen.mcdragonlib.data.DLStatus;
-import de.mrjulsen.mcdragonlib.network.NetworkPacketContext;
-import de.mrjulsen.mcdragonlib.network.NetworkPacketData;
-import de.mrjulsen.mcdragonlib.util.NbtUtils;
+import com.destan.trafficengine.block.entity.WritableTrafficSignBlockEntity;
+import com.destan.trafficengine.network.PacketStatus;
+import com.destan.trafficengine.network.NetworkPacketContext;
+import com.destan.trafficengine.network.NetworkPacketData;
+import com.destan.trafficengine.util.NbtPositions;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -20,12 +20,12 @@ public class WritableSignPacket extends NetworkPacketData {
     private String[] messages;
     private BlockPos pos;
 
-    public WritableSignPacket(DLStatus status) {
+    public WritableSignPacket(PacketStatus status) {
         super(status);
     }
 
     public WritableSignPacket(BlockPos pos, String[] messages) {
-        super(DLStatus.OK);
+        super(PacketStatus.OK);
         this.pos = pos;
         this.messages = messages;
     }
@@ -37,18 +37,18 @@ public class WritableSignPacket extends NetworkPacketData {
             msgs.add(StringTag.valueOf(msg));
         }
         nbt.put(NBT_MESSAGES, msgs);
-        NbtUtils.putNbtPos(nbt, NBT_POS, pos);
+        NbtPositions.putNbtPos(nbt, NBT_POS, pos);
     }
 
     @Override
     protected void read(CompoundTag nbt) {
         this.messages = nbt.getList(NBT_MESSAGES, Tag.TAG_STRING).stream().map(x -> ((StringTag)x).getAsString()).toArray(String[]::new);
-        this.pos = NbtUtils.getNbtBlockPos(nbt, NBT_POS);
+        this.pos = NbtPositions.getNbtBlockPos(nbt, NBT_POS);
     }
 
     public static void handle(WritableSignPacket packet, NetworkPacketContext context) {
         ServerPlayer sender = (ServerPlayer)context.getPlayer();
-        if (sender.level().getBlockEntity(packet.pos) instanceof DLWritableSignBlockEntity blockEntity) {
+        if (sender.level().getBlockEntity(packet.pos) instanceof WritableTrafficSignBlockEntity blockEntity) {
             blockEntity.setTexts(packet.messages);
         }
     }

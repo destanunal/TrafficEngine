@@ -5,7 +5,7 @@ import com.destan.trafficengine.block.TrafficSignPostBlock;
 import com.destan.trafficengine.block.data.IColorBlockEntity;
 import com.destan.trafficengine.data.PaintColor;
 import com.destan.trafficengine.registry.ModBlockEntities;
-import de.mrjulsen.mcdragonlib.block.DLSyncedBlockEntity;
+import com.destan.trafficengine.block.entity.SyncedBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -13,8 +13,8 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class LedDeviceBlockEntity extends DLSyncedBlockEntity implements IColorBlockEntity {
-    private int color = 0xFFFFA000;
+public class LedDeviceBlockEntity extends SyncedBlockEntity implements IColorBlockEntity {
+    private int color = 0xFFFFFFFF;
     private int intervalTicks = 20;
     private String message = "";
     private String[] messageLines = {""};
@@ -30,7 +30,7 @@ public class LedDeviceBlockEntity extends DLSyncedBlockEntity implements IColorB
     @Override
     public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.loadAdditional(tag, provider);
-        color = tag.contains("color") ? tag.getInt("color") : 0xFFFFA000;
+        color = tag.contains("color") ? tag.getInt("color") : 0xFFFFFFFF;
         intervalTicks = tag.contains("interval") ? Math.max(2, tag.getInt("interval")) : 20;
         message = tag.contains("message") ? tag.getString("message") : "";
         if ("TRAFFICENGINE|BY DESTAN".equals(message)) message = "";

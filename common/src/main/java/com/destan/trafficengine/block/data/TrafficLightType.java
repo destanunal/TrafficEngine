@@ -2,10 +2,10 @@ package com.destan.trafficengine.block.data;
 
 import java.util.Arrays;
 
-import de.mrjulsen.mcdragonlib.data.ITranslatableEnum;
+import com.destan.trafficengine.data.TranslatableEnum;
 import com.destan.trafficengine.TrafficEngine;
 
-public enum TrafficLightType implements ITranslatableEnum, IIconEnum {
+public enum TrafficLightType implements TranslatableEnum, IIconEnum {
 	NOCOUNTDOWN("nocountdown", 0, 0, 0), // 0. Sütun (1. İkon - Sayaçsız)
 	COUNTDOWN("countdown", 1, 1, 0); // 1. Sütun (2. İkon - Sayaçlı)
 

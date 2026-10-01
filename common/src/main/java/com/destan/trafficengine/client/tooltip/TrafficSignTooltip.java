@@ -3,7 +3,7 @@ package com.destan.trafficengine.client.tooltip;
 import java.util.HashMap;
 import java.util.Map;
 
-import de.mrjulsen.mcdragonlib.util.DLUtils;
+import com.destan.trafficengine.util.ModUtils;
 import com.destan.trafficengine.data.AgingManager;
 import com.destan.trafficengine.data.IAgeable;
 import com.destan.trafficengine.data.NamedTrafficSignTextureReference;
@@ -29,7 +29,7 @@ public class TrafficSignTooltip implements TooltipComponent, IAgeable {
 		patterns.stream().forEach(x -> {
 			textures.put(x, TrafficSignClientTexture.load(x.getTextureId(), false, null));
 		});
-		DLUtils.doIfNotNull(selected, a -> textures.computeIfAbsent(a, x -> TrafficSignClientTexture.load(x.getTextureId(), false, null)));
+		ModUtils.doIfNotNull(selected, a -> textures.computeIfAbsent(a, x -> TrafficSignClientTexture.load(x.getTextureId(), false, null)));
 	}
 
 	public NonNullList<NamedTrafficSignTextureReference> getPatterns() {

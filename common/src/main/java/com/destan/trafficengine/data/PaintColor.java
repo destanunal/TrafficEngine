@@ -1,7 +1,7 @@
 package com.destan.trafficengine.data;
 
-import de.mrjulsen.mcdragonlib.data.ITranslatableEnum;
-import de.mrjulsen.mcdragonlib.util.DLColor;
+import com.destan.trafficengine.data.TranslatableEnum;
+import com.destan.trafficengine.util.ColorValue;
 import com.destan.trafficengine.TrafficEngine;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.DyeItem;
@@ -10,7 +10,7 @@ import net.minecraft.world.level.material.MapColor;
 /*
  * EXTENDED COPY OF DyeColor.class
  */
-public enum PaintColor implements ITranslatableEnum {
+public enum PaintColor implements TranslatableEnum {
 	NONE(-1, "none", 0xFFFFFFFF, MapColor.NONE, 0xFFFFFFFF, 0xFFFFFFFF),
 	WHITE(0, "white", 16383998, MapColor.SNOW, 15790320, 16777215),
 	ORANGE(1, "orange", 16351261, MapColor.COLOR_ORANGE, 15435844, 16738335),
@@ -60,8 +60,9 @@ public enum PaintColor implements ITranslatableEnum {
 		return name;
 	}
 
-	public DLColor getTextureColor() {
-		return DLColor.fromInt(0xFF000000 | textureColor);
+	public ColorValue getTextureColor() {
+		// Dye RGB values have no alpha; item tints in 1.21 also use alpha.
+		return ColorValue.fromInt(0xFF000000 | textureColor);
 	}
 
 	public MapColor getMaterialColor() {

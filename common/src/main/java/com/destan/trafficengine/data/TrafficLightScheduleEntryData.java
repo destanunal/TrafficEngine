@@ -5,13 +5,13 @@ import java.util.Collection;
 import java.util.List;
 
 import com.destan.trafficengine.block.data.compat.TrafficLightMode;
-import de.mrjulsen.mcdragonlib.data.INBTSerializable;
+import com.destan.trafficengine.data.NbtSerializable;
 import com.destan.trafficengine.block.data.TrafficLightColor;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.Mth;
 
-public class TrafficLightScheduleEntryData implements INBTSerializable {
+public class TrafficLightScheduleEntryData implements NbtSerializable {
 
     private static final String NBT_ID = "id";
     private static final String NBT_TICKS = "ticks";

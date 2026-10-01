@@ -1,8 +1,8 @@
 package com.destan.trafficengine.network.packets.cts;
 
-import de.mrjulsen.mcdragonlib.data.DLStatus;
-import de.mrjulsen.mcdragonlib.network.NetworkPacketContext;
-import de.mrjulsen.mcdragonlib.network.NetworkPacketData;
+import com.destan.trafficengine.network.PacketStatus;
+import com.destan.trafficengine.network.NetworkPacketContext;
+import com.destan.trafficengine.network.NetworkPacketData;
 import com.destan.trafficengine.data.NamedTrafficSignTextureReference;
 import com.destan.trafficengine.item.CreativePatternCatalogueItem;
 import net.minecraft.nbt.CompoundTag;
@@ -16,12 +16,12 @@ public class CreativePatternCataloguePacket extends NetworkPacketData {
     private NamedTrafficSignTextureReference data;
     private String tab; // YENİ
 
-    public CreativePatternCataloguePacket(DLStatus status) {
+    public CreativePatternCataloguePacket(PacketStatus status) {
         super(status);
     }
 
     public CreativePatternCataloguePacket(NamedTrafficSignTextureReference data, String tab) {
-        super(DLStatus.OK);
+        super(PacketStatus.OK);
         this.data = data;
         this.tab = tab;
     }
@@ -49,18 +49,16 @@ public class CreativePatternCataloguePacket extends NetworkPacketData {
     public static void handle(CreativePatternCataloguePacket packet, NetworkPacketContext context) {
         ServerPlayer sender = (ServerPlayer)context.getPlayer();
 
-        if (sender.getMainHandItem().getItem() instanceof CreativePatternCatalogueItem) {
-            if (packet.data != null) CreativePatternCatalogueItem.setCustomImage(sender.getMainHandItem(), packet.data);
-            if (packet.tab != null) CreativePatternCatalogueItem.setSelectedTab(sender.getMainHandItem(), packet.tab);
-            CreativePatternCatalogueItem.setSelectedIndex(sender.getMainHandItem(), -1);
-
-        } else if (sender.getOffhandItem().getItem() instanceof CreativePatternCatalogueItem) {
-            if (packet.data != null) CreativePatternCatalogueItem.setCustomImage(sender.getOffhandItem(), packet.data);
-            if (packet.tab != null) CreativePatternCatalogueItem.setSelectedTab(sender.getOffhandItem(), packet.tab);
-
-            // KOPYALA-YAPIŞTIR HATASI DÜZELTİLDİ: getMainHandItem yerine getOffhandItem olmalıydı!
-            CreativePatternCatalogueItem.setSelectedIndex(sender.getOffhandItem(), -1);
+        var stack = sender.getMainHandItem().getItem() instanceof CreativePatternCatalogueItem
+            ? sender.getMainHandItem() : sender.getOffhandItem();
+        if (!(stack.getItem() instanceof CreativePatternCatalogueItem)) return;
+        if (packet.data != null) {
+            CreativePatternCatalogueItem.setCustomImage(stack, packet.data);
+            CreativePatternCatalogueItem.setSelectedIndex(stack, -1);
+        } else {
+            CreativePatternCatalogueItem.clearCustomImage(stack);
         }
+        if (packet.tab != null) CreativePatternCatalogueItem.setSelectedTab(stack, packet.tab);
         sender.getInventory().setChanged();
     }
 }
