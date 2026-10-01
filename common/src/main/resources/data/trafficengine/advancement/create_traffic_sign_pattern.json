@@ -13,7 +13,7 @@
     "show_toast": true,
     "announce_to_chat": true
   },
-  "parent": "trafficengine:store_color_palette",
+  "parent": "trafficengine:traffic_sign_workbench",
   "criteria": {
     "requirement": {
       "trigger": "minecraft:impossible"

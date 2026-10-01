@@ -1,7 +1,7 @@
 package com.destan.trafficengine.block.entity;
 
-import de.mrjulsen.mcdragonlib.block.DLSyncedBlockEntity;
-import de.mrjulsen.mcdragonlib.data.WorldLocation;
+import com.destan.trafficengine.block.entity.SyncedBlockEntity;
+import com.destan.trafficengine.data.WorldLocation;
 import com.destan.trafficengine.block.TrafficLightRequestButtonBlock;
 import com.destan.trafficengine.block.data.TrafficLightTrigger;
 import com.destan.trafficengine.registry.ModBlockEntities;
@@ -12,7 +12,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class TrafficLightRequestButtonBlockEntity extends DLSyncedBlockEntity {
+public class TrafficLightRequestButtonBlockEntity extends SyncedBlockEntity {
 
     private static final String NBT_LISTENING = "listening";
     private static final String NBT_LINKED_TO = "linkedTo";

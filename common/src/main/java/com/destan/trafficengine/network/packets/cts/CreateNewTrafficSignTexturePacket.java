@@ -1,8 +1,8 @@
 package com.destan.trafficengine.network.packets.cts;
 
-import de.mrjulsen.mcdragonlib.data.DLStatus;
-import de.mrjulsen.mcdragonlib.network.NetworkPacketContext;
-import de.mrjulsen.mcdragonlib.network.NetworkPacketData;
+import com.destan.trafficengine.network.PacketStatus;
+import com.destan.trafficengine.network.NetworkPacketContext;
+import com.destan.trafficengine.network.NetworkPacketData;
 import com.destan.trafficengine.data.TrafficSignTextureData;
 import net.minecraft.nbt.CompoundTag;
 
@@ -13,12 +13,12 @@ public class CreateNewTrafficSignTexturePacket {
 
         private TrafficSignTextureData data;    
 
-        public Request(DLStatus status) {
+        public Request(PacketStatus status) {
             super(status);
         }
 
         public Request(TrafficSignTextureData data) {
-            super(DLStatus.OK);
+            super(PacketStatus.OK);
             this.data = data;
         }
 
@@ -35,12 +35,12 @@ public class CreateNewTrafficSignTexturePacket {
 
     public static class Response extends NetworkPacketData {
 
-        public Response(DLStatus status) {
+        public Response(PacketStatus status) {
             super(status);
         }
 
         public Response() {
-            super(DLStatus.OK);
+            super(PacketStatus.OK);
         }
 
         @Override

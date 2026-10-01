@@ -9,7 +9,6 @@ import com.destan.trafficengine.client.screen.menu.ModMenuTypes;
 import com.destan.trafficengine.data.AgingManager;
 import com.destan.trafficengine.init.ClientInitWrapper;
 import com.destan.trafficengine.init.ServerInit;
-import com.destan.trafficengine.world.ModWorldGen;
 import dev.architectury.platform.Platform;
 import net.fabricmc.api.EnvType;
 
@@ -31,7 +30,6 @@ public final class TrafficEngine {
         ModMenuTypes.register();
         ModNetworkManager.init();
         ModCreativeModeTab.init();
-        ModWorldGen.init();
         ModItemTags.init();
         ModBlockTags.init();
             

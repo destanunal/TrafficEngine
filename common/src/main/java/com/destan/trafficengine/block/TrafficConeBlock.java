@@ -1,6 +1,6 @@
 package com.destan.trafficengine.block;
 
-import de.mrjulsen.mcdragonlib.util.DLColor;
+import com.destan.trafficengine.util.ColorValue;
 import com.destan.trafficengine.Constants;
 import com.destan.trafficengine.block.data.ColorableBlock;
 import net.minecraft.core.BlockPos;
@@ -106,7 +106,7 @@ public class TrafficConeBlock extends ColorableBlock implements SimpleWaterlogge
     }
 
     @Override
-    public DLColor getDefaultColor() {
+    public ColorValue getDefaultColor() {
         return Constants.TRAFFIC_CONE_BASE_COLOR;
     }
 

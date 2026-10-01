@@ -1,9 +1,9 @@
 package com.destan.trafficengine.network.packets.cts;
 
-import de.mrjulsen.mcdragonlib.data.DLStatus;
-import de.mrjulsen.mcdragonlib.network.NetworkPacketContext;
-import de.mrjulsen.mcdragonlib.network.NetworkPacketData;
-import de.mrjulsen.mcdragonlib.util.NbtUtils;
+import com.destan.trafficengine.network.PacketStatus;
+import com.destan.trafficengine.network.NetworkPacketContext;
+import com.destan.trafficengine.network.NetworkPacketData;
+import com.destan.trafficengine.util.NbtPositions;
 import com.destan.trafficengine.block.entity.TrafficLightControllerBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -18,25 +18,25 @@ public class TrafficLightControllerPacket extends NetworkPacketData {
     private BlockPos pos;
     private boolean status;
 
-    public TrafficLightControllerPacket(DLStatus status) {
+    public TrafficLightControllerPacket(PacketStatus status) {
         super(status);
     }
 
     public TrafficLightControllerPacket(BlockPos pos, boolean status) {
-        super(DLStatus.OK);
+        super(PacketStatus.OK);
         this.pos = pos;
         this.status = status;
     }
 
     @Override
     protected void write(CompoundTag nbt) {
-        NbtUtils.putNbtPos(nbt, NBT_POS, pos);
+        NbtPositions.putNbtPos(nbt, NBT_POS, pos);
         nbt.putBoolean(NBT_STATUS, status);
     }
 
     @Override
     protected void read(CompoundTag nbt) {
-        this.pos = NbtUtils.getNbtBlockPos(nbt, NBT_POS);
+        this.pos = NbtPositions.getNbtBlockPos(nbt, NBT_POS);
         this.status = nbt.getBoolean(NBT_STATUS);
     }
 

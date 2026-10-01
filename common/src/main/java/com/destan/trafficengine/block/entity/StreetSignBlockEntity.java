@@ -1,9 +1,9 @@
 package com.destan.trafficengine.block.entity;
 
-import de.mrjulsen.mcdragonlib.block.DLWritableSignBlockEntity;
-import de.mrjulsen.mcdragonlib.client.gui.builtin.WritableSignScreen.ConfiguredLineData;
-import de.mrjulsen.mcdragonlib.client.gui.builtin.WritableSignScreen.WritableSignConfig;
-import de.mrjulsen.mcdragonlib.util.DLColor;
+import com.destan.trafficengine.block.entity.WritableTrafficSignBlockEntity;
+import com.destan.trafficengine.data.SignTextConfig.ConfiguredLineData;
+import com.destan.trafficengine.data.SignTextConfig.WritableSignConfig;
+import com.destan.trafficengine.util.ColorValue;
 import com.destan.trafficengine.block.WritableTrafficSign;
 import com.destan.trafficengine.block.data.IColorBlockEntity;
 import com.destan.trafficengine.data.PaintColor;
@@ -16,7 +16,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec2;
 
-public class StreetSignBlockEntity extends DLWritableSignBlockEntity implements IColorBlockEntity {
+public class StreetSignBlockEntity extends WritableTrafficSignBlockEntity implements IColorBlockEntity {
 
     private PaintColor color = PaintColor.NONE;
 
@@ -35,7 +35,7 @@ public class StreetSignBlockEntity extends DLWritableSignBlockEntity implements 
             new ConfiguredLineData(0, -1.0F / 16.0F * 4.25f, new Vec2(1, 1.5f), new Vec2(1.5f, 1.5f), 1.0F / 16.0F * 15, 1, 0)
         }, true, 1.0F / 16.0F * 6.5f, y, WritableSignConfig.DEFAULT_SCALE, 90, 0.4f, 0.0f, 0.02f, (blockState) -> {
             return 90 + (blockState.getValue(WritableTrafficSign.FACING) == Direction.EAST || blockState.getValue(WritableTrafficSign.FACING) == Direction.WEST ? blockState.getValue(WritableTrafficSign.FACING).getOpposite().toYRot() : blockState.getValue(WritableTrafficSign.FACING).toYRot()); 
-        }, DLColor.pickBasedOnBrightness(this.getColor().getTextureColor(), DLColor.WHITE, DLColor.BLACK, 0.5f).getAsARGB());
+        }, ColorValue.pickBasedOnBrightness(this.getColor().getTextureColor(), ColorValue.WHITE, ColorValue.BLACK, 0.5f).getAsARGB());
     }
 
     @Override
