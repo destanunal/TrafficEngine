@@ -6,20 +6,19 @@ import org.joml.Vector3f;
 
 import com.mojang.math.Axis;
 
-import de.mrjulsen.mcdragonlib.block.DLWritableSignBlockEntity;
-import de.mrjulsen.mcdragonlib.client.ber.BERGraphics;
-import de.mrjulsen.mcdragonlib.client.ber.SafeBlockEntityRenderer;
-import de.mrjulsen.mcdragonlib.client.gui.builtin.WritableSignScreen;
-import de.mrjulsen.mcdragonlib.client.gui.builtin.WritableSignScreen.ConfiguredLineData;
-import de.mrjulsen.mcdragonlib.client.gui.builtin.WritableSignScreen.WritableSignConfig;
-import de.mrjulsen.mcdragonlib.client.util.RenderUtils;
-import de.mrjulsen.mcdragonlib.data.ETextAlignment;
-import de.mrjulsen.mcdragonlib.util.DLColor;
+import com.destan.trafficengine.block.entity.WritableTrafficSignBlockEntity;
+import com.destan.trafficengine.client.ber.RenderContext;
+import com.destan.trafficengine.client.ber.BaseBlockEntityRenderer;
+import com.destan.trafficengine.data.SignTextConfig;
+import com.destan.trafficengine.data.SignTextConfig.ConfiguredLineData;
+import com.destan.trafficengine.data.SignTextConfig.WritableSignConfig;
+import com.destan.trafficengine.client.ber.SignRenderUtils;
+import com.destan.trafficengine.util.ColorValue;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class WritableSignBlockEntityRenderer<T extends DLWritableSignBlockEntity> extends SafeBlockEntityRenderer<T> {
+public class WritableSignBlockEntityRenderer<T extends WritableTrafficSignBlockEntity> extends BaseBlockEntityRenderer<T> {
     protected final Font font;
 
     public WritableSignBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
@@ -28,7 +27,7 @@ public class WritableSignBlockEntityRenderer<T extends DLWritableSignBlockEntity
     }
 
     @Override
-    public void renderSafe(BERGraphics<T> graphics, float pPartialTick) {
+    public void renderSafe(RenderContext<T> graphics, float pPartialTick) {
         WritableSignConfig config = graphics.blockEntity().getRenderConfig();        
         renderInternal(config, graphics.blockEntity()::getText, pPartialTick, graphics, false);
         if (config.renderBack()) {
@@ -36,7 +35,7 @@ public class WritableSignBlockEntityRenderer<T extends DLWritableSignBlockEntity
         }
     }
 
-    protected void renderInternal(WritableSignConfig config, Function<Integer, String> getText, float pPartialTick, BERGraphics<T> graphics, boolean isOpposite) {
+    protected void renderInternal(WritableSignConfig config, Function<Integer, String> getText, float pPartialTick, RenderContext<T> graphics, boolean isOpposite) {
         BlockState blockState = graphics.blockEntity().getBlockState();
         final float scale = 1.0F / config.scale();
 
@@ -52,11 +51,11 @@ public class WritableSignBlockEntityRenderer<T extends DLWritableSignBlockEntity
             graphics.poseStack().translate((isOpposite ? -1 : 1) * config.berX(), config.berY(), config.berZ());
             float xCenter = (float)(-this.font.width(line) / 2);
 
-            Vector3f vector3f = config.berTextScale(line, font, scale, data);              
+            Vector3f vector3f = config.berTextScale(line, font.width(line), scale, data);
             graphics.poseStack().scale(scale, -scale, scale);
-            graphics.poseStack().translate(data.xOffset() / scale, data.yOffset() / scale - (WritableSignScreen.DEFAULT_LINE_HEIGHT / 2 * config.lineData()[0].lineHeightScale()) + config.getLineHeightsUntil(lineIndex) + config.getLineOffset(lineIndex, vector3f.y()), 0);   
+            graphics.poseStack().translate(data.xOffset() / scale, data.yOffset() / scale - (SignTextConfig.DEFAULT_LINE_HEIGHT / 2 * config.lineData()[0].lineHeightScale()) + config.getLineHeightsUntil(lineIndex) + config.getLineOffset(lineIndex, vector3f.y()), 0);
             graphics.poseStack().scale(vector3f.x(), vector3f.y(), vector3f.z());
-            RenderUtils.drawString(graphics, font, xCenter, 0, line, DLColor.fromInt(config.berColor()), ETextAlignment.LEFT, false);
+            SignRenderUtils.drawString(graphics, font, xCenter, 0, line, ColorValue.fromInt(config.berColor()), false);
                         
             graphics.poseStack().popPose();
         }

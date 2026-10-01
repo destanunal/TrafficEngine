@@ -1,9 +1,9 @@
 package com.destan.trafficengine.network.packets.cts;
 
-import de.mrjulsen.mcdragonlib.data.DLStatus;
-import de.mrjulsen.mcdragonlib.network.NetworkPacketContext;
-import de.mrjulsen.mcdragonlib.network.NetworkPacketData;
-import de.mrjulsen.mcdragonlib.util.DLUtils;
+import com.destan.trafficengine.network.PacketStatus;
+import com.destan.trafficengine.network.NetworkPacketContext;
+import com.destan.trafficengine.network.NetworkPacketData;
+import com.destan.trafficengine.util.ModUtils;
 import com.destan.trafficengine.TrafficEngine;
 import com.destan.trafficengine.client.screen.menu.TrafficSignWorkbenchMenu;
 import com.destan.trafficengine.data.NamedTrafficSignTextureReference;
@@ -21,7 +21,7 @@ public class TrafficSignPatternPacket {
         private NamedTrafficSignTextureReference reference;
         private int index;
 
-        public Request(DLStatus status) {
+        public Request(PacketStatus status) {
             super(status);
         }
 
@@ -30,7 +30,7 @@ public class TrafficSignPatternPacket {
          * @param index The index of the slot you want to replace or -1 to create a new pattern.
          */
         public Request(NamedTrafficSignTextureReference reference, int index) {
-            super(DLStatus.OK);
+            super(PacketStatus.OK);
             this.index = index;
             this.reference = reference;
         }
@@ -50,12 +50,12 @@ public class TrafficSignPatternPacket {
 
     public static class Response extends NetworkPacketData {
 
-        public Response(DLStatus status) {
+        public Response(PacketStatus status) {
             super(status);
         }
 
         public Response() {
-            super(DLStatus.OK);
+            super(PacketStatus.OK);
         }
 
         @Override
@@ -83,7 +83,7 @@ public class TrafficSignPatternPacket {
             menu.patternSlot.setChanged();
             menu.broadcastChanges();
 
-            DLUtils.giveAdvancement(sender, TrafficEngine.MOD_ID, "create_traffic_sign_pattern", "requirement");
+            ModUtils.giveAdvancement(sender, TrafficEngine.MOD_ID, "create_traffic_sign_pattern", "requirement");
         }
         return new Response();
     }
