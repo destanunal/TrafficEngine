@@ -1,0 +1,606 @@
+{
+  "textures": {
+    "dark": "minecraft:block/polished_deepslate",
+    "wheel": "minecraft:block/black_concrete",
+    "hub": "minecraft:block/blue_concrete",
+    "reflector": "minecraft:block/yellow_concrete",
+    "particle": "minecraft:block/polished_deepslate",
+    "metal": "minecraft:block/iron_block"
+  },
+  "elements": [
+    {
+      "name": "left_post",
+      "from": [
+        4.75,
+        2.25,
+        6.5
+      ],
+      "to": [
+        6.25,
+        15.5,
+        9.5
+      ],
+      "faces": {
+        "north": {
+          "texture": "#dark"
+        },
+        "east": {
+          "texture": "#dark"
+        },
+        "south": {
+          "texture": "#dark"
+        },
+        "west": {
+          "texture": "#dark"
+        },
+        "up": {
+          "texture": "#dark"
+        },
+        "down": {
+          "texture": "#dark"
+        }
+      }
+    },
+    {
+      "name": "left_foot",
+      "from": [
+        4,
+        1.25,
+        5.5
+      ],
+      "to": [
+        7,
+        2.5,
+        10.5
+      ],
+      "faces": {
+        "north": {
+          "texture": "#dark"
+        },
+        "east": {
+          "texture": "#dark"
+        },
+        "south": {
+          "texture": "#dark"
+        },
+        "west": {
+          "texture": "#dark"
+        },
+        "up": {
+          "texture": "#dark"
+        },
+        "down": {
+          "texture": "#dark"
+        }
+      }
+    },
+    {
+      "name": "left_wheel",
+      "from": [
+        4.5,
+        0,
+        6.25
+      ],
+      "to": [
+        6.5,
+        2,
+        9.75
+      ],
+      "faces": {
+        "north": {
+          "texture": "#wheel"
+        },
+        "east": {
+          "texture": "#wheel"
+        },
+        "south": {
+          "texture": "#wheel"
+        },
+        "west": {
+          "texture": "#wheel"
+        },
+        "up": {
+          "texture": "#wheel"
+        },
+        "down": {
+          "texture": "#wheel"
+        }
+      }
+    },
+    {
+      "name": "left_wheel_hub",
+      "from": [
+        4.9,
+        0.4,
+        5.9
+      ],
+      "to": [
+        6.1,
+        1.6,
+        6.3
+      ],
+      "faces": {
+        "north": {
+          "texture": "#hub"
+        },
+        "east": {
+          "texture": "#hub"
+        },
+        "south": {
+          "texture": "#hub"
+        },
+        "west": {
+          "texture": "#hub"
+        },
+        "up": {
+          "texture": "#hub"
+        },
+        "down": {
+          "texture": "#hub"
+        }
+      }
+    },
+    {
+      "name": "left_wheel_hub_back",
+      "from": [
+        4.9,
+        0.4,
+        9.7
+      ],
+      "to": [
+        6.1,
+        1.6,
+        10.1
+      ],
+      "faces": {
+        "north": {
+          "texture": "#hub"
+        },
+        "east": {
+          "texture": "#hub"
+        },
+        "south": {
+          "texture": "#hub"
+        },
+        "west": {
+          "texture": "#hub"
+        },
+        "up": {
+          "texture": "#hub"
+        },
+        "down": {
+          "texture": "#hub"
+        }
+      }
+    },
+    {
+      "name": "left_reflector",
+      "from": [
+        4.5,
+        13.2,
+        5.9
+      ],
+      "to": [
+        6.5,
+        15.0,
+        6.45
+      ],
+      "faces": {
+        "north": {
+          "texture": "#reflector"
+        },
+        "east": {
+          "texture": "#reflector"
+        },
+        "south": {
+          "texture": "#reflector"
+        },
+        "west": {
+          "texture": "#reflector"
+        },
+        "up": {
+          "texture": "#reflector"
+        },
+        "down": {
+          "texture": "#reflector"
+        }
+      }
+    },
+    {
+      "name": "left_reflector_back",
+      "from": [
+        4.5,
+        13.2,
+        9.55
+      ],
+      "to": [
+        6.5,
+        15.0,
+        10.1
+      ],
+      "faces": {
+        "north": {
+          "texture": "#reflector"
+        },
+        "east": {
+          "texture": "#reflector"
+        },
+        "south": {
+          "texture": "#reflector"
+        },
+        "west": {
+          "texture": "#reflector"
+        },
+        "up": {
+          "texture": "#reflector"
+        },
+        "down": {
+          "texture": "#reflector"
+        }
+      }
+    },
+    {
+      "name": "right_post",
+      "from": [
+        9.75,
+        2.25,
+        6.5
+      ],
+      "to": [
+        11.25,
+        15.5,
+        9.5
+      ],
+      "faces": {
+        "north": {
+          "texture": "#dark"
+        },
+        "east": {
+          "texture": "#dark"
+        },
+        "south": {
+          "texture": "#dark"
+        },
+        "west": {
+          "texture": "#dark"
+        },
+        "up": {
+          "texture": "#dark"
+        },
+        "down": {
+          "texture": "#dark"
+        }
+      }
+    },
+    {
+      "name": "right_foot",
+      "from": [
+        9,
+        1.25,
+        5.5
+      ],
+      "to": [
+        12,
+        2.5,
+        10.5
+      ],
+      "faces": {
+        "north": {
+          "texture": "#dark"
+        },
+        "east": {
+          "texture": "#dark"
+        },
+        "south": {
+          "texture": "#dark"
+        },
+        "west": {
+          "texture": "#dark"
+        },
+        "up": {
+          "texture": "#dark"
+        },
+        "down": {
+          "texture": "#dark"
+        }
+      }
+    },
+    {
+      "name": "right_wheel",
+      "from": [
+        9.5,
+        0,
+        6.25
+      ],
+      "to": [
+        11.5,
+        2,
+        9.75
+      ],
+      "faces": {
+        "north": {
+          "texture": "#wheel"
+        },
+        "east": {
+          "texture": "#wheel"
+        },
+        "south": {
+          "texture": "#wheel"
+        },
+        "west": {
+          "texture": "#wheel"
+        },
+        "up": {
+          "texture": "#wheel"
+        },
+        "down": {
+          "texture": "#wheel"
+        }
+      }
+    },
+    {
+      "name": "right_wheel_hub",
+      "from": [
+        9.9,
+        0.4,
+        5.9
+      ],
+      "to": [
+        11.1,
+        1.6,
+        6.3
+      ],
+      "faces": {
+        "north": {
+          "texture": "#hub"
+        },
+        "east": {
+          "texture": "#hub"
+        },
+        "south": {
+          "texture": "#hub"
+        },
+        "west": {
+          "texture": "#hub"
+        },
+        "up": {
+          "texture": "#hub"
+        },
+        "down": {
+          "texture": "#hub"
+        }
+      }
+    },
+    {
+      "name": "right_wheel_hub_back",
+      "from": [
+        9.9,
+        0.4,
+        9.7
+      ],
+      "to": [
+        11.1,
+        1.6,
+        10.1
+      ],
+      "faces": {
+        "north": {
+          "texture": "#hub"
+        },
+        "east": {
+          "texture": "#hub"
+        },
+        "south": {
+          "texture": "#hub"
+        },
+        "west": {
+          "texture": "#hub"
+        },
+        "up": {
+          "texture": "#hub"
+        },
+        "down": {
+          "texture": "#hub"
+        }
+      }
+    },
+    {
+      "name": "right_reflector",
+      "from": [
+        9.5,
+        13.2,
+        5.9
+      ],
+      "to": [
+        11.5,
+        15.0,
+        6.45
+      ],
+      "faces": {
+        "north": {
+          "texture": "#reflector"
+        },
+        "east": {
+          "texture": "#reflector"
+        },
+        "south": {
+          "texture": "#reflector"
+        },
+        "west": {
+          "texture": "#reflector"
+        },
+        "up": {
+          "texture": "#reflector"
+        },
+        "down": {
+          "texture": "#reflector"
+        }
+      }
+    },
+    {
+      "name": "right_reflector_back",
+      "from": [
+        9.5,
+        13.2,
+        9.55
+      ],
+      "to": [
+        11.5,
+        15.0,
+        10.1
+      ],
+      "faces": {
+        "north": {
+          "texture": "#reflector"
+        },
+        "east": {
+          "texture": "#reflector"
+        },
+        "south": {
+          "texture": "#reflector"
+        },
+        "west": {
+          "texture": "#reflector"
+        },
+        "up": {
+          "texture": "#reflector"
+        },
+        "down": {
+          "texture": "#reflector"
+        }
+      }
+    },
+    {
+      "name": "folded_rail",
+      "from": [
+        6.6,
+        3,
+        6.9
+      ],
+      "to": [
+        8.1,
+        15,
+        7.75
+      ],
+      "faces": {
+        "north": {
+          "texture": "#metal"
+        },
+        "east": {
+          "texture": "#metal"
+        },
+        "south": {
+          "texture": "#metal"
+        },
+        "west": {
+          "texture": "#metal"
+        },
+        "up": {
+          "texture": "#metal"
+        },
+        "down": {
+          "texture": "#metal"
+        }
+      }
+    },
+    {
+      "name": "folded_rail",
+      "from": [
+        7.9,
+        3,
+        8.25
+      ],
+      "to": [
+        9.4,
+        15,
+        9.1
+      ],
+      "faces": {
+        "north": {
+          "texture": "#metal"
+        },
+        "east": {
+          "texture": "#metal"
+        },
+        "south": {
+          "texture": "#metal"
+        },
+        "west": {
+          "texture": "#metal"
+        },
+        "up": {
+          "texture": "#metal"
+        },
+        "down": {
+          "texture": "#metal"
+        }
+      }
+    },
+    {
+      "name": "folded_pivot",
+      "from": [
+        7.2,
+        7.8,
+        6.35
+      ],
+      "to": [
+        8.8,
+        9.2,
+        6.85
+      ],
+      "faces": {
+        "north": {
+          "texture": "#dark"
+        },
+        "east": {
+          "texture": "#dark"
+        },
+        "south": {
+          "texture": "#dark"
+        },
+        "west": {
+          "texture": "#dark"
+        },
+        "up": {
+          "texture": "#dark"
+        },
+        "down": {
+          "texture": "#dark"
+        }
+      }
+    },
+    {
+      "name": "folded_pivot",
+      "from": [
+        7.2,
+        7.8,
+        9.65
+      ],
+      "to": [
+        8.8,
+        9.2,
+        10.15
+      ],
+      "faces": {
+        "north": {
+          "texture": "#dark"
+        },
+        "east": {
+          "texture": "#dark"
+        },
+        "south": {
+          "texture": "#dark"
+        },
+        "west": {
+          "texture": "#dark"
+        },
+        "up": {
+          "texture": "#dark"
+        },
+        "down": {
+          "texture": "#dark"
+        }
+      }
+    }
+  ]
+}

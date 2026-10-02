@@ -7,5 +7,4 @@ public class WrenchItem extends Item {
     public WrenchItem() {
         super(new Item.Properties().stacksTo(1));
     }
-    
 }

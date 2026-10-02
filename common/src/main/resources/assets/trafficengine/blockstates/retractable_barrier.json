@@ -2,7 +2,8 @@
   "multipart": [
     {
       "when": {
-        "facing": "north"
+        "facing": "north",
+        "folded": "false"
       },
       "apply": {
         "model": "trafficengine:block/retractable_barrier_core"
@@ -10,7 +11,8 @@
     },
     {
       "when": {
-        "facing": "east"
+        "facing": "east",
+        "folded": "false"
       },
       "apply": {
         "model": "trafficengine:block/retractable_barrier_core",
@@ -19,7 +21,8 @@
     },
     {
       "when": {
-        "facing": "south"
+        "facing": "south",
+        "folded": "false"
       },
       "apply": {
         "model": "trafficengine:block/retractable_barrier_core",
@@ -28,7 +31,8 @@
     },
     {
       "when": {
-        "facing": "west"
+        "facing": "west",
+        "folded": "false"
       },
       "apply": {
         "model": "trafficengine:block/retractable_barrier_core",
@@ -38,7 +42,8 @@
     {
       "when": {
         "facing": "north",
-        "left_connected": "false"
+        "left_connected": "false",
+        "folded": "false"
       },
       "apply": {
         "model": "trafficengine:block/retractable_barrier_end"
@@ -47,7 +52,8 @@
     {
       "when": {
         "facing": "east",
-        "left_connected": "false"
+        "left_connected": "false",
+        "folded": "false"
       },
       "apply": {
         "model": "trafficengine:block/retractable_barrier_end",
@@ -57,7 +63,8 @@
     {
       "when": {
         "facing": "south",
-        "right_connected": "false"
+        "right_connected": "false",
+        "folded": "false"
       },
       "apply": {
         "model": "trafficengine:block/retractable_barrier_end"
@@ -66,7 +73,8 @@
     {
       "when": {
         "facing": "west",
-        "right_connected": "false"
+        "right_connected": "false",
+        "folded": "false"
       },
       "apply": {
         "model": "trafficengine:block/retractable_barrier_end",
@@ -75,7 +83,8 @@
     },
     {
       "when": {
-        "facing": "north|south"
+        "facing": "north|south",
+        "folded": "false"
       },
       "apply": {
         "model": "trafficengine:block/retractable_barrier_end",
@@ -84,10 +93,51 @@
     },
     {
       "when": {
-        "facing": "east|west"
+        "facing": "east|west",
+        "folded": "false"
       },
       "apply": {
         "model": "trafficengine:block/retractable_barrier_end",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "folded": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/retractable_barrier_folded",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "folded": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/retractable_barrier_folded",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "folded": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/retractable_barrier_folded",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "folded": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/retractable_barrier_folded",
         "y": 270
       }
     }
