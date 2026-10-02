@@ -7,9 +7,11 @@
 [![CurseForge Downloads](https://img.shields.io/curseforge/dt/1654475?style=for-the-badge&logo=curseforge&color=orange)](https://www.curseforge.com/minecraft/mc-mods/trafficengine) &nbsp;&nbsp;
 [![Modrinth Downloads](https://img.shields.io/modrinth/dt/traffic-engine?style=for-the-badge&logo=modrinth&color=00AF5C)](https://modrinth.com/mod/traffic-engine)
 
-**Traffic Engine** is a comprehensive traffic, road and city-building mod designed for creating modern and realistic Minecraft cities.
+**Traffic Engine** adds roads, programmable traffic lights, custom signs, displays and city-building blocks to Minecraft.
 
-Inspired by **[TrafficCraft](https://www.curseforge.com/minecraft/mc-mods/trafficcraft)**, Traffic Engine expands the original concept with advanced road systems, programmable traffic infrastructure, customizable signs and displays, city-building components and improved performance.
+Build anything from a small street to a complete city, then bring it to life with working intersections, pedestrian crossings and your own road signs.
+
+Inspired by **[TrafficCraft](https://www.curseforge.com/minecraft/mc-mods/trafficcraft)**, Traffic Engine expands its ideas with more customization, easier controller and new modern menus.
 
 ***
 
@@ -17,41 +19,54 @@ Inspired by **[TrafficCraft](https://www.curseforge.com/minecraft/mc-mods/traffi
 
 ### 🛣️ Roads & Markings
 
-*   **6 Asphalt Types & Slopes:** Default, Damaged, Heavy Damaged, Light, Dark and Dirty asphalt with randomized textures and slope variants for creating smoother and more realistic roads.
-*   **Paint Brush Tools:** Add traffic lanes, bicycle logos, motorcycle logos, pedestrian markings and other road markings directly onto roads.
-*   **Speed Bumps:** Functional Flat and Wide Speed Bumps with accurate placement and hitboxes.
+*   **6 Asphalt Types & Slopes:** Choose Default, Damaged, Heavy Damaged, Light, Dark or Dirty asphalt. Each type includes matching slopes and varied textures.
+*   **Road Markings:** Use the Paint Brush to add lanes, arrows, letters, numbers, bicycle symbols, motorcycle symbols and pedestrian markings.
+*   **Pattern Search & Favorites:** Browse markings by category, search for a pattern and save your favorites for quick access.
+*   **Quick Copy:** Shift + right-click an existing road marking with the Paint Brush to copy its pattern and color.
+*   **Curbs & Speed Bumps:** Build roads with asphalt and concrete curb blocks, matching slopes and Flat or Wide Speed Bumps.
 
 ***
 
 ### 🚦 Traffic Management
 
-*   **Easy-to-Program Traffic Controller:** Set up complex intersections without manually configuring every phase. The controller automatically calculates red-light timing and coordinates pedestrian signals from the green-light durations you enter.
-*   **Traffic Lights:** Vertical, horizontal, and diagonal traffic lights with configurable schedules, multiple operating modes and digital countdown displays.
-*   **Transition Lights & End Warning:** Choose yellow or red + yellow before green, configure the transition duration, and optionally flash the green light before it ends.
-*   **Automatic Pedestrian & Bicycle Crossings:** Link crossing lights to one or multiple vehicle-light IDs. Pedestrian lights turn red shortly before their linked vehicle lights turn green.
+*   **Easy-to-Program Controller:** Enter vehicle-light IDs and green-light durations. Automatic timing calculates the red-light durations and coordinates linked crossing lights.
+*   **Manual Timing:** Configure green and red durations yourself when you need more control.
+*   **Customizable Traffic Lights:** Use vertical, horizontal or diagonal lights with adjustable lamp counts, arrow symbols, operating modes and optional countdown displays.
+*   **Transition Lights:** Choose yellow or red + yellow before green and set how long the transition lasts.
+*   **End Warning:** Optionally make the green light blink before it ends.
+*   **Pedestrian & Bicycle Crossings:** Link crossing lights to one or multiple vehicle-light IDs. Crossing lights turn red shortly before their linked vehicle lights turn green.
 
 ***
 
 ### 🅿️ Traffic Signs
 
-*   **Traffic Signs:** A large and growing collection of customizable road signs with double-sided, wall-mounted, angled, horizontal and diagonal placement options.
-*   **Double-Sided Signs:** Front and back sides can be customized independently with different sign patterns.
-*   **Pattern Catalogue:** Quickly change Traffic Sign shapes and decals without needing separate blocks for every design.
+*   **Flexible Placement:** Place signs on poles or walls, with angled, horizontal and diagonal options.
+*   **Double-Sided Signs:** Set different patterns on the front and back of a sign.
+*   **Pattern Catalogue:** Choose sign shapes and designs without needing a separate block for every pattern.
+*   **Traffic Sign Workbench:** Create your own pixel designs, choose their colors and save or edit them in a Pattern Catalogue.
 
 ***
 
 ### 🖥️ Displays & Information Systems
 
-*   **Traffic LED Panel:** Create custom pixel patterns and colors for traffic and city displays.
-*   **Traffic Information Display:** Programmable displays for road information, warnings, directions and custom messages, including a new large display option and multiple layout variants.
+*   **Traffic LED Panel:** Create custom pixel patterns and colors. Newly placed panels start blank, ready for your design.
+*   **Traffic Information Displays:** Show directions, warnings, road information or custom messages.
 
 ***
 
 ### 🚧 City Infrastructure
 
-*   **Paved Sidewalks & Slopes:** Build detailed sidewalks with matching slope blocks for smoother height transitions.
-*   **Barriers & Roadside Infrastructure:** Multiple barrier types including guardrails, bicycle lane dividers, turnstile barriers and other roadside elements for highways, streets, stations and controlled areas.
-*   **Traffic Poles:** Combine traffic poles with compatible signs and road infrastructure for more detailed roadside setups.
+*   **Paved Sidewalks & Slopes:** Build sidewalks with matching slopes for changes in height.
+*   **Barriers & Guardrails:** Add guardrails, bicycle lane dividers, turnstile barriers and other roadside structures.
+*   **Foldable Scissor Barriers:** Right-click with the **Wrench** to fold or unfold a retractable scissor barrier.
+*   **Traffic Poles:** Combine poles with signs and compatible traffic equipment to build detailed roadside setups.
+
+***
+
+### 🎨 Menus & Performance
+
+*   **Modern Menus:** Clearer layouts, live previews and consistent controls make tools and traffic equipment easier to configure.
+*   **Performance Improvements:** Optimized models and rendering reduce memory usage, while improved breaking effects prevent excessive particles from rotated lights and signs.
 
 ***
 
@@ -61,15 +76,15 @@ Already have a world built with **TrafficCraft**?
 
 Traffic Engine includes an **automatic migration system**.
 
-Simply remove TrafficCraft, install Traffic Engine, then load your world.
+Remove TrafficCraft, install Traffic Engine, then load your world.
 
-Existing roads, traffic signs, custom patterns, linked traffic lights, and other supported TrafficCraft data will automatically be converted while keeping their existing configuration.
+Supported roads, signs, custom patterns, linked traffic lights and other TrafficCraft data are converted automatically while preserving their existing settings.
 
 ***
 
-### ❗ Note
+### 💬 Feedback & Bug Reports
 
-If you find a bug or have feedback, please leave a comment or report it on GitHub.
+Found a bug or have an idea? Leave a comment below or report it on **[GitHub](https://github.com/destanunal/TrafficEngine/issues)**.
 
 ***
 
