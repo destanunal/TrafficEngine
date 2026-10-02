@@ -16,8 +16,8 @@ public class TESearchBox extends EditBox {
         setBordered(false);
     }
     @Override public void renderWidget(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
-        g.fill(getX() - 5, getY() - 5, getX() + width + 5, getY() + height + 5, TEColors.FIELD);
-        TEPanel.outline(g, getX() - 5, getY() - 5, width + 10, height + 10, isFocused() ? TEColors.ACCENT : TEColors.BORDER);
+        TEPanel.surface(g, getX() - 5, getY() - 5, width + 10, height + 10,
+            TEColors.FIELD, isFocused() ? TEColors.SELECTION_BORDER : TEColors.BORDER);
         super.renderWidget(g, mouseX, mouseY, partialTick);
     }
 }

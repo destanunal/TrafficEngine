@@ -61,17 +61,28 @@ public class TEScheduleNumberBox extends EditBox {
         }
         return super.keyPressed(key, scanCode, modifiers);
     }
+    private static void fillStepperHalf(GuiGraphics g, int x, int y, boolean upper, int color) {
+        // Keep the stepper background inside the frame's rounded right corners.
+        if (upper) {
+            g.fill(x, y + 1, x + 13, y + 2, color);
+            g.fill(x, y + 2, x + 14, y + 3, color);
+            g.fill(x, y + 3, x + 15, y + 9, color);
+        } else {
+            g.fill(x, y + 9, x + 15, y + 15, color);
+            g.fill(x, y + 15, x + 14, y + 16, color);
+            g.fill(x, y + 16, x + 13, y + 17, color);
+        }
+    }
     @Override public void renderWidget(GuiGraphics g, int mouseX, int mouseY, float tick) {
         int x = getX() - 5, y = getY() - 5;
-        g.fill(x, y, x + frameWidth, y + 18, TEColors.FIELD);
-        TEPanel.outline(g, x, y, frameWidth, 18,
+        TEPanel.surface(g, x, y, frameWidth, 18, TEColors.FIELD,
             !isValid() ? 0xFFE86A63 : isFocused() ? TEColors.SELECTION_BORDER : TEColors.BORDER);
         if (stepper) {
             int bx = x + frameWidth - 16;
-            g.fill(bx, y + 1, bx + 15, y + 17, TEColors.PANEL);
+            fillStepperHalf(g, bx, y, true, TEColors.PANEL);
+            fillStepperHalf(g, bx, y, false, TEColors.PANEL);
             if (active && mouseX >= bx && mouseX < x + frameWidth - 1 && mouseY >= y && mouseY < y + 18) {
-                int by = mouseY < y + 9 ? y + 1 : y + 9;
-                g.fill(bx, by, bx + 15, by + 8, TEColors.HOVER);
+                fillStepperHalf(g, bx, y, mouseY < y + 9, TEColors.HOVER);
             }
             g.fill(bx, y + 1, bx + 1, y + 17, TEColors.BORDER);
             g.fill(bx, y + 8, bx + 15, y + 9, TEColors.BORDER);

@@ -1,6 +1,6 @@
 package com.destan.trafficengine.client.gui;
 
-import com.destan.trafficengine.client.gui.components.TEButton;
+import com.destan.trafficengine.client.gui.components.TECloseButton;
 import com.destan.trafficengine.client.gui.components.TEPanel;
 import com.destan.trafficengine.client.gui.theme.TEColors;
 import net.minecraft.client.gui.GuiGraphics;
@@ -17,8 +17,7 @@ public abstract class TrafficEngineScreen extends Screen {
         top = (height - windowHeight) / 2;
     }
     protected void addCloseButton() {
-        addRenderableWidget(new TEButton(left + windowWidth - 29, top + 8, 21, 19,
-            Component.literal("×"), b -> onClose()));
+        addRenderableWidget(new TECloseButton(left + windowWidth - 29, top + 8, 21, 19, b -> onClose()));
     }
     protected void renderWindow(GuiGraphics g) {
         g.fill(0, 0, width, height, 0x801A2028);

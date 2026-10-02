@@ -470,9 +470,9 @@
   "gui.trafficengine.trafficlight.preview_label": "CANLI ÖNİZLEME",
   "gui.trafficengine.trafficlight.invalid_id": "Benzersiz ID gir (1 ile 100).",
   "gui.trafficengine.patterns.category.favorites": "Favoriler",
-  "gui.trafficengine.patterns.no_favorites": "Henüz favori desen yok. Bir desen seçip Favori ekle düğmesine bas.",
-  "gui.trafficengine.patterns.add_favorite": "Favorilere ekle",
-  "gui.trafficengine.patterns.remove_favorite": "Favoriden kaldır",
+  "gui.trafficengine.patterns.no_favorites": "Henüz favori desen yok. Bir desen seçip 'Favorilere ekle' düğmesine basın.",
+  "gui.trafficengine.patterns.add_favorite": "Favorilere\nekle",
+  "gui.trafficengine.patterns.remove_favorite": "Favorilerden\nkaldır",
   "block.trafficengine.asphalt_curb": "Kaldırımlı Asfalt",
   "block.trafficengine.concrete_curb": "Kaldırımlı Beton",
   "gui.trafficengine.writable_sign.title": "Tabela Yazısını Düzenle",
@@ -480,6 +480,10 @@
   "gui.trafficengine.trafficsignworkbench.editor.import_file": "Görsel içe aktar",
   "gui.trafficengine.trafficsignworkbench.editor.import_error": "Görsel okunamadı",
   "gui.trafficengine.trafficlightschedule.invalid_id": "ID 1 ile 100 arasında olmalı.",
-  "gui.trafficengine.trafficsignworkbench.catalogue": "Desen kataloğu",
-  "gui.trafficengine.trafficsignworkbench.color.title": "Renk seçici"
+  "gui.trafficengine.trafficsignworkbench.catalogue": "Desen Kataloğu",
+  "gui.trafficengine.trafficsignworkbench.color.title": "Renk seçici",
+  "gui.trafficengine.trafficsignworkbench.menu.insert_catalogue": "Bir desen kataloğu yerleştirin",
+  "gui.trafficengine.trafficsignworkbench.menu.insert_catalogue_help": "Desen Kataloğunu sol üstteki yuvaya yerleştirin. Ardından yeni bir desen oluşturabilir veya katalogdaki kayıtlı desenleri düzenleyebilirsiniz.",
+  "gui.trafficengine.trafficsignworkbench.menu.empty_catalogue": "Katalogda henüz desen yok",
+  "gui.trafficengine.trafficsignworkbench.menu.empty_catalogue_help": "İlk deseninizi oluşturmak için soldaki + düğmesine basın. Oluşturduğunuz deseni burada düzenleyebilirsiniz."
 }

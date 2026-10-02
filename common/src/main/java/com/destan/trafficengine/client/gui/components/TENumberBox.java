@@ -4,12 +4,10 @@ import java.util.function.IntConsumer;
 import java.util.function.IntPredicate;
 import com.destan.trafficengine.client.gui.theme.TEColors;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 
 /** Integer field that allows intermediate typing without overwriting the last valid setting. */
-public class TENumberBox extends EditBox {
+public class TENumberBox extends TEEditBox {
     private final IntPredicate validator;
     public TENumberBox(Font font, int x, int y, int width, int value, Component label,
             IntPredicate validator, IntConsumer change) {
@@ -36,8 +34,7 @@ public class TENumberBox extends EditBox {
         if (start == 1) value = -value;
         return value >= -9999 && value <= 9999 && validator.test(value);
     }
-    @Override public void renderWidget(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
-        super.renderWidget(g, mouseX, mouseY, partialTick);
-        if (!isValid()) TEPanel.outline(g, getX(), getY(), width, height, 0xFFE86A63);
+    @Override protected int frameColor() {
+        return isValid() ? super.frameColor() : 0xFFE86A63;
     }
 }

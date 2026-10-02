@@ -28,6 +28,7 @@ import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 
@@ -40,6 +41,8 @@ public class TrafficSignWorkbenchGui extends AbstractContainerScreen<TrafficSign
     private NamedTrafficSignTextureReference selected;
     private TrafficSignClientTexture preview;
     private ItemStack lastCatalogue = ItemStack.EMPTY;
+    private List<FormattedCharSequence> insertCatalogueTitle = List.of(), insertCatalogueHelp = List.of();
+    private List<FormattedCharSequence> emptyCatalogueTitle = List.of(), emptyCatalogueHelp = List.of();
     private static final int CANVAS_X = 110, CANVAS_Y = 86, CANVAS_SIZE = 128;
     private static final int[] COLOR_PRESETS = {0xFFFFFFFF, 0xFF000000, 0xFFE53935, 0xFFFFD740, 0xFF43A047, 0xFF2196F3, 0xFF9C27B0, 0xFFFF9800};
     private TEColorPicker colorPicker;
@@ -69,7 +72,12 @@ public class TrafficSignWorkbenchGui extends AbstractContainerScreen<TrafficSign
         guiScale = Math.min(1, Math.min((width - 12D) / imageWidth, (height - 12D) / imageHeight));
         int screenWidth = width, screenHeight = height;
         width = (int)(width / guiScale); height = (int)(height / guiScale);
-        super.init(); buildPage();
+        super.init();
+        insertCatalogueTitle = font.split(text("menu.insert_catalogue"), 264);
+        insertCatalogueHelp = font.split(text("menu.insert_catalogue_help"), 264);
+        emptyCatalogueTitle = font.split(text("menu.empty_catalogue"), 244);
+        emptyCatalogueHelp = font.split(text("menu.empty_catalogue_help"), 244);
+        buildPage();
         width = screenWidth; height = screenHeight;
     }
     private void go(Page target) { if (minecraft.screen != this) return; if (nameBox != null) name = nameBox.getValue(); page = target; buildPage(); }
@@ -83,7 +91,7 @@ public class TrafficSignWorkbenchGui extends AbstractContainerScreen<TrafficSign
             @Override protected void renderLabel(GuiGraphics g, int ignored) {
                 int foreground = !active ? TEColors.MUTED : icon == ModGuiIcons.CANCEL || icon == ModGuiIcons.DISCARD_FILE
                     ? 0xFFFF6B6B : icon == ModGuiIcons.CHECK ? 0xFF65E58B : TEColors.TEXT;
-                TEWorkbenchIcons.draw(g, icon, getX() + (getWidth() - 16) / 2, getY() + 2, foreground);
+                TEWorkbenchIcons.draw(g, icon, getX() + (getWidth() - 16) / 2, getY() + (getHeight() - 16) / 2, foreground);
             }
         });
         b.setTooltip(Tooltip.create(caption)); return b;
@@ -91,7 +99,7 @@ public class TrafficSignWorkbenchGui extends AbstractContainerScreen<TrafficSign
     private boolean cataloguePresent() { return menu.patternSlot.getItem().getItem() instanceof PatternCatalogueItem; }
     private void buildPage() {
         clearWidgets(); importButtons.clear(); nameBox = null; hexBox = null; colorPicker = null;
-        icon(325, 8, ModGuiIcons.CANCEL, CommonComponents.GUI_CANCEL, this::onClose);
+        addRenderableWidget(new TECloseButton(leftPos + 325, topPos + 8, 24, 20, b -> { if (!busy) onClose(); }));
         if (!cataloguePresent()) return;
         switch (page) {
             case MAIN -> {
@@ -132,12 +140,12 @@ public class TrafficSignWorkbenchGui extends AbstractContainerScreen<TrafficSign
                     }
                 });
                 pick.setTooltip(Tooltip.create(text("editor.pick_color")));
-                nameBox = addRenderableWidget(new EditBox(font, leftPos + 152, topPos + 53, 180, 18, text("editor.text")));
+                nameBox = addRenderableWidget(new TEEditBox(font, leftPos + 152, topPos + 53, 180, 18, text("editor.text")));
                 nameBox.setMaxLength(20); nameBox.setTextColor(TEColors.TEXT); nameBox.setValue(name); nameBox.setResponder(value -> name = value);
             }
             case COLOR -> {
                 colorPicker = addRenderableWidget(new TEColorPicker(leftPos + 26, topPos + 97, 190, 87, color, text("color.title"), value -> setEditorColor(value, false)));
-                hexBox = addRenderableWidget(new EditBox(font, leftPos + 234, topPos + 153, 98, 19, Component.literal("HEX")));
+                hexBox = addRenderableWidget(new TEEditBox(font, leftPos + 234, topPos + 153, 98, 19, Component.literal("HEX")));
                 hexBox.setTextColor(TEColors.TEXT);
                 hexBox.setMaxLength(6); hexBox.setFilter(v -> v.matches("[0-9a-fA-F]{0,6}"));
                 hexBox.setValue(String.format("%06X", color & 0xFFFFFF));
@@ -336,9 +344,10 @@ public class TrafficSignWorkbenchGui extends AbstractContainerScreen<TrafficSign
         for (var slot : menu.slots) { g.fill(leftPos + slot.x - 1, topPos + slot.y - 1, leftPos + slot.x + 17, topPos + slot.y + 17, TEColors.BORDER); g.fill(leftPos + slot.x, topPos + slot.y, leftPos + slot.x + 16, topPos + slot.y + 16, TEColors.FIELD); }
         TEPanel.draw(g, leftPos + 16, topPos + 78, 328, 146);
         g.drawString(font, text("catalogue"), leftPos + 43, topPos + 58, TEColors.MUTED, false);
-        if (!cataloguePresent()) { g.drawWordWrap(font, text("menu.no_pattern"), leftPos + 92, topPos + 131, 182, TEColors.MUTED); return; }
+        if (!cataloguePresent()) { renderCatalogueHelp(g, true); return; }
         switch (page) {
             case MAIN -> {
+                if (selected == null) renderCatalogueHelp(g, false);
                 if (preview != null && preview.isFullyLoaded()) {
                     var d = preview.getRawData();
                     if (d.getWidth() > 0 && d.getHeight() > 0) g.blit(preview.getTextureLocation(), leftPos + 130, topPos + 90, 100, 100, 0, 0, d.getWidth(), d.getHeight(), d.getWidth(), d.getHeight());
@@ -365,6 +374,19 @@ public class TrafficSignWorkbenchGui extends AbstractContainerScreen<TrafficSign
             }
             case DISCARD -> g.drawWordWrap(font,text("discard.question"),leftPos+84,topPos+107,205,TEColors.TEXT);
             case DELETE -> { g.drawWordWrap(font, text("delete.question"), leftPos + 84, topPos + 107, 205, TEColors.TEXT); if (selected != null) g.drawString(font, font.plainSubstrByWidth(selected.getName(), 205), leftPos + 84, topPos + 139, TEColors.MUTED, false); }
+        }
+    }
+    private void renderCatalogueHelp(GuiGraphics g, boolean missingCatalogue) {
+        int centerX = leftPos + (missingCatalogue ? 180 : 196);
+        int y = topPos + (missingCatalogue ? 120 : 112);
+        for (FormattedCharSequence line : missingCatalogue ? insertCatalogueTitle : emptyCatalogueTitle) {
+            g.drawString(font, line, centerX - font.width(line) / 2, y, TEColors.ACCENT, false);
+            y += 12;
+        }
+        y += 8;
+        for (FormattedCharSequence line : missingCatalogue ? insertCatalogueHelp : emptyCatalogueHelp) {
+            g.drawString(font, line, centerX - font.width(line) / 2, y, TEColors.MUTED, false);
+            y += 12;
         }
     }
     private void renderPixelPreview(GuiGraphics g, int[] source, int x, int y, int size) {
