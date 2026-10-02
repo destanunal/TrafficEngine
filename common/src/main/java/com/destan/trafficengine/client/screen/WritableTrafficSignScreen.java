@@ -47,7 +47,7 @@ public class WritableTrafficSignScreen extends TrafficEngineScreen {
         addCloseButton();
         for (int i = 0; i < messages.length; i++) {
             final int line = i;
-            EditBox box = addRenderableWidget(new EditBox(font, left + 166, top + 55 + i * 25, windowWidth - 182, 19, Component.literal(Integer.toString(i + 1))));
+            EditBox box = addRenderableWidget(new TEEditBox(font, left + 166, top + 55 + i * 25, windowWidth - 182, 19, Component.literal(Integer.toString(i + 1))));
             box.setMaxLength(384);
             box.setTextColor(TEColors.TEXT);
             box.setFilter(text -> font.width(text) <= config.lineData()[line].maxLineWidth() * config.scale());

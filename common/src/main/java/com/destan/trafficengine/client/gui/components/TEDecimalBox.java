@@ -3,12 +3,10 @@ package com.destan.trafficengine.client.gui.components;
 import java.util.function.DoubleConsumer;
 import com.destan.trafficengine.client.gui.theme.TEColors;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 
 /** Decimal seconds retain the schedule's tick precision and accept intermediate typing. */
-public class TEDecimalBox extends EditBox {
+public class TEDecimalBox extends TEEditBox {
     private final double max;
     public TEDecimalBox(Font font, int x, int y, int width, double value, double max, Component label, DoubleConsumer change) {
         super(font, x, y, width, 18, label);
@@ -23,8 +21,7 @@ public class TEDecimalBox extends EditBox {
         try { double value = Double.parseDouble(getValue()); return Double.isFinite(value) && value >= 0 && value <= max; }
         catch (NumberFormatException ex) { return false; }
     }
-    @Override public void renderWidget(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
-        super.renderWidget(g, mouseX, mouseY, partialTick);
-        TEPanel.outline(g, getX(), getY(), width, height, !isValid() ? 0xFFE86A63 : isFocused() ? TEColors.SELECTION_BORDER : TEColors.BORDER);
+    @Override protected int frameColor() {
+        return isValid() ? super.frameColor() : 0xFFE86A63;
     }
 }

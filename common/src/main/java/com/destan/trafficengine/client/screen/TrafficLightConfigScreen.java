@@ -15,6 +15,7 @@ import com.destan.trafficengine.client.TrafficLightTextureManager;
 import com.destan.trafficengine.client.ModGuiIcons;
 import com.destan.trafficengine.client.gui.TrafficEngineScreen;
 import com.destan.trafficengine.client.gui.components.TEButton;
+import com.destan.trafficengine.client.gui.components.TECloseButton;
 import com.destan.trafficengine.client.gui.components.TENumberBox;
 import com.destan.trafficengine.client.gui.components.TEPanel;
 import com.destan.trafficengine.client.gui.components.TEWorkbenchIcons;
@@ -108,12 +109,11 @@ public class TrafficLightConfigScreen extends TrafficEngineScreen {
             button.setSelected(tab == value);
             chrome.add(button);
         }
-        chrome.add(addRenderableWidget(new TEButton(left + windowWidth - 29, top + 8, 21, 19,
-            Component.literal("×"), b -> onClose())));
+        chrome.add(addRenderableWidget(new TECloseButton(left + windowWidth - 29, top + 8, 21, 19, b -> onClose())));
         chrome.add(addRenderableWidget(new TEButton(left + windowWidth - 164, top + windowHeight - 30, 72, 20,
             Component.translatable("gui.cancel"), b -> { closed = true; super.onClose(); })));
         done = addRenderableWidget(new TEButton(left + windowWidth - 86, top + windowHeight - 30, 74, 20,
-            Component.translatable("gui.done"), b -> onClose(), true));
+            Component.translatable("gui.done"), b -> onClose()).primary());
         chrome.add(done);
         rebuildForm();
     }

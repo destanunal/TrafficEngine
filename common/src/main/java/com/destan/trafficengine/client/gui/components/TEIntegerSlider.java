@@ -27,12 +27,14 @@ public class TEIntegerSlider extends AbstractSliderButton {
     @Override protected void updateMessage() { if (caption != null) setMessage(caption.apply(intValue())); }
     @Override protected void applyValue() { change.accept(intValue()); }
     @Override public void renderWidget(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
-        g.fill(getX(), getY(), getX() + width, getY() + height, TEColors.FIELD);
-        int knob = getX() + (int)Math.round((width - 8) * value);
-        g.fill(knob, getY() + 1, knob + 8, getY() + height - 1, TEColors.ACCENT);
-        TEPanel.outline(g, getX(), getY(), width, height, isHoveredOrFocused() ? TEColors.SELECTION_BORDER : TEColors.BORDER);
+        TEPanel.surface(g, getX(), getY(), width, height, TEColors.FIELD,
+            isHoveredOrFocused() ? TEColors.SELECTION_BORDER : TEColors.BORDER);
+        int knob = getX() + 4 + (int)Math.round((width - 8) * value);
+        g.fill(getX() + 4, getY() + height - 4, getX() + width - 4, getY() + height - 2, TEColors.BORDER);
+        g.fill(getX() + 4, getY() + height - 4, knob, getY() + height - 2, TEColors.ACCENT);
+        TEPanel.fillRounded(g, knob - 3, getY() + height - 6, 6, 6, TEColors.ACCENT);
         var font = Minecraft.getInstance().font;
         String text = font.plainSubstrByWidth(getMessage().getString(), width - 12);
-        g.drawString(font, text, getX() + (width - font.width(text)) / 2, getY() + 6, TEColors.TEXT, false);
+        g.drawString(font, text, getX() + (width - font.width(text)) / 2, getY() + 3, TEColors.TEXT, false);
     }
 }

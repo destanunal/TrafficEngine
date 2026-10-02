@@ -98,7 +98,7 @@ public class RoadConstructionToolScreen extends TrafficEngineScreen {
         }, true));
         build.active = pos1 != null && pos2 != null && roadWidth > 0;
         build.setTooltip(Tooltip.create(text(build.active ? "tooltip.build" : "tooltip.build_missing_pos")));
-        addRenderableWidget(new TEButton(left + windowWidth - 88, footer, 74, 20, CommonComponents.GUI_DONE, b -> { updateStackData(); onClose(); }));
+        addRenderableWidget(new TEButton(left + windowWidth - 88, footer, 74, 20, CommonComponents.GUI_DONE, b -> { updateStackData(); onClose(); }).primary());
         addCloseButton();
     }
     private void updateStackData() {

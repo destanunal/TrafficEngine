@@ -18,12 +18,14 @@ import com.destan.trafficengine.network.packets.cts.PaintBrushPacket;
 import com.destan.trafficengine.registry.ModNetworkManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.destan.trafficengine.network.NetworkDirection;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FormattedCharSequence;
 
 public class PaintBrushScreen extends TrafficEngineScreen {
     private final PaintColor color;
@@ -42,6 +44,8 @@ public class PaintBrushScreen extends TrafficEngineScreen {
     private static final double UI_SCALE = 0.9;
     private TESearchBox search;
     private TEButton favoriteButton;
+    private List<FormattedCharSequence> favoriteLines = List.of();
+    private int favoriteCaptionColor;
     private List<Pattern> filtered = List.of();
     private final List<PatternButton> patternButtons = new ArrayList<>();
     private final EnumMap<Category, TEButton> tabs = new EnumMap<>(Category.class);
@@ -91,14 +95,34 @@ public class PaintBrushScreen extends TrafficEngineScreen {
         }
         addCloseButton();
         addRenderableWidget(new TEButton(left + windowWidth - 112, top + windowHeight - 30, 100, 20,
-            Component.translatable("gui.done"), b -> onClose(), true));
-        int favoriteY = previewHeight >= 125 ? gridY + previewHeight - 29 : top + windowHeight - 30;
+            Component.translatable("gui.done"), b -> onClose()) {
+            @Override protected void renderLabel(GuiGraphics g, int foreground) {
+                // Keep the caption at the same pixel scale as the other menus.
+                float scale = (float)UI_SCALE;
+                int x = Math.round((getX() + getWidth() / 2.0F) * scale) - font.width(getMessage()) / 2;
+                int y = Math.round((getY() + getHeight() / 2.0F) * scale) - (font.lineHeight + 1) / 2;
+                g.pose().pushPose();
+                g.pose().scale(1.0F / scale, 1.0F / scale, 1);
+                g.drawString(font, getMessage(), x, y, foreground, false);
+                g.pose().popPose();
+            }
+        }.primary());
+        int favoriteY = previewHeight >= 125 ? gridY + previewHeight - 34 : top + windowHeight - 36;
         int favoriteX = previewHeight >= 125 ? previewX + 6 : left + 12;
-        favoriteButton = addRenderableWidget(new TEButton(favoriteX, favoriteY, 100, 18, Component.empty(), b -> {
+        favoriteButton = addRenderableWidget(new TEButton(favoriteX, favoriteY, 100, 26, Component.empty(), b -> {
             PatternFavorites.toggle(patternId);
             updateFavoriteButton();
             if (category == Category.FAVORITES) filter();
-        }));
+        }) {
+            @Override protected void renderLabel(GuiGraphics g, int color) {
+                int y = getY() + (getHeight() - favoriteLines.size() * font.lineHeight) / 2;
+                for (FormattedCharSequence line : favoriteLines) {
+                    g.drawString(font, line, getX() + (getWidth() - font.width(line)) / 2, y,
+                        active ? favoriteCaptionColor : TEColors.MUTED, false);
+                    y += font.lineHeight;
+                }
+            }
+        });
         updateFavoriteButton();
         filter();
     }
@@ -107,7 +131,9 @@ public class PaintBrushScreen extends TrafficEngineScreen {
         if (favoriteButton == null) return;
         boolean favorite = PatternFavorites.contains(patternId);
         favoriteButton.setMessage(Component.translatable(favorite
-            ? "gui.trafficengine.patterns.remove_favorite" : "gui.trafficengine.patterns.add_favorite"));
+            ? "gui.trafficengine.patterns.remove_favorite" : "gui.trafficengine.patterns.add_favorite").withStyle(ChatFormatting.BOLD));
+        favoriteLines = font.split(favoriteButton.getMessage(), favoriteButton.getWidth() - 8);
+        favoriteCaptionColor = favorite ? 0xFFFF7777 : 0xFF8DEA9D;
         favoriteButton.setSelected(favorite);
         favoriteButton.active = patternId >= 0 && patternId < 318;
     }
