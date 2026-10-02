@@ -13,6 +13,7 @@ import com.destan.trafficengine.client.gui.components.TEPanel;
 import com.destan.trafficengine.client.gui.components.TEColorPicker;
 import com.destan.trafficengine.client.gui.theme.TEColors;
 import net.minecraft.client.gui.components.EditBox;
+import com.destan.trafficengine.client.gui.components.TEEditBox;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.Level;
@@ -66,11 +67,18 @@ public class LedDeviceScreen extends TrafficEngineScreen {
         contentX = left + colorPanelWidth + 24;
         contentWidth = windowWidth - colorPanelWidth - 36;
         previewY = top + 64;
+        int messageFieldHeight = windowHeight < 250 ? 10 : 12;
+        int messageRowStep = messageFieldHeight + 6;
+        int rowGaps = Math.max(1, messageSlotCount() - 1);
+        // Keep a visible gap even on a small GUI; reserve space above the footer.
+        messageRowStep = Math.min(messageRowStep, Math.max(messageFieldHeight + 4,
+            (windowHeight - 152 - messageFieldHeight) / rowGaps));
+        int messageRowsHeight = Math.max(0, messageSlotCount() - 1) * messageRowStep + messageFieldHeight + 2;
         previewHeight = type().isTrafficDisplay()
-            ? Math.max(24, Math.min(70, windowHeight - 140 - messageSlotCount() * 14))
+            ? Math.max(20, Math.min(70, windowHeight - 128 - messageRowsHeight))
             : windowHeight - 120;
         int colorBoxY = paletteY + paletteHeight + 6;
-        colorBox = new EditBox(font, paletteX + 27, colorBoxY, paletteWidth + HUE_GAP + HUE_WIDTH - 27, 18, Component.literal("HEX"));
+        colorBox = new TEEditBox(font, paletteX + 27, colorBoxY, paletteWidth + HUE_GAP + HUE_WIDTH - 27, 18, Component.literal("HEX"));
         colorBox.setMaxLength(7);
         colorBox.setFilter(value -> value.matches("#?[0-9a-fA-F]{0,6}"));
         colorBox.setValue(typedColor);
@@ -83,7 +91,7 @@ public class LedDeviceScreen extends TrafficEngineScreen {
         int messageStartY = previewY + previewHeight + 16;
         messageLabelY = messageStartY - 12;
         for (int i = 0; i < messageBoxes.length; i++) {
-            EditBox box = new EditBox(font, contentX + 8, messageStartY + i * 14, contentWidth - 16, 12,
+            EditBox box = new TEEditBox(font, contentX + 8, messageStartY + i * messageRowStep, contentWidth - 16, messageFieldHeight,
                 Component.translatable("gui.trafficengine.led_device.line", i + 1));
             box.setMaxLength(24);
             box.setTextColor(TEColors.TEXT);
@@ -106,7 +114,7 @@ public class LedDeviceScreen extends TrafficEngineScreen {
         addRenderableWidget(new TEButton(left + windowWidth - 160, buttonY, 70, 20,
             Component.translatable("gui.cancel"), b -> onClose()));
         addRenderableWidget(new TEButton(left + windowWidth - 84, buttonY, 72, 20,
-            Component.translatable("gui.done"), b -> saveAndClose(), true));
+            Component.translatable("gui.done"), b -> saveAndClose()).primary());
         addCloseButton();
     }
 
@@ -184,8 +192,7 @@ public class LedDeviceScreen extends TrafficEngineScreen {
 
     private void renderMessagePreview(GuiGraphics graphics) {
         int x = contentX + 8, w = contentWidth - 16;
-        graphics.fill(x, previewY, x + w, previewY + previewHeight, TEColors.FIELD);
-        TEPanel.outline(graphics, x, previewY, w, previewHeight, TEColors.BORDER);
+        TEPanel.surface(graphics, x, previewY, w, previewHeight, TEColors.FIELD, TEColors.SUBTLE_BORDER);
         if (!enabled) return;
         int lastLine = messageSlotCount() - 1;
         while (lastLine >= 0 && messageBoxes[lastLine].getValue().isBlank()) lastLine--;

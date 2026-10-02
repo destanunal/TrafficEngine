@@ -1,3 +1,41 @@
+# TE Update v1.6.1
+
+This update refines the interface, introduces wrench-controlled scissor barriers and improves tool visuals, display setup and block-breaking effects.
+
+---
+
+# 🆕 Added:
+
+### 🚧 Foldable Scissor Barriers
+
+- **Wrench Interaction:** Right-click a scissor barrier with the Wrench to fold or unfold it.
+
+---
+
+### 🎨 Interface & Visual Improvements
+
+- Refined the interface with more modern styling and consistent buttons, fields and icons.
+- Made small improvements to the **Paint Brush** and **Traffic Sign Workbench** menus.
+- Improved the **Traffic Light Controller** layout and readability.
+- Improved text-field spacing on both normal and large **Traffic Information Displays**.
+- Updated the **Wrench** texture to better match Minecraft's pixel-art style.
+
+### 🛠️ Improvements & Fixes
+
+- Improved pattern-favorites controls and menu guidance.
+- Refined translations and terminology across all supported languages.
+- Newly placed **LED Panels** now start with a blank display.
+
+### ⚡ Performance
+
+- Reduced excessive particles when breaking diagonal traffic lights and rotated or tilted traffic signs.
+
+---
+
+These changes apply to **Minecraft 1.20.1 (Forge/Fabric)** and **Minecraft 1.21.1 (NeoForge/Fabric)**.
+
+---
+
 # TE Update v1.6
 
 This update introduces a new Traffic Engine interface, restores missing curb blocks, removes the DragonLib dependency and improves rendering, performance and server-side behavior.

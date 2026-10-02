@@ -46,7 +46,7 @@ public class StreetLampScheduleScreen extends TrafficEngineScreen {
         addRenderableWidget(new TEButton(left + windowWidth - 86, top + windowHeight - 30, 74, 20, CommonComponents.GUI_DONE, b -> {
             ModNetworkManager.UPDATE_STREET_LAMP_CONFIG_CARD.send(NetworkDirection.toServer(), new StreetLampConfigPacket(turnOnTime, turnOffTime, timeFormat));
             onClose();
-        }, true));
+        }).primary());
         addCloseButton();
     }
     @Override public void render(GuiGraphics g, int mouseX, int mouseY, float partialTick) {

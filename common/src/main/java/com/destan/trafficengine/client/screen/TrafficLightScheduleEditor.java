@@ -38,6 +38,8 @@ public class TrafficLightScheduleEditor extends TrafficEngineScreen {
     private ItemStack triggerIcon;
     private MultiLineLabel helpLabel = MultiLineLabel.EMPTY;
     private String helpKey;
+    private MultiLineLabel pedestrianHelpLabel = MultiLineLabel.EMPTY;
+    private int helpTop, controllerHelpLines;
     public TrafficLightScheduleEditor(Screen parent, Level level, BlockPos pos) {
         super(Component.translatable(level.getBlockEntity(pos) instanceof TrafficLightControllerBlockEntity ? "gui.trafficengine.trafficlightschedule.title_controller" : "gui.trafficengine.trafficlightschedule.title"));
         this.parent = parent;
@@ -94,8 +96,16 @@ public class TrafficLightScheduleEditor extends TrafficEngineScreen {
             })).setTooltip(Tooltip.create(text("red_yellow_help")));
             addRenderableWidget(new TEScheduleNumberBox(font, left + windowWidth - 64, top + 94, 50, schedule.getRedYellowSeconds(), 0, TrafficLightSchedule.MAX_RED_YELLOW_SECONDS, true, true, text("red_yellow_seconds"), value -> schedule.setRedYellowSeconds((int)value)));
         }
-        rowTop = top + (controller ? 170 : 113);
-        visibleRows = Math.max(1, (top + windowHeight - 41 - rowTop) / ROW_HEIGHT);
+        rowTop = top + (controller ? 136 : 113);
+        if (controller) {
+            controllerHelpLines = Math.min(2, Math.max(font.split(text("help_sequence"), inner).size(),
+                font.split(text("help_manual"), inner).size()));
+            pedestrianHelpLabel = MultiLineLabel.create(font, text("help_pedestrian"), inner, 2);
+            helpTop = top + windowHeight - 37 - (controllerHelpLines * 10 + 4 + pedestrianHelpLabel.getLineCount() * 10);
+            visibleRows = Math.max(1, (helpTop - 12 - rowTop) / ROW_HEIGHT);
+        } else {
+            visibleRows = Math.max(1, (top + windowHeight - 41 - rowTop) / ROW_HEIGHT);
+        }
         addRenderableWidget(new TEButton(left + 12, top + windowHeight - 29, 138, 20, text(controller ? "add_direction" : "add_entry"), b -> {
             if (!validFields()) return;
             TrafficLightScheduleEntryData e = new TrafficLightScheduleEntryData();
@@ -241,12 +251,15 @@ public class TrafficLightScheduleEditor extends TrafficEngineScreen {
         renderWindow(g);
         if (controller) {
             g.drawString(font, text("transition_light"), left + 12, top + 98, TEColors.MUTED, false);
-            g.drawString(font, text("red_yellow_seconds"), left + 215, top + 98, TEColors.MUTED, false);
+            Component durationLabel = text("red_yellow_seconds");
+            g.drawString(font, durationLabel, left + windowWidth - 70 - font.width(durationLabel), top + 98, TEColors.MUTED, false);
         }
         String key = error != null ? error : controller ? schedule.isManualController() ? "help_manual" : "help_sequence" : "help_own";
         if (!key.equals(helpKey)) { helpLabel = MultiLineLabel.create(font, text(key), windowWidth - 24, 2); helpKey = key; }
-        helpLabel.renderLeftAlignedNoShadow(g, left + 12, top + (controller ? 117 : 68), 10, error == null ? TEColors.MUTED : 0xFFFF8888);
-        if (controller) g.drawString(font, font.plainSubstrByWidth(text("help_pedestrian").getString(), windowWidth - 24), left + 12, top + 139, TEColors.MUTED, false);
+        int helpY = controller ? helpTop - 8 : top + 68;
+        helpLabel.renderLeftAlignedNoShadow(g, left + 12, helpY, 10, error == null ? TEColors.MUTED : 0xFFFF8888);
+        if (controller && error == null) pedestrianHelpLabel.renderLeftAlignedNoShadow(g, left + 12,
+            helpY + controllerHelpLines * 10 + 4, 10, TEColors.MUTED);
         int headerY = rowTop - 14;
         TEPanel.draw(g, left + 12, rowTop - 18, windowWidth - 24, visibleRows * ROW_HEIGHT + 22);
         g.fill(left + 13, rowTop - 1, left + windowWidth - 13, rowTop, TEColors.BORDER);

@@ -63,7 +63,7 @@ public class TrafficLightControllerScreen extends TrafficEngineScreen {
         addRenderableWidget(new TEButton(left + windowWidth - 164, top + windowHeight - 30, 72, 20,
             CommonComponents.GUI_CANCEL, b -> onClose()));
         addRenderableWidget(new TEButton(left + windowWidth - 86, top + windowHeight - 30, 74, 20,
-            CommonComponents.GUI_DONE, b -> onDone(), true));
+            CommonComponents.GUI_DONE, b -> onDone()).primary());
         addCloseButton();
     }
     protected void onDone() {
