@@ -1,6 +1,15 @@
 package com.destan.trafficengine.block;
 
+import com.destan.trafficengine.registry.ModItemTags;
 import net.minecraft.core.BlockPos;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
@@ -22,6 +31,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 /** A portable, expandable scissor barrier. */
 public class RetractableBarrierBlock extends HorizontalDirectionalBlock {
 
+    public static final BooleanProperty FOLDED = BooleanProperty.create("folded");
     public static final BooleanProperty LEFT_CONNECTED = BooleanProperty.create("left_connected");
     public static final BooleanProperty RIGHT_CONNECTED = BooleanProperty.create("right_connected");
 
@@ -44,6 +54,14 @@ public class RetractableBarrierBlock extends HorizontalDirectionalBlock {
         Block.box(6.5D, 2.25D, 13.75D, 9.5D, 15.5D, 15.25D),
         Block.box(5.5D, 0.0D, 13.0D, 10.5D, 2.5D, 16.0D)
     );
+
+    // Both folded orientations are cached, just like the expanded collision shapes.
+    private static final VoxelShape FOLDED_NORTH_SOUTH = Shapes.or(
+        Block.box(4.75, 2.25, 5.5, 11.25, 15.5, 10.5),
+        Block.box(4, 0, 5.5, 12, 2.5, 10.5)).optimize();
+    private static final VoxelShape FOLDED_EAST_WEST = Shapes.or(
+        Block.box(5.5, 2.25, 4.75, 10.5, 15.5, 11.25),
+        Block.box(5.5, 0, 4, 10.5, 2.5, 12)).optimize();
 
     private static final VoxelShape[][] SHAPES = new VoxelShape[4][2];
 
@@ -68,6 +86,7 @@ public class RetractableBarrierBlock extends HorizontalDirectionalBlock {
             .noOcclusion());
         registerDefaultState(stateDefinition.any()
             .setValue(FACING, Direction.NORTH)
+            .setValue(FOLDED, false)
             .setValue(LEFT_CONNECTED, false)
             .setValue(RIGHT_CONNECTED, false));
     }
@@ -75,6 +94,9 @@ public class RetractableBarrierBlock extends HorizontalDirectionalBlock {
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         Direction facing = state.getValue(FACING);
+        if (state.getValue(FOLDED)) {
+            return facing.getAxis() == Direction.Axis.Z ? FOLDED_NORTH_SOUTH : FOLDED_EAST_WEST;
+        }
         boolean positiveFacing = facing == Direction.NORTH || facing == Direction.EAST;
         boolean connected = state.getValue(positiveFacing ? LEFT_CONNECTED : RIGHT_CONNECTED);
         return SHAPES[facing.get2DDataValue()][connected ? 1 : 0];
@@ -105,7 +127,7 @@ public class RetractableBarrierBlock extends HorizontalDirectionalBlock {
     }
 
     private boolean connectsTo(BlockState neighbor, Direction facing) {
-        return neighbor.is(this) && neighbor.getValue(FACING).getAxis() == facing.getAxis();
+        return neighbor.is(this) && !neighbor.getValue(FOLDED) && neighbor.getValue(FACING).getAxis() == facing.getAxis();
     }
 
     @Override
@@ -113,6 +135,7 @@ public class RetractableBarrierBlock extends HorizontalDirectionalBlock {
     public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState,
             LevelAccessor level, BlockPos currentPos, BlockPos neighborPos) {
         Direction facing = state.getValue(FACING);
+        if (state.getValue(FOLDED)) return state.setValue(LEFT_CONNECTED, false).setValue(RIGHT_CONNECTED, false);
         if (direction == facing.getCounterClockWise()) {
             return state.setValue(LEFT_CONNECTED, connectsTo(neighborState, facing));
         }
@@ -120,6 +143,25 @@ public class RetractableBarrierBlock extends HorizontalDirectionalBlock {
             return state.setValue(RIGHT_CONNECTED, connectsTo(neighborState, facing));
         }
         return super.updateShape(state, direction, neighborState, level, currentPos, neighborPos);
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
+            Player player, InteractionHand hand, BlockHitResult hit) {
+        if (!stack.is(ModItemTags.WRENCHES)) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        if (!player.mayBuild()) return ItemInteractionResult.FAIL;
+        // The server owns the change; clients receive it via normal block-state updates.
+        if (!level.isClientSide) {
+            boolean folded = !state.getValue(FOLDED);
+            Direction facing = state.getValue(FACING);
+            BlockState changed = state.setValue(FOLDED, folded)
+                .setValue(LEFT_CONNECTED, !folded && connectsTo(level.getBlockState(pos.relative(facing.getCounterClockWise())), facing))
+                .setValue(RIGHT_CONNECTED, !folded && connectsTo(level.getBlockState(pos.relative(facing.getClockWise())), facing));
+            level.setBlockAndUpdate(pos, changed);
+            level.playSound(null, pos, SoundEvents.IRON_TRAPDOOR_CLOSE, SoundSource.BLOCKS, 0.6F, folded ? 0.85F : 1.1F);
+        }
+        return ItemInteractionResult.sidedSuccess(level.isClientSide);
     }
 
     @Override
@@ -134,7 +176,7 @@ public class RetractableBarrierBlock extends HorizontalDirectionalBlock {
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, LEFT_CONNECTED, RIGHT_CONNECTED);
+        builder.add(FACING, FOLDED, LEFT_CONNECTED, RIGHT_CONNECTED);
     }
     @Override
     protected com.mojang.serialization.MapCodec<? extends net.minecraft.world.level.block.HorizontalDirectionalBlock> codec() {

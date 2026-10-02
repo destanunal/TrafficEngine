@@ -13,10 +13,11 @@ public final class TEWorkbenchIcons {
                 line(g, x + 12, y + 3, x + 3, y + 12, color);
             }
             case CHECK -> {
+                // Both arms use the same 45-degree slope and two-pixel stroke.
+                line(g, x + 2, y + 6, x + 6, y + 10, color);
+                line(g, x + 6, y + 10, x + 13, y + 3, color);
                 line(g, x + 2, y + 7, x + 6, y + 11, color);
-                line(g, x + 6, y + 11, x + 13, y + 3, color);
-                line(g, x + 2, y + 8, x + 6, y + 12, color);
-                line(g, x + 6, y + 12, x + 13, y + 4, color);
+                line(g, x + 6, y + 11, x + 13, y + 4, color);
             }
             case MOVE_UP, MOVE_DOWN -> {
                 boolean up = icon == ModGuiIcons.MOVE_UP;
