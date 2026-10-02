@@ -21,14 +21,19 @@ public class TEButton extends Button {
     public TEButton primary() { setSelected(true); return this; }
     public TEButton selected(boolean selected) { setSelected(selected); return this; }
     protected boolean isSelected() { return selected; }
-    protected int selectedBackground() { return TEColors.ACCENT; }
+    protected int selectedBackground() { return TEColors.ACCENT_SOFT; }
     protected int selectedBorder() { return TEColors.ACCENT; }
     @Override public void renderWidget(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
+        boolean hover = active && isHoveredOrFocused();
         boolean highlight = active && (primary || selected);
-        int background = highlight ? selectedBackground() : isHoveredOrFocused() ? TEColors.HOVER : TEColors.PANEL;
-        g.fill(getX(), getY(), getX() + width, getY() + height, background);
-        TEPanel.outline(g, getX(), getY(), width, height, highlight || isHoveredOrFocused() ? selectedBorder() : TEColors.BORDER);
-        renderLabel(g, !active ? TEColors.MUTED : highlight ? TEColors.INK : TEColors.TEXT);
+        int background = !active ? TEColors.WINDOW : primary ? TEColors.ACCENT
+            : selected ? selectedBackground() : hover ? TEColors.HOVER : TEColors.CONTROL;
+        int border = highlight ? selectedBorder() : hover ? TEColors.SELECTION_BORDER : TEColors.SUBTLE_BORDER;
+        TEPanel.surface(g, getX(), getY(), width, height, background, border);
+        renderLabel(g, !active ? TEColors.MUTED : primary ? TEColors.INK : selected ? TEColors.ACCENT : TEColors.TEXT);
+        if (active && selected && !primary && width > 10) {
+            g.fill(getX() + 4, getY() + height - 2, getX() + width - 4, getY() + height - 1, selectedBorder());
+        }
     }
     protected void renderLabel(GuiGraphics g, int color) {
         var font = Minecraft.getInstance().font;

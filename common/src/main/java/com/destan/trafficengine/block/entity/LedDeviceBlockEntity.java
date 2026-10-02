@@ -18,7 +18,7 @@ public class LedDeviceBlockEntity extends SyncedBlockEntity implements IColorBlo
     private int intervalTicks = 20;
     private String message = "";
     private String[] messageLines = {""};
-    private long pixels = 0x183C7E1818181800L;
+    private long pixels = 0L;
     private boolean manualEnabled = true;
     private boolean controllerEnabled = false;
     private PaintColor paintColor = PaintColor.NONE;
@@ -35,7 +35,7 @@ public class LedDeviceBlockEntity extends SyncedBlockEntity implements IColorBlo
         message = tag.contains("message") ? tag.getString("message") : "";
         if ("TRAFFICENGINE|BY DESTAN".equals(message)) message = "";
         messageLines = message.split("\\|", -1);
-        pixels = tag.contains("pixels") ? tag.getLong("pixels") : 0x183C7E1818181800L;
+        pixels = tag.contains("pixels") ? tag.getLong("pixels") : 0L;
         manualEnabled = !tag.contains("manual_enabled") || tag.getBoolean("manual_enabled");
         controllerEnabled = tag.getBoolean("controller_enabled");
         paintColor = tag.contains("paint_color") ? PaintColor.getByIndex(tag.getInt("paint_color")) : PaintColor.NONE;
