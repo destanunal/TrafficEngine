@@ -485,5 +485,6 @@
   "gui.trafficengine.trafficsignworkbench.menu.insert_catalogue": "Insert a pattern catalogue",
   "gui.trafficengine.trafficsignworkbench.menu.insert_catalogue_help": "Place your Pattern Catalogue in the slot at the top left. Then create a new pattern or edit a pattern saved in the catalogue.",
   "gui.trafficengine.trafficsignworkbench.menu.empty_catalogue": "No patterns in this catalogue yet",
-  "gui.trafficengine.trafficsignworkbench.menu.empty_catalogue_help": "Click the + button on the left to create your first pattern. You can then edit it here."
+  "gui.trafficengine.trafficsignworkbench.menu.empty_catalogue_help": "Click the + button on the left to create your first pattern. You can then edit it here.",
+  "gui.trafficengine.led_device.paint_hint": "Hold left-click to paint. Right-click to erase."
 }

@@ -9,6 +9,7 @@ import net.minecraft.network.chat.Component;
 /** Integer field that allows intermediate typing without overwriting the last valid setting. */
 public class TENumberBox extends TEEditBox {
     private final IntPredicate validator;
+    private boolean edited;
     public TENumberBox(Font font, int x, int y, int width, int value, Component label,
             IntPredicate validator, IntConsumer change) {
         super(font, x, y, width, 18, label);
@@ -18,9 +19,11 @@ public class TENumberBox extends TEEditBox {
         setTextColor(TEColors.TEXT);
         setValue(Integer.toString(value));
         setResponder(text -> {
+            edited = true;
             if (isValid()) change.accept(Integer.parseInt(text));
         });
     }
+    public boolean hasBeenEdited() { return edited; }
     public boolean isValid() {
         String text = getValue();
         int start = text.startsWith("-") ? 1 : 0;

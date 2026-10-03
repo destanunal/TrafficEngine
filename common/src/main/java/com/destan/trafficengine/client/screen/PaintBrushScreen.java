@@ -37,7 +37,7 @@ public class PaintBrushScreen extends TrafficEngineScreen {
     private final int tint;
     private int patternId;
     private boolean saved;
-    private Category category = Category.ALL;
+    private Category category = PatternFavorites.getLastCategory();
     private String query = "";
     private int rowOffset, columns, rows, gridX, gridY, gridWidth, gridHeight, previewX, previewHeight;
     private static final int CELL = 29;
@@ -225,6 +225,7 @@ public class PaintBrushScreen extends TrafficEngineScreen {
 
     @Override public void tick() { search.tick(); }
     @Override public void onClose() {
+        PatternFavorites.setLastCategory(category);
         // Match the old screen: closing with Escape or Done applies the selection.
         if (!saved) {
             saved = true;

@@ -1,3 +1,40 @@
+# TE Update v1.6.2
+
+This update improves LED editing, tool usability, traffic-light placement and performance.
+
+---
+
+# 🆕 Added:
+
+### 🖥️ Multicolor LED Editing
+
+- **Drag Painting:** Hold left-click and drag to paint multiple LED pixels. Use right-click to erase.
+- **Individual Pixel Colors:** Give each pixel its own color to create multicolor designs.
+
+---
+
+### 🎨 Interface & Tool Improvements
+
+- The **Paint Brush** now remembers the last selected category when reopening its menu.
+- Improved guidance and text positioning in the **LED** menu.
+- Refined traffic-light ID validation so warnings appear after editing an invalid ID.
+
+### 🚦 Traffic Light Fixes
+
+- New traffic lights now default to **Controller** mode.
+- Corrected horizontal traffic-light placement so the light faces the player placing it.
+
+### ⚡ Performance & Effects
+
+- Optimized diagonal **Bicycle Lane Separators** to reduce rendering overhead.
+- Further reduced barrier-breaking particles while preserving their appearance and movement.
+
+---
+
+These changes apply to **Minecraft 1.20.1 (Forge/Fabric)** and **Minecraft 1.21.1 (NeoForge/Fabric)**.
+
+---
+
 # TE Update v1.6.1
 
 This update refines the interface, introduces wrench-controlled scissor barriers and improves tool visuals, display setup and block-breaking effects.
