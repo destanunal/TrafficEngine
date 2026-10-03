@@ -61,6 +61,7 @@ public class TrafficLightConfigScreen extends TrafficEngineScreen {
     private final Component previewLabel = text("preview_label");
     private final ResourceLocation[] signalTextures = new ResourceLocation[TrafficLightModel.maxRequiredSlots()];
     private String invalidIdLabel;
+    private boolean idEdited;
     private BlockState previewState;
     private Tab tab = Tab.GENERAL;
     private final List<TEButton> chrome = new ArrayList<>();
@@ -83,6 +84,7 @@ public class TrafficLightConfigScreen extends TrafficEngineScreen {
 
     private static Component text(String name) { return Component.translatable("gui.trafficengine.trafficlight." + name); }
     @Override protected void init() {
+        rememberIdEdits();
         layoutWindow(470, 330);
         chrome.clear();
         form.clear();
@@ -132,6 +134,7 @@ public class TrafficLightConfigScreen extends TrafficEngineScreen {
     }
 
     private void rebuildForm() {
+        rememberIdEdits();
         boolean restorePhaseFocus = phaseBox != null && getFocused() == phaseBox;
         int cursor = restorePhaseFocus ? phaseBox.getCursorPosition() : 0;
         for (FormWidget entry : form) {
@@ -355,6 +358,13 @@ public class TrafficLightConfigScreen extends TrafficEngineScreen {
         }
     }
 
+    private void rememberIdEdits() {
+        idEdited |= numbers.stream().anyMatch(TENumberBox::hasBeenEdited);
+    }
+    private boolean showIdWarning() {
+        return tab == Tab.CONTROL && config.controlType == TrafficLightControlType.REMOTE
+            && (idEdited || numbers.stream().anyMatch(TENumberBox::hasBeenEdited)) && !validNumbers();
+    }
     private boolean validNumbers() {
         if (config.controlType == TrafficLightControlType.REMOTE && !validIds()) return false;
         for (TENumberBox box : numbers) if (!box.isValid()) return false;
@@ -467,7 +477,7 @@ public class TrafficLightConfigScreen extends TrafficEngineScreen {
             g.fill(formX + formWidth - 4, sy, formX + formWidth - 2, sy + thumb, TEColors.ACCENT);
         }
         for (TEButton widget : chrome) widget.render(g, mouseX, mouseY, partialTick);
-        if (!validNumbers()) {
+        if (showIdWarning()) {
             g.drawString(font, invalidIdLabel, left + 12,
                 top + windowHeight - 23, 0xFFE86A63, false);
         }

@@ -18,6 +18,11 @@ public final class DiagonalVoxelShapes {
     }
 
     public static VoxelShape rotateClockwise45(VoxelShape source, double pivotX, double pivotZ) {
+        return rotateClockwise45(source, pivotX, pivotZ, MAX_SEGMENT_LENGTH);
+    }
+
+    public static VoxelShape rotateClockwise45(VoxelShape source, double pivotX, double pivotZ, double segmentLength) {
+        if (!Double.isFinite(segmentLength) || segmentLength <= 0) throw new IllegalArgumentException("segmentLength");
         if (source.isEmpty()) {
             return Shapes.empty();
         }
@@ -29,7 +34,7 @@ public final class DiagonalVoxelShapes {
             double sizeZ = box.maxZ - box.minZ;
             boolean splitX = sizeX >= sizeZ;
             double majorSize = splitX ? sizeX : sizeZ;
-            int segments = Math.max(1, (int)Math.ceil(majorSize / MAX_SEGMENT_LENGTH));
+            int segments = Math.max(1, (int)Math.ceil(majorSize / segmentLength));
 
             for (int i = 0; i < segments; i++) {
                 double start = (double)i / segments;

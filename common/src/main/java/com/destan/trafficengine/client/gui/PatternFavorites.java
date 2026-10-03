@@ -14,6 +14,7 @@ public final class PatternFavorites {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final BitSet FAVORITES = new BitSet(318);
     private static boolean loaded;
+    private static PatternCatalog.Category lastCategory = PatternCatalog.Category.ALL;
     private PatternFavorites() {}
     private static Path path() {
         return Minecraft.getInstance().gameDirectory.toPath().resolve("config/trafficengine-patterns.properties");
@@ -29,6 +30,9 @@ public final class PatternFavorites {
         Properties props = new Properties();
         try (var in = Files.newInputStream(path())) {
             props.load(in);
+            try {
+                lastCategory = PatternCatalog.Category.valueOf(props.getProperty("last_category", "ALL"));
+            } catch (IllegalArgumentException ignored) {}
             for (String token : props.getProperty("favorites", "").split(",")) {
                 try {
                     int id = Integer.parseInt(token);
@@ -41,6 +45,19 @@ public final class PatternFavorites {
         load();
         if (id < 0 || id >= 318) return;
         FAVORITES.flip(id);
+        save();
+    }
+    public static PatternCatalog.Category getLastCategory() {
+        load();
+        return lastCategory;
+    }
+    public static void setLastCategory(PatternCatalog.Category category) {
+        load();
+        if (lastCategory == category) return;
+        lastCategory = category;
+        save();
+    }
+    private static void save() {
         StringBuilder ids = new StringBuilder();
         for (int next = FAVORITES.nextSetBit(0); next >= 0; next = FAVORITES.nextSetBit(next + 1)) {
             if (!ids.isEmpty()) ids.append(',');
@@ -48,9 +65,10 @@ public final class PatternFavorites {
         }
         Properties props = new Properties();
         props.setProperty("favorites", ids.toString());
+        props.setProperty("last_category", lastCategory.name());
         try {
             Files.createDirectories(path().getParent());
-            try (var out = Files.newOutputStream(path())) { props.store(out, "Traffic Engine client favorites"); }
+            try (var out = Files.newOutputStream(path())) { props.store(out, "Traffic Engine client pattern preferences"); }
         } catch (IOException e) { LOGGER.warn("Could not save Traffic Engine favorites", e); }
     }
 }
