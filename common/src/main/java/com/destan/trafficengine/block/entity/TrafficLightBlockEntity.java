@@ -52,7 +52,7 @@ public class TrafficLightBlockEntity extends ColoredBlockEntity {
     // Properties
     private int phaseId = 0;
     private final Set<Integer> additionalPedestrianStopIds = new LinkedHashSet<>();
-    private TrafficLightControlType controlType = TrafficLightControlType.STATIC;
+    private TrafficLightControlType controlType = TrafficLightControlType.REMOTE;
     private TrafficLightIcon icon = TrafficLightIcon.NONE;
     private TrafficLightType type = TrafficLightType.NOCOUNTDOWN;
     // Önceki halinde 3 renk vardı, dördüncü (NONE) ekleyerek hafızayı 4'e çıkardık.

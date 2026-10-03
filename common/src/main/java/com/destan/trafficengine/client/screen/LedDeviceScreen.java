@@ -1,5 +1,8 @@
 package com.destan.trafficengine.client.screen;
 
+import java.util.List;
+import net.minecraft.util.FormattedCharSequence;
+
 import com.destan.trafficengine.block.LedDeviceBlock;
 import com.destan.trafficengine.block.data.LedDeviceType;
 import com.destan.trafficengine.block.entity.LedDeviceBlockEntity;
@@ -23,13 +26,19 @@ public class LedDeviceScreen extends TrafficEngineScreen {
     private final Component colorLabel = Component.translatable("gui.trafficengine.led_device.color");
     private final Component messageLabel = Component.translatable("gui.trafficengine.led_device.message");
     private Component previewLabel;
+    private final Component paintHint = Component.translatable("gui.trafficengine.led_device.paint_hint");
     private final BlockPos pos;
     private final LedDeviceBlockEntity blockEntity;
     private EditBox colorBox;
     private final EditBox[] messageBoxes = new EditBox[6];
     private boolean enabled;
     private long pixels;
+    private final int[] pixelColors;
+    private int paintingButton = -1;
+    private int lastPaintX = -1, lastPaintY = -1;
     private int gridX, gridY, gridCell;
+    private int paintHintY;
+    private List<FormattedCharSequence> paintHintLines = List.of();
     private int selectedColor;
     private TEColorPicker colorPicker;
     private boolean updatingColorBox;
@@ -44,12 +53,15 @@ public class LedDeviceScreen extends TrafficEngineScreen {
         this.blockEntity = (LedDeviceBlockEntity)level.getBlockEntity(pos);
         this.enabled = blockEntity.isManualEnabled(); this.pixels = blockEntity.getPixels();
         this.selectedColor = blockEntity.getLedColor() & 0xFFFFFF;
+        this.pixelColors = blockEntity.getPixelColors();
     }
 
     private LedDeviceType type() { return ((LedDeviceBlock)blockEntity.getBlockState().getBlock()).getDeviceType(); }
     private int messageSlotCount() { return type().getMessageSlots(); }
 
     @Override protected void init() {
+        paintingButton = -1;
+        lastPaintX = lastPaintY = -1;
         String[] messageLines = blockEntity.getMessage().split("\\|", -1);
         if (messageBoxes[0] != null) {
             messageLines = new String[messageBoxes.length];
@@ -76,7 +88,7 @@ public class LedDeviceScreen extends TrafficEngineScreen {
         int messageRowsHeight = Math.max(0, messageSlotCount() - 1) * messageRowStep + messageFieldHeight + 2;
         previewHeight = type().isTrafficDisplay()
             ? Math.max(20, Math.min(70, windowHeight - 128 - messageRowsHeight))
-            : windowHeight - 120;
+            : windowHeight - 140;
         int colorBoxY = paletteY + paletteHeight + 6;
         colorBox = new TEEditBox(font, paletteX + 27, colorBoxY, paletteWidth + HUE_GAP + HUE_WIDTH - 27, 18, Component.literal("HEX"));
         colorBox.setMaxLength(7);
@@ -103,6 +115,9 @@ public class LedDeviceScreen extends TrafficEngineScreen {
         gridCell = Math.min(18, Math.min((contentWidth - 20) / 8, previewHeight / 8));
         gridX = contentX + (contentWidth - gridCell * 8) / 2;
         gridY = previewY + (previewHeight - gridCell * 8) / 2;
+        paintHintLines = font.split(paintHint, contentWidth - 16);
+        int hintHeight = Math.max(0, paintHintLines.size() - 1) * (font.lineHeight + 2) + font.lineHeight;
+        paintHintY = Math.max(gridY + gridCell * 8 + 5, top + windowHeight - 52 - hintHeight);
         int buttonY = top + windowHeight - 30;
         TEButton toggle = addRenderableWidget(new TEButton(left + 12, buttonY, 94, 20,
             Component.translatable(enabled ? "gui.trafficengine.led_device.on" : "gui.trafficengine.led_device.off"), b -> {
@@ -127,17 +142,65 @@ public class LedDeviceScreen extends TrafficEngineScreen {
             if (i > 0) message.append('|');
             message.append(messageBoxes[i].getValue());
         }
-        ModNetworkManager.UPDATE_LED_DEVICE.send(NetworkDirection.toServer(), new LedDevicePacket(pos, selectedColor, blockEntity.getIntervalTicks(), message.toString(), pixels, enabled));
+        ModNetworkManager.UPDATE_LED_DEVICE.send(NetworkDirection.toServer(), new LedDevicePacket(pos, selectedColor, blockEntity.getIntervalTicks(), message.toString(), pixels, pixelColors, enabled));
         onClose();
     }
 
     @Override public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        int gridSize = gridCell * 8;
-        if (type() == LedDeviceType.LED_LIGHT && mouseX >= gridX && mouseX < gridX + gridSize && mouseY >= gridY && mouseY < gridY + gridSize) {
-            int px = (int)(mouseX - gridX) / gridCell, py = (int)(mouseY - gridY) / gridCell;
-            pixels ^= 1L << (py * 8 + px); return true;
+        if ((button == 0 || button == 1) && isOnGrid(mouseX, mouseY)) {
+            paintingButton = button;
+            lastPaintX = lastPaintY = -1;
+            paintAt(mouseX, mouseY);
+            return true;
         }
         return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    private boolean isOnGrid(double x, double y) {
+        return type() == LedDeviceType.LED_LIGHT && gridCell > 0
+            && x >= gridX && x < gridX + gridCell * 8 && y >= gridY && y < gridY + gridCell * 8;
+    }
+
+    private void paintAt(double mouseX, double mouseY) {
+        if (!isOnGrid(mouseX, mouseY)) {
+            // Re-entering the grid must not draw across cells outside the stroke.
+            lastPaintX = lastPaintY = -1;
+            return;
+        }
+        int x = (int)(mouseX - gridX) / gridCell;
+        int y = (int)(mouseY - gridY) / gridCell;
+        int fromX = lastPaintX < 0 ? x : lastPaintX;
+        int fromY = lastPaintY < 0 ? y : lastPaintY;
+        int steps = Math.max(Math.abs(x - fromX), Math.abs(y - fromY));
+        for (int step = 0; step <= steps; step++) {
+            float progress = steps == 0 ? 0 : (float)step / steps;
+            int index = Math.round(fromY + (y - fromY) * progress) * 8
+                + Math.round(fromX + (x - fromX) * progress);
+            if (paintingButton == 1) pixels &= ~(1L << index);
+            else {
+                pixels |= 1L << index;
+                pixelColors[index] = 0xFF000000 | selectedColor;
+            }
+        }
+        lastPaintX = x;
+        lastPaintY = y;
+    }
+
+    @Override public boolean mouseDragged(double x, double y, int button, double dx, double dy) {
+        if (paintingButton == button && paintingButton >= 0) {
+            paintAt(x, y);
+            return true;
+        }
+        return super.mouseDragged(x, y, button, dx, dy);
+    }
+
+    @Override public boolean mouseReleased(double x, double y, int button) {
+        if (paintingButton == button && paintingButton >= 0) {
+            paintingButton = -1;
+            lastPaintX = lastPaintY = -1;
+            return true;
+        }
+        return super.mouseReleased(x, y, button);
     }
 
     private void updateSelectedColor(int argb) {
@@ -179,10 +242,16 @@ public class LedDeviceScreen extends TrafficEngineScreen {
             renderMessagePreview(graphics);
             graphics.drawString(font, messageLabel, contentX + 8, messageLabelY, TEColors.MUTED, false);
         } else {
+            int hintY = paintHintY;
+            for (FormattedCharSequence line : paintHintLines) {
+                graphics.drawString(font, line, contentX + (contentWidth - font.width(line)) / 2,
+                    hintY, TEColors.MUTED, false);
+                hintY += font.lineHeight + 2;
+            }
             for (int y = 0; y < 8; y++) for (int x = 0; x < 8; x++) {
                 boolean on = (pixels & (1L << (y * 8 + x))) != 0;
                 int x1 = gridX + x * gridCell, y1 = gridY + y * gridCell;
-                graphics.fill(x1, y1, x1 + gridCell - 1, y1 + gridCell - 1, on ? 0xFF000000 | selectedColor : TEColors.FIELD);
+                graphics.fill(x1, y1, x1 + gridCell - 1, y1 + gridCell - 1, on ? pixelColors[y * 8 + x] : TEColors.FIELD);
                 if (mouseX >= x1 && mouseX < x1 + gridCell && mouseY >= y1 && mouseY < y1 + gridCell)
                     TEPanel.outline(graphics, x1, y1, gridCell, gridCell, TEColors.ACCENT);
             }

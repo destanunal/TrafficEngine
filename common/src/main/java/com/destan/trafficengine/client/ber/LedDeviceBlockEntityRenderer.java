@@ -72,7 +72,7 @@ public class LedDeviceBlockEntityRenderer implements BlockEntityRenderer<LedDevi
             matrix = pose.last().pose();
             for (int y = 0; y < 8; y++) for (int x = 0; x < 8; x++) {
                 if ((pixels & (1L << (y * 8 + x))) != 0)
-                    font.drawInBatch("■", x * 10 - 39, y * 10 - 39, color, false, matrix, buffers, Font.DisplayMode.POLYGON_OFFSET, 0, fullBright);
+                    font.drawInBatch("■", x * 10 - 39, y * 10 - 39, blockEntity.getPixelColor(y * 8 + x), false, matrix, buffers, Font.DisplayMode.POLYGON_OFFSET, 0, fullBright);
             }
         }
         pose.popPose();

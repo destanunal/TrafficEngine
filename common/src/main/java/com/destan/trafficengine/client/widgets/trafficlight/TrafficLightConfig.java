@@ -22,7 +22,7 @@ public class TrafficLightConfig {
     public TrafficLightType type = TrafficLightType.NOCOUNTDOWN;
     public TrafficLightModel model = TrafficLightModel.THREE_LIGHTS;
     public TrafficLightIcon icon = TrafficLightIcon.NONE;
-    public TrafficLightControlType controlType = TrafficLightControlType.STATIC;
+    public TrafficLightControlType controlType = TrafficLightControlType.REMOTE;
     public TrafficLightColor[] colors = new TrafficLightColor[TrafficLightModel.maxRequiredSlots()];
     public int phaseId = 0;
     public final Set<Integer> additionalPedestrianStopIds = new HashSet<>();

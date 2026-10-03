@@ -23,8 +23,8 @@ public class BikeLaneSeparatorBlock extends CustomSpeedBumpBlock {
     public BikeLaneSeparatorBlock(Properties properties, VoxelShape shapeNS, VoxelShape shapeEW) {
         super(properties, shapeNS, shapeEW);
         registerDefaultState(defaultBlockState().setValue(DIAGONAL, false));
-        diagonalNS = DiagonalVoxelShapes.rotateClockwise45(shapeNS);
-        diagonalEW = DiagonalVoxelShapes.rotateClockwise45(shapeEW);
+        diagonalNS = DiagonalVoxelShapes.rotateClockwise45(shapeNS, 0.5, 0.5, 4.0 / 16.0);
+        diagonalEW = DiagonalVoxelShapes.rotateClockwise45(shapeEW, 0.5, 0.5, 4.0 / 16.0);
     }
 
     @Override

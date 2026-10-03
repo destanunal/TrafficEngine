@@ -450,5 +450,6 @@
   "gui.trafficengine.trafficsignworkbench.menu.insert_catalogue": "Setze einen Musterkatalog ein",
   "gui.trafficengine.trafficsignworkbench.menu.insert_catalogue_help": "Lege den Musterkatalog in den Platz oben links. Danach kannst du ein neues Muster erstellen oder gespeicherte Muster im Katalog bearbeiten.",
   "gui.trafficengine.trafficsignworkbench.menu.empty_catalogue": "Noch keine Muster im Katalog",
-  "gui.trafficengine.trafficsignworkbench.menu.empty_catalogue_help": "Klicke links auf +, um dein erstes Muster zu erstellen. Anschließend kannst du es hier bearbeiten."
+  "gui.trafficengine.trafficsignworkbench.menu.empty_catalogue_help": "Klicke links auf +, um dein erstes Muster zu erstellen. Anschließend kannst du es hier bearbeiten.",
+  "gui.trafficengine.led_device.paint_hint": "Linksklick halten zum Malen. Rechtsklick zum Löschen."
 }
