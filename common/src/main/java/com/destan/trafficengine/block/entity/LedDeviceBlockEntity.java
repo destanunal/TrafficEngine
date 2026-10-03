@@ -19,12 +19,14 @@ public class LedDeviceBlockEntity extends SyncedBlockEntity implements IColorBlo
     private String message = "";
     private String[] messageLines = {""};
     private long pixels = 0L;
+    private final int[] pixelColors = new int[64];
     private boolean manualEnabled = true;
     private boolean controllerEnabled = false;
     private PaintColor paintColor = PaintColor.NONE;
 
     public LedDeviceBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.LED_DEVICE_BLOCK_ENTITY.get(), pos, state);
+        applyPixelColors(null);
     }
 
     @Override
@@ -36,6 +38,7 @@ public class LedDeviceBlockEntity extends SyncedBlockEntity implements IColorBlo
         if ("TRAFFICENGINE|BY DESTAN".equals(message)) message = "";
         messageLines = message.split("\\|", -1);
         pixels = tag.contains("pixels") ? tag.getLong("pixels") : 0L;
+        applyPixelColors(tag.getIntArray("pixel_colors"));
         manualEnabled = !tag.contains("manual_enabled") || tag.getBoolean("manual_enabled");
         controllerEnabled = tag.getBoolean("controller_enabled");
         paintColor = tag.contains("paint_color") ? PaintColor.getByIndex(tag.getInt("paint_color")) : PaintColor.NONE;
@@ -47,6 +50,7 @@ public class LedDeviceBlockEntity extends SyncedBlockEntity implements IColorBlo
         tag.putInt("interval", intervalTicks);
         tag.putString("message", message);
         tag.putLong("pixels", pixels);
+        tag.putIntArray("pixel_colors", pixelColors);
         tag.putBoolean("manual_enabled", manualEnabled);
         tag.putBoolean("controller_enabled", controllerEnabled);
         tag.putInt("paint_color", paintColor.getIndex());
@@ -80,7 +84,7 @@ public class LedDeviceBlockEntity extends SyncedBlockEntity implements IColorBlo
         return isActive();
     }
 
-    public void configure(int color, int intervalTicks, String message, long pixels, boolean enabled) {
+    public void configure(int color, int intervalTicks, String message, long pixels, int[] pixelColors, boolean enabled) {
         this.color = 0xFF000000 | (color & 0xFFFFFF);
         this.intervalTicks = Mth.clamp(intervalTicks, 2, 1200);
         int slots = ((LedDeviceBlock)getBlockState().getBlock()).getDeviceType().getMessageSlots();
@@ -88,10 +92,20 @@ public class LedDeviceBlockEntity extends SyncedBlockEntity implements IColorBlo
         this.message = message == null ? "" : message.substring(0, Math.min(maxMessageLength, message.length()));
         this.messageLines = this.message.split("\\|", -1);
         this.pixels = pixels;
+        applyPixelColors(pixelColors);
         this.manualEnabled = enabled;
         notifyUpdate();
     }
 
+    private void applyPixelColors(int[] values) {
+        for (int i = 0; i < pixelColors.length; i++) {
+            // Legacy panels have only a global color and a bit mask.
+            pixelColors[i] = 0xFF000000 | ((values != null && values.length == 64 ? values[i] : color) & 0xFFFFFF);
+        }
+    }
+
+    public int[] getPixelColors() { return pixelColors.clone(); }
+    public int getPixelColor(int index) { return pixelColors[index]; }
     public int getLedColor() { return color; }
     public int getIntervalTicks() { return intervalTicks; }
     public String getMessage() { return message; }
@@ -102,7 +116,10 @@ public class LedDeviceBlockEntity extends SyncedBlockEntity implements IColorBlo
     @Override public PaintColor getColor() { return paintColor; }
     @Override public void setColor(PaintColor value) {
         paintColor = value;
-        if (value != PaintColor.NONE) color = value.getTextureColor().getAsARGB();
+        if (value != PaintColor.NONE) {
+            color = value.getTextureColor().getAsARGB();
+            applyPixelColors(null);
+        }
         notifyUpdate();
     }
     public void setControllerEnabled(boolean value) {

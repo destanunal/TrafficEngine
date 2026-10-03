@@ -485,5 +485,6 @@
   "gui.trafficengine.trafficsignworkbench.menu.insert_catalogue": "Bir desen kataloğu yerleştirin",
   "gui.trafficengine.trafficsignworkbench.menu.insert_catalogue_help": "Desen Kataloğunu sol üstteki yuvaya yerleştirin. Ardından yeni bir desen oluşturabilir veya katalogdaki kayıtlı desenleri düzenleyebilirsiniz.",
   "gui.trafficengine.trafficsignworkbench.menu.empty_catalogue": "Katalogda henüz desen yok",
-  "gui.trafficengine.trafficsignworkbench.menu.empty_catalogue_help": "İlk deseninizi oluşturmak için soldaki + düğmesine basın. Oluşturduğunuz deseni burada düzenleyebilirsiniz."
+  "gui.trafficengine.trafficsignworkbench.menu.empty_catalogue_help": "İlk deseninizi oluşturmak için soldaki + düğmesine basın. Oluşturduğunuz deseni burada düzenleyebilirsiniz.",
+  "gui.trafficengine.led_device.paint_hint": "Sol tık basılıyken boyayın. Sağ tıkla silin."
 }
