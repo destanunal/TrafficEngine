@@ -21,6 +21,10 @@ public class TintedTextures {
         @Override
         public int getColor(BlockState pState, BlockAndTintGetter pLevel, BlockPos pPos, int pTintIndex) {
             
+            // Lamp supports already have tint 0 in their models. Only tint 1 is the light.
+            if (pState.getBlock() instanceof com.destan.trafficengine.block.StreetLampBaseBlock && pTintIndex != 1) {
+                return 0xFFFFFFFF;
+            }
             if (pState.getBlock() instanceof IPaintableBlock block) {
                 if (pLevel == null) {
                     return block.getDefaultColor().getAsARGB();

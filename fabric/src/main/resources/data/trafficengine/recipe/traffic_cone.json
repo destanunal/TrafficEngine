@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " R ",
+    "RWR",
+    "BBB"
+  ],
+  "key": {
+    "R": {
+      "item": "minecraft:red_dye"
+    },
+    "W": {
+      "item": "minecraft:quartz"
+    },
+    "B": {
+      "tag": "minecraft:coals"
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "trafficengine:traffic_cone"
+  }
+}

@@ -7,7 +7,7 @@
   ],
   "key": {
     "I": {
-      "tag": "c:plates/iron"
+      "item": "minecraft:iron_ingot"
     },
     "P": {
       "item": "trafficengine:traffic_sign_post"

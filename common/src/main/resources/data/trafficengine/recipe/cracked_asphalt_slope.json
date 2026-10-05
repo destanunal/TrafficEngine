@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "AA"
+  ],
+  "key": {
+    "A": {
+      "item": "trafficengine:cracked_asphalt"
+    }
+  },
+  "result": {
+    "count": 16,
+    "id": "trafficengine:cracked_asphalt_slope"
+  }
+}

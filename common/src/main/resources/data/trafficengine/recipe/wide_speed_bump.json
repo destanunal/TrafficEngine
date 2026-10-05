@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "SS"
+  ],
+  "key": {
+    "S": {
+      "item": "trafficengine:speed_bump"
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "trafficengine:wide_speed_bump"
+  }
+}
