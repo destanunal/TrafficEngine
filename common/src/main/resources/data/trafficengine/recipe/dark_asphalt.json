@@ -1,0 +1,37 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "trafficengine:asphalt"
+    },
+    {
+      "item": "trafficengine:asphalt"
+    },
+    {
+      "item": "trafficengine:asphalt"
+    },
+    {
+      "item": "trafficengine:asphalt"
+    },
+    {
+      "item": "trafficengine:asphalt"
+    },
+    {
+      "item": "trafficengine:asphalt"
+    },
+    {
+      "item": "trafficengine:asphalt"
+    },
+    {
+      "item": "trafficengine:asphalt"
+    },
+    {
+      "item": "minecraft:black_dye"
+    }
+  ],
+  "result": {
+    "count": 8,
+    "id": "trafficengine:dark_asphalt"
+  }
+}

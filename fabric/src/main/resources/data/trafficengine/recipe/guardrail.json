@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "   ",
+    "III",
+    " P "
+  ],
+  "key": {
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "P": {
+      "item": "trafficengine:traffic_sign_post"
+    }
+  },
+  "result": {
+    "count": 6,
+    "id": "trafficengine:guardrail"
+  }
+}

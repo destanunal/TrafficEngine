@@ -87,12 +87,12 @@ public class ModBlocks {
     public static final RegistrySupplier<Block> HORIZONTAL_TRAFFIC_LIGHT = registerColoredBlock("horizontal_traffic_light", () -> new HorizontalTrafficLightBlock(), ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> TRAFFIC_LIGHT_CONTROLLER = registerBlock("traffic_light_controller", () -> new TrafficLightControllerBlock(), ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> TRAFFIC_LIGHT_REQUEST_BUTTON = registerBlock("traffic_light_request_button", () -> new TrafficLightRequestButtonBlock(), ModCreativeModeTab.MOD_TAB, false);
-    public static final RegistrySupplier<Block> STREET_LAMP = registerBlock("street_lamp", () -> new StreetLampBaseBlock(LampType.NORMAL), ModCreativeModeTab.MOD_TAB, true);
-    public static final RegistrySupplier<Block> DOUBLE_STREET_LAMP = registerBlock("double_street_lamp", () -> new StreetLampBaseBlock(LampType.DOUBLE), ModCreativeModeTab.MOD_TAB, true);
-    public static final RegistrySupplier<Block> SMALL_STREET_LAMP = registerBlock("small_street_lamp", () -> new StreetLampBaseBlock(LampType.SMALL), ModCreativeModeTab.MOD_TAB, true);
-    public static final RegistrySupplier<Block> SMALL_DOUBLE_STREET_LAMP = registerBlock("small_double_street_lamp", () -> new StreetLampBaseBlock(LampType.SMALL_DOUBLE), ModCreativeModeTab.MOD_TAB, true);
-    public static final RegistrySupplier<Block> STREET_LIGHT = registerBlock("street_light", () -> new StreetLightBlock(), ModCreativeModeTab.MOD_TAB, false);
-    public static final RegistrySupplier<Block> FLUORESCENT_TUBE_LAMP = registerBlock("fluorescent_tube_lamp", () -> new FluorescentTubeLampBlock(), ModCreativeModeTab.MOD_TAB, false);
+    public static final RegistrySupplier<Block> STREET_LAMP = registerColoredBlock("street_lamp", () -> new StreetLampBaseBlock(LampType.NORMAL), ModCreativeModeTab.MOD_TAB, true);
+    public static final RegistrySupplier<Block> DOUBLE_STREET_LAMP = registerColoredBlock("double_street_lamp", () -> new StreetLampBaseBlock(LampType.DOUBLE), ModCreativeModeTab.MOD_TAB, true);
+    public static final RegistrySupplier<Block> SMALL_STREET_LAMP = registerColoredBlock("small_street_lamp", () -> new StreetLampBaseBlock(LampType.SMALL), ModCreativeModeTab.MOD_TAB, true);
+    public static final RegistrySupplier<Block> SMALL_DOUBLE_STREET_LAMP = registerColoredBlock("small_double_street_lamp", () -> new StreetLampBaseBlock(LampType.SMALL_DOUBLE), ModCreativeModeTab.MOD_TAB, true);
+    public static final RegistrySupplier<Block> STREET_LIGHT = registerColoredBlock("street_light", () -> new StreetLightBlock(), ModCreativeModeTab.MOD_TAB, false);
+    public static final RegistrySupplier<Block> FLUORESCENT_TUBE_LAMP = registerColoredBlock("fluorescent_tube_lamp", () -> new FluorescentTubeLampBlock(), ModCreativeModeTab.MOD_TAB, false);
 
     public static final RegistrySupplier<Block> WHITE_DELINEATOR = registerBlock("white_delineator", () -> new DelineatorBlock(false), ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> YELLOW_DELINEATOR = registerBlock("yellow_delineator", () -> new DelineatorBlock(false), ModCreativeModeTab.MOD_TAB, false);

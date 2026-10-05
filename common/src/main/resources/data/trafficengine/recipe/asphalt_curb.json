@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "AA",
+    "AA"
+  ],
+  "key": {
+    "A": {
+      "item": "trafficengine:asphalt"
+    }
+  },
+  "result": {
+    "count": 4,
+    "id": "trafficengine:asphalt_curb"
+  }
+}

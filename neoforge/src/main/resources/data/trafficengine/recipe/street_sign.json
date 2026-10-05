@@ -8,7 +8,7 @@
       "item": "minecraft:quartz"
     },
     "I": {
-      "tag": "c:plates/iron"
+      "item": "minecraft:iron_ingot"
     }
   },
   "result": {

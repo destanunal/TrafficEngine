@@ -13,7 +13,7 @@
       "tag": "c:dusts/redstone"
     },
     "P": {
-      "tag": "c:plates/iron"
+      "item": "minecraft:iron_ingot"
     }
   },
   "result": {

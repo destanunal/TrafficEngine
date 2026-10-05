@@ -33,7 +33,6 @@ public class CreativePatternCatalogueItem extends PatternCatalogueItem {
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
         super.appendHoverText(stack, context, list, flag);
-        list.add(Constants.CREATIVE_MODE_ONLY_TOOLTIP);
     }
 
     @Override

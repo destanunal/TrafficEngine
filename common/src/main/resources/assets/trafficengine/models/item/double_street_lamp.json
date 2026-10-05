@@ -1,3 +1,22 @@
 {
-    "parent": "trafficengine:block/double_street_lamp"
+    "parent": "trafficengine:block/double_street_lamp",
+    "display": {
+        "gui": {
+            "rotation": [
+                30,
+                225,
+                0
+            ],
+            "translation": [
+                -0.0,
+                -0.31670895,
+                0
+            ],
+            "scale": [
+                0.4269,
+                0.4269,
+                0.4269
+            ]
+        }
+    }
 }

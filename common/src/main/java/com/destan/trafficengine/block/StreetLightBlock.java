@@ -4,6 +4,7 @@ import java.util.Map;
 
 import com.destan.trafficengine.block.data.ITrafficPostLike;
 import net.minecraft.Util;
+import com.destan.trafficengine.block.data.StreetLampShapes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -28,8 +29,6 @@ public class StreetLightBlock extends StreetLampBaseBlock {
 
     protected static final Map<Direction, BooleanProperty> PROPERTY_BY_DIRECTION = PipeBlock.PROPERTY_BY_DIRECTION.entrySet().stream().collect(Util.toMap());
 
-    protected static final VoxelShape SHAPE_BASE_SN = Block.box(5, 5.75D, 3, 11, 9.3D, 13);
-    protected static final VoxelShape SHAPE_BASE_EW = Block.box(3, 5.75D, 5, 13, 9.3D, 11);
     protected static final VoxelShape SHAPE_NORTH = Block.box(7, 7, 0, 9, 9, 7);
     protected static final VoxelShape SHAPE_EAST = Block.box(9, 7, 7, 16, 9, 9);
     protected static final VoxelShape SHAPE_SOUTH = Block.box(7, 7, 9, 9, 9, 16);
@@ -55,7 +54,7 @@ public class StreetLightBlock extends StreetLampBaseBlock {
 
     @Override
     public VoxelShape getShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext) {
-        VoxelShape shape = pState.getValue(FACING) == Direction.NORTH || pState.getValue(FACING) == Direction.SOUTH ? SHAPE_BASE_SN : SHAPE_BASE_EW;
+        VoxelShape shape = StreetLampShapes.STREET_LIGHT.get(pState.getValue(FACING));
 
         if (Boolean.TRUE.equals(pState.getValue(NORTH))) {
             shape = Shapes.or(shape, SHAPE_NORTH);

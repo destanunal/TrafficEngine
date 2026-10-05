@@ -47,10 +47,10 @@ public class ParticleEngineMixin {
         }
     }
 
-    // Keep nine out of twenty vanilla particles, distributed evenly through the effect.
+    // Keep seven out of twenty vanilla particles, distributed evenly through the effect.
     @Inject(method = "add(Lnet/minecraft/client/particle/Particle;)V", at = @At("HEAD"), cancellable = true)
     private void trafficengine$skipSomeBarrierParticles(Particle particle, CallbackInfo ci) {
-        if (trafficengine$reduceBarrierParticles && (trafficengine$barrierParticleIndex++ % 20) * 9 % 20 >= 9) ci.cancel();
+        if (trafficengine$reduceBarrierParticles && (trafficengine$barrierParticleIndex++ % 20) * 7 % 20 >= 7) ci.cancel();
     }
 
     /** Use the straight variant for break particles without changing selection or collision. */

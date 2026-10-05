@@ -15,7 +15,9 @@
     "MinecraftAccessor",
     "MinecraftMixin",
     "MultipartSelectorPredicateCacheMixin",
-    "MultipartPatternModelCacheMixin"
+    "MultipartPatternModelCacheMixin",
+    "StreetLampPickingMixin",
+    "StreetLampInteractionMixin"
   ],
   "mixins": [
     "TrafficCraftMigrationMixin"

@@ -19,7 +19,7 @@
       "tag": "c:ingots/copper"
     },
     "I": {
-      "tag": "c:plates/iron"
+      "item": "minecraft:iron_ingot"
     },
     "N": {
       "tag": "c:nuggets/gold"
