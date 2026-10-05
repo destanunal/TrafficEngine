@@ -7,7 +7,7 @@
     "key": {
         "#": [
             {
-                "tag": "forge:rods/iron"
+                "item": "minecraft:iron_ingot"
             }
         ]
     },

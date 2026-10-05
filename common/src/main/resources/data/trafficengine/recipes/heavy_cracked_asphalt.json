@@ -1,0 +1,16 @@
+{
+  "type": "trafficengine:damageable_item_recipe",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "trafficengine:cracked_asphalt"
+    },
+    {
+      "item": "trafficengine:hammer"
+    }
+  ],
+  "result": {
+    "item": "trafficengine:heavy_cracked_asphalt",
+    "count": 1
+  }
+}

@@ -1,11 +1,6 @@
 {
 	"render_type": "cutout",
-	"textures": {
-		"0": "trafficengine:block/sign",
-		"1": "trafficengine:block/anvil",
-		"3": "trafficengine:block/lamp_light",
-		"particle": "trafficengine:block/sign"
-	},
+	"textures": {"0": "trafficengine:block/sign", "1": "minecraft:block/gray_concrete", "3": "minecraft:block/white_concrete", "particle": "trafficengine:block/sign"},
 	"elements": [
 		{
 			"from": [7, 0, 7],
@@ -33,21 +28,57 @@
 			}
 		},
 		{
-			"from": [7, 7.25, 19],
-			"to": [9, 9.25, 24],
+			"from": [5.04, 7.25, 16.0],
+			"to": [10.96, 9.25, 27.0],
 			"rotation": {"angle": 0, "axis": "y", "origin": [0, 0, 16]},
 			"faces": {
-				"north": {"uv": [2, 0, 0, 2], "texture": "#3", "trafficengine_data": { "emissive": true }},
-				"east": {"uv": [5, 0, 0, 2], "texture": "#3", "trafficengine_data": { "emissive": true }},
-				"south": {"uv": [2, 0, 0, 2], "texture": "#3", "trafficengine_data": { "emissive": true }},
-				"west": {"uv": [5, 0, 0, 2], "texture": "#3", "trafficengine_data": { "emissive": true }},
-				"up": {"uv": [0, 5, 2, 0], "texture": "#3", "trafficengine_data": { "emissive": true }},
-				"down": {"uv": [4, 16, 12, 0], "texture": "#3", "trafficengine_data": { "emissive": true }}
+				"north": {"uv": [2, 0, 0, 2], "texture": "#1"},
+				"east": {"uv": [5, 0, 0, 2], "texture": "#1"},
+				"south": {"uv": [2, 0, 0, 2], "texture": "#1"},
+				"west": {"uv": [5, 0, 0, 2], "texture": "#1"},
+				"up": {"uv": [0, 5, 2, 0], "texture": "#1"},
+				"down": {"uv": [4, 16, 12, 0], "texture": "#1"}
 			}
 		},
 		{
-			"from": [6, 8, 17],
-			"to": [10, 10.3, 25],
+			"from": [5.22, 7.24, 16.23],
+			"to": [10.78, 7.47, 19.6767],
+			"shade": false,
+			"faces": {
+				"north": {"uv": [0, 0, 16, 16], "texture": "#3", "tintindex": 1, "trafficengine_data": {"emissive": true}},
+				"south": {"uv": [0, 0, 16, 16], "texture": "#3", "tintindex": 1, "trafficengine_data": {"emissive": true}},
+				"east": {"uv": [0, 0, 16, 16], "texture": "#3", "tintindex": 1, "trafficengine_data": {"emissive": true}},
+				"west": {"uv": [0, 0, 16, 16], "texture": "#3", "tintindex": 1, "trafficengine_data": {"emissive": true}},
+				"down": {"uv": [0, 0, 16, 16], "texture": "#3", "tintindex": 1, "trafficengine_data": {"emissive": true}}
+			}
+		},
+		{
+			"from": [5.22, 7.24, 19.7767],
+			"to": [10.78, 7.47, 23.2233],
+			"shade": false,
+			"faces": {
+				"north": {"uv": [0, 0, 16, 16], "texture": "#3", "tintindex": 1, "trafficengine_data": {"emissive": true}},
+				"south": {"uv": [0, 0, 16, 16], "texture": "#3", "tintindex": 1, "trafficengine_data": {"emissive": true}},
+				"east": {"uv": [0, 0, 16, 16], "texture": "#3", "tintindex": 1, "trafficengine_data": {"emissive": true}},
+				"west": {"uv": [0, 0, 16, 16], "texture": "#3", "tintindex": 1, "trafficengine_data": {"emissive": true}},
+				"down": {"uv": [0, 0, 16, 16], "texture": "#3", "tintindex": 1, "trafficengine_data": {"emissive": true}}
+			}
+		},
+		{
+			"from": [5.22, 7.24, 23.3233],
+			"to": [10.78, 7.47, 26.77],
+			"shade": false,
+			"faces": {
+				"north": {"uv": [0, 0, 16, 16], "texture": "#3", "tintindex": 1, "trafficengine_data": {"emissive": true}},
+				"south": {"uv": [0, 0, 16, 16], "texture": "#3", "tintindex": 1, "trafficengine_data": {"emissive": true}},
+				"east": {"uv": [0, 0, 16, 16], "texture": "#3", "tintindex": 1, "trafficengine_data": {"emissive": true}},
+				"west": {"uv": [0, 0, 16, 16], "texture": "#3", "tintindex": 1, "trafficengine_data": {"emissive": true}},
+				"down": {"uv": [0, 0, 16, 16], "texture": "#3", "tintindex": 1, "trafficengine_data": {"emissive": true}}
+			}
+		},
+		{
+			"from": [4.64, 8, 15.0],
+			"to": [11.36, 10.3, 27.0],
 			"rotation": {"angle": 0, "axis": "y", "origin": [0, 0, 16]},
 			"faces": {
 				"north": {"uv": [4, 0, 0, 2.3], "texture": "#1"},
@@ -149,8 +180,8 @@
 			}
 		},
 		{
-			"from": [6, 8, -9],
-			"to": [10, 10.3, -1],
+			"from": [4.64, 8, -11.0],
+			"to": [11.36, 10.3, 1.0],
 			"faces": {
 				"north": {"uv": [0, 0, 4, 2.3], "texture": "#1"},
 				"east": {"uv": [0, 0, 8, 2.3], "texture": "#1"},
@@ -161,15 +192,51 @@
 			}
 		},
 		{
-			"from": [7, 7.25, -8],
-			"to": [9, 9.25, -3],
+			"from": [5.04, 7.25, -11.0],
+			"to": [10.96, 9.25, 0.0],
 			"faces": {
-				"north": {"uv": [0, 0, 2, 2], "texture": "#3", "trafficengine_data": { "emissive": true }},
-				"east": {"uv": [0, 0, 5, 2], "texture": "#3", "trafficengine_data": { "emissive": true }},
-				"south": {"uv": [0, 0, 2, 2], "texture": "#3", "trafficengine_data": { "emissive": true }},
-				"west": {"uv": [0, 0, 5, 2], "texture": "#3", "trafficengine_data": { "emissive": true }},
-				"up": {"uv": [0, 0, 2, 5], "texture": "#3", "trafficengine_data": { "emissive": true }},
-				"down": {"uv": [4, 0, 12, 16], "texture": "#3", "trafficengine_data": { "emissive": true }}
+				"north": {"uv": [0, 0, 2, 2], "texture": "#1"},
+				"east": {"uv": [0, 0, 5, 2], "texture": "#1"},
+				"south": {"uv": [0, 0, 2, 2], "texture": "#1"},
+				"west": {"uv": [0, 0, 5, 2], "texture": "#1"},
+				"up": {"uv": [0, 0, 2, 5], "texture": "#1"},
+				"down": {"uv": [4, 0, 12, 16], "texture": "#1"}
+			}
+		},
+		{
+			"from": [5.22, 7.24, -10.77],
+			"to": [10.78, 7.47, -7.3233],
+			"shade": false,
+			"faces": {
+				"north": {"uv": [0, 0, 16, 16], "texture": "#3", "tintindex": 1, "trafficengine_data": {"emissive": true}},
+				"south": {"uv": [0, 0, 16, 16], "texture": "#3", "tintindex": 1, "trafficengine_data": {"emissive": true}},
+				"east": {"uv": [0, 0, 16, 16], "texture": "#3", "tintindex": 1, "trafficengine_data": {"emissive": true}},
+				"west": {"uv": [0, 0, 16, 16], "texture": "#3", "tintindex": 1, "trafficengine_data": {"emissive": true}},
+				"down": {"uv": [0, 0, 16, 16], "texture": "#3", "tintindex": 1, "trafficengine_data": {"emissive": true}}
+			}
+		},
+		{
+			"from": [5.22, 7.24, -7.2233],
+			"to": [10.78, 7.47, -3.7767],
+			"shade": false,
+			"faces": {
+				"north": {"uv": [0, 0, 16, 16], "texture": "#3", "tintindex": 1, "trafficengine_data": {"emissive": true}},
+				"south": {"uv": [0, 0, 16, 16], "texture": "#3", "tintindex": 1, "trafficengine_data": {"emissive": true}},
+				"east": {"uv": [0, 0, 16, 16], "texture": "#3", "tintindex": 1, "trafficengine_data": {"emissive": true}},
+				"west": {"uv": [0, 0, 16, 16], "texture": "#3", "tintindex": 1, "trafficengine_data": {"emissive": true}},
+				"down": {"uv": [0, 0, 16, 16], "texture": "#3", "tintindex": 1, "trafficengine_data": {"emissive": true}}
+			}
+		},
+		{
+			"from": [5.22, 7.24, -3.6767],
+			"to": [10.78, 7.47, -0.23],
+			"shade": false,
+			"faces": {
+				"north": {"uv": [0, 0, 16, 16], "texture": "#3", "tintindex": 1, "trafficengine_data": {"emissive": true}},
+				"south": {"uv": [0, 0, 16, 16], "texture": "#3", "tintindex": 1, "trafficengine_data": {"emissive": true}},
+				"east": {"uv": [0, 0, 16, 16], "texture": "#3", "tintindex": 1, "trafficengine_data": {"emissive": true}},
+				"west": {"uv": [0, 0, 16, 16], "texture": "#3", "tintindex": 1, "trafficengine_data": {"emissive": true}},
+				"down": {"uv": [0, 0, 16, 16], "texture": "#3", "tintindex": 1, "trafficengine_data": {"emissive": true}}
 			}
 		}
 	],

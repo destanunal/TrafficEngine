@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "trafficengine:traffic_sign"
+    },
+    {
+      "item": "trafficengine:traffic_sign"
+    }
+  ],
+  "result": {
+    "item": "trafficengine:double_traffic_sign",
+    "count": 1
+  }
+}

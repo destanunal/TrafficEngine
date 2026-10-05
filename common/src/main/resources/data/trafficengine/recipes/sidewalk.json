@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "CC",
+    "CC"
+  ],
+  "key": {
+    "C": {
+      "item": "trafficengine:concrete"
+    }
+  },
+  "result": {
+    "item": "trafficengine:sidewalk",
+    "count": 4
+  }
+}

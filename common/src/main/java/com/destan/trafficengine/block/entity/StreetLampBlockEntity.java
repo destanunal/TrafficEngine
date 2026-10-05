@@ -11,10 +11,12 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class StreetLampBlockEntity extends SyncedBlockEntity {
+public class StreetLampBlockEntity extends SyncedBlockEntity implements com.destan.trafficengine.block.data.IColorBlockEntity {
 
     private static final String NBT_TURN_ON_TIME = "turnOnTime";
     private static final String NBT_TURN_OFF_TIME = "turnOffTime";
+
+    private com.destan.trafficengine.data.PaintColor color = com.destan.trafficengine.data.PaintColor.NONE;
 
     // Properties
     private int onTimeTicks = 0;
@@ -34,10 +36,18 @@ public class StreetLampBlockEntity extends SyncedBlockEntity {
 
         this.onTimeTicks = compound.getInt(NBT_TURN_ON_TIME);
         this.offTimeTicks = compound.getInt(NBT_TURN_OFF_TIME);
+        com.destan.trafficengine.data.PaintColor previous = color;
+        color = compound.contains(NBT_COLOR)
+            ? com.destan.trafficengine.data.PaintColor.getByIndex(compound.getInt(NBT_COLOR))
+            : com.destan.trafficengine.data.PaintColor.NONE;
+        if (level != null && level.isClientSide && previous != color) {
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+        }
     }
 
     @Override
     protected void saveAdditional(CompoundTag tag) {
+        tag.putInt(NBT_COLOR, color.getIndex());
         tag.putInt(NBT_TURN_ON_TIME, onTimeTicks);
         tag.putInt(NBT_TURN_OFF_TIME, offTimeTicks);
         super.saveAdditional(tag);
@@ -61,6 +71,16 @@ public class StreetLampBlockEntity extends SyncedBlockEntity {
 
     public static void tick(Level level, BlockPos pos, BlockState state, StreetLampBlockEntity blockEntity) {
         blockEntity.tick(level, pos, state);
+    }
+
+    @Override
+    public com.destan.trafficengine.data.PaintColor getColor() { return color; }
+
+    @Override
+    public void setColor(com.destan.trafficengine.data.PaintColor color) {
+        this.color = color;
+        notifyUpdate();
+        if (level != null) level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
     }
 
     public int getOnTime() {

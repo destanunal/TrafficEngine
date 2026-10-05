@@ -8,7 +8,7 @@
     "key": {
         "#": [
             {
-                "tag": "forge:plates/iron"
+                "item": "minecraft:iron_ingot"
             }
         ],
         "I": [

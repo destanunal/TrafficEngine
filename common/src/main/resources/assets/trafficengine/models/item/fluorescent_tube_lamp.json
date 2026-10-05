@@ -1,3 +1,22 @@
 {
-    "parent": "trafficengine:block/fluorescent_tube_lamp"
+    "parent": "trafficengine:block/fluorescent_tube_lamp",
+    "display": {
+        "gui": {
+            "rotation": [
+                30,
+                225,
+                0
+            ],
+            "translation": [
+                -0.0,
+                0.10047253,
+                0
+            ],
+            "scale": [
+                0.6214,
+                0.6214,
+                0.6214
+            ]
+        }
+    }
 }

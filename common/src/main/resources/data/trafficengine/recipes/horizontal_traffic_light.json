@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "trafficengine:traffic_light"
+    }
+  ],
+  "result": {
+    "item": "trafficengine:horizontal_traffic_light",
+    "count": 1
+  }
+}

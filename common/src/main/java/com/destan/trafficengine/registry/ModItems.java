@@ -24,7 +24,7 @@ public class ModItems {
     public static final RegistrySupplier<Item> WRENCH = ITEMS.register("wrench", WrenchItem::new);
     public static final RegistrySupplier<Item> TRAFFIC_LIGHT_LINKER = ITEMS.register("traffic_light_linker", () -> new TrafficLightLinkerItem(new Item.Properties().stacksTo(1)));
     public static final RegistrySupplier<Item> PAINT_BRUSH = ITEMS.register("paint_brush", () -> new BrushItem(new Item.Properties(),0));
-    public static final RegistrySupplier<Item> NETHERITE_ROAD_CONSTRUCTION_TOOL = ITEMS.register("netherite_road_construction_tool", () -> new RoadConstructionTool(Tiers.NETHERITE, new Item.Properties()));
+    public static final RegistrySupplier<Item> NETHERITE_ROAD_CONSTRUCTION_TOOL = ITEMS.register("netherite_road_construction_tool", () -> new RoadConstructionTool(Tiers.STONE, new Item.Properties()));
     public static final RegistrySupplier<Item> HAMMER = ITEMS.register("hammer", () -> new HammerItem(new Item.Properties()));
     public static final RegistrySupplier<Item> STREET_LAMP_CONFIG_CARD = ITEMS.register("street_lamp_config_card", () -> new StreetLampConfigCardItem(new Item.Properties()));
     public static final RegistrySupplier<Item> CREATIVE_PATTERN_CATALOGUE = ITEMS.register("creative_pattern_catalogue", () -> new CreativePatternCatalogueItem(new Item.Properties()));

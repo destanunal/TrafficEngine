@@ -69,12 +69,44 @@ public class RoadConstructionTool extends Item {
     private final Multimap<Attribute, AttributeModifier> defaultModifiers;
 
     public RoadConstructionTool(Tiers tier, Properties properties) {
-        super(properties.stacksTo(1).durability(tier.getUses() * 6));
+        super(properties.stacksTo(1).durability(tier.getUses()));
 
         // DÜZELTME: Aletin saldırı gücünü sıfırladık ve hasar/hız özelliklerini tamamen sildik.
         // Artık altında "+8 Saldırı Hasarı" gibi yeşil silah yazıları çıkmayacak!
         this.attackDamage = 0f;
         this.defaultModifiers = ImmutableMultimap.of();
+    }
+
+    // Use the vanilla stone pickaxe's harvesting rules without changing road-building speed.
+    private final ItemStack miningTool = new ItemStack(net.minecraft.world.item.Items.STONE_PICKAXE);
+
+    @Override
+    public float getDestroySpeed(ItemStack stack, net.minecraft.world.level.block.state.BlockState state) {
+        return miningTool.getDestroySpeed(state);
+    }
+
+    @Override
+    public boolean isCorrectToolForDrops(net.minecraft.world.level.block.state.BlockState state) {
+        return miningTool.isCorrectToolForDrops(state);
+    }
+
+    public boolean canReplaceBlock(net.minecraft.world.level.block.state.BlockState state) {
+        return state.getBlock().defaultDestroyTime() != net.minecraft.world.level.block.Block.INDESTRUCTIBLE
+            && (!state.requiresCorrectToolForDrops() || miningTool.isCorrectToolForDrops(state));
+    }
+
+    @Override
+    public boolean isValidRepairItem(ItemStack stack, ItemStack ingredient) {
+        return Tiers.STONE.getRepairIngredient().test(ingredient);
+    }
+
+    @Override
+    public boolean mineBlock(ItemStack stack, Level level, net.minecraft.world.level.block.state.BlockState state,
+                             BlockPos pos, net.minecraft.world.entity.LivingEntity miner) {
+        if (!level.isClientSide && state.getDestroySpeed(level, pos) != 0) {
+            stack.hurtAndBreak(1, miner, entity -> entity.broadcastBreakEvent(EquipmentSlot.MAINHAND));
+        }
+        return true;
     }
 
     @Override

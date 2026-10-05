@@ -106,7 +106,8 @@ public class RoadBuilderBuildRoadPacket extends NetworkPacketData {
         boolean[] canContinue = new boolean[] { true };
         for (Entry<BlockPos, Integer> block : data.blocks.get(context.iteration()).entrySet()) {
             
-            if (!canContinue[0] || !data.player.isAlive()) {
+            if (!canContinue[0] || !data.player.isAlive() || data.item.isEmpty()
+                    || data.player.getItemInHand(data.hand) != data.item) {
                 return false;
             }
 
@@ -114,7 +115,9 @@ public class RoadBuilderBuildRoadPacket extends NetworkPacketData {
                 return false;
             }
 
-            if (context.level().getBlockState(block.getKey()).getBlock().defaultDestroyTime() != Block.INDESTRUCTIBLE) {
+            if (isPlayerCreative(data.player)
+                    ? context.level().getBlockState(block.getKey()).getBlock().defaultDestroyTime() != Block.INDESTRUCTIBLE
+                    : ((RoadConstructionTool)data.item.getItem()).canReplaceBlock(context.level().getBlockState(block.getKey()))) {
                 if (block.getValue() > 0 && block.getValue() <= 7 && (isPlayerCreative(data.player) || data.player.getInventory().countItem(data.roadType.getSlope().asItem()) > 0)) {                            
                     context.level().destroyBlock(block.getKey(), !isPlayerCreative(data.player));
                     int layers = Math.min(block.getValue(), isPlayerCreative(data.player) ? Integer.MAX_VALUE : data.player.getInventory().countItem(data.roadType.getSlope().asItem()));
