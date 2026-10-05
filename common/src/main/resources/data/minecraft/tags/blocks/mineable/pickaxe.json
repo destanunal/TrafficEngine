@@ -1302,6 +1302,26 @@
     "trafficengine:street_light",
     "trafficengine:fluorescent_tube_lamp",
     "trafficengine:asphalt_curb",
-    "trafficengine:concrete_curb"
+    "trafficengine:concrete_curb",
+    "trafficengine:horizontal_traffic_light",
+    "trafficengine:double_traffic_sign",
+    "trafficengine:led_light",
+    "trafficengine:traffic_display",
+    "trafficengine:large_traffic_display",
+    "trafficengine:retractable_barrier",
+    "trafficengine:speed_bump",
+    "trafficengine:wide_speed_bump",
+    "trafficengine:street_sign",
+    "trafficengine:traffic_sign_post",
+    "trafficengine:cracked_asphalt",
+    "trafficengine:cracked_asphalt_slope",
+    "trafficengine:heavy_cracked_asphalt",
+    "trafficengine:heavy_cracked_asphalt_slope",
+    "trafficengine:light_asphalt",
+    "trafficengine:light_asphalt_slope",
+    "trafficengine:dark_asphalt",
+    "trafficengine:dark_asphalt_slope",
+    "trafficengine:dirty_asphalt",
+    "trafficengine:dirty_asphalt_slope"
   ]
 }

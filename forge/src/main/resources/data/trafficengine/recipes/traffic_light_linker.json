@@ -28,7 +28,7 @@
         ],
         "I": [
             {
-                "tag": "forge:plates/iron"
+                "item": "minecraft:iron_ingot"
             }
         ],
         "N": [

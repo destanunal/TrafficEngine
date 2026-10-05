@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "BYB",
+    "CCC"
+  ],
+  "key": {
+    "B": {
+      "item": "minecraft:black_dye"
+    },
+    "Y": {
+      "item": "minecraft:yellow_dye"
+    },
+    "C": {
+      "item": "trafficengine:concrete"
+    }
+  },
+  "result": {
+    "item": "trafficengine:speed_bump",
+    "count": 6
+  }
+}

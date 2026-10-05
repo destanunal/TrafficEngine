@@ -2,6 +2,7 @@ package com.destan.trafficengine.block;
 
 import net.minecraft.network.chat.Component;
 import com.destan.trafficengine.block.data.ITrafficPostLike;
+import com.destan.trafficengine.block.data.StreetLampShapes;
 import com.destan.trafficengine.block.entity.StreetLampBlockEntity;
 import com.destan.trafficengine.registry.ModItemTags;
 import net.minecraft.core.BlockPos;
@@ -39,35 +40,16 @@ import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.level.block.state.StateDefinition.Builder;
 
-public class StreetLampBaseBlock extends BaseEntityBlock implements SimpleWaterloggedBlock, ITrafficPostLike {
+public class StreetLampBaseBlock extends BaseEntityBlock implements SimpleWaterloggedBlock, ITrafficPostLike, com.destan.trafficengine.block.data.IPaintableBlock {
 
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
     public static final BooleanProperty LIT = RedstoneTorchBlock.LIT;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
     public static final VoxelShape SHAPE_COMMON = Block.box(7, 0, 7, 9, 11, 9);
-
-    public static final VoxelShape SHAPE_PART_NORTH = Block.box(6, 4, 6, 10, 11, 25);
-    public static final VoxelShape SHAPE_PART_SOUTH = Block.box(6, 4, -9, 10, 11, 10);
-    public static final VoxelShape SHAPE_PART_EAST = Block.box(6, 4, 6, 25, 11, 10);
-    public static final VoxelShape SHAPE_PART_WEST = Block.box(-9, 4, 6, 10, 11, 10);
-    public static final VoxelShape SHAPE_SOUTH = Shapes.or(SHAPE_COMMON, SHAPE_PART_NORTH);
-    public static final VoxelShape SHAPE_NORTH = Shapes.or(SHAPE_COMMON, SHAPE_PART_SOUTH);
-    public static final VoxelShape SHAPE_EAST = Shapes.or(SHAPE_COMMON, SHAPE_PART_EAST);
-    public static final VoxelShape SHAPE_WEST = Shapes.or(SHAPE_COMMON, SHAPE_PART_WEST);
-
-    public static final VoxelShape SHAPE_SMALL_PART_NORTH = Block.box(6, 11, 6, 10, 16, 17);
-    public static final VoxelShape SHAPE_SMALL_PART_SOUTH = Block.box(6, 11, -1, 10, 16, 10);
-    public static final VoxelShape SHAPE_SMALL_PART_EAST = Block.box(6, 11, 6, 17, 16, 10);
-    public static final VoxelShape SHAPE_SMALL_PART_WEST = Block.box(-1, 11, 6, 10, 16, 10);
-    public static final VoxelShape SHAPE_SMALL_SOUTH = Shapes.or(SHAPE_COMMON, SHAPE_SMALL_PART_NORTH);
-    public static final VoxelShape SHAPE_SMALL_NORTH = Shapes.or(SHAPE_COMMON, SHAPE_SMALL_PART_SOUTH);
-    public static final VoxelShape SHAPE_SMALL_EAST = Shapes.or(SHAPE_COMMON, SHAPE_SMALL_PART_EAST);
-    public static final VoxelShape SHAPE_SMALL_WEST = Shapes.or(SHAPE_COMMON, SHAPE_SMALL_PART_WEST);
 
     private LampType lampType;
     
@@ -95,40 +77,48 @@ public class StreetLampBaseBlock extends BaseEntityBlock implements SimpleWaterl
 
     @Override
     public VoxelShape getShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext) {
-        if (lampType == LampType.SMALL || lampType == LampType.SMALL_DOUBLE) {
-            switch((Direction)pState.getValue(FACING)) {
-                case NORTH:
-                   return lampType == LampType.SMALL ? SHAPE_SMALL_NORTH : Shapes.or(SHAPE_SMALL_NORTH, SHAPE_SMALL_SOUTH);
-                case SOUTH:
-                    return lampType == LampType.SMALL ? SHAPE_SMALL_SOUTH : Shapes.or(SHAPE_SMALL_NORTH, SHAPE_SMALL_SOUTH);
-                case EAST:
-                    return lampType == LampType.SMALL ? SHAPE_SMALL_EAST : Shapes.or(SHAPE_SMALL_EAST, SHAPE_SMALL_WEST);
-                case WEST:
-                    return lampType == LampType.SMALL ? SHAPE_SMALL_WEST : Shapes.or(SHAPE_SMALL_EAST, SHAPE_SMALL_WEST);
-                default:
-                   return SHAPE_COMMON;
-                }
-        } else if (lampType == LampType.NORMAL || lampType == LampType.DOUBLE){
-            switch((Direction)pState.getValue(FACING)) {
-                case NORTH:
-                   return lampType == LampType.NORMAL ? SHAPE_NORTH : Shapes.or(SHAPE_NORTH, SHAPE_SOUTH);
-                case SOUTH:
-                    return lampType == LampType.NORMAL ? SHAPE_SOUTH : Shapes.or(SHAPE_NORTH, SHAPE_SOUTH);
-                case EAST:
-                    return lampType == LampType.NORMAL ? SHAPE_EAST : Shapes.or(SHAPE_EAST, SHAPE_WEST);
-                case WEST:
-                    return lampType == LampType.NORMAL ? SHAPE_WEST : Shapes.or(SHAPE_EAST, SHAPE_WEST);
-                default:
-                   return SHAPE_COMMON;
-                }
-        } 
+        Direction facing = pState.getValue(FACING);
+        return switch (lampType) {
+            case NORMAL -> StreetLampShapes.NORMAL.get(facing);
+            case DOUBLE -> StreetLampShapes.DOUBLE.get(facing);
+            case SMALL -> StreetLampShapes.SMALL.get(facing);
+            case SMALL_DOUBLE -> StreetLampShapes.SMALL_DOUBLE.get(facing);
+            case SINGLE_LIGHT -> StreetLampShapes.STREET_LIGHT.get(facing);
+        };
+    }
 
-        return SHAPE_COMMON;
+    @Override
+    public void attack(BlockState state, Level level, BlockPos pos, Player player) {
+        onRemoveColor(state, level, pos, player);
+    }
+
+    @Override
+    public InteractionResult onSetColor(net.minecraft.world.item.context.UseOnContext context) {
+        if (context.getLevel().getBlockEntity(context.getClickedPos()) instanceof StreetLampBlockEntity lamp) {
+            if (!context.getLevel().isClientSide) {
+                lamp.setColor(com.destan.trafficengine.item.BrushItem.getColor(context.getItemInHand()));
+                context.getLevel().playSound(null, context.getClickedPos(), SoundEvents.SLIME_BLOCK_PLACE,
+                    SoundSource.BLOCKS, 0.8F, 2.0F);
+            }
+            return InteractionResult.CONSUME;
+        }
+        return InteractionResult.PASS;
     }
 
     @Override
     public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
-        ItemStack stack = pPlayer.getInventory().getSelected();
+        ItemStack stack = pPlayer.getItemInHand(pHand);
+        if (stack.getItem() instanceof net.minecraft.world.item.DyeItem dye
+                && pLevel.getBlockEntity(pPos) instanceof StreetLampBlockEntity lamp) {
+            com.destan.trafficengine.data.PaintColor color = com.destan.trafficengine.data.PaintColor.getByDye(dye);
+            if (lamp.getColor() == color) return InteractionResult.SUCCESS;
+            if (!pLevel.isClientSide) {
+                lamp.setColor(color);
+                if (!pPlayer.isCreative()) stack.shrink(1);
+                pLevel.playSound(null, pPos, SoundEvents.SLIME_BLOCK_PLACE, SoundSource.BLOCKS, 0.8F, 2.0F);
+            }
+            return InteractionResult.sidedSuccess(pLevel.isClientSide);
+        }
 
         if (stack.is(ModItemTags.WRENCHES)) {
             if (!pLevel.isClientSide) {
@@ -148,7 +138,7 @@ public class StreetLampBaseBlock extends BaseEntityBlock implements SimpleWaterl
 
         
         
-        return InteractionResult.FAIL;
+        return InteractionResult.PASS;
     }
 
     

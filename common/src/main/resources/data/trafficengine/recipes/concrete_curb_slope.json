@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "CC"
+  ],
+  "key": {
+    "C": {
+      "item": "trafficengine:concrete_curb"
+    }
+  },
+  "result": {
+    "item": "trafficengine:concrete_curb_slope",
+    "count": 16
+  }
+}

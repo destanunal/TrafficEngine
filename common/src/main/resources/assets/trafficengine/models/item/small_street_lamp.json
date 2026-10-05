@@ -1,3 +1,22 @@
 {
-    "parent": "trafficengine:block/small_street_lamp"
+    "parent": "trafficengine:block/small_street_lamp",
+    "display": {
+        "gui": {
+            "rotation": [
+                30,
+                225,
+                0
+            ],
+            "translation": [
+                -1.546796,
+                -0.48562318,
+                0
+            ],
+            "scale": [
+                0.625,
+                0.625,
+                0.625
+            ]
+        }
+    }
 }

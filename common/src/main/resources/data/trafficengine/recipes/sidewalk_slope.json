@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "SS"
+  ],
+  "key": {
+    "S": {
+      "item": "trafficengine:sidewalk"
+    }
+  },
+  "result": {
+    "item": "trafficengine:sidewalk_slope",
+    "count": 16
+  }
+}
