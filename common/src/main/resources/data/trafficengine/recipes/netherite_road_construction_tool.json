@@ -3,7 +3,7 @@
   "category": "misc",
   "pattern": [
     "CCC",
-    " S ",
+    " F ",
     " S "
   ],
   "key": {
@@ -12,6 +12,9 @@
     },
     "S": {
       "item": "minecraft:stick"
+    },
+    "F": {
+      "item": "minecraft:flint"
     }
   },
   "result": {
