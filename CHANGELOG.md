@@ -1,10 +1,13 @@
 # TE Update v1.6.3
 
 - Added missing crafting recipes and improved Survival support.
-- The Road Construction Tool now uses a stone recipe, with stone-pickaxe durability and mining strength. Road-building speed remains unchanged.
+- Fixed crafting recipe conflicts with vanilla Minecraft and other mod items.
+- The Road Construction Tool now uses stone-based materials, with stone-pickaxe durability and mining strength, and an updated texture.
 - Street-lamp lights can now be colored with dyes or the Paint Brush.
-- Improved all street-lamp models, light surfaces and inventory icons.
-- Simplified lamp hitboxes and fixed interactions with lamp heads.
+- Improved street-lamp models, light surfaces, inventory icons, hitboxes and interactions.
+- Asphalt blocks and slopes now retain their original texture when paint or road markings are applied.
+- Removed unwanted side markings from road symbols.
+- Fixed pedestrian buttons remaining activated after a light cycle.
 - Further reduced barrier-breaking particles.
 
 These changes apply to **Minecraft 1.20.1 (Forge/Fabric)** and **Minecraft 1.21.1 (NeoForge/Fabric)**.

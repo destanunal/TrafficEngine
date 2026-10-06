@@ -17,7 +17,8 @@
     "MultipartSelectorPredicateCacheMixin",
     "MultipartPatternModelCacheMixin",
     "StreetLampPickingMixin",
-    "StreetLampInteractionMixin"
+    "StreetLampInteractionMixin",
+    "AsphaltModelMixin"
   ],
   "mixins": [
     "TrafficCraftMigrationMixin"

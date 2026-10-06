@@ -551,6 +551,9 @@ public class TrafficLightBlockEntity extends ColoredBlockEntity {
     }
 
     public boolean isFirstIteration() {
+        if (!running || controlType != TrafficLightControlType.OWN_SCHEDULE) return false;
+        // Phase schedules keep an absolute cursor instead of resetting it each cycle.
+        if (schedule.hasPhaseTimings()) return totalTicks < schedule.getTotalDurationTicks();
         return this.totalTicks == this.ticker;
     }
 

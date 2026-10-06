@@ -2,8 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "pattern": [
-    "CC",
-    "CC"
+    "CCC"
   ],
   "key": {
     "C": {
@@ -11,7 +10,7 @@
     }
   },
   "result": {
-    "count": 4,
+    "count": 3,
     "id": "trafficengine:concrete_curb"
   }
 }
