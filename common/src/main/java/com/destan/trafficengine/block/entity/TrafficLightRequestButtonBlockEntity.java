@@ -4,6 +4,7 @@ import com.destan.trafficengine.block.entity.SyncedBlockEntity;
 import com.destan.trafficengine.data.WorldLocation;
 import com.destan.trafficengine.block.TrafficLightRequestButtonBlock;
 import com.destan.trafficengine.block.data.TrafficLightTrigger;
+import com.destan.trafficengine.block.data.TrafficLightControlType;
 import com.destan.trafficengine.registry.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -63,6 +64,7 @@ public class TrafficLightRequestButtonBlockEntity extends SyncedBlockEntity {
                 
                 if (!isRunning) {
                     this.listening = false;
+                    notifyUpdate();
                     level.setBlockAndUpdate(pos, state.setValue(TrafficLightRequestButtonBlock.ACTIVATED, false).setValue(TrafficLightRequestButtonBlock.POWERED, false));                    
                 }
             }
@@ -107,13 +109,16 @@ public class TrafficLightRequestButtonBlockEntity extends SyncedBlockEntity {
         this.listening = true;
 
         if (level.getBlockEntity(this.linkLocation.getLocationBlockPos()) instanceof TrafficLightBlockEntity blockEntity) {
-            if (blockEntity.getSchedule().getTrigger() == TrafficLightTrigger.ON_REQUEST) {
+            if (blockEntity.getControlType() == TrafficLightControlType.OWN_SCHEDULE
+                    && blockEntity.getSchedule().getTrigger() == TrafficLightTrigger.ON_REQUEST) {
                 blockEntity.startSchedule(true);
+                notifyUpdate();
                 return true;
             }
         } else if (level.getBlockEntity(this.linkLocation.getLocationBlockPos()) instanceof TrafficLightControllerBlockEntity blockEntity) {
             if (blockEntity.getFirstOrMainSchedule().getTrigger() == TrafficLightTrigger.ON_REQUEST) {
                 blockEntity.startSchedule(true);
+                notifyUpdate();
                 return true;
             }
         }
