@@ -340,6 +340,13 @@ public class TrafficLightControllerBlockEntity extends SyncedBlockEntity {
     }
 
     public boolean isFirstIteration() {
+        if (!running) return false;
+        TrafficLightSchedule schedule = getFirstOrMainSchedule();
+        if (schedule.hasPhaseTimings()) {
+            int cycle = schedule.isSequentialGreens()
+                ? schedule.getSequentialCycleTicks() : schedule.getLongestCycleTicks();
+            return totalTicks < cycle;
+        }
         return this.totalTicks == this.ticks;
     }
 
