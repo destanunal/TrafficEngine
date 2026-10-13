@@ -2,6 +2,8 @@ package com.destan.trafficengine.forge;
 
 import dev.architectury.platform.forge.EventBuses;
 import com.destan.trafficengine.TrafficEngine;
+import com.destan.trafficengine.registry.ModBlocks;
+import com.destan.trafficengine.util.SignPostMigration;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
@@ -28,6 +30,14 @@ public class TrafficEngineForge {
 
     @SubscribeEvent
     public void onMissingMappings(MissingMappingsEvent event) {
+        for (MissingMappingsEvent.Mapping<Block> mapping : event.getMappings(ForgeRegistries.Keys.BLOCKS, "trafficengine")) {
+            if (mapping.getKey().toString().equals("trafficengine:road_reflector")) mapping.remap(ModBlocks.REFLECTOR.get());
+            else if (SignPostMigration.isRemoved(mapping.getKey().toString())) mapping.remap(ModBlocks.TRAFFIC_SIGN_POST.get());
+        }
+        for (MissingMappingsEvent.Mapping<Item> mapping : event.getMappings(ForgeRegistries.Keys.ITEMS, "trafficengine")) {
+            if (mapping.getKey().toString().equals("trafficengine:road_reflector")) mapping.remap(ModBlocks.REFLECTOR.get().asItem());
+            else if (SignPostMigration.isRemoved(mapping.getKey().toString())) mapping.remap(ModBlocks.TRAFFIC_SIGN_POST.get().asItem());
+        }
 
         // 1. BLOKLARI DÖNÜŞTÜR (Yerdeki asfaltlar, lambalar)
         for (MissingMappingsEvent.Mapping<Block> mapping : event.getMappings(ForgeRegistries.Keys.BLOCKS, "trafficcraft")) {

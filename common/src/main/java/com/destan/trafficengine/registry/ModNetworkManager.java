@@ -9,6 +9,7 @@ import com.destan.trafficengine.network.packets.cts.GetTrafficSignTexturePacket;
 import com.destan.trafficengine.network.packets.cts.LinkerModePacket;
 import com.destan.trafficengine.network.packets.cts.LedDevicePacket;
 import com.destan.trafficengine.network.packets.cts.PaintBrushPacket;
+import com.destan.trafficengine.network.packets.cts.PaintBrushUndoPacket;
 import com.destan.trafficengine.network.packets.cts.PatternCatalogueDeletePacket;
 import com.destan.trafficengine.network.packets.cts.PatternCatalogueIndexPacket;
 import com.destan.trafficengine.network.packets.cts.PatternCatalogueIndexPacketGui;
@@ -27,6 +28,9 @@ import com.destan.trafficengine.network.packets.stc.TrafficSignTextureResetPacke
 public class ModNetworkManager {
 
     public static final TrafficNetwork NETWORK = new TrafficNetwork();
+    public static final NetworkPacketType.Send<NetworkDirection.C2S, com.destan.trafficengine.network.packets.cts.RoadInformationSignPacket> UPDATE_ROAD_INFORMATION_SIGN = NETWORK.registerSendOnlyPacket(
+        "update_road_information_sign", NetworkDirection.C2S, com.destan.trafficengine.network.packets.cts.RoadInformationSignPacket::handle,
+        com.destan.trafficengine.network.packets.cts.RoadInformationSignPacket::new);
 
     public static final NetworkPacketType.SendAndReceive<NetworkDirection.C2S, GetTrafficSignTexturePacket.Request, GetTrafficSignTexturePacket.Response> GET_TRAFFIC_SIGN_TEXTURE = NETWORK.registerSendAndReceivePacket("get_traffic_sign_texture", NetworkDirection.C2S, GetTrafficSignTexturePacket::handle, GetTrafficSignTexturePacket.Request::new, GetTrafficSignTexturePacket.Response::new);
     public static final NetworkPacketType.SendAndReceive<NetworkDirection.C2S, PatternCatalogueDeletePacket.Request, PatternCatalogueDeletePacket.Response> DELETE_PATTERN_CATALOG_ENTRY = NETWORK.registerSendAndReceivePacket("delete_pattern_catalog_entry", NetworkDirection.C2S, PatternCatalogueDeletePacket::handle, PatternCatalogueDeletePacket.Request::new, PatternCatalogueDeletePacket.Response::new);
@@ -54,6 +58,9 @@ public class ModNetworkManager {
     public static final NetworkPacketType.Send<NetworkDirection.S2C, TrafficSignTextureResetPacket> RESET_TRAFFIC_SIGN_TEXTURE = NETWORK.registerSendOnlyPacket("reset_traffic_sign_texture", NetworkDirection.S2C, TrafficSignTextureResetPacket::handle, TrafficSignTextureResetPacket::new);
 
     
+
+    public static final NetworkPacketType.Send<NetworkDirection.C2S, PaintBrushUndoPacket> UNDO_PAINT_BRUSH = NETWORK.registerSendOnlyPacket(
+        "undo_paint_brush", NetworkDirection.C2S, PaintBrushUndoPacket::handle, PaintBrushUndoPacket::new);
 
     public static void init() {}
 }

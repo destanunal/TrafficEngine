@@ -2,7 +2,7 @@ package com.destan.trafficengine.item;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -41,6 +41,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
 public class RoadConstructionTool extends Item {
@@ -116,6 +117,7 @@ public class RoadConstructionTool extends Item {
         Vec3 clickedVec = pContext.getClickLocation();
         Player player = pContext.getPlayer();
 
+        if (player == null) return InteractionResult.PASS;
         if (!player.isShiftKeyDown()) {
             if (!level.isClientSide) {
                 CompoundTag compound = pContext.getItemInHand().getOrCreateTag();
@@ -171,19 +173,16 @@ public class RoadConstructionTool extends Item {
     }
 
     public static void initStackTag(ItemStack stack) {
-        if (!stack.getTag().contains(NBT_ROAD_WIDTH)) {
-            stack.getTag().putByte(NBT_ROAD_WIDTH, DEFAULT_ROAD_WIDTH);
-        }
-        if (!stack.getTag().contains(NBT_ROAD_TYPE)) {
-            stack.getTag().putInt(NBT_ROAD_TYPE, DEFAULT_ROAD_TYPE.getIndex());
-        }
-        if (!stack.getTag().contains(NBT_REPLACE_BLOCKS)) {
-            stack.getTag().putBoolean(NBT_REPLACE_BLOCKS, DEFAULT_REPLACE_BLOCKS);
-        }
+        CompoundTag tag = stack.getOrCreateTag();
+        if (!tag.contains(NBT_ROAD_WIDTH)) tag.putByte(NBT_ROAD_WIDTH, DEFAULT_ROAD_WIDTH);
+        if (!tag.contains(NBT_ROAD_TYPE)) tag.putInt(NBT_ROAD_TYPE, DEFAULT_ROAD_TYPE.getIndex());
+        if (!tag.contains(NBT_REPLACE_BLOCKS)) tag.putBoolean(NBT_REPLACE_BLOCKS, DEFAULT_REPLACE_BLOCKS);
     }
 
-    private static PacketStatus isLineValid(Vec3 a, Vec3 b) {
-        boolean flag1 = a.distanceTo(b) < ModCommonConfig.ROAD_BUILDER_MAX_DISTANCE.get();
+    public static PacketStatus isLineValid(Vec3 a, Vec3 b) {
+        double distance = a.distanceTo(b);
+        boolean flag1 = Double.isFinite(distance) && distance > 1.0E-7
+            && distance <= ModCommonConfig.ROAD_BUILDER_MAX_DISTANCE.get();
         boolean flag2 = ModUtils.slope(a.toVector3f(), b.toVector3f()) >= ModCommonConfig.ROAD_BUILDER_MAX_SLOPE.get();
         int status = 0;
 
@@ -204,15 +203,15 @@ public class RoadConstructionTool extends Item {
 
         boolean bothPositionsDefined = itemstack.getTag().contains(NBT_LOCATION1) && itemstack.getTag().contains(NBT_LOCATION2);
 
-        WorldLocation startLoc = WorldLocation.loadFromNbt(itemstack.getTag().getCompound(NBT_LOCATION1));
-        WorldLocation endLoc = WorldLocation.loadFromNbt(itemstack.getTag().getCompound(NBT_LOCATION2));
         Collection<Map<BlockPos, Integer>> blockList = new ArrayList<>();
 
-        if (bothPositionsDefined && endLoc != null && startLoc != null) {
+        if (bothPositionsDefined) {
+            WorldLocation startLoc = WorldLocation.loadFromNbt(itemstack.getTag().getCompound(NBT_LOCATION1));
+            WorldLocation endLoc = WorldLocation.loadFromNbt(itemstack.getTag().getCompound(NBT_LOCATION2));
             Vec3 start = startLoc.getLocationVec3();
             Vec3 end = endLoc.getLocationVec3();
             byte roadWidth = itemstack.getTag().getByte(NBT_ROAD_WIDTH);
-            boolean replaceBlocks = true;
+            boolean replaceBlocks = itemstack.getTag().getBoolean(NBT_REPLACE_BLOCKS);
             blockList = calculateRoad(pLevel, start, end, roadWidth, replaceBlocks);
         }
 
@@ -237,33 +236,15 @@ public class RoadConstructionTool extends Item {
     }
 
     public static Collection<Map<BlockPos, Integer>> calculateRoad(Level level, Vec3 start, Vec3 end, byte roadWidth, boolean replaceBlocks) {
-        final double spacingMul = 2;
-
-        if (start.y > end.y) {
-            Vec3 temp = end;
-            end = start;
-            start = temp;
+        List<Map<BlockPos, Integer>> result = new ArrayList<>();
+        for (Map<RoadConstructionPlan.Cell, Integer> slice : RoadConstructionPlan.calculate(
+                start.x, start.y, start.z, end.x, end.y, end.z, roadWidth,
+                cell -> replaceBlocks || level.isEmptyBlock(new BlockPos(cell.x(), cell.y(), cell.z())))) {
+            Map<BlockPos, Integer> blocks = new LinkedHashMap<>();
+            slice.forEach((cell, height) -> blocks.put(new BlockPos(cell.x(), cell.y(), cell.z()), height));
+            result.add(blocks);
         }
-
-        Vec3 vec = new Vec3(end.x, end.y, end.z).subtract(start);
-        Vec3 rVec = new Vec3(vec.z, 0, -vec.x).normalize();
-
-        double lastY = Double.MIN_VALUE;
-
-        Collection<Map<BlockPos, Integer>> blockList = new ArrayList<>();
-        for (int i = 0; i <= vec.length() * spacingMul; i++) {
-            double d = 1.0D / vec.length() / spacingMul * i;
-            double a = d;
-            Map<BlockPos, Integer> blockLayer = new HashMap<>();
-            Vec3 vecPos = new Vec3(vec.x * a, vec.y * a, vec.z * a).add(start);
-            Vec3 rightVec = i == 0 ? rVec.normalize() : new Vec3(vec.z * a, 0, -(vec.x * a)).normalize();
-
-            lastY = setLayer(level, lastY, vecPos, rightVec, blockLayer, roadWidth, replaceBlocks);
-            blockList.forEach(x -> x.entrySet().removeIf(y -> blockLayer.keySet().stream().anyMatch(z -> y.getKey().equals(z))));
-            blockList.add(blockLayer);
-        }
-
-        return blockList;
+        return result;
     }
 
     public static RoadBuildingData prepareRoadBuilding(Level pLevel, Player pPlayer, InteractionHand pHand, ItemStack pStack, Vec3 start, Vec3 end, byte roadWidth, boolean replaceBlocks, RoadType roadType) {
@@ -276,62 +257,6 @@ public class RoadConstructionTool extends Item {
         }
 
         return new RoadBuildingData(blockList, pPlayer, pHand, pStack, start, end, roadWidth, replaceBlocks, roadType);
-    }
-
-    private static double setLayer(Level pLevel, double lastY, Vec3 pos, Vec3 normalizedRightVec, Map<BlockPos, Integer> blockList, final byte roadWidth, final boolean replaceBlocks) {
-        final double halfWidth = roadWidth / 2.0D - 0.5D;
-        final double step = 0.5D;
-        final double pixel = 1.0D / 16;
-        final double slopeHeight = pixel * 2;
-        final double height = pos.y < 0 ? pos.y - (int)pos.y + (Math.abs(pos.y - (int)pos.y) <= 0 ? 0 : 1) : pos.y - (int)pos.y; // wth
-
-
-        if (lastY < (int)pos.y + slopeHeight) {
-            for (double i = -(halfWidth); i < halfWidth + step; i += step) {
-                Vec3 vec = pos.add(normalizedRightVec.scale(i));
-                BlockPos bPos = new BlockPos((int)vec.x, (int)vec.y - 1, (int)vec.z);
-
-                if (!replaceBlocks && !pLevel.isEmptyBlock(bPos)) {
-                    continue;
-                }
-
-                if (blockList.containsKey(bPos)) {
-                    blockList.remove(bPos);
-                }
-                blockList.put(bPos, 8);
-            }
-        }
-
-        if (height >= slopeHeight * 8 + pixel) {
-            for (double i = -(halfWidth); i < halfWidth + step; i += step) {
-                Vec3 vec = pos.add(normalizedRightVec.scale(i));
-                BlockPos bPos = new BlockPos((int)vec.x, (int)vec.y, (int)vec.z);
-
-                if (!replaceBlocks && !pLevel.isEmptyBlock(bPos)) {
-                    continue;
-                }
-
-                if (blockList.containsKey(bPos)) {
-                    blockList.remove(bPos);
-                }
-                blockList.put(bPos, 8);
-            }
-        } else if (height >= slopeHeight) {
-            for (double i = -(halfWidth); i < halfWidth + step; i += step) {
-                Vec3 vec = pos.add(normalizedRightVec.scale(i));
-                BlockPos bPos = new BlockPos((int)vec.x, (int)vec.y, (int)vec.z);
-
-                if (!replaceBlocks && !pLevel.isEmptyBlock(bPos)) {
-                    continue;
-                }
-
-                if (blockList.containsKey(bPos)) {
-                    blockList.remove(bPos);
-                }
-                blockList.put(bPos, (int)((height) / slopeHeight));
-            }
-        }
-        return pos.y;
     }
 
     @SuppressWarnings("resource")
@@ -368,15 +293,9 @@ public class RoadConstructionTool extends Item {
 
         if (nbt.contains(NBT_LOCATION1) && !nbt.contains(NBT_LOCATION2)) {
             HitResult lookingAt = player.pick(4.5f /* TODO */, 0, false);
-            Vec3 lookAtVec = lookingAt.getLocation();
-
-            if (!level.isEmptyBlock(new BlockPos((int)lookAtVec.x, (int)lookAtVec.y, (int)lookAtVec.z)) || !level.isEmptyBlock(new BlockPos((int)lookAtVec.x, (int)(lookAtVec.y - 0.5d), (int)lookAtVec.z))) {
-                double blockHeight = level.getBlockFloorHeight(new BlockPos((int)lookAtVec.x, (int)lookAtVec.y, (int)lookAtVec.z));
-                int vX = lookAtVec.x() > 0 ? 1 : -1;
-                int vZ = lookAtVec.z() > 0 ? 1 : -1;
-                end = new Vec3((int)lookAtVec.x() + (vX * 0.5d), (int)lookAtVec.y() + (blockHeight <= 0 ? 0 : blockHeight), (int)lookAtVec.z() + (vZ * 0.5d));
-            } else {
-                end = null;
+            if (lookingAt instanceof BlockHitResult hit && hit.getType() == HitResult.Type.BLOCK) {
+                end = new Vec3(hit.getBlockPos().getX() + 0.5, hit.getLocation().y,
+                    hit.getBlockPos().getZ() + 0.5);
             }
 
             player.displayClientMessage(Component.translatable("item.trafficengine.road_construction_tool.status_pos1",
@@ -451,6 +370,7 @@ public class RoadConstructionTool extends Item {
         public final Player player;
         public final InteractionHand hand;
         public final ItemStack item;
+        public final Item toolItem;
         public final Vec3 start;
         public final Vec3 end;
         public final byte roadWidth;
@@ -462,6 +382,7 @@ public class RoadConstructionTool extends Item {
             this.player = player;
             this.hand = hand;
             this.item = item;
+            this.toolItem = item.getItem();
             this.start = start;
             this.end = end;
             this.roadWidth = roadWidth;

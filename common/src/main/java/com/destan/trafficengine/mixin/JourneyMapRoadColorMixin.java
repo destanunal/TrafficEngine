@@ -1,6 +1,9 @@
 package com.destan.trafficengine.mixin;
 
+import com.destan.trafficengine.block.ConnectedRoadBlock;
+import com.destan.trafficengine.block.ConnectedRoadSlopeBlock;
 import com.destan.trafficengine.block.data.RoadBlock;
+import com.destan.trafficengine.client.TintedTextures;
 import com.destan.trafficengine.block.entity.ColoredBlockEntity;
 import com.destan.trafficengine.data.PaintColor;
 import net.minecraft.client.Minecraft;
@@ -20,7 +23,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  * the white/yellow overlay and makes thin lines almost invisible on the map.
  *
  * This optional mixin replaces only JourneyMap's final colour for marked road
- * blocks. It does not change the normal block model or its in-world colour.
+ * blocks. Persistent brush meshes use their painted coverage, keeping hatch
+ * gaps dark rather than turning the entire area into solid paint. This does
+ * not change the normal block model or its in-world colour.
  */
 @Pseudo
 @Mixin(targets = "journeymap.client.mod.vanilla.VanillaBlockColorProxy", remap = false)
@@ -32,11 +37,21 @@ public abstract class JourneyMapRoadColorMixin {
             @Coerce Object blockMetadata, BlockPos pos,
             CallbackInfoReturnable<Integer> callback) {
         ColoredBlockEntity blockEntity = trafficengine$getRoadBlockEntity(chunk, pos);
-        if (blockEntity == null || !(blockEntity.getBlockState().getBlock() instanceof RoadBlock)) {
+        if (blockEntity == null || !(blockEntity.getBlockState().getBlock() instanceof RoadBlock roadBlock)) {
             return;
         }
 
         PaintColor markingColor = blockEntity.getMarkingColor();
+        var state = blockEntity.getBlockState();
+        if (state.getBlock() instanceof ConnectedRoadSlopeBlock
+                || state.getBlock() instanceof ConnectedRoadBlock) {
+            PaintColor baseColor = blockEntity.getColor();
+            int background = baseColor == PaintColor.NONE ? roadBlock.getDefaultRoadType().getColor()
+                    : baseColor.getTextureColor().getAsARGB();
+            int paint = markingColor == PaintColor.NONE ? background : markingColor.getTextureColor().getAsARGB();
+            callback.setReturnValue(TintedTextures.strokeMapColor(background, paint, com.destan.trafficengine.item.RoadMarkingMesh.topVertices(blockEntity.getLevel(),pos,state,blockEntity)) & 0xFFFFFF);
+            return;
+        }
         PaintColor mapColor = markingColor != PaintColor.NONE
                 ? markingColor
                 : blockEntity.getColor();

@@ -31,6 +31,8 @@ public class ModBlocks {
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(TrafficEngine.MOD_ID, Registries.BLOCK);
     public static List<RegistrySupplier<Block>> COLORED_BLOCKS = new ArrayList<>();
     public static HashMap<String, RegistrySupplier<Block>> ROAD_BLOCKS = new HashMap<>();
+    public static final java.util.EnumMap<RoadType, RegistrySupplier<Block>> CONNECTED_ROADS = new java.util.EnumMap<>(RoadType.class);
+    public static final java.util.EnumMap<RoadType, RegistrySupplier<Block>> CONNECTED_SLOPES = new java.util.EnumMap<>(RoadType.class);
 
 
     public static final RegistrySupplier<Block> ASPHALT = registerBlock("asphalt", () -> new AsphaltBlock(RoadType.ASPHALT), ModCreativeModeTab.MOD_TAB, false);
@@ -50,8 +52,11 @@ public class ModBlocks {
     public static final RegistrySupplier<Block> SIDEWALK = registerBlock("sidewalk", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.STONE).strength(1.5f).sound(SoundType.STONE).requiresCorrectToolForDrops()), ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> SIDEWALK_SLOPE = registerBlock("sidewalk_slope", SidewalkSlopeBlock::new, ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> SPEED_BUMP = registerBlock("speed_bump", () -> new SpeedBumpBlock(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_BLACK).strength(2.0f).requiresCorrectToolForDrops()), ModCreativeModeTab.MOD_TAB, false);
-    public static final RegistrySupplier<Block> WIDE_SPEED_BUMP = registerBlock("wide_speed_bump", () -> new CustomSpeedBumpBlock(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_BLACK).strength(2.0f).requiresCorrectToolForDrops(), Shapes.or(Block.box(0.0D, 0.0D, 1.0D, 16.0D, 0.5D, 15.0D), Block.box(0.0D, 0.5D, 3.0D, 16.0D, 1.25D, 13.0D), Block.box(0.0D, 1.25D, 6.0D, 16.0D, 2.0D, 10.0D)), Shapes.or(Block.box(1.0D, 0.0D, 0.0D, 15.0D, 0.5D, 16.0D), Block.box(3.0D, 0.5D, 0.0D, 13.0D, 1.25D, 16.0D), Block.box(6.0D, 1.25D, 0.0D, 10.0D, 2.0D, 16.0D))), ModCreativeModeTab.MOD_TAB, false);
-    public static final RegistrySupplier<Block> BIKE_LANE_SEPARATOR = registerBlock("bike_lane_separator", () -> new com.destan.trafficengine.block.BikeLaneSeparatorBlock(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_ORANGE).strength(2.0f).requiresCorrectToolForDrops(), Shapes.or(Block.box(3.0D, 0.0D, 1.0D, 13.0D, 0.65D, 15.0D), Block.box(4.0D, 0.65D, 1.5D, 12.0D, 1.55D, 14.5D), Block.box(5.0D, 1.55D, 2.0D, 11.0D, 2.75D, 14.0D)), Shapes.or(Block.box(1.0D, 0.0D, 3.0D, 15.0D, 0.65D, 13.0D), Block.box(1.5D, 0.65D, 4.0D, 14.5D, 1.55D, 12.0D), Block.box(2.0D, 1.55D, 5.0D, 14.0D, 2.75D, 11.0D))), ModCreativeModeTab.MOD_TAB, false);
+    public static final RegistrySupplier<Block> ASPHALT_SPEED_BUMP = registerColoredBlock("rubber_speed_bump", AsphaltSpeedBumpBlock::new, ModCreativeModeTab.MOD_TAB, false);
+    public static final RegistrySupplier<Block> TRAFFIC_ISLAND_BOLLARD = registerBlock("traffic_island_bollard", TrafficIslandBollardBlock::new, ModCreativeModeTab.MOD_TAB, false);
+
+    public static final RegistrySupplier<Block> WIDE_SPEED_BUMP = registerBlock("wide_speed_bump", () -> new CustomSpeedBumpBlock(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_BLACK).strength(2.0f).requiresCorrectToolForDrops(), Shapes.or(Block.box(0, 0, 1.17157287525381, 16, 0.5, 14.8284271247462), Block.box(0, 0.5, 2.37867965644036, 16, 1.25, 13.6213203435596), Block.box(0, 1.25, 4.18933982822018, 16, 2, 11.8106601717798)), Shapes.or(Block.box(1.17157287525381, 0, 0, 14.8284271247462, 0.5, 16), Block.box(2.37867965644036, 0.5, 0, 13.6213203435596, 1.25, 16), Block.box(4.18933982822018, 1.25, 0, 11.8106601717798, 2, 16))), ModCreativeModeTab.MOD_TAB, false);
+    public static final RegistrySupplier<Block> BIKE_LANE_SEPARATOR = registerColoredBlock("bike_lane_separator", () -> new com.destan.trafficengine.block.BikeLaneSeparatorBlock(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_GRAY).strength(2.0f).requiresCorrectToolForDrops().noOcclusion()), ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> CONCRETE_BARRIER = registerColoredBlock("concrete_barrier", () -> new ConcreteBarrierBlock(), ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> ASPHALT_CURB = registerBlock("asphalt_curb", () -> new AsphaltCurb(RoadType.ASPHALT), ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> CONCRETE_CURB = registerBlock("concrete_curb", () -> new AsphaltCurb(RoadType.CONCRETE), ModCreativeModeTab.MOD_TAB, false);
@@ -65,6 +70,8 @@ public class ModBlocks {
             if (s == RoadType.NONE)
                 continue;
 
+            CONNECTED_ROADS.put(s, registerColoredBlockWithoutItem(s.getRoadType() + "_auto_line", () -> new ConnectedRoadBlock(s)));
+            CONNECTED_SLOPES.put(s, registerColoredBlockWithoutItem(s.getRoadType() + "_slope_auto_line", () -> new ConnectedRoadSlopeBlock(s)));
             for (int i = 0; i < Constants.MAX_ASPHALT_PATTERNS; i++) {
                 String id = s.getRoadType() + "_pattern_" + i;
                 RegistrySupplier<Block> block = registerColoredBlockWithoutItem(id, () -> new PaintedAsphaltBlock(s, s.getBlock()));
@@ -77,6 +84,9 @@ public class ModBlocks {
         }
     }
 
+    public static final RegistrySupplier<Block> HIGHWAY_DIRECTION_SIGN = registerBlock("highway_direction_sign", () -> new RoadInformationSignBlock(RoadInformationSignBlock.Kind.HIGHWAY), ModCreativeModeTab.MOD_TAB, false);
+    public static final RegistrySupplier<Block> ROAD_DIRECTION_SIGN = registerBlock("road_direction_sign", () -> new RoadInformationSignBlock(RoadInformationSignBlock.Kind.DIRECTION), ModCreativeModeTab.MOD_TAB, false);
+    public static final RegistrySupplier<Block> VARIABLE_SPEED_SIGN = registerBlock("variable_speed_sign", () -> new RoadInformationSignBlock(RoadInformationSignBlock.Kind.VARIABLE_SPEED), ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> TRAFFIC_SIGN_POST = registerBlock("traffic_sign_post", () -> new TrafficSignPostBlock(), ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> TRAFFIC_SIGN = registerBlock("traffic_sign", () -> new TrafficSignBlock(), ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> DOUBLE_TRAFFIC_SIGN = registerBlock("double_traffic_sign", () -> new DoubleSidedTrafficSignBlock(), ModCreativeModeTab.MOD_TAB, false);

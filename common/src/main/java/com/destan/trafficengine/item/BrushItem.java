@@ -47,7 +47,9 @@ public class BrushItem extends Item {
     public boolean canAttackBlock(BlockState state, Level worldIn, BlockPos pos, Player player) {
         if (player.isCreative()) {
             if (state.getBlock() instanceof IPaintableBlock block) {  
+                var undo = RoadPaintUndo.begin(worldIn, player, player.getMainHandItem(), List.of(pos));
                 block.onRemoveColor(state, worldIn, pos, player);
+                RoadPaintUndo.finish(undo);
                 return false;
             }
         }
@@ -60,8 +62,16 @@ public class BrushItem extends Item {
         CompoundTag nbt = checkNbt(stack);
         stack.setTag(nbt);
 
-        if (level.isClientSide) {
-            ClientWrapper.showPaintBrushScreen(nbt.getInt(NBT_PATTERN), PaintColor.getByIndex(nbt.getInt(NBT_COLOR)));
+        if (player.isShiftKeyDown()) {
+            if (!level.isClientSide) {
+                RoadPainting.clearSelection(nbt);
+                player.getInventory().setChanged();
+                player.displayClientMessage(Component.translatable("item.trafficengine.paint_brush.selection_cleared"), true);
+            }
+        } else if (level.isClientSide) {
+            ClientWrapper.showPaintBrushScreen(nbt.getInt(NBT_PATTERN), PaintColor.getByIndex(nbt.getInt(NBT_COLOR)),
+                RoadPainting.style(stack), nbt.getBoolean(RoadPainting.BATCH), Math.max(1, Math.min(9, nbt.getInt(RoadPainting.WIDTH))) | 1,
+                RoadPainting.dashGap(stack), RoadPainting.position(stack), RoadPainting.areaStyle(stack), RoadPainting.areaShape(stack), hand);
         }
 
         return new InteractionResultHolder<>(InteractionResult.SUCCESS, stack);
@@ -83,6 +93,15 @@ public class BrushItem extends Item {
             }
         }
 
+        if (stack.hasTag()) {
+            if (RoadPainting.areaStyle(stack)>0) {
+                list.add(Component.translatable("gui.trafficengine.paint_brush.area.title").withStyle(ChatFormatting.AQUA));
+                list.add(Component.translatable("gui.trafficengine.paint_brush.area.style."+RoadPainting.areaStyle(stack)).withStyle(ChatFormatting.AQUA));
+            } else {
+                if (stack.getTag().getBoolean(RoadPainting.BATCH)) list.add(Component.translatable("gui.trafficengine.paint_brush.mode.batch").withStyle(ChatFormatting.AQUA));
+                if (RoadPainting.style(stack) >= 0) list.add(Component.translatable("gui.trafficengine.paint_brush.connection." + (RoadPainting.style(stack) + 1)).withStyle(ChatFormatting.AQUA));
+            }
+        }
         list.add(Component.translatable("item.trafficengine.paint_brush.tooltip.copy").withStyle(ChatFormatting.DARK_GRAY));
         
     }
@@ -152,18 +171,37 @@ public class BrushItem extends Item {
         Player player = pContext.getPlayer();
 
         if (player != null && player.isShiftKeyDown() && state.getBlock() instanceof RoadBlock) {
+            if (state.getBlock() instanceof com.destan.trafficengine.block.ConnectedRoadBlock
+                    || state.getBlock() instanceof com.destan.trafficengine.block.ConnectedRoadSlopeBlock) {
+                if (!level.isClientSide) {
+                    nbt.putInt(RoadPainting.AREA_STYLE,0);
+                    nbt.putInt(RoadPainting.STYLE, state.getValue(com.destan.trafficengine.block.ConnectedRoadBlock.STYLE).ordinal());
+                    if (level.getBlockEntity(pos) instanceof ColoredBlockEntity colored) {
+                        nbt.putInt(NBT_COLOR, colored.getMarkingColor().getIndex());
+                        nbt.putInt(RoadPainting.DASH_GAP,colored.getRoadDashGap());
+                        int position=RoadMarkingMesh.automaticPosition(state,colored);
+                        if (position>=0) nbt.putInt(RoadPainting.POSITION,position);
+                    }
+                    RoadPainting.clearSelection(nbt); player.getInventory().setChanged();
+                    player.displayClientMessage(Component.translatable("item.trafficengine.paint_brush.copied"), true);
+                }
+                return InteractionResult.sidedSuccess(level.isClientSide);
+            }
             String path = BuiltInRegistries.BLOCK.getKey(state.getBlock()).getPath();
             int marker = path.lastIndexOf("_pattern_");
             if (marker >= 0) {
                 try {
                     int pattern = Integer.parseInt(path.substring(marker + "_pattern_".length()));
-                    if (pattern > 0 && pattern < Constants.MAX_ASPHALT_PATTERNS
+                    if (pattern >= 0 && pattern < Constants.MAX_ASPHALT_PATTERNS
                             && level.getBlockEntity(pos) instanceof ColoredBlockEntity colored) {
                         PaintColor color = colored.getMarkingColor();
                         if (color == PaintColor.NONE) color = colored.getColor();
                         if (color == PaintColor.NONE) color = PaintColor.WHITE;
                         if (!level.isClientSide) {
                             nbt.putInt(NBT_PATTERN, pattern);
+                            nbt.putInt(RoadPainting.STYLE, -1);
+                            nbt.putInt(RoadPainting.AREA_STYLE,0);
+                            RoadPainting.clearSelection(nbt);
                             nbt.putInt(NBT_COLOR, color.getIndex());
                             player.getInventory().setChanged();
                             player.displayClientMessage(Component.translatable("item.trafficengine.paint_brush.copied"), true);
@@ -177,6 +215,13 @@ public class BrushItem extends Item {
             return InteractionResult.sidedSuccess(level.isClientSide);
         }
 
+        if (RoadPainting.areaStyle(stack)>0 && !(state.getBlock() instanceof PaintBucketBlock)) {
+            return RoadPainting.use(pContext);
+        }
+        if (RoadPainting.isRoad(state) && (nbt.getBoolean(RoadPainting.BATCH) || RoadPainting.style(stack) >= 0)) {
+            return RoadPainting.use(pContext);
+        }
+
         if (nbt.getInt(NBT_PAINT) <= 0) {
             return InteractionResult.FAIL;
         }
@@ -186,6 +231,7 @@ public class BrushItem extends Item {
             return InteractionResult.SUCCESS;
         } else {
             if (state.getBlock() instanceof IPaintableBlock block) {
+                var undo = RoadPaintUndo.begin(level, player, stack, List.of(pos));
                 boolean matchingRoadMarking = state.getBlock() instanceof RoadBlock
                         && level.getBlockEntity(pos) instanceof ColoredBlockEntity coloredBlockEntity
                         && BrushItem.getPatternId(pContext.getItemInHand()) != 0
@@ -203,6 +249,7 @@ public class BrushItem extends Item {
                         this.removePaint(player, nbt);
                         res = InteractionResult.SUCCESS;
                     }
+                    RoadPaintUndo.finish(undo);
                     return res;
                 }
 
@@ -211,6 +258,7 @@ public class BrushItem extends Item {
                     this.removePaint(player, nbt);
                     res = InteractionResult.SUCCESS;
                 }
+                RoadPaintUndo.finish(undo);
                 return res;
             }
         }

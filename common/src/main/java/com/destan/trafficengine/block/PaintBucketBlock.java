@@ -168,9 +168,10 @@ public class PaintBucketBlock extends ColorableBlock implements SimpleWaterlogge
             }
 
             if (state.getValue(PAINT) < MAX_PAINT) {
+                // Predict the dye colour before revealing the paint surface.
+                blockEntity.setColor(PaintColor.getByDye(dye));
+                level.setBlockAndUpdate(pos, state.setValue(PAINT, state.getValue(PAINT) + 1));
                 if (!level.isClientSide) {
-                    blockEntity.setColor(PaintColor.getByDye(dye));
-                    level.setBlockAndUpdate(pos, state.setValue(PAINT, state.getValue(PAINT) + 1));
                     if(!player.isCreative())
                         player.getItemInHand(hand).shrink(1);
                     

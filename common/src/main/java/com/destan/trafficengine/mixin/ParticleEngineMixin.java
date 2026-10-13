@@ -1,6 +1,9 @@
 package com.destan.trafficengine.mixin;
 
 import com.destan.trafficengine.block.BikeLaneSeparatorBlock;
+import com.destan.trafficengine.block.AsphaltSpeedBumpBlock;
+import com.destan.trafficengine.block.TrafficIslandBollardBlock;
+import com.destan.trafficengine.registry.ModBlockTags;
 import com.destan.trafficengine.block.ConcreteBarrierBlock;
 import com.destan.trafficengine.block.GuardrailBlock;
 import com.destan.trafficengine.block.RetractableBarrierBlock;
@@ -27,30 +30,46 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 public class ParticleEngineMixin {
     @Shadow private ClientLevel level;
 
-    @Unique private boolean trafficengine$reduceBarrierParticles;
-    @Unique private int trafficengine$barrierParticleIndex;
+    @Unique private int trafficengine$breakParticleNumerator = 1;
+    @Unique private int trafficengine$breakParticleDenominator = 1;
+    @Unique private int trafficengine$breakParticleIndex;
 
     @WrapMethod(method = "destroy")
-    private void trafficengine$reduceBarrierDestruction(BlockPos pos, BlockState state, Operation<Void> original) {
-        boolean previous = trafficengine$reduceBarrierParticles;
-        int previousIndex = trafficengine$barrierParticleIndex;
-        trafficengine$reduceBarrierParticles = state.getBlock() instanceof RetractableBarrierBlock
-            || state.getBlock() instanceof RoadBarrierFenceBlock
-            || state.getBlock() instanceof ConcreteBarrierBlock
-            || state.getBlock() instanceof GuardrailBlock;
-        trafficengine$barrierParticleIndex = 0;
+    private void trafficengine$reduceDestruction(BlockPos pos, BlockState state, Operation<Void> original) {
+        int previousNumerator = trafficengine$breakParticleNumerator;
+        int previousDenominator = trafficengine$breakParticleDenominator;
+        int previousIndex = trafficengine$breakParticleIndex;
+        trafficengine$breakParticleNumerator = 1;
+        trafficengine$breakParticleDenominator = 1;
+        if (state.getBlock() instanceof RetractableBarrierBlock
+                || state.getBlock() instanceof RoadBarrierFenceBlock
+                || state.getBlock() instanceof ConcreteBarrierBlock
+                || state.getBlock() instanceof GuardrailBlock) {
+            trafficengine$breakParticleNumerator = 7;
+            trafficengine$breakParticleDenominator = 20;
+        } else if (state.getBlock() instanceof TrafficIslandBollardBlock) {
+            trafficengine$breakParticleDenominator = 2;
+        } else if (state.is(ModBlockTags.REDUCED_BREAK_PARTICLES)) {
+            trafficengine$breakParticleNumerator = 3;
+            trafficengine$breakParticleDenominator = 5;
+        }
+        trafficengine$breakParticleIndex = 0;
         try {
             original.call(pos, state);
         } finally {
-            trafficengine$reduceBarrierParticles = previous;
-            trafficengine$barrierParticleIndex = previousIndex;
+            trafficengine$breakParticleNumerator = previousNumerator;
+            trafficengine$breakParticleDenominator = previousDenominator;
+            trafficengine$breakParticleIndex = previousIndex;
         }
     }
 
-    // Keep seven out of twenty vanilla particles, distributed evenly through the effect.
+    // Distribute the retained particles evenly; each five bump particles becomes three.
     @Inject(method = "add(Lnet/minecraft/client/particle/Particle;)V", at = @At("HEAD"), cancellable = true)
-    private void trafficengine$skipSomeBarrierParticles(Particle particle, CallbackInfo ci) {
-        if (trafficengine$reduceBarrierParticles && (trafficengine$barrierParticleIndex++ % 20) * 7 % 20 >= 7) ci.cancel();
+    private void trafficengine$skipSomeBreakParticles(Particle particle, CallbackInfo ci) {
+        if (trafficengine$breakParticleDenominator == 1) return;
+        int index = trafficengine$breakParticleIndex++ % trafficengine$breakParticleDenominator;
+        if (index * trafficengine$breakParticleNumerator % trafficengine$breakParticleDenominator
+                >= trafficengine$breakParticleNumerator) ci.cancel();
     }
 
     /** Use the straight variant for break particles without changing selection or collision. */
@@ -65,8 +84,11 @@ public class ParticleEngineMixin {
             return state.setValue(TrafficSignBlock.DIAGONAL, false)
                 .setValue(TrafficSignBlock.POST_MOUNTED, false).getShape(level, pos);
         }
-        if (state.getBlock() instanceof BikeLaneSeparatorBlock && state.getValue(BikeLaneSeparatorBlock.DIAGONAL)) {
-            return state.setValue(BikeLaneSeparatorBlock.DIAGONAL, false).getShape(level, pos);
+        if (state.getBlock() instanceof BikeLaneSeparatorBlock) {
+            return BikeLaneSeparatorBlock.destructionShape(state);
+        }
+        if (state.getBlock() instanceof AsphaltSpeedBumpBlock) {
+            return AsphaltSpeedBumpBlock.destructionShape(state);
         }
         return shape;
     }

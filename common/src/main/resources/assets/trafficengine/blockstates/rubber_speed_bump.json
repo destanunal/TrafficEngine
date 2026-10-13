@@ -1,0 +1,68 @@
+{
+  "variants": {
+    "facing=north,connected_start=false,connected_end=false": {
+      "model": "trafficengine:block/asphalt_speed_bump_00",
+      "y": 0
+    },
+    "facing=east,connected_start=false,connected_end=false": {
+      "model": "trafficengine:block/asphalt_speed_bump_00",
+      "y": 90
+    },
+    "facing=south,connected_start=false,connected_end=false": {
+      "model": "trafficengine:block/asphalt_speed_bump_00",
+      "y": 180
+    },
+    "facing=west,connected_start=false,connected_end=false": {
+      "model": "trafficengine:block/asphalt_speed_bump_00",
+      "y": 270
+    },
+    "facing=north,connected_start=false,connected_end=true": {
+      "model": "trafficengine:block/asphalt_speed_bump_01",
+      "y": 0
+    },
+    "facing=east,connected_start=false,connected_end=true": {
+      "model": "trafficengine:block/asphalt_speed_bump_01",
+      "y": 90
+    },
+    "facing=south,connected_start=false,connected_end=true": {
+      "model": "trafficengine:block/asphalt_speed_bump_01",
+      "y": 180
+    },
+    "facing=west,connected_start=false,connected_end=true": {
+      "model": "trafficengine:block/asphalt_speed_bump_01",
+      "y": 270
+    },
+    "facing=north,connected_start=true,connected_end=false": {
+      "model": "trafficengine:block/asphalt_speed_bump_10",
+      "y": 0
+    },
+    "facing=east,connected_start=true,connected_end=false": {
+      "model": "trafficengine:block/asphalt_speed_bump_10",
+      "y": 90
+    },
+    "facing=south,connected_start=true,connected_end=false": {
+      "model": "trafficengine:block/asphalt_speed_bump_10",
+      "y": 180
+    },
+    "facing=west,connected_start=true,connected_end=false": {
+      "model": "trafficengine:block/asphalt_speed_bump_10",
+      "y": 270
+    },
+    "facing=north,connected_start=true,connected_end=true": {
+      "model": "trafficengine:block/asphalt_speed_bump_11",
+      "y": 0
+    },
+    "facing=east,connected_start=true,connected_end=true": {
+      "model": "trafficengine:block/asphalt_speed_bump_11",
+      "y": 90
+    },
+    "facing=south,connected_start=true,connected_end=true": {
+      "model": "trafficengine:block/asphalt_speed_bump_11",
+      "y": 180
+    },
+    "facing=west,connected_start=true,connected_end=true": {
+      "model": "trafficengine:block/asphalt_speed_bump_11",
+      "y": 270
+    }
+  }
+}

@@ -40,8 +40,11 @@ public class ClientWrapper {
         }
     }
 
-    public static void showPaintBrushScreen(int pattern, PaintColor color) {
-        Minecraft.getInstance().setScreen(new PaintBrushScreen(pattern, color));
+    public static void showPaintBrushScreen(int pattern, PaintColor color, int lineStyle, boolean batch, int width, int dashGap, int linePosition, int areaStyle, int areaShape, net.minecraft.world.InteractionHand hand) {
+        Minecraft.getInstance().setScreen(new PaintBrushScreen(pattern, color, lineStyle, batch, width, dashGap, linePosition, areaStyle, areaShape, hand));
+    }
+    public static void showRoadInformationSignScreen(com.destan.trafficengine.block.entity.RoadInformationSignBlockEntity sign) {
+        Minecraft.getInstance().setScreen(new com.destan.trafficengine.client.screen.RoadInformationSignScreen(sign));
     }
 
     public static void showSignPatternSelectionScreen(ItemStack stack) {        

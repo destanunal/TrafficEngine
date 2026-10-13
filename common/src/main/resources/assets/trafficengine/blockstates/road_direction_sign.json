@@ -1,0 +1,93 @@
+{
+  "multipart": [
+    {
+      "when": {
+        "facing": "north",
+        "post_mounted": "false"
+      },
+      "apply": {
+        "model": "trafficengine:block/road_direction_sign",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "post_mounted": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/road_direction_sign_mounted",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "post_mounted": "false"
+      },
+      "apply": {
+        "model": "trafficengine:block/road_direction_sign",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "post_mounted": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/road_direction_sign_mounted",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "post_mounted": "false"
+      },
+      "apply": {
+        "model": "trafficengine:block/road_direction_sign",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "post_mounted": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/road_direction_sign_mounted",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "post_mounted": "false"
+      },
+      "apply": {
+        "model": "trafficengine:block/road_direction_sign",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "post_mounted": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/road_direction_sign_mounted",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "post_mounted": "false",
+        "upper_connection": "true"
+      },
+      "apply": {
+        "model": "trafficengine:block/road_direction_sign_upper"
+      }
+    }
+  ]
+}

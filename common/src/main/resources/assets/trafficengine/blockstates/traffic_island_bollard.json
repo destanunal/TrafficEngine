@@ -1,0 +1,68 @@
+{
+  "variants": {
+    "facing=north,keep_right=false,lit=false": {
+      "model": "trafficengine:block/traffic_island_bollard_left_unlit",
+      "y": 0
+    },
+    "facing=east,keep_right=false,lit=false": {
+      "model": "trafficengine:block/traffic_island_bollard_left_unlit",
+      "y": 90
+    },
+    "facing=south,keep_right=false,lit=false": {
+      "model": "trafficengine:block/traffic_island_bollard_left_unlit",
+      "y": 180
+    },
+    "facing=west,keep_right=false,lit=false": {
+      "model": "trafficengine:block/traffic_island_bollard_left_unlit",
+      "y": 270
+    },
+    "facing=north,keep_right=false,lit=true": {
+      "model": "trafficengine:block/traffic_island_bollard_left_lit",
+      "y": 0
+    },
+    "facing=east,keep_right=false,lit=true": {
+      "model": "trafficengine:block/traffic_island_bollard_left_lit",
+      "y": 90
+    },
+    "facing=south,keep_right=false,lit=true": {
+      "model": "trafficengine:block/traffic_island_bollard_left_lit",
+      "y": 180
+    },
+    "facing=west,keep_right=false,lit=true": {
+      "model": "trafficengine:block/traffic_island_bollard_left_lit",
+      "y": 270
+    },
+    "facing=north,keep_right=true,lit=false": {
+      "model": "trafficengine:block/traffic_island_bollard_right_unlit",
+      "y": 0
+    },
+    "facing=east,keep_right=true,lit=false": {
+      "model": "trafficengine:block/traffic_island_bollard_right_unlit",
+      "y": 90
+    },
+    "facing=south,keep_right=true,lit=false": {
+      "model": "trafficengine:block/traffic_island_bollard_right_unlit",
+      "y": 180
+    },
+    "facing=west,keep_right=true,lit=false": {
+      "model": "trafficengine:block/traffic_island_bollard_right_unlit",
+      "y": 270
+    },
+    "facing=north,keep_right=true,lit=true": {
+      "model": "trafficengine:block/traffic_island_bollard_right_lit",
+      "y": 0
+    },
+    "facing=east,keep_right=true,lit=true": {
+      "model": "trafficengine:block/traffic_island_bollard_right_lit",
+      "y": 90
+    },
+    "facing=south,keep_right=true,lit=true": {
+      "model": "trafficengine:block/traffic_island_bollard_right_lit",
+      "y": 180
+    },
+    "facing=west,keep_right=true,lit=true": {
+      "model": "trafficengine:block/traffic_island_bollard_right_lit",
+      "y": 270
+    }
+  }
+}

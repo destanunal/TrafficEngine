@@ -3,9 +3,6 @@
     {
       "apply": {
         "model": "trafficengine:block/traffic_sign_post_base"
-      },
-      "when": {
-        "diagonal": "false"
       }
     },
     {
@@ -14,8 +11,7 @@
         "north": "false",
         "south": "false",
         "up": "false",
-        "down": "false",
-        "diagonal": "false"
+        "down": "false"
       },
       "apply": [
         {
@@ -30,8 +26,7 @@
         "east": "false",
         "west": "false",
         "up": "false",
-        "down": "false",
-        "diagonal": "false"
+        "down": "false"
       },
       "apply": [
         {
@@ -45,8 +40,7 @@
         "east": "false",
         "west": "false",
         "north": "false",
-        "south": "false",
-        "diagonal": "false"
+        "south": "false"
       },
       "apply": [
         {
@@ -92,8 +86,7 @@
     },
     {
       "when": {
-        "up": true,
-        "diagonal": "false"
+        "up": true
       },
       "apply": {
         "model": "trafficengine:block/traffic_sign_post_connection",
@@ -102,8 +95,7 @@
     },
     {
       "when": {
-        "down": true,
-        "diagonal": "false"
+        "down": true
       },
       "apply": {
         "model": "trafficengine:block/traffic_sign_post_connection",
@@ -112,29 +104,10 @@
     },
     {
       "when": {
-        "bottom_extension": true,
-        "diagonal": "false"
+        "bottom_extension": true
       },
       "apply": {
         "model": "trafficengine:block/traffic_sign_post_extension_bottom"
-      }
-    },
-    {
-      "when": {
-        "axis": "y",
-        "diagonal": "true"
-      },
-      "apply": {
-        "model": "trafficengine:block/traffic_sign_post_diagonal"
-      }
-    },
-    {
-      "when": {
-        "bottom_extension": "true",
-        "diagonal": "true"
-      },
-      "apply": {
-        "model": "trafficengine:block/traffic_sign_post_extension_bottom_diagonal"
       }
     }
   ]

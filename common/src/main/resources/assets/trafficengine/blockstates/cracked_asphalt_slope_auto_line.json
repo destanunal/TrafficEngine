@@ -1,0 +1,148 @@
+{
+  "multipart": [
+    {
+      "when": {
+        "base_painted": "false",
+        "layers": "1"
+      },
+      "apply": {
+        "model": "trafficengine:block/cracked_asphalt_slope_2"
+      }
+    },
+    {
+      "when": {
+        "base_painted": "true",
+        "layers": "1"
+      },
+      "apply": {
+        "model": "trafficengine:block/cracked_asphalt_painted_slope_2"
+      }
+    },
+    {
+      "when": {
+        "base_painted": "false",
+        "layers": "2"
+      },
+      "apply": {
+        "model": "trafficengine:block/cracked_asphalt_slope_4"
+      }
+    },
+    {
+      "when": {
+        "base_painted": "true",
+        "layers": "2"
+      },
+      "apply": {
+        "model": "trafficengine:block/cracked_asphalt_painted_slope_4"
+      }
+    },
+    {
+      "when": {
+        "base_painted": "false",
+        "layers": "3"
+      },
+      "apply": {
+        "model": "trafficengine:block/cracked_asphalt_slope_6"
+      }
+    },
+    {
+      "when": {
+        "base_painted": "true",
+        "layers": "3"
+      },
+      "apply": {
+        "model": "trafficengine:block/cracked_asphalt_painted_slope_6"
+      }
+    },
+    {
+      "when": {
+        "base_painted": "false",
+        "layers": "4"
+      },
+      "apply": {
+        "model": "trafficengine:block/cracked_asphalt_slope_8"
+      }
+    },
+    {
+      "when": {
+        "base_painted": "true",
+        "layers": "4"
+      },
+      "apply": {
+        "model": "trafficengine:block/cracked_asphalt_painted_slope_8"
+      }
+    },
+    {
+      "when": {
+        "base_painted": "false",
+        "layers": "5"
+      },
+      "apply": {
+        "model": "trafficengine:block/cracked_asphalt_slope_10"
+      }
+    },
+    {
+      "when": {
+        "base_painted": "true",
+        "layers": "5"
+      },
+      "apply": {
+        "model": "trafficengine:block/cracked_asphalt_painted_slope_10"
+      }
+    },
+    {
+      "when": {
+        "base_painted": "false",
+        "layers": "6"
+      },
+      "apply": {
+        "model": "trafficengine:block/cracked_asphalt_slope_12"
+      }
+    },
+    {
+      "when": {
+        "base_painted": "true",
+        "layers": "6"
+      },
+      "apply": {
+        "model": "trafficengine:block/cracked_asphalt_painted_slope_12"
+      }
+    },
+    {
+      "when": {
+        "base_painted": "false",
+        "layers": "7"
+      },
+      "apply": {
+        "model": "trafficengine:block/cracked_asphalt_slope_14"
+      }
+    },
+    {
+      "when": {
+        "base_painted": "true",
+        "layers": "7"
+      },
+      "apply": {
+        "model": "trafficengine:block/cracked_asphalt_painted_slope_14"
+      }
+    },
+    {
+      "when": {
+        "base_painted": "false",
+        "layers": "8"
+      },
+      "apply": {
+        "model": "trafficengine:block/cracked_asphalt"
+      }
+    },
+    {
+      "when": {
+        "base_painted": "true",
+        "layers": "8"
+      },
+      "apply": {
+        "model": "trafficengine:block/cracked_asphalt_painted_base"
+      }
+    }
+  ]
+}

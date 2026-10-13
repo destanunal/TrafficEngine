@@ -18,10 +18,14 @@
     "MultipartPatternModelCacheMixin",
     "StreetLampPickingMixin",
     "StreetLampInteractionMixin",
-    "AsphaltModelMixin"
+    "AsphaltModelMixin",
+    "PlacementShadingMixin"
   ],
   "mixins": [
-    "TrafficCraftMigrationMixin"
+    "TrafficCraftMigrationMixin",
+    "RemovedSignPostBlockMixin",
+    "RemovedSignPostItemMixin",
+    "RemovedSignPostChunkMixin"
   ],
   "injectors": {
     "defaultRequire": 1

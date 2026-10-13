@@ -13,6 +13,21 @@ public class EmissiveFaceDeserializerMixin {
     @Inject(method="deserialize(Lcom/google/gson/JsonElement;Ljava/lang/reflect/Type;Lcom/google/gson/JsonDeserializationContext;)Lnet/minecraft/client/renderer/block/model/BlockElementFace;",at=@At("RETURN"))
     private void trafficengine$read(JsonElement json, Type type, JsonDeserializationContext context, CallbackInfoReturnable<BlockElementFace> cir) {
         var data=json.getAsJsonObject().getAsJsonObject("trafficengine_data");
+        if (data != null && data.has("vertices")) {
+            var array = data.getAsJsonArray("vertices");
+            if (array.size() != 12) throw new com.google.gson.JsonParseException("A model face needs four xyz corners");
+            float[] vertices = new float[12];
+            for (int i = 0; i < vertices.length; i++) {
+                vertices[i] = array.get(i).getAsFloat();
+                if (!Float.isFinite(vertices[i]) || vertices[i] < -16 || vertices[i] > 32)
+                    throw new com.google.gson.JsonParseException("Invalid model face corner");
+            }
+            ((EmissiveFace) cir.getReturnValue()).trafficengine$setVertices(vertices);
+        }
+        if (data != null && data.has("match_straight_shade")) {
+            ((EmissiveFace) cir.getReturnValue()).trafficengine$setMatchesStraightShade(
+                data.get("match_straight_shade").getAsBoolean());
+        }
         if(data!=null && data.has("emissive")) ((EmissiveFace)cir.getReturnValue()).trafficengine$setEmissive(data.get("emissive").getAsBoolean());
     }
 }
