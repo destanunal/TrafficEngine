@@ -51,6 +51,8 @@ public class ModCreativeModeTab {
         output.accept(ModBlocks.TRAFFIC_SIGN_POST.get());
         output.accept(ModBlocks.TRAFFIC_SIGN.get());
         output.accept(ModBlocks.DOUBLE_TRAFFIC_SIGN.get());
+        output.accept(ModBlocks.ROAD_DIRECTION_SIGN.get());
+        output.accept(ModBlocks.HIGHWAY_DIRECTION_SIGN.get());
         output.accept(ModBlocks.TRAFFIC_SIGN_WORKBENCH.get());
         output.accept(ModBlocks.TRAFFIC_LIGHT_CONTROLLER.get());
         output.accept(ModBlocks.ASPHALT_CURB.get());
@@ -67,8 +69,10 @@ public class ModCreativeModeTab {
         output.accept(ModBlocks.TRAFFIC_BOLLARD.get());
         output.accept(ModBlocks.TRAFFIC_BARREL.get());
         output.accept(ModBlocks.ROAD_BARRIER_FENCE.get());
+        output.accept(ModBlocks.TRAFFIC_ISLAND_BOLLARD.get());
         output.accept(ModBlocks.SPEED_BUMP.get());
         output.accept(ModBlocks.WIDE_SPEED_BUMP.get());
+        output.accept(ModBlocks.ASPHALT_SPEED_BUMP.get());
         output.accept(ModBlocks.BIKE_LANE_SEPARATOR.get());
         output.accept(ModBlocks.TOWN_SIGN.get());
         output.accept(ModBlocks.STREET_SIGN.get());
@@ -80,6 +84,7 @@ public class ModCreativeModeTab {
         output.accept(ModBlocks.STREET_LIGHT.get());
         output.accept(ModBlocks.FLUORESCENT_TUBE_LAMP.get());
         output.accept(ModBlocks.LED_LIGHT.get());
+        output.accept(ModBlocks.VARIABLE_SPEED_SIGN.get());
         output.accept(ModBlocks.TRAFFIC_DISPLAY.get());
         output.accept(ModBlocks.LARGE_TRAFFIC_DISPLAY.get());
         output.accept(ModBlocks.MANHOLE.get());

@@ -2871,6 +2871,13 @@
     "trafficengine:dirty_asphalt_slope_pattern_314",
     "trafficengine:dirty_asphalt_slope_pattern_315",
     "trafficengine:dirty_asphalt_slope_pattern_316",
-    "trafficengine:dirty_asphalt_slope_pattern_317"
+    "trafficengine:dirty_asphalt_slope_pattern_317",
+    "trafficengine:asphalt_auto_line",
+    "trafficengine:concrete_auto_line",
+    "trafficengine:cracked_asphalt_auto_line",
+    "trafficengine:heavy_cracked_asphalt_auto_line",
+    "trafficengine:light_asphalt_auto_line",
+    "trafficengine:dark_asphalt_auto_line",
+    "trafficengine:dirty_asphalt_auto_line"
   ]
 }

@@ -26,7 +26,12 @@ public class CustomSpeedBumpBlock extends HorizontalDirectionalBlock {
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         // Bloğun baktığı yöne göre doğru fiziksel kutuyu döndürür
         Direction dir = state.getValue(FACING);
-        return (dir == Direction.EAST || dir == Direction.WEST) ? shapeEW : shapeNS;
+        return dir.getAxis() == Direction.Axis.Z ? shapeNS : shapeEW;
+    }
+
+    @Override
+    public VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return state.getValue(FACING).getAxis() == Direction.Axis.Z ? shapeNS : shapeEW;
     }
 
     @Override

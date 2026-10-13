@@ -9,6 +9,7 @@ import net.minecraft.network.chat.Component;
 
 public class TEButton extends Button {
     private boolean selected;
+    private float mediumWeight;
     private final boolean primary;
     public TEButton(int x, int y, int width, int height, Component text, OnPress action) {
         this(x, y, width, height, text, action, false);
@@ -20,6 +21,8 @@ public class TEButton extends Button {
     public void setSelected(boolean selected) { this.selected = selected; }
     public TEButton primary() { setSelected(true); return this; }
     public TEButton selected(boolean selected) { setSelected(selected); return this; }
+    public TEButton mediumWeight() { return mediumWeight(0.35F); }
+    public TEButton mediumWeight(float offset) { mediumWeight = Math.max(0, Math.min(1, offset)); return this; }
     protected boolean isSelected() { return selected; }
     protected int selectedBackground() { return TEColors.ACCENT_SOFT; }
     protected int selectedBorder() { return TEColors.ACCENT; }
@@ -41,7 +44,7 @@ public class TEButton extends Button {
         int available = Math.max(1, width - 8);
         int y = getY() + (height - font.lineHeight) / 2;
         if (textWidth <= available) {
-            g.drawString(font, getMessage(), getX() + (width - textWidth) / 2, y, color, false);
+            drawCaption(g, getX() + (width - textWidth) / 2, y, color);
         } else {
             // Match vanilla's smooth scrolling, with a crisp shadow-free caption.
             double seconds = Util.getMillis() / 1000.0;
@@ -54,8 +57,18 @@ public class TEButton extends Button {
                 (int)Math.floor(getY() * transform.m11() + transform.m31()),
                 (int)Math.ceil((getX() + width - 4) * transform.m00() + transform.m30()),
                 (int)Math.ceil((getY() + height) * transform.m11() + transform.m31()));
-            g.drawString(font, getMessage(), getX() + 4 - offset, y, color, false);
+            drawCaption(g, getX() + 4 - offset, y, color);
             g.disableScissor();
+        }
+    }
+    private void drawCaption(GuiGraphics g, int x, int y, int color) {
+        var font = Minecraft.getInstance().font;
+        g.drawString(font, getMessage(), x, y, color, false);
+        if (mediumWeight > 0) {
+            g.pose().pushPose();
+            g.pose().translate(mediumWeight, 0, 0);
+            g.drawString(font, getMessage(), x, y, color, false);
+            g.pose().popPose();
         }
     }
 }

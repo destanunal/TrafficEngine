@@ -1322,6 +1322,25 @@
     "trafficengine:dark_asphalt",
     "trafficengine:dark_asphalt_slope",
     "trafficengine:dirty_asphalt",
-    "trafficengine:dirty_asphalt_slope"
+    "trafficengine:dirty_asphalt_slope",
+    "trafficengine:rubber_speed_bump",
+    "trafficengine:traffic_island_bollard",
+    "trafficengine:highway_direction_sign",
+    "trafficengine:road_direction_sign",
+    "trafficengine:variable_speed_sign",
+    "trafficengine:asphalt_auto_line",
+    "trafficengine:concrete_auto_line",
+    "trafficengine:cracked_asphalt_auto_line",
+    "trafficengine:heavy_cracked_asphalt_auto_line",
+    "trafficengine:light_asphalt_auto_line",
+    "trafficengine:dark_asphalt_auto_line",
+    "trafficengine:dirty_asphalt_auto_line",
+    "trafficengine:asphalt_slope_auto_line",
+    "trafficengine:concrete_slope_auto_line",
+    "trafficengine:cracked_asphalt_slope_auto_line",
+    "trafficengine:heavy_cracked_asphalt_slope_auto_line",
+    "trafficengine:light_asphalt_slope_auto_line",
+    "trafficengine:dark_asphalt_slope_auto_line",
+    "trafficengine:dirty_asphalt_slope_auto_line"
   ]
 }

@@ -39,6 +39,15 @@ public class TintedTextures {
                         // marking so lane lines and road symbols remain visible there;
                         // plain/full-painted roads still fall back to their base colour.
                         PaintColor markingColor = coloredBlockEntity.getMarkingColor();
+                        boolean mesh = pState.getBlock() instanceof com.destan.trafficengine.block.ConnectedRoadSlopeBlock
+                            || pState.getBlock() instanceof com.destan.trafficengine.block.ConnectedRoadBlock;
+                        if (mesh) {
+                            PaintColor base = coloredBlockEntity.getColor();
+                            int background = base == PaintColor.NONE ? roadBlock.getDefaultRoadType().getColor()
+                                : base.getTextureColor().getAsARGB();
+                            int paint = markingColor == PaintColor.NONE ? background : markingColor.getTextureColor().getAsARGB();
+                            return strokeMapColor(background, paint, com.destan.trafficengine.item.RoadMarkingMesh.topVertices(pLevel,pPos,pState,coloredBlockEntity));
+                        }
                         if (markingColor != PaintColor.NONE) {
                             return markingColor.getTextureColor().getAsARGB();
                         }
@@ -88,6 +97,26 @@ public class TintedTextures {
             String path = BuiltInRegistries.BLOCK.getKey(state.getBlock()).getPath();
             return path.endsWith("_pattern_0") || path.endsWith("_slope_pattern_0");
         }
+    }
+
+    /** A map pixel averages painted mesh coverage with the road beneath it. */
+    public static int strokeMapColor(int background, int paint, float[] mesh) {
+        double covered = 0;
+        for (int i = 0; i + 11 < mesh.length; i += 12) {
+            double x = mesh[i], z = mesh[i + 2];
+            covered += Math.abs((mesh[i + 3] - x) * (mesh[i + 8] - z)
+                    - (mesh[i + 5] - z) * (mesh[i + 6] - x)) / 2;
+            covered += Math.abs((mesh[i + 6] - x) * (mesh[i + 11] - z)
+                    - (mesh[i + 8] - z) * (mesh[i + 9] - x)) / 2;
+        }
+        covered = Math.max(0, Math.min(1, covered));
+        int color = 0xFF000000;
+        for (int shift = 0; shift < 24; shift += 8) {
+            int channel = (int) Math.round(((background >>> shift) & 255) * (1 - covered)
+                    + ((paint >>> shift) & 255) * covered);
+            color |= channel << shift;
+        }
+        return color;
     }
 
     public static class TintedItem implements ItemColor {

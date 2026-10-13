@@ -16,20 +16,16 @@ import net.minecraft.world.phys.shapes.Shapes;
 public class SpeedBumpBlock extends HorizontalDirectionalBlock {
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
 
-    // Dar ve yuksek tumsegin egimli modeline oturan kademeli hitbox.
+    private static final double HEIGHT = 1.4497474683058327;
+    // Three enclosing tiers follow the low ramps and include both ground-level toes.
     private static final VoxelShape SHAPE_NS = Shapes.or(
-            Block.box(0.0D, 0.0D, 4.0D, 16.0D, 0.75D, 12.0D),
-            Block.box(0.0D, 0.75D, 5.0D, 16.0D, 1.5D, 11.0D),
-            Block.box(0.0D, 1.5D, 6.0D, 16.0D, 2.25D, 10.0D),
-            Block.box(0.0D, 2.25D, 7.0D, 16.0D, 2.75D, 9.0D)
-    );
-
+        Block.box(0, 0, 4, 16, HEIGHT * 0.25, 12),
+        Block.box(0, HEIGHT * 0.25, 4.875, 16, HEIGHT * 0.625, 11.125),
+        Block.box(0, HEIGHT * 0.625, 6.1875, 16, HEIGHT, 9.8125));
     private static final VoxelShape SHAPE_EW = Shapes.or(
-            Block.box(4.0D, 0.0D, 0.0D, 12.0D, 0.75D, 16.0D),
-            Block.box(5.0D, 0.75D, 0.0D, 11.0D, 1.5D, 16.0D),
-            Block.box(6.0D, 1.5D, 0.0D, 10.0D, 2.25D, 16.0D),
-            Block.box(7.0D, 2.25D, 0.0D, 9.0D, 2.75D, 16.0D)
-    );
+        Block.box(4, 0, 0, 12, HEIGHT * 0.25, 16),
+        Block.box(4.875, HEIGHT * 0.25, 0, 11.125, HEIGHT * 0.625, 16),
+        Block.box(6.1875, HEIGHT * 0.625, 0, 9.8125, HEIGHT, 16));
 
     public SpeedBumpBlock(Properties properties) {
         super(properties);
@@ -39,7 +35,12 @@ public class SpeedBumpBlock extends HorizontalDirectionalBlock {
     @Override
     public VoxelShape getShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext) {
         Direction dir = pState.getValue(FACING);
-        return (dir == Direction.EAST || dir == Direction.WEST) ? SHAPE_EW : SHAPE_NS;
+        return dir.getAxis() == Direction.Axis.Z ? SHAPE_NS : SHAPE_EW;
+    }
+
+    @Override
+    public VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return state.getValue(FACING).getAxis() == Direction.Axis.Z ? SHAPE_NS : SHAPE_EW;
     }
 
     @Override

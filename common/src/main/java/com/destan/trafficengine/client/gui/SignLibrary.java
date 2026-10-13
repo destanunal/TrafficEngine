@@ -38,9 +38,12 @@ public final class SignLibrary {
                 ResourceLocation path = resource.getKey();
                 int i = assetId(path, prefix);
                 if (s == TrafficSignShape.CIRCLE && between(i, 181, 185)) continue;
+                if (s == TrafficSignShape.SQUARE && between(i,301,306) && i != 302) continue;
                 try (var input = resource.getValue().open(); NativeImage image = NativeImage.read(input)) {
                     short w = (short)image.getWidth(), h = (short)image.getHeight();
-                    list.add(new Entry(path, NamedTrafficSignTextureReference.ofBuildIn("", new BuildInTrafficSignCodec(s, i, w, h)), w, h));
+                    String name = s == TrafficSignShape.SQUARE && i == 302
+                        ? net.minecraft.network.chat.Component.translatable("gui.trafficengine.sign_preset.square" + i).getString() : "";
+                    list.add(new Entry(path, NamedTrafficSignTextureReference.ofBuildIn(name, new BuildInTrafficSignCodec(s, i, w, h)), w, h));
                 } catch (IOException e) { TrafficEngine.LOGGER.warn("Cannot read sign metadata {}", path, e); }
             }
             return List.copyOf(list);

@@ -29,8 +29,8 @@ public class TrafficLightSchedule implements NbtSerializable {
     private static final String NBT_RED_YELLOW_BEFORE_GREEN = "redYellowBeforeGreen";
     public static final int SAFETY_INTERVAL_SECONDS = 2;
     public static final int SAFETY_INTERVAL_TICKS = SAFETY_INTERVAL_SECONDS * 20;
-    private static final int CROSSING_INTERVAL_TICKS = (SAFETY_INTERVAL_SECONDS + 1) * 20;
-    private static final int PEDESTRIAN_RED_BEFORE_VEHICLE_TRANSITION_TICKS = 40;
+    private static final int CROSSING_INTERVAL_TICKS = 2 * 20;
+    private static final int PEDESTRIAN_RED_BEFORE_VEHICLE_TRANSITION_TICKS = 20;
     public static final int MAX_RED_YELLOW_SECONDS = 10;
     public static final int MIN_PHASE_ID = 1;
     public static final int MAX_PHASE_ID = 100;
@@ -48,6 +48,8 @@ public class TrafficLightSchedule implements NbtSerializable {
     private boolean manualController = false;
     private int redYellowTicks = 40;
     private boolean redYellowBeforeGreen = true;
+
+    public enum TransitionLight { RED_YELLOW, YELLOW, NONE }
 
     public record PhaseState(Collection<TrafficLightColor> colors, int durationTicks, int remainingTicks) {}
     private record TimedEntry(int at, TrafficLightScheduleEntryData entry) {}
@@ -128,6 +130,21 @@ public class TrafficLightSchedule implements NbtSerializable {
 
     public void setRedYellowSeconds(int seconds) {
         redYellowTicks = Math.max(0, Math.min(MAX_RED_YELLOW_SECONDS, seconds)) * 20;
+    }
+
+    /** Zero duration also represents None in existing world saves and packets. */
+    public TransitionLight getTransitionLight() {
+        if (redYellowTicks == 0) return TransitionLight.NONE;
+        return redYellowBeforeGreen ? TransitionLight.RED_YELLOW : TransitionLight.YELLOW;
+    }
+
+    public void setTransitionLight(TransitionLight light) {
+        if (light == TransitionLight.NONE) {
+            redYellowTicks = 0;
+        } else {
+            if (redYellowTicks == 0) setRedYellowSeconds(2);
+            redYellowBeforeGreen = light == TransitionLight.RED_YELLOW;
+        }
     }
 
     public boolean isRedYellowBeforeGreen() {
@@ -214,8 +231,8 @@ public class TrafficLightSchedule implements NbtSerializable {
                 redYellowTicks, cycle - sinceGreenStarted);
         }
 
-        // Keep the existing opening delay. Give pedestrians two seconds of red
-        // before the matching vehicle signal starts its pre-green yellow phase.
+        // Wait two seconds after vehicle yellow before opening the crossing.
+        // Close it one second before the matching vehicle's pre-green transition.
         int crossingGreenStart = yellowEnd + CROSSING_INTERVAL_TICKS;
         int crossingGreenEnd = incomingYellowStart - PEDESTRIAN_RED_BEFORE_VEHICLE_TRANSITION_TICKS;
         int pedestrianGreen = crossingGreenEnd - crossingGreenStart;

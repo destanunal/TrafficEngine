@@ -1,6 +1,10 @@
 package com.destan.trafficengine.mixin;
 
 import com.destan.trafficengine.block.PaintedAsphaltBlock;
+import com.destan.trafficengine.block.SpeedBumpBlock;
+import com.destan.trafficengine.block.CustomSpeedBumpBlock;
+import com.destan.trafficengine.block.AsphaltSpeedBumpBlock;
+import com.destan.trafficengine.client.model.GroundedSpeedBumpModel;
 import com.destan.trafficengine.block.PaintedAsphaltSlope;
 import com.destan.trafficengine.block.AsphaltSlope;
 import com.destan.trafficengine.block.data.RoadBlock;
@@ -27,10 +31,18 @@ public abstract class AsphaltModelMixin {
     private Map<BlockState, BakedModel> trafficengine$preserveAsphalt(Map<BlockState, BakedModel> models) {
         Map<BlockState, BakedModel> result = new HashMap<>(models);
         Map<PreservedAsphaltModel.CacheKey, BakedModel> wrappers = new HashMap<>();
+        Map<BakedModel, BakedModel> groundedBumps = new HashMap<>();
         Map<RoadType, Map<BakedQuad, BakedQuad>> paintedQuads = new HashMap<>();
         BlockModelShaper shaper = (BlockModelShaper) (Object) this;
         for (var entry : models.entrySet()) {
             BlockState state = entry.getKey();
+            if (state.getBlock() instanceof SpeedBumpBlock
+                    || state.getBlock() instanceof CustomSpeedBumpBlock
+                    || state.getBlock() instanceof AsphaltSpeedBumpBlock) {
+                result.put(state, groundedBumps.computeIfAbsent(entry.getValue(),
+                        model -> new GroundedSpeedBumpModel(model, state)));
+                continue;
+            }
             boolean slope = state.getBlock() instanceof PaintedAsphaltSlope;
             if (!(state.getBlock() instanceof PaintedAsphaltBlock) && !slope) continue;
             RoadBlock road = (RoadBlock) state.getBlock();
@@ -50,13 +62,22 @@ public abstract class AsphaltModelMixin {
             var key = new PreservedAsphaltModel.CacheKey(entry.getValue(), baseState, paintedBase, fullPaint);
             BakedModel wrapper = wrappers.computeIfAbsent(key, ignored -> {
                 TextureAtlasSprite sprite = shaper.getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS)
-                        .getSprite(ResourceLocation.fromNamespaceAndPath("trafficengine", "block/" + type.getRoadType() + "_painted"));
+                        // Pattern 0 uses this paint texture; retain it beneath later markings too.
+                        .getSprite(ResourceLocation.fromNamespaceAndPath("trafficengine", "block/sign_blank"));
                 return new PreservedAsphaltModel(entry.getValue(), base, baseState, sprite,
                         paintedBase, fullPaint, paintedQuads.computeIfAbsent(type, unused -> new ConcurrentHashMap<>()));
             });
             result.put(state, wrapper);
         }
         // Rebuilt on resource reload; wrappers and tinted quads share the atlas lifetime.
+        TextureAtlasSprite white=shaper.getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS)
+            .getSprite(ResourceLocation.fromNamespaceAndPath("trafficengine","block/sign_blank"));
+        Map<BakedModel,BakedModel> strokes=new java.util.IdentityHashMap<>();
+        for(var entry:result.entrySet()) {
+            if(entry.getKey().getBlock() instanceof com.destan.trafficengine.block.ConnectedRoadSlopeBlock
+                    || entry.getKey().getBlock() instanceof com.destan.trafficengine.block.ConnectedRoadBlock)
+                entry.setValue(strokes.computeIfAbsent(entry.getValue(),model->com.destan.trafficengine.client.model.RoadStrokeModels.wrap(model,white)));
+        }
         return result;
     }
 

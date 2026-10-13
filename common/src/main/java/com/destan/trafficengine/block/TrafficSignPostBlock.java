@@ -57,27 +57,21 @@ public class TrafficSignPostBlock extends Block implements SimpleWaterloggedBloc
     private static final VoxelShape SHAPE_UP = Block.box(7, 9, 7, 9, 16, 9);
     private static final VoxelShape SHAPE_DOWN = Block.box(7, 0, 7, 9, 7, 9);
     private static final VoxelShape SHAPE_EXTEND_DOWN = Block.box(7, -16, 7, 9, 0, 9);
-    private static final VoxelShape SHAPE_DIAGONAL_VERTICAL = Block.box(6.5, 0, 6.5, 9.5, 16, 9.5);
-    private static final VoxelShape SHAPE_DIAGONAL_EXTEND_DOWN = Block.box(6.5, -16, 6.5, 9.5, 0, 9.5);
 
     private static final Map<BlockState, VoxelShape> shapes = new HashMap<>();
     private static VoxelShape createShape(BlockState state) {
-        boolean diagonal = state.getValue(DIAGONAL) && state.getValue(AXIS) == Axis.Y;
-        VoxelShape shape = diagonal ? SHAPE_DIAGONAL_VERTICAL : SHAPE_BASE;
+        // A diagonal device turns its plate around the same square carrier.
+        // Use the normal connection arms; a full-height diagonal carrier would
+        // protrude above a junction even when its UP connection is absent.
+        VoxelShape shape = SHAPE_BASE;
 
-        if (diagonal) {
-            if (state.getValue(NORTH)) shape = Shapes.or(shape, SHAPE_NORTH);
-            if (state.getValue(EAST)) shape = Shapes.or(shape, SHAPE_EAST);
-            if (state.getValue(SOUTH)) shape = Shapes.or(shape, SHAPE_SOUTH);
-            if (state.getValue(WEST)) shape = Shapes.or(shape, SHAPE_WEST);
-        } else if ((state.getValue(AXIS) == Axis.X) && !state.getValue(NORTH) && !state.getValue(SOUTH) && !state.getValue(UP) && !state.getValue(DOWN)) {
+        if ((state.getValue(AXIS) == Axis.X) && !state.getValue(NORTH) && !state.getValue(SOUTH) && !state.getValue(UP) && !state.getValue(DOWN)) {
             shape = Shapes.or(shape, SHAPE_EAST, SHAPE_WEST);
         } else if ((state.getValue(AXIS) == Axis.Z) && !state.getValue(EAST) && !state.getValue(WEST) && !state.getValue(UP) && !state.getValue(DOWN)) {
             shape = Shapes.or(shape, SHAPE_NORTH, SHAPE_SOUTH);
         } else if ((state.getValue(AXIS) == Axis.Y) && !state.getValue(EAST) && !state.getValue(WEST) && !state.getValue(NORTH) && !state.getValue(SOUTH)) {
             shape = Shapes.or(shape, SHAPE_UP, SHAPE_DOWN);
         } else {
-            state.setValue(AXIS, state.getValue(AXIS));
             if (state.getValue(NORTH)) {
                 shape = Shapes.or(shape, SHAPE_NORTH);
             }
@@ -98,7 +92,7 @@ public class TrafficSignPostBlock extends Block implements SimpleWaterloggedBloc
             }
         }
         if (state.getValue(EXTEND_BOTTOM)) {
-            shape = Shapes.or(shape, diagonal ? SHAPE_DIAGONAL_EXTEND_DOWN : SHAPE_EXTEND_DOWN);
+            shape = Shapes.or(shape, SHAPE_EXTEND_DOWN);
         }
         return shape;
     }

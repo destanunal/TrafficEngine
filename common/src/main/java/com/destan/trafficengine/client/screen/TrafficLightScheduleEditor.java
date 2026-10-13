@@ -35,6 +35,9 @@ public class TrafficLightScheduleEditor extends TrafficEngineScreen {
     private int offset, rowTop, visibleRows;
     private boolean draggingScrollbar;
     private String error;
+    private TEButton transitionButton;
+    private TEScheduleNumberBox transitionDuration;
+    private int lastTransitionSeconds;
     private ItemStack triggerIcon;
     private MultiLineLabel helpLabel = MultiLineLabel.EMPTY;
     private String helpKey;
@@ -48,6 +51,7 @@ public class TrafficLightScheduleEditor extends TrafficEngineScreen {
         schedule = (level.getBlockEntity(pos) instanceof TrafficLightControllerBlockEntity c ? c.getScheduleForEditing() : level.getBlockEntity(pos) instanceof TrafficLightBlockEntity l ? l.getSchedule() : new TrafficLightSchedule()).copy();
         schedule.convertToPhaseTimings(!controller);
         if (controller) schedule.convertToSequentialGreens();
+        lastTransitionSeconds = schedule.getRedYellowSeconds() > 0 ? schedule.getRedYellowSeconds() : 2;
     }
     private static Component text(String key) { return Component.translatable("gui.trafficengine.trafficlightschedule." + key); }
     @Override protected void init() {
@@ -90,11 +94,15 @@ public class TrafficLightScheduleEditor extends TrafficEngineScreen {
                 b.setMessage(modeCaption());
                 rebuildRows();
             }));
-            addRenderableWidget(new TEButton(left + 103, top + 93, 100, 20, transitionCaption(), b -> {
-                schedule.setRedYellowBeforeGreen(!schedule.isRedYellowBeforeGreen());
-                b.setMessage(transitionCaption());
-            })).setTooltip(Tooltip.create(text("red_yellow_help")));
-            addRenderableWidget(new TEScheduleNumberBox(font, left + windowWidth - 64, top + 94, 50, schedule.getRedYellowSeconds(), 0, TrafficLightSchedule.MAX_RED_YELLOW_SECONDS, true, true, text("red_yellow_seconds"), value -> schedule.setRedYellowSeconds((int)value)));
+            transitionButton = addRenderableWidget(new TEButton(left + 103, top + 93, 100, 20, transitionCaption(), b -> cycleTransitionLight()));
+            transitionDuration = addRenderableWidget(new TEScheduleNumberBox(font, left + windowWidth - 64, top + 94, 50,
+                schedule.getRedYellowSeconds(), 0, TrafficLightSchedule.MAX_RED_YELLOW_SECONDS, true, true, text("red_yellow_seconds"), value -> {
+                    schedule.setRedYellowSeconds((int)value);
+                    if (value > 0) lastTransitionSeconds = (int)value;
+                    refreshTransitionControls();
+                }));
+            transitionDuration.setTooltip(Tooltip.create(text("transition_duration_help")));
+            refreshTransitionControls();
         }
         rowTop = top + (controller ? 136 : 113);
         if (controller) {
@@ -136,7 +144,32 @@ public class TrafficLightScheduleEditor extends TrafficEngineScreen {
             .withStyle(schedule.isManualController() ? ChatFormatting.AQUA : ChatFormatting.GREEN));
     }
     private static Component colorText(String key, ChatFormatting color) { return text("color." + key).copy().withStyle(color); }
+    private void cycleTransitionLight() {
+        var current = schedule.getTransitionLight();
+        var choices = TrafficLightSchedule.TransitionLight.values();
+        var next = choices[(current.ordinal() + 1) % choices.length];
+        if (current != TrafficLightSchedule.TransitionLight.NONE) lastTransitionSeconds = schedule.getRedYellowSeconds();
+        schedule.setTransitionLight(next);
+        if (current == TrafficLightSchedule.TransitionLight.NONE) schedule.setRedYellowSeconds(lastTransitionSeconds);
+        transitionDuration.setValue(Integer.toString(schedule.getRedYellowSeconds()));
+        refreshTransitionControls();
+    }
+    private void refreshTransitionControls() {
+        if (transitionButton == null || transitionDuration == null) return;
+        transitionButton.setMessage(transitionCaption());
+        transitionButton.setTooltip(Tooltip.create(text(switch (schedule.getTransitionLight()) {
+            case RED_YELLOW -> "transition_help.red_yellow";
+            case YELLOW -> "transition_help.yellow";
+            case NONE -> "transition_help.none";
+        })));
+        boolean enabled = schedule.getTransitionLight() != TrafficLightSchedule.TransitionLight.NONE;
+        transitionDuration.active = enabled;
+        transitionDuration.setEditable(enabled);
+        transitionDuration.setTextColor(enabled ? TEColors.TEXT : TEColors.MUTED);
+        if (!enabled) transitionDuration.setFocused(false);
+    }
     private Component transitionCaption() {
+        if (schedule.getTransitionLight() == TrafficLightSchedule.TransitionLight.NONE) return text("before_green.none");
         return schedule.isRedYellowBeforeGreen()
             ? colorText("red", ChatFormatting.RED).copy().append(Component.literal(" + ").withStyle(ChatFormatting.WHITE)).append(colorText("yellow", ChatFormatting.YELLOW))
             : colorText("yellow", ChatFormatting.YELLOW);

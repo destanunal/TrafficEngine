@@ -1,47 +1,117 @@
 {
   "parent": "block/block",
+  "ambientocclusion": false,
   "textures": {
     "all": "trafficengine:block/speed_bump",
     "particle": "trafficengine:block/speed_bump"
   },
   "elements": [
     {
-      "name": "Orta_Tepe",
-      "from": [0.02, 0.0, 6.01],
-      "to": [15.98, 2.0, 9.99],
+      "name": "crown",
+      "from": [
+        0,
+        -2,
+        6
+      ],
+      "to": [
+        16,
+        2,
+        10
+      ],
       "faces": {
-        "up": {"texture": "#all"},
-        "north": {"texture": "#all"},
-        "south": {"texture": "#all"},
-        "east": {"texture": "#all"},
-        "west": {"texture": "#all"},
-        "down": {"texture": "#all", "cullface": "down"}
+        "east": {
+          "texture": "#all"
+        },
+        "west": {
+          "texture": "#all"
+        },
+        "up": {
+          "texture": "#all",
+          "uv": [
+            0,
+            6,
+            16,
+            10
+          ]
+        }
       }
     },
     {
-      "name": "On_Rampa",
-      "from": [0.02, 0.0, 1.5],
-      "to": [15.98, 2.0, 6.0],
-      "rotation": {"angle": -22.5, "axis": "x", "origin": [8, 2, 6]},
+      "name": "front_ramp",
+      "from": [
+        0,
+        -2,
+        0.7737481404944937
+      ],
+      "to": [
+        16,
+        2,
+        6
+      ],
       "faces": {
-        "up": {"texture": "#all"},
-        "north": {"texture": "#all"},
-        "east": {"texture": "#all"},
-        "west": {"texture": "#all"},
-        "down": {"texture": "#all", "cullface": "down"}
+        "east": {
+          "texture": "#all"
+        },
+        "west": {
+          "texture": "#all"
+        },
+        "up": {
+          "texture": "#all",
+          "uv": [
+            0,
+            1.1715728752538102,
+            16,
+            6
+          ]
+        }
+      },
+      "rotation": {
+        "angle": -22.5,
+        "axis": "x",
+        "origin": [
+          8,
+          2,
+          6
+        ]
       }
     },
     {
-      "name": "Arka_Rampa",
-      "from": [0.02, 0.0, 10.0],
-      "to": [15.98, 2.0, 14.5],
-      "rotation": {"angle": 22.5, "axis": "x", "origin": [8, 2, 10]},
+      "name": "rear_ramp",
+      "from": [
+        0,
+        -2,
+        10
+      ],
+      "to": [
+        16,
+        2,
+        15.226251859505506
+      ],
       "faces": {
-        "up": {"texture": "#all"},
-        "south": {"texture": "#all"},
-        "east": {"texture": "#all"},
-        "west": {"texture": "#all"},
-        "down": {"texture": "#all", "cullface": "down"}
+        "east": {
+          "texture": "#all"
+        },
+        "west": {
+          "texture": "#all"
+        },
+        "up": {
+          "texture": "#all",
+          "uv": [
+            0,
+            10,
+            16,
+            14.82842712474619
+          ]
+        }
+      },
+      "rotation": {
+        "angle": 22.5,
+        "axis": "x",
+        "origin": [
+          8,
+          2,
+          10
+        ]
       }
     }
   ]

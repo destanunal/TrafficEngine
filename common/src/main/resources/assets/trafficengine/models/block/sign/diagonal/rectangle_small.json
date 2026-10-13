@@ -70,15 +70,6 @@
           "texture": "#base",
           "tintindex": 0
         }
-      },
-      "rotation": {
-        "angle": -45,
-        "axis": "y",
-        "origin": [
-          8,
-          8,
-          8
-        ]
       }
     },
     {
@@ -101,7 +92,10 @@
             1
           ],
           "texture": "#base",
-          "tintindex": 0
+          "tintindex": 0,
+          "trafficengine_data": {
+            "match_straight_shade": true
+          }
         },
         "south": {
           "uv": [
@@ -111,7 +105,10 @@
             1
           ],
           "texture": "#base",
-          "tintindex": 0
+          "tintindex": 0,
+          "trafficengine_data": {
+            "match_straight_shade": true
+          }
         },
         "west": {
           "uv": [
@@ -121,7 +118,10 @@
             1
           ],
           "texture": "#base",
-          "tintindex": 0
+          "tintindex": 0,
+          "trafficengine_data": {
+            "match_straight_shade": true
+          }
         },
         "up": {
           "uv": [
@@ -132,7 +132,10 @@
           ],
           "rotation": 90,
           "texture": "#base",
-          "tintindex": 0
+          "tintindex": 0,
+          "trafficengine_data": {
+            "match_straight_shade": true
+          }
         },
         "down": {
           "uv": [
@@ -143,7 +146,10 @@
           ],
           "rotation": 270,
           "texture": "#base",
-          "tintindex": 0
+          "tintindex": 0,
+          "trafficengine_data": {
+            "match_straight_shade": true
+          }
         }
       },
       "rotation": {
@@ -176,7 +182,10 @@
             1
           ],
           "texture": "#base",
-          "tintindex": 0
+          "tintindex": 0,
+          "trafficengine_data": {
+            "match_straight_shade": true
+          }
         },
         "south": {
           "uv": [
@@ -186,7 +195,10 @@
             1
           ],
           "texture": "#base",
-          "tintindex": 0
+          "tintindex": 0,
+          "trafficengine_data": {
+            "match_straight_shade": true
+          }
         },
         "west": {
           "uv": [
@@ -196,7 +208,10 @@
             1
           ],
           "texture": "#base",
-          "tintindex": 0
+          "tintindex": 0,
+          "trafficengine_data": {
+            "match_straight_shade": true
+          }
         },
         "up": {
           "uv": [
@@ -207,7 +222,10 @@
           ],
           "rotation": 90,
           "texture": "#base",
-          "tintindex": 0
+          "tintindex": 0,
+          "trafficengine_data": {
+            "match_straight_shade": true
+          }
         },
         "down": {
           "uv": [
@@ -218,7 +236,10 @@
           ],
           "rotation": 270,
           "texture": "#base",
-          "tintindex": 0
+          "tintindex": 0,
+          "trafficengine_data": {
+            "match_straight_shade": true
+          }
         }
       },
       "rotation": {
@@ -250,7 +271,10 @@
             8,
             16
           ],
-          "texture": "#base"
+          "texture": "#base",
+          "trafficengine_data": {
+            "match_straight_shade": true
+          }
         },
         "east": {
           "uv": [
@@ -260,7 +284,10 @@
             16
           ],
           "texture": "#base",
-          "tintindex": 0
+          "tintindex": 0,
+          "trafficengine_data": {
+            "match_straight_shade": true
+          }
         },
         "south": {
           "uv": [
@@ -270,7 +297,10 @@
             16
           ],
           "texture": "#base",
-          "tintindex": 0
+          "tintindex": 0,
+          "trafficengine_data": {
+            "match_straight_shade": true
+          }
         },
         "west": {
           "uv": [
@@ -280,7 +310,10 @@
             16
           ],
           "texture": "#base",
-          "tintindex": 0
+          "tintindex": 0,
+          "trafficengine_data": {
+            "match_straight_shade": true
+          }
         },
         "up": {
           "uv": [
@@ -291,7 +324,10 @@
           ],
           "rotation": 90,
           "texture": "#base",
-          "tintindex": 0
+          "tintindex": 0,
+          "trafficengine_data": {
+            "match_straight_shade": true
+          }
         },
         "down": {
           "uv": [
@@ -302,7 +338,10 @@
           ],
           "rotation": 270,
           "texture": "#base",
-          "tintindex": 0
+          "tintindex": 0,
+          "trafficengine_data": {
+            "match_straight_shade": true
+          }
         }
       },
       "rotation": {

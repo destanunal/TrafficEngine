@@ -12,6 +12,9 @@ import com.destan.trafficengine.block.entity.HouseNumberSignBlockEntity;
 import com.destan.trafficengine.block.entity.StreetSignBlockEntity;
 import com.destan.trafficengine.client.TintedTextures;
 import com.destan.trafficengine.client.ber.TownSignBlockEntityRenderer;
+import com.destan.trafficengine.client.ber.RoadSignGraphics;
+import com.destan.trafficengine.block.RoadInformationSignBlock;
+import com.destan.trafficengine.block.entity.RoadInformationSignBlockEntity;
 import com.destan.trafficengine.client.ber.HorizontalTrafficLightBlockEntityRenderer;
 import com.destan.trafficengine.client.ber.TrafficLightBlockEntityRenderer;
 import com.destan.trafficengine.client.ber.LedDeviceBlockEntityRenderer;
@@ -98,7 +101,10 @@ public class ClientInit {
             RenderTypeRegistry.register(RenderType.cutout(), ModBlocks.COLORED_BLOCKS.stream().filter(x -> x.getId().toString().contains("pattern")).map(RegistrySupplier::get).toArray(Block[]::new));
 
 
+            RenderTypeRegistry.register(RenderType.cutout(), ModBlocks.CONNECTED_ROADS.values().stream().map(RegistrySupplier::get).toArray(Block[]::new));
+            RenderTypeRegistry.register(RenderType.cutout(), ModBlocks.CONNECTED_SLOPES.values().stream().map(RegistrySupplier::get).toArray(Block[]::new));
             /* BLOCK ENTITY RENDERERS */
+            BlockEntityRendererRegistry.register(ModBlockEntities.ROAD_INFORMATION_SIGN_BLOCK_ENTITY.get(), com.destan.trafficengine.client.ber.RoadInformationSignRenderer::new);
             BlockEntityRendererRegistry.register(ModBlockEntities.TOWN_SIGN_BLOCK_ENTITY.get(), TownSignBlockEntityRenderer::new);
             BlockEntityRendererRegistry.register(ModBlockEntities.STREET_SIGN_BLOCK_ENTITY.get(), WritableSignBlockEntityRenderer<StreetSignBlockEntity>::new);
             BlockEntityRendererRegistry.register(ModBlockEntities.HOUSE_NUMBER_SIGN_BLOCK_ENTITY.get(), WritableSignBlockEntityRenderer<HouseNumberSignBlockEntity>::new);
@@ -141,8 +147,21 @@ public class ClientInit {
 
         ClientLifecycleEvent.CLIENT_STARTED.register(mc -> {
             ColorHandlerRegistry.registerBlockColors(new TintedTextures.TintedBlock(), ModBlocks.COLORED_BLOCKS.toArray(RegistrySupplier[]::new));
+            ColorHandlerRegistry.registerBlockColors((state,level,pos,index) -> {
+                if(index!=110)return 0xFFFFFFFF;
+                int theme=level!=null && pos!=null && level.getBlockEntity(pos) instanceof RoadInformationSignBlockEntity sign?sign.theme():0;
+                return RoadSignGraphics.backgroundColor(((RoadInformationSignBlock)state.getBlock()).kind(),theme);
+            },ModBlocks.HIGHWAY_DIRECTION_SIGN,ModBlocks.ROAD_DIRECTION_SIGN);
+            ColorHandlerRegistry.registerItemColors((stack,index) -> {
+                if(index!=110)return 0xFFFFFFFF;
+                var component=stack.get(net.minecraft.core.component.DataComponents.BLOCK_ENTITY_DATA);
+                CompoundTag data=component==null?null:component.copyTag();
+                return RoadSignGraphics.backgroundColor(RoadInformationSignBlock.Kind.HIGHWAY,data==null?0:data.getInt("theme"));
+            },ModBlocks.HIGHWAY_DIRECTION_SIGN,ModBlocks.ROAD_DIRECTION_SIGN);
             ColorHandlerRegistry.registerItemColors(new TintedTextures.TintedItem(), 
                 ModBlocks.GUARDRAIL,
+                ModBlocks.BIKE_LANE_SEPARATOR,
+                ModBlocks.ASPHALT_SPEED_BUMP,
                 ModItems.PAINT_BRUSH,
                 ModBlocks.TRAFFIC_CONE,
                 ModBlocks.TRAFFIC_BOLLARD,
@@ -150,6 +169,16 @@ public class ClientInit {
                 ModBlocks.ROAD_BARRIER_FENCE,
                 ModBlocks.CONCRETE_BARRIER
             );
+            ColorHandlerRegistry.registerItemColors((stack, index) -> switch (index) {
+                case 100 -> 0xFF53616B;
+                case 101 -> 0xFFA8B4BC;
+                case 102 -> 0xFF070B10;
+                case 103 -> 0xFF8B1928;
+                case 104 -> 0xFFFF253E;
+                case 105 -> 0xFFFFA092;
+                case 106 -> 0xFFFFFFEE;
+                default -> 0xFFFFFFFF;
+            }, ModBlocks.VARIABLE_SPEED_SIGN);
 
 
         });
