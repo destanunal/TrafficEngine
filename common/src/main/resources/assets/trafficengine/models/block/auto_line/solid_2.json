@@ -1,0 +1,53 @@
+{
+  "parent": "minecraft:block/block",
+  "render_type": "cutout",
+  "ambientocclusion": false,
+  "textures": {
+    "marking": "trafficengine:block/road_sign_white",
+    "particle": "trafficengine:block/asphalt"
+  },
+  "elements": [
+    {
+      "from": [
+        6.0,
+        16.05,
+        7.0
+      ],
+      "to": [
+        16.0,
+        16.05,
+        9.0
+      ],
+      "shade": false,
+      "faces": {
+        "up": {
+          "texture": "#marking",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "cullface": "up",
+          "tintindex": 1,
+          "trafficengine_data": {
+            "vertices": [
+              6.0,
+              16.05,
+              9.0,
+              16.0,
+              16.05,
+              9.0,
+              16.0,
+              16.05,
+              7.0,
+              6.0,
+              16.05,
+              7.0
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

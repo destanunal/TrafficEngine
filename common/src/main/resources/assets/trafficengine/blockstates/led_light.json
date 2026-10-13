@@ -1,0 +1,30 @@
+{
+  "multipart": [
+    { "when": { "facing": "north", "wall_mounted": "false", "post_above": "false", "post_mounted": "false" }, "apply": { "model": "trafficengine:block/led_light" } },
+    { "when": { "facing": "east", "wall_mounted": "false", "post_above": "false", "post_mounted": "false" }, "apply": { "model": "trafficengine:block/led_light", "y": 90 } },
+    { "when": { "facing": "south", "wall_mounted": "false", "post_above": "false", "post_mounted": "false" }, "apply": { "model": "trafficengine:block/led_light", "y": 180 } },
+    { "when": { "facing": "west", "wall_mounted": "false", "post_above": "false", "post_mounted": "false" }, "apply": { "model": "trafficengine:block/led_light", "y": 270 } },
+    { "when": { "facing": "north", "wall_mounted": "false", "post_above": "false", "post_mounted": "true", "post_side": "false" }, "apply": { "model": "trafficengine:block/led_light_hanging" } },
+    { "when": { "facing": "east", "wall_mounted": "false", "post_above": "false", "post_mounted": "true", "post_side": "false" }, "apply": { "model": "trafficengine:block/led_light_hanging", "y": 90 } },
+    { "when": { "facing": "south", "wall_mounted": "false", "post_above": "false", "post_mounted": "true", "post_side": "false" }, "apply": { "model": "trafficengine:block/led_light_hanging", "y": 180 } },
+    { "when": { "facing": "west", "wall_mounted": "false", "post_above": "false", "post_mounted": "true", "post_side": "false" }, "apply": { "model": "trafficengine:block/led_light_hanging", "y": 270 } },
+    { "when": { "facing": "north", "wall_mounted": "false", "post_side": "true" }, "apply": { "model": "trafficengine:block/led_light" } },
+    { "when": { "facing": "east", "wall_mounted": "false", "post_side": "true" }, "apply": { "model": "trafficengine:block/led_light", "y": 90 } },
+    { "when": { "facing": "south", "wall_mounted": "false", "post_side": "true" }, "apply": { "model": "trafficengine:block/led_light", "y": 180 } },
+    { "when": { "facing": "west", "wall_mounted": "false", "post_side": "true" }, "apply": { "model": "trafficengine:block/led_light", "y": 270 } },
+    { "when": { "facing": "north", "wall_mounted": "false", "post_above": "true" }, "apply": { "model": "trafficengine:block/led_light_hanging" } },
+    { "when": { "facing": "east", "wall_mounted": "false", "post_above": "true" }, "apply": { "model": "trafficengine:block/led_light_hanging", "y": 90 } },
+    { "when": { "facing": "south", "wall_mounted": "false", "post_above": "true" }, "apply": { "model": "trafficengine:block/led_light_hanging", "y": 180 } },
+    { "when": { "facing": "west", "wall_mounted": "false", "post_above": "true" }, "apply": { "model": "trafficengine:block/led_light_hanging", "y": 270 } },
+    { "when": { "facing": "north", "wall_mounted": "true" }, "apply": { "model": "trafficengine:block/led_light_wall" } },
+    { "when": { "facing": "east", "wall_mounted": "true" }, "apply": { "model": "trafficengine:block/led_light_wall", "y": 90 } },
+    { "when": { "facing": "south", "wall_mounted": "true" }, "apply": { "model": "trafficengine:block/led_light_wall", "y": 180 } },
+    { "when": { "facing": "west", "wall_mounted": "true" }, "apply": { "model": "trafficengine:block/led_light_wall", "y": 270 } },
+    { "when": { "post_mounted": "true", "post_above": "false", "post_side": "false" }, "apply": { "model": "trafficengine:block/led_light_post_connection" } },
+    { "when": { "post_above": "true" }, "apply": { "model": "trafficengine:block/led_light_post_connection_top" } },
+    { "when": { "facing": "north", "post_side": "true" }, "apply": { "model": "trafficengine:block/led_device_post_connection_side" } },
+    { "when": { "facing": "east", "post_side": "true" }, "apply": { "model": "trafficengine:block/led_device_post_connection_side", "y": 90 } },
+    { "when": { "facing": "south", "post_side": "true" }, "apply": { "model": "trafficengine:block/led_device_post_connection_side", "y": 180 } },
+    { "when": { "facing": "west", "post_side": "true" }, "apply": { "model": "trafficengine:block/led_device_post_connection_side", "y": 270 } }
+  ]
+}

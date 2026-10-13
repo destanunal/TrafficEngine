@@ -1,0 +1,103 @@
+package com.destan.trafficengine.block.entity;
+
+import com.destan.trafficengine.block.entity.SyncedBlockEntity;
+import com.destan.trafficengine.util.GameTime;
+import com.destan.trafficengine.block.StreetLampBaseBlock;
+import com.destan.trafficengine.registry.ModBlockEntities;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+
+public class StreetLampBlockEntity extends SyncedBlockEntity implements com.destan.trafficengine.block.data.IColorBlockEntity {
+
+    private static final String NBT_TURN_ON_TIME = "turnOnTime";
+    private static final String NBT_TURN_OFF_TIME = "turnOffTime";
+
+    private com.destan.trafficengine.data.PaintColor color = com.destan.trafficengine.data.PaintColor.NONE;
+
+    // Properties
+    private int onTimeTicks = 0;
+    private int offTimeTicks = 0;
+
+    protected StreetLampBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+        super(type, pos, state);
+    }
+
+    public StreetLampBlockEntity(BlockPos pos, BlockState state) {
+        super(ModBlockEntities.STREET_LAMP_BLOCK_ENTITY.get(), pos, state);
+    }
+
+    @Override
+    public void load(CompoundTag compound) {
+        super.load(compound);
+
+        this.onTimeTicks = compound.getInt(NBT_TURN_ON_TIME);
+        this.offTimeTicks = compound.getInt(NBT_TURN_OFF_TIME);
+        com.destan.trafficengine.data.PaintColor previous = color;
+        color = compound.contains(NBT_COLOR)
+            ? com.destan.trafficengine.data.PaintColor.getByIndex(compound.getInt(NBT_COLOR))
+            : com.destan.trafficengine.data.PaintColor.NONE;
+        if (level != null && level.isClientSide && previous != color) {
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+        }
+    }
+
+    @Override
+    protected void saveAdditional(CompoundTag tag) {
+        tag.putInt(NBT_COLOR, color.getIndex());
+        tag.putInt(NBT_TURN_ON_TIME, onTimeTicks);
+        tag.putInt(NBT_TURN_OFF_TIME, offTimeTicks);
+        super.saveAdditional(tag);
+    }
+
+    public void tick(Level level, BlockPos pos, BlockState state) {
+        if (this.getOffTime() == this.getOnTime()) {
+            return;
+        }
+
+        if (new GameTime(level).isBetweenDaily(new GameTime(onTimeTicks), new GameTime(offTimeTicks))) {
+            if (!state.getValue(StreetLampBaseBlock.LIT)) {
+                level.setBlockAndUpdate(pos, state.setValue(StreetLampBaseBlock.LIT, true));
+            }
+        } else {
+            if (state.getValue(StreetLampBaseBlock.LIT)) {
+                level.setBlockAndUpdate(pos, state.setValue(StreetLampBaseBlock.LIT, false));
+            }
+        }
+    }
+
+    public static void tick(Level level, BlockPos pos, BlockState state, StreetLampBlockEntity blockEntity) {
+        blockEntity.tick(level, pos, state);
+    }
+
+    @Override
+    public com.destan.trafficengine.data.PaintColor getColor() { return color; }
+
+    @Override
+    public void setColor(com.destan.trafficengine.data.PaintColor color) {
+        this.color = color;
+        notifyUpdate();
+        if (level != null) level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+    }
+
+    public int getOnTime() {
+        return this.onTimeTicks;
+    }
+
+    public int getOffTime() {
+        return this.offTimeTicks;
+    }
+
+    public void setOnTime(int time) {
+        this.onTimeTicks = Mth.clamp(time, 0, (int)(GameTime.TICKS_PER_DAY - 1));
+        notifyUpdate();
+    }
+
+    public void setOffTime(int time) {
+        this.offTimeTicks = Mth.clamp(time, 0, (int)(GameTime.TICKS_PER_DAY - 1));
+        notifyUpdate();
+    }
+}
