@@ -1,0 +1,48 @@
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
+import java.util.zip.ZipFile
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
+import java.util.zip.Deflater
+
+// Repack final distribution JARs without changing or removing any entry content.
+tasks.matching { it.name == 'remapJar' }.configureEach {
+    doLast {
+        File archive = archiveFile.get().asFile
+        def temporary = Files.createTempFile(archive.parentFile.toPath(), 'compact-', '.jar')
+        long originalSize = archive.length()
+        try {
+            new ZipFile(archive).withCloseable { source ->
+                new ZipOutputStream(Files.newOutputStream(temporary)).withCloseable { output ->
+                    output.setLevel(Deflater.BEST_COMPRESSION)
+                    if (source.comment != null) output.setComment(source.comment)
+                    source.entries().each { entry ->
+                        def copy = new ZipEntry(entry.name)
+                        copy.time = entry.time
+                        if (entry.comment != null) copy.comment = entry.comment
+                        output.putNextEntry(copy)
+                        if (!entry.directory) {
+                            source.getInputStream(entry).withCloseable { input -> input.transferTo(output) }
+                        }
+                        output.closeEntry()
+                    }
+                }
+                new ZipFile(temporary.toFile()).withCloseable { result ->
+                    if (source.size() != result.size()) throw new GradleException('JAR entry count changed')
+                    source.entries().each { entry ->
+                        def packed = result.getEntry(entry.name)
+                        if (packed == null || packed.crc != entry.crc || packed.size != entry.size) {
+                            throw new GradleException("JAR content changed: " + entry.name)
+                        }
+                    }
+                }
+            }
+            if (Files.size(temporary) < originalSize) {
+                Files.move(temporary, archive.toPath(), StandardCopyOption.REPLACE_EXISTING)
+            }
+            logger.lifecycle("Packed " + archive.name + ": " + archive.length() + " bytes")
+        } finally {
+            Files.deleteIfExists(temporary)
+        }
+    }
+}

@@ -1,0 +1,629 @@
+{
+  "parent": "minecraft:block/block",
+  "ambientocclusion": false,
+  "textures": {
+    "black": "minecraft:block/black_concrete",
+    "yellow": "minecraft:block/yellow_concrete",
+    "blue": "minecraft:block/blue_concrete",
+    "white": "minecraft:block/white_concrete",
+    "particle": "minecraft:block/yellow_concrete"
+  },
+  "elements": [
+    {
+      "name": "base",
+      "from": [
+        3.2,
+        0.0,
+        3.2
+      ],
+      "to": [
+        12.8,
+        0.8,
+        12.8
+      ],
+      "faces": {
+        "north": {
+          "texture": "#black"
+        },
+        "south": {
+          "texture": "#black"
+        },
+        "east": {
+          "texture": "#black"
+        },
+        "west": {
+          "texture": "#black"
+        },
+        "up": {
+          "texture": "#black"
+        },
+        "down": {
+          "texture": "#black",
+          "cullface": "down"
+        }
+      }
+    },
+    {
+      "name": "body",
+      "from": [
+        4.8,
+        0.8,
+        5.6
+      ],
+      "to": [
+        11.2,
+        10.0,
+        10.4
+      ],
+      "faces": {
+        "north": {
+          "texture": "#yellow"
+        },
+        "south": {
+          "texture": "#yellow"
+        },
+        "east": {
+          "texture": "#yellow"
+        },
+        "west": {
+          "texture": "#yellow"
+        },
+        "up": {
+          "texture": "#yellow"
+        },
+        "down": {
+          "texture": "#yellow"
+        }
+      }
+    },
+    {
+      "name": "cap",
+      "from": [
+        4.8,
+        10.0,
+        5.6
+      ],
+      "to": [
+        11.2,
+        10.4,
+        10.4
+      ],
+      "faces": {
+        "north": {
+          "texture": "#black"
+        },
+        "south": {
+          "texture": "#black"
+        },
+        "east": {
+          "texture": "#black"
+        },
+        "west": {
+          "texture": "#black"
+        },
+        "up": {
+          "texture": "#black"
+        },
+        "down": {
+          "texture": "#black"
+        }
+      }
+    },
+    {
+      "name": "reflector",
+      "from": [
+        5.12,
+        2.0,
+        5.592
+      ],
+      "to": [
+        10.88,
+        4.4,
+        5.68
+      ],
+      "faces": {
+        "north": {
+          "texture": "#white",
+          "trafficengine_data": {
+            "emissive": true
+          }
+        },
+        "south": {
+          "texture": "#white",
+          "trafficengine_data": {
+            "emissive": true
+          }
+        },
+        "east": {
+          "texture": "#white",
+          "trafficengine_data": {
+            "emissive": true
+          }
+        },
+        "west": {
+          "texture": "#white",
+          "trafficengine_data": {
+            "emissive": true
+          }
+        },
+        "up": {
+          "texture": "#white",
+          "trafficengine_data": {
+            "emissive": true
+          }
+        },
+        "down": {
+          "texture": "#white",
+          "trafficengine_data": {
+            "emissive": true
+          }
+        }
+      }
+    },
+    {
+      "name": "rear_reflector",
+      "from": [
+        5.12,
+        2.0,
+        10.32
+      ],
+      "to": [
+        10.88,
+        4.4,
+        10.408
+      ],
+      "faces": {
+        "north": {
+          "texture": "#white",
+          "trafficengine_data": {
+            "emissive": true
+          }
+        },
+        "south": {
+          "texture": "#white",
+          "trafficengine_data": {
+            "emissive": true
+          }
+        },
+        "east": {
+          "texture": "#white",
+          "trafficengine_data": {
+            "emissive": true
+          }
+        },
+        "west": {
+          "texture": "#white",
+          "trafficengine_data": {
+            "emissive": true
+          }
+        },
+        "up": {
+          "texture": "#white",
+          "trafficengine_data": {
+            "emissive": true
+          }
+        },
+        "down": {
+          "texture": "#white",
+          "trafficengine_data": {
+            "emissive": true
+          }
+        }
+      }
+    },
+    {
+      "name": "sign_back_middle",
+      "from": [
+        4.0,
+        6.8,
+        4.48
+      ],
+      "to": [
+        12.0,
+        11.6,
+        5.6
+      ],
+      "faces": {
+        "north": {
+          "texture": "#black"
+        },
+        "south": {
+          "texture": "#black"
+        },
+        "east": {
+          "texture": "#black"
+        },
+        "west": {
+          "texture": "#black"
+        },
+        "up": {
+          "texture": "#black"
+        },
+        "down": {
+          "texture": "#black"
+        }
+      }
+    },
+    {
+      "name": "sign_face_middle",
+      "from": [
+        4.16,
+        6.8,
+        4.44
+      ],
+      "to": [
+        11.84,
+        11.6,
+        4.52
+      ],
+      "faces": {
+        "north": {
+          "texture": "#blue",
+          "trafficengine_data": {
+            "emissive": true
+          }
+        },
+        "south": {
+          "texture": "#blue",
+          "trafficengine_data": {
+            "emissive": true
+          }
+        },
+        "east": {
+          "texture": "#blue",
+          "trafficengine_data": {
+            "emissive": true
+          }
+        },
+        "west": {
+          "texture": "#blue",
+          "trafficengine_data": {
+            "emissive": true
+          }
+        },
+        "up": {
+          "texture": "#blue",
+          "trafficengine_data": {
+            "emissive": true
+          }
+        },
+        "down": {
+          "texture": "#blue",
+          "trafficengine_data": {
+            "emissive": true
+          }
+        }
+      }
+    },
+    {
+      "name": "sign_back_top",
+      "from": [
+        5.2,
+        11.6,
+        4.48
+      ],
+      "to": [
+        10.8,
+        12.8,
+        5.6
+      ],
+      "faces": {
+        "north": {
+          "texture": "#black"
+        },
+        "south": {
+          "texture": "#black"
+        },
+        "east": {
+          "texture": "#black"
+        },
+        "west": {
+          "texture": "#black"
+        },
+        "up": {
+          "texture": "#black"
+        },
+        "down": {
+          "texture": "#black"
+        }
+      }
+    },
+    {
+      "name": "sign_face_top",
+      "from": [
+        5.36,
+        11.6,
+        4.44
+      ],
+      "to": [
+        10.64,
+        12.64,
+        4.52
+      ],
+      "faces": {
+        "north": {
+          "texture": "#blue",
+          "trafficengine_data": {
+            "emissive": true
+          }
+        },
+        "south": {
+          "texture": "#blue",
+          "trafficengine_data": {
+            "emissive": true
+          }
+        },
+        "east": {
+          "texture": "#blue",
+          "trafficengine_data": {
+            "emissive": true
+          }
+        },
+        "west": {
+          "texture": "#blue",
+          "trafficengine_data": {
+            "emissive": true
+          }
+        },
+        "up": {
+          "texture": "#blue",
+          "trafficengine_data": {
+            "emissive": true
+          }
+        },
+        "down": {
+          "texture": "#blue",
+          "trafficengine_data": {
+            "emissive": true
+          }
+        }
+      }
+    },
+    {
+      "name": "sign_back_bottom",
+      "from": [
+        5.2,
+        5.6,
+        4.48
+      ],
+      "to": [
+        10.8,
+        6.8,
+        5.6
+      ],
+      "faces": {
+        "north": {
+          "texture": "#black"
+        },
+        "south": {
+          "texture": "#black"
+        },
+        "east": {
+          "texture": "#black"
+        },
+        "west": {
+          "texture": "#black"
+        },
+        "up": {
+          "texture": "#black"
+        },
+        "down": {
+          "texture": "#black"
+        }
+      }
+    },
+    {
+      "name": "sign_face_bottom",
+      "from": [
+        5.36,
+        5.76,
+        4.44
+      ],
+      "to": [
+        10.64,
+        6.8,
+        4.52
+      ],
+      "faces": {
+        "north": {
+          "texture": "#blue",
+          "trafficengine_data": {
+            "emissive": true
+          }
+        },
+        "south": {
+          "texture": "#blue",
+          "trafficengine_data": {
+            "emissive": true
+          }
+        },
+        "east": {
+          "texture": "#blue",
+          "trafficengine_data": {
+            "emissive": true
+          }
+        },
+        "west": {
+          "texture": "#blue",
+          "trafficengine_data": {
+            "emissive": true
+          }
+        },
+        "up": {
+          "texture": "#blue",
+          "trafficengine_data": {
+            "emissive": true
+          }
+        },
+        "down": {
+          "texture": "#blue",
+          "trafficengine_data": {
+            "emissive": true
+          }
+        }
+      }
+    },
+    {
+      "name": "arrow_head_vertical",
+      "from": [
+        6.16,
+        7.2,
+        4.4
+      ],
+      "to": [
+        7.2,
+        9.92,
+        4.48
+      ],
+      "faces": {
+        "north": {
+          "texture": "#white",
+          "trafficengine_data": {
+            "emissive": true
+          }
+        },
+        "south": {
+          "texture": "#white",
+          "trafficengine_data": {
+            "emissive": true
+          }
+        },
+        "east": {
+          "texture": "#white",
+          "trafficengine_data": {
+            "emissive": true
+          }
+        },
+        "west": {
+          "texture": "#white",
+          "trafficengine_data": {
+            "emissive": true
+          }
+        },
+        "up": {
+          "texture": "#white",
+          "trafficengine_data": {
+            "emissive": true
+          }
+        },
+        "down": {
+          "texture": "#white",
+          "trafficengine_data": {
+            "emissive": true
+          }
+        }
+      }
+    },
+    {
+      "name": "arrow_head_horizontal",
+      "from": [
+        6.16,
+        7.2,
+        4.4
+      ],
+      "to": [
+        8.88,
+        8.24,
+        4.48
+      ],
+      "faces": {
+        "north": {
+          "texture": "#white",
+          "trafficengine_data": {
+            "emissive": true
+          }
+        },
+        "south": {
+          "texture": "#white",
+          "trafficengine_data": {
+            "emissive": true
+          }
+        },
+        "east": {
+          "texture": "#white",
+          "trafficengine_data": {
+            "emissive": true
+          }
+        },
+        "west": {
+          "texture": "#white",
+          "trafficengine_data": {
+            "emissive": true
+          }
+        },
+        "up": {
+          "texture": "#white",
+          "trafficengine_data": {
+            "emissive": true
+          }
+        },
+        "down": {
+          "texture": "#white",
+          "trafficengine_data": {
+            "emissive": true
+          }
+        }
+      }
+    },
+    {
+      "name": "arrow_shaft",
+      "from": [
+        7.544,
+        8.0,
+        4.4
+      ],
+      "to": [
+        8.456,
+        11.2,
+        4.48
+      ],
+      "faces": {
+        "north": {
+          "texture": "#white",
+          "trafficengine_data": {
+            "emissive": true
+          }
+        },
+        "south": {
+          "texture": "#white",
+          "trafficengine_data": {
+            "emissive": true
+          }
+        },
+        "east": {
+          "texture": "#white",
+          "trafficengine_data": {
+            "emissive": true
+          }
+        },
+        "west": {
+          "texture": "#white",
+          "trafficengine_data": {
+            "emissive": true
+          }
+        },
+        "up": {
+          "texture": "#white",
+          "trafficengine_data": {
+            "emissive": true
+          }
+        },
+        "down": {
+          "texture": "#white",
+          "trafficengine_data": {
+            "emissive": true
+          }
+        }
+      },
+      "rotation": {
+        "angle": -45,
+        "axis": "z",
+        "origin": [
+          8.0,
+          9.600000000000001,
+          4.4399999999999995
+        ]
+      }
+    }
+  ]
+}

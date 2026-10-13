@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "DD"
+  ],
+  "key": {
+    "D": {
+      "item": "trafficengine:traffic_display"
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "trafficengine:large_traffic_display"
+  }
+}

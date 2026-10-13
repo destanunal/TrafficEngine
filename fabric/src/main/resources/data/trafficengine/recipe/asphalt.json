@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "OXO",
+    "XOX",
+    "OXO"
+  ],
+  "key": {
+    "O": {
+      "tag": "minecraft:coals"
+    },
+    "X": {
+      "item": "minecraft:gravel"
+    }
+  },
+  "result": {
+    "count": 8,
+    "id": "trafficengine:asphalt"
+  }
+}
