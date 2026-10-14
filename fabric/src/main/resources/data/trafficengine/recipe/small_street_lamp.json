@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "GI ",
+    " R ",
+    " R "
+  ],
+  "key": {
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "R": {
+      "item": "trafficengine:traffic_sign_post"
+    },
+    "G": {
+      "item": "trafficengine:street_light"
+    }
+  },
+  "result": {
+    "id": "trafficengine:small_street_lamp",
+    "count": 3
+  }
+}

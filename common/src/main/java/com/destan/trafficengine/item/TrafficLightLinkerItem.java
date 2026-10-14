@@ -1,0 +1,266 @@
+package com.destan.trafficengine.item;
+import com.destan.trafficengine.util.ItemData;
+
+import java.util.List;
+import java.util.Arrays;
+
+import com.destan.trafficengine.data.IterableEnum;
+import com.destan.trafficengine.data.TranslatableEnum;
+import com.destan.trafficengine.data.WorldLocation;
+import com.destan.trafficengine.network.NetworkDirection;
+import net.minecraft.network.chat.Component;
+import com.destan.trafficengine.TrafficEngine;
+import com.destan.trafficengine.block.TrafficLightBlock;
+import com.destan.trafficengine.block.TrafficLightRequestButtonBlock;
+import com.destan.trafficengine.block.entity.TrafficLightControllerBlockEntity;
+import com.destan.trafficengine.block.entity.TrafficLightRequestButtonBlockEntity;
+import com.destan.trafficengine.block.entity.LedDeviceBlockEntity;
+import com.destan.trafficengine.network.packets.cts.LinkerModePacket;
+import com.destan.trafficengine.registry.ModBlocks;
+import com.destan.trafficengine.registry.ModNetworkManager;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+
+public class TrafficLightLinkerItem extends Item implements ILinkerItem, IScrollEventItem {
+
+    public static final String NBT_LINK_TARGET = "LinkTargetLocation";
+    public static final String NBT_MODE = "Mode";
+    public static final String NBT_BLOCK = "Block";
+
+    private static final Component textNoLink = Component.translatable("item.trafficengine.traffic_light_linker.tooltip.nolink").withStyle(ChatFormatting.GRAY);
+    private static final Component textNotLoaded = Component.translatable("item.trafficengine.traffic_light_linker.use.target_not_loaded").withStyle(ChatFormatting.RED);
+    private static final Component textClear = Component.translatable("item.trafficengine.traffic_light_linker.use.clear");
+    private static final Component textTooltipInstruction = Component.translatable("item.trafficengine.traffic_light_linker.tooltip_instruction").withStyle(ChatFormatting.ITALIC);
+    private static final String keySet = "item.trafficengine.traffic_light_linker.use.set";
+    private static final String keySetLight = "item.trafficengine.traffic_light_linker.use.set_light";
+    private static final String keyWrongDim = "item.trafficengine.traffic_light_linker.use.wrong_dimension";
+    private static final String keySetLink = "item.trafficengine.traffic_light_linker.use.link";
+    private static final String keySetOtherLink = "item.trafficengine.traffic_light_linker.use.link_other";
+    private static final String keyRemoveLink = "item.trafficengine.traffic_light_linker.use.unlink";
+    private static final String keyRemoveOtherLink = "item.trafficengine.traffic_light_linker.use.unlink_other";
+    private static final String keyTooltipLocation = "item.trafficengine.traffic_light_linker.tooltip_location";
+    private static final String keyTooltipLightLocation = "item.trafficengine.traffic_light_linker.tooltip_light_location";
+    private static final String keyTooltipMode = "item.trafficengine.traffic_light_linker.tooltip_mode";
+
+    public TrafficLightLinkerItem(Properties pProperties) {
+        super(pProperties);
+    }
+
+    @Override
+    public InteractionResult useOn(UseOnContext pContext) { 
+        Level level = pContext.getLevel();
+        BlockPos clickedPos = pContext.getClickedPos();
+        Player player = pContext.getPlayer();
+        
+        if (!player.isShiftKeyDown()) {
+            Block clickedBlock = pContext.getLevel().getBlockState(clickedPos).getBlock();
+            if (level.isClientSide && (isSourceBlockAccepted(clickedBlock) || isTargetBlockAccepted(clickedBlock))) {
+                return InteractionResult.SUCCESS;
+            }
+            CompoundTag nbt = doesContainValidLinkData(pContext.getItemInHand());
+            if (nbt == null && isSourceBlockAccepted(clickedBlock)) {
+                // Link
+                if (!level.isClientSide) {
+                    CompoundTag compound = ItemData.getOrCreate(pContext.getItemInHand());
+                    compound.put(NBT_LINK_TARGET, new WorldLocation(clickedPos.getX(), clickedPos.getY(), clickedPos.getZ(), level.dimension().location()).toNbt());
+                    compound.putString(NBT_BLOCK, ModBlocks.BLOCKS.getRegistrar().getId(clickedBlock).toString());
+                    ItemData.set(pContext.getItemInHand(), compound);
+                    player.displayClientMessage(Component.translatable(clickedBlock instanceof TrafficLightBlock ? keySetLight : keySet).withStyle(ChatFormatting.AQUA), true);
+                }
+                return InteractionResult.SUCCESS;
+            } else if (isTargetBlockAccepted(clickedBlock)) {                        
+                if (nbt == null) {
+                    return InteractionResult.FAIL;
+                }                
+
+                WorldLocation linkLoc = WorldLocation.loadFromNbt(nbt.getCompound(NBT_LINK_TARGET));
+                LinkerMode mode = LinkerMode.getByIndex(nbt.getInt(NBT_MODE));
+                
+                if (!pContext.getLevel().dimension().location().toString().equals(linkLoc.dimension)) {
+                    player.displayClientMessage(Component.translatable(keyWrongDim).withStyle(ChatFormatting.RED), true);
+                }
+
+                if (clickedBlock instanceof TrafficLightRequestButtonBlock && pContext.getLevel().getBlockEntity(clickedPos) instanceof TrafficLightRequestButtonBlockEntity blockEntity) {
+                    switch (mode) {
+                        case UNLINK:
+                            blockEntity.clearLink();
+                            player.displayClientMessage(Component.translatable(keyRemoveOtherLink).withStyle(ChatFormatting.RED), true);
+                            break;
+                        case LINK:
+                        default:
+                            blockEntity.linkTo(linkLoc);
+                            player.displayClientMessage(Component.translatable(keySetOtherLink).withStyle(ChatFormatting.GREEN), true);
+                            break;
+                    }
+                } else {                        
+                    if (pContext.getLevel().isLoaded(linkLoc.getLocationBlockPos()) && isSourceBlockAccepted(pContext.getLevel().getBlockState(linkLoc.getLocationBlockPos()).getBlock())) {
+                        if (pContext.getLevel().getBlockEntity(linkLoc.getLocationBlockPos()) instanceof TrafficLightControllerBlockEntity blockEntity) {
+                            BlockPos pos = pContext.getClickedPos();
+                            ResourceLocation dim = pContext.getLevel().dimension().location();
+
+                            switch (mode) {
+                                case UNLINK:                                
+                                    blockEntity.removeTrafficLightLocation(new WorldLocation(pos.getX(), pos.getY(), pos.getZ(), dim));
+                                    if (pContext.getLevel().getBlockEntity(pos) instanceof LedDeviceBlockEntity led) {
+                                        led.setControllerEnabled(false);
+                                        led.setManualEnabled(true);
+                                    }
+                                    player.displayClientMessage(Component.translatable(clickedBlock instanceof TrafficLightBlock ? keyRemoveLink : keyRemoveOtherLink).withStyle(ChatFormatting.RED), true);
+                                    break;
+                                case LINK:
+                                default:
+                                    blockEntity.addTrafficLightLocation(new WorldLocation(pos.getX(), pos.getY(), pos.getZ(), dim));
+                                    if (pContext.getLevel().getBlockEntity(pos) instanceof LedDeviceBlockEntity led) led.setManualEnabled(false);
+                                    player.displayClientMessage(Component.translatable(clickedBlock instanceof TrafficLightBlock ? keySetLink : keySetOtherLink).withStyle(ChatFormatting.GREEN), true);
+                                    break;
+                            }
+                        }
+                    } else {
+                        player.displayClientMessage(textNotLoaded, true);
+                    }
+                }
+
+                return InteractionResult.SUCCESS;
+            } 
+        }
+
+        return super.useOn(pContext);
+    }
+
+    @Override
+    public InteractionResultHolder<ItemStack> use(Level pLevel, Player pPlayer, InteractionHand pUsedHand) {
+        ItemStack itemstack = pPlayer.getItemInHand(pUsedHand);
+        if (pPlayer.isShiftKeyDown()) {
+            Level level = pPlayer.level();
+            if (!level.isClientSide) {
+                if (ItemData.get(itemstack) != null) {
+                    CompoundTag tag = ItemData.get(itemstack);
+                    tag.remove(NBT_LINK_TARGET);
+                    tag.remove(NBT_BLOCK);
+                    ItemData.set(itemstack, tag);
+                }                
+                pPlayer.displayClientMessage(textClear, true);
+            }
+            return InteractionResultHolder.success(itemstack);
+        } else {
+            return InteractionResultHolder.fail(itemstack);
+        }
+    }
+
+    @Override
+    public void appendHoverText(ItemStack pStack, TooltipContext context, List<Component> pTooltipComponents, TooltipFlag pIsAdvanced) {
+        CompoundTag tag = null;
+        if ((tag = doesContainValidLinkData(pStack)) != null) {
+            WorldLocation loc = WorldLocation.loadFromNbt(tag.getCompound(NBT_LINK_TARGET));
+            String locationKey = keyTooltipLocation;
+            if (tag.contains(NBT_BLOCK) && !tag.getString(NBT_BLOCK).equals(ModBlocks.BLOCKS.getRegistrar().getId(ModBlocks.TRAFFIC_LIGHT_CONTROLLER.get()).toString())) {
+                locationKey = keyTooltipLightLocation;
+            }
+            pTooltipComponents.add(Component.translatable(locationKey, Integer.toString((int)loc.x), Integer.toString((int)loc.y), Integer.toString((int)loc.z)));
+        } else {
+            pTooltipComponents.add(textNoLink);
+        }
+        
+        CompoundTag nbt = ItemData.getOrCreate(pStack);
+        LinkerMode mode = LinkerMode.getByIndex(nbt.getInt(NBT_MODE));
+        pTooltipComponents.add(Component.translatable(keyTooltipMode, mode.getValueTranslation()));
+        pTooltipComponents.add(textTooltipInstruction);
+    }
+
+    @Override
+    public boolean isFoil(ItemStack pStack) {
+        return doesContainValidLinkData(pStack) != null || super.isFoil(pStack);
+    }
+
+    public CompoundTag doesContainValidLinkData(ItemStack stack) {
+        CompoundTag tag = ItemData.get(stack);
+        return tag != null && tag.contains(NBT_LINK_TARGET) ? tag : null;
+    }
+
+    @Override
+    public boolean isTargetBlockAccepted(Block block) {
+        return block instanceof TrafficLightBlock || block.equals(ModBlocks.TRAFFIC_LIGHT_REQUEST_BUTTON.get())
+            || block.equals(ModBlocks.TRAFFIC_DISPLAY.get())
+            || block.equals(ModBlocks.LARGE_TRAFFIC_DISPLAY.get())
+            || block.equals(ModBlocks.LED_LIGHT.get());
+    }
+
+    @Override
+    public boolean isSourceBlockAccepted(Block block) {
+        return block.equals(ModBlocks.TRAFFIC_LIGHT_CONTROLLER.get()) || block instanceof TrafficLightBlock;
+    }
+
+    @Override
+    public boolean mouseScroll(Player player, ItemStack itemStack, double scrollDelta) {
+        if (player.isCrouching()) {
+            CompoundTag compound = ItemData.getOrCreate(itemStack);
+            LinkerMode mode = LinkerMode.LINK;
+            if (scrollDelta > 0) {
+                mode = LinkerMode.getByIndex(compound.getInt(NBT_MODE)).next();
+            } else if (scrollDelta < 0) {
+                mode = LinkerMode.getByIndex(compound.getInt(NBT_MODE)).previous();
+            }
+            setMode(itemStack, mode);
+
+            ModNetworkManager.UPDATE_LINK_MODE.send(NetworkDirection.toServer(), new LinkerModePacket(mode));
+            player.displayClientMessage(Component.translatable(keyTooltipMode, LinkerMode.getByIndex(compound.getInt(NBT_MODE)).getValueTranslation()), true);
+            return true;
+        }
+        return false;
+    }
+
+    public static void setMode(ItemStack item, LinkerMode mode) {
+        CompoundTag compound = ItemData.getOrCreate(item);
+        compound.putInt(NBT_MODE, mode.getIndex());
+        ItemData.set(item, compound);
+    }
+    
+
+    public static enum LinkerMode implements TranslatableEnum, IterableEnum<LinkerMode> {
+        LINK(0, "link"),
+        UNLINK(1, "unlink");
+
+        private int index;
+        private String name;
+
+        LinkerMode(int index, String name) {
+            this.index = index;
+            this.name = name;
+        }
+
+        public int getIndex() {
+            return index;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public static LinkerMode getByIndex(int index) {
+            return Arrays.stream(LinkerMode.values()).filter(x -> x.getIndex() == index).findFirst().orElse(LinkerMode.LINK);
+        }
+
+        @Override
+        public LinkerMode[] getValues() {
+            return values();
+        }
+
+        @Override
+        public Data getTranslationData() {
+            return new Data(TrafficEngine.MOD_ID, "linkermode", name);
+        }
+    }
+
+}

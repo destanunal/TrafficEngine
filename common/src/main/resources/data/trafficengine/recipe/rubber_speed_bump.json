@@ -1,0 +1,1 @@
+{"type":"minecraft:crafting_shaped","category":"misc","pattern":[" W ","AAA"],"key":{"W":{"item":"minecraft:white_dye"},"A":{"item":"trafficengine:asphalt"}},"result":{"count":6,"id":"trafficengine:rubber_speed_bump"}}

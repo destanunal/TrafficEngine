@@ -1,0 +1,1 @@
+{"variants":{"connected=false":{"model":"trafficengine:block/traffic_pole_base"},"connected=true":{"model":"trafficengine:block/traffic_pole_base_connected"}}}

@@ -1,0 +1,1 @@
+{"type":"minecraft:crafting_shaped","pattern":[" I ","ISI"," S "],"key":{"I":{"item":"minecraft:iron_ingot"},"S":{"item":"minecraft:smooth_stone"}},"result":{"id":"trafficengine:traffic_pole_base","count":4}}
