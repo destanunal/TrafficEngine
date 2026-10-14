@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "RR",
+    "WW",
+    "BB"
+  ],
+  "key": {
+    "R": {
+      "item": "minecraft:red_dye"
+    },
+    "W": {
+      "item": "minecraft:quartz"
+    },
+    "B": {
+      "tag": "minecraft:coals"
+    }
+  },
+  "result": {
+    "item": "trafficengine:traffic_barrel",
+    "count": 2
+  }
+}

@@ -1,0 +1,1 @@
+{"type":"minecraft:crafting_shaped","category":"misc","pattern":["CCC"," F "," S "],"key":{"C":{"item":"minecraft:cobblestone"},"S":{"item":"minecraft:stick"},"F":{"item":"minecraft:flint"}},"result":{"item":"trafficengine:netherite_road_construction_tool","count":1}}

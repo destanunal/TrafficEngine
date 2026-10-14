@@ -1,0 +1,1 @@
+{"parent":"minecraft:recipes/root","criteria":{"has_asphalt":{"trigger":"minecraft:inventory_changed","conditions":{"items":[{"items":["trafficengine:asphalt"]}]}},"has_recipe":{"trigger":"minecraft:recipe_unlocked","conditions":{"recipe":"trafficengine:rubber_speed_bump"}}},"requirements":[["has_asphalt","has_recipe"]],"rewards":{"recipes":["trafficengine:rubber_speed_bump"]}}

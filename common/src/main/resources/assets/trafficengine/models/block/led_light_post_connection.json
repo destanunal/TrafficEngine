@@ -1,0 +1,1 @@
+{"textures":{"metal":"trafficengine:block/sign","particle":"trafficengine:block/sign"},"elements":[{"from":[7,0,7],"to":[9,7,9],"faces":{"north":{"texture":"#metal"},"east":{"texture":"#metal"},"south":{"texture":"#metal"},"west":{"texture":"#metal"},"up":{"texture":"#metal"},"down":{"texture":"#metal"}}}]}
