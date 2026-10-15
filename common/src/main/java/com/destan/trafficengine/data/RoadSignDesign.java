@@ -27,7 +27,11 @@ public record RoadSignDesign(int rows, int alignment, int textSize, int ink, int
         this(rows, alignment, textSize, ink, frame, bold, leftArrows, dividers, 0);
     }
 
-    public int visibleRows(boolean large) { return large ? rows : rows == 2 ? 2 : 1; }
+    public int visibleRows(boolean large) { return rows; }
+
+    public RoadSignDesign withRows(int count) {
+        return new RoadSignDesign(count, alignment, textSize, ink, frame, bold, leftArrows, dividers, panelColors);
+    }
 
     public int panelColor(int row) {
         return row >= 0 && row < 3 ? (panelColors >>> (row * 3)) & 7 : NO_PANEL;
@@ -42,7 +46,7 @@ public record RoadSignDesign(int rows, int alignment, int textSize, int ink, int
 
     public CompoundTag save() {
         CompoundTag tag = new CompoundTag();
-        tag.putInt("rows", rows); tag.putInt("alignment", alignment); tag.putInt("text_size", textSize);
+        tag.putInt("layout_version", 2); tag.putInt("rows", rows); tag.putInt("alignment", alignment); tag.putInt("text_size", textSize);
         tag.putInt("ink", ink); tag.putInt("frame", frame); tag.putBoolean("bold", bold);
         tag.putBoolean("left_arrows", leftArrows); tag.putBoolean("dividers", dividers);
         tag.putInt("panel_colors", panelColors);

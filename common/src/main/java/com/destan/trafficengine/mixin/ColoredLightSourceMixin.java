@@ -10,4 +10,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class ColoredLightSourceMixin {
     @Inject(method="setLevel",at=@At("TAIL"))
     private void trafficengine$registerLight(Level level,CallbackInfo ci) { ClientColoredLighting.register((BlockEntity)(Object)this); }
+    @Inject(method="load",at=@At("TAIL"))
+    private void trafficengine$restoreLight(CallbackInfo ci) { ClientColoredLighting.register((BlockEntity)(Object)this); }
 }

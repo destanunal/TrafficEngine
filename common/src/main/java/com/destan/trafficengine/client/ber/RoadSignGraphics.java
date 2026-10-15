@@ -58,7 +58,7 @@ public final class RoadSignGraphics {
             default -> 0;
         };
     }
-    public void draw(Kind kind, String[] lines, int[] arrows, String route, int theme, int speed, boolean enabled, RoadSignDesign design) {
+    public void draw(Kind kind, String[] lines, int[] arrows, String[] distances, String route, int theme, int speed, boolean enabled, RoadSignDesign design) {
         geometryBuffer = null;
         int w = width(kind), h = height(kind);
         int color = backgroundColor(kind,theme);
@@ -99,6 +99,12 @@ public final class RoadSignGraphics {
             boolean hasArrow = arrows[i] != 0;
             float left = hasArrow && design.leftArrows() ? 43 : 12;
             float right = hasArrow && !design.leftArrows() ? 149 : w - 12;
+            String distance = distances[i];
+            float desiredScale = Math.min(1.8F * design.textSize() / 100, rowHeight * 0.60F / (font.lineHeight-2));
+            float distanceScale = distance.isEmpty() ? 0 : Math.min(desiredScale, Math.min(64, (right-left)*0.4F)/Math.max(1,font.width(distance)));
+            float distanceWidth = font.width(distance)*distanceScale;
+            float distanceRight = right;
+            if (!distance.isEmpty()) right -= distanceWidth+8;
             int panel = design.panelColor(i);
             Component label = label(lines[i], design.bold());
             float scale = Math.min(1.8F * design.textSize() / 100,
@@ -123,7 +129,10 @@ public final class RoadSignGraphics {
                     panel == RoadSignDesign.WHITE_PANEL ? 0xFF17252E : panel != RoadSignDesign.NO_PANEL ? 0xFFFFFFFF : ink,
                     design.bold());
             depth = 0.2F;
-            arrow(arrows[i], design.leftArrows() ? 25 : 167, center, ink);
+            if (!distance.isEmpty()) text(distance, distanceRight-distanceWidth,
+                    center-(font.lineHeight-2)*distanceScale/2, distanceWidth, distanceScale, ink, false);
+            arrow(arrows[i], design.leftArrows() ? 25 : 167, center, ink,
+                    Math.min(1F,rowHeight/28) * (arrows[i]==4 || arrows[i]==5 ? 1.18F : 1));
             if (design.dividers() && i < count - 1) {
                 depth = 0.25F;
                 rect(12, first+(i+1)*rowHeight-0.35F, w-12, first+(i+1)*rowHeight+0.35F, ink);

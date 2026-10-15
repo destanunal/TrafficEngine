@@ -27,7 +27,7 @@ public final class StreetLampShapes {
 
     public static final Map<Direction, VoxelShape> SMALL = oriented(Shapes.or(
         Block.box(7, 0, 7, 9, 12.24, 9),
-        Block.box(4.64, 12.24, -3.75, 11.36, 15.3, 12.75)
+        Block.box(4.64, 12.24, -5, 11.36, 15.3, 11.5)
     ));
 
     public static final Map<Direction, VoxelShape> SMALL_DOUBLE = oriented(Shapes.or(
