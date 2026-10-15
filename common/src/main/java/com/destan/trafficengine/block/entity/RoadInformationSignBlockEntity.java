@@ -46,7 +46,7 @@ public class RoadInformationSignBlockEntity extends SyncedBlockEntity {
         }
         this.route = clean(route, 16); this.theme = Math.max(0, Math.min(3, theme));
         this.speed = Math.max(5, Math.min(200, speed));
-        this.enabled = enabled; this.design = design; notifyUpdate();
+        this.enabled = enabled; this.design = kind() == Kind.DIRECTION ? design.withRows(Math.min(2, design.rows())) : design; notifyUpdate();
     }
     @Override public void loadAdditional(CompoundTag tag, net.minecraft.core.HolderLookup.Provider provider) {
         super.loadAdditional(tag, provider);
@@ -65,6 +65,7 @@ public class RoadInformationSignBlockEntity extends SyncedBlockEntity {
         // Earlier small signs treated rows=3 as a one-row layout. Preserve their appearance.
         if (kind() == Kind.DIRECTION && !layout.contains("layout_version") && design.rows() == 3)
             design = design.withRows(1);
+        if (kind() == Kind.DIRECTION) design = design.withRows(Math.min(2, design.rows()));
         if(theme!=oldTheme && level!=null && level.isClientSide)
             level.sendBlockUpdated(worldPosition,getBlockState(),getBlockState(),net.minecraft.world.level.block.Block.UPDATE_ALL);
     }

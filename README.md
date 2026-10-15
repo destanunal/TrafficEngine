@@ -46,7 +46,7 @@ Traffic Engine offers customizable traffic equipment, advanced controllers and m
 ### 🅿️ Traffic Signs
 
 *   **Flexible Placement:** Place signs on poles or walls, with angled, horizontal and diagonal options.
-*   **Road Signs & Large Road Signs:** Create directions with custom text, arrows, background colors, text-sized row panels, borders and alignment. Both sizes support 1–3 rows and optional, right-aligned distances for each destination. Edit with the Wrench and see changes in a live preview.
+*   **Road Signs & Large Road Signs:** Create directions with custom text, arrows, background colors, text-sized row panels, borders and alignment. Small signs support 1–2 rows and large signs support 1–3 rows, with optional, right-aligned distances and clear road lettering. Edit with the Wrench and see changes in a live preview.
 *   **Horizontal Mounting:** Attach road signs directly to horizontal traffic poles. Their backs and sides match the selected background color.
 *   **Double-Sided Signs:** Set different patterns on the front and back of a sign.
 *   **Pattern Catalogue:** Choose sign shapes and designs without needing a separate block for every pattern.
@@ -70,7 +70,7 @@ Traffic Engine offers customizable traffic equipment, advanced controllers and m
 *   **Traffic Island Bollards:** Add directional markers that light up at night. Use the Wrench to switch the arrow or Shift + Wrench to rotate the bollard.
 *   **Foldable Scissor Barriers:** Right-click with the **Wrench** to fold or unfold a retractable scissor barrier.
 *   **Modular Boom Barriers:** Place a motor and add up to 16 arm sections to set the length. Use the Wrench or redstone to open and close it; Shift + right-click with the Wrench removes the last section.
-*   **Traffic Poles:** Combine poles with signs and compatible traffic equipment to build detailed roadside setups. Add a Traffic Pole Base, or use the Wrench on the lowest vertical pole to switch its footing.
+*   **Traffic Poles:** Combine poles with signs and compatible traffic equipment to build detailed roadside setups. Add a Traffic Pole Base, or use the Wrench on the lowest vertical pole to toggle a stepped metal support.
 
 ***
 
