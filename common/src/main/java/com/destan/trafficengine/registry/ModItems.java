@@ -21,6 +21,7 @@ public class ModItems {
 
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(TrafficEngine.MOD_ID, Registries.ITEM);
 
+    public static final RegistrySupplier<Item> BOOM_BARRIER_ARM = ITEMS.register("boom_barrier_arm", com.destan.trafficengine.item.BoomBarrierArmItem::new);
     public static final RegistrySupplier<Item> WRENCH = ITEMS.register("wrench", WrenchItem::new);
     public static final RegistrySupplier<Item> TRAFFIC_LIGHT_LINKER = ITEMS.register("traffic_light_linker", () -> new TrafficLightLinkerItem(new Item.Properties().stacksTo(1)));
     public static final RegistrySupplier<Item> PAINT_BRUSH = ITEMS.register("paint_brush", () -> new BrushItem(new Item.Properties(),0));

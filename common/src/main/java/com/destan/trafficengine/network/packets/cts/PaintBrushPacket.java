@@ -23,7 +23,7 @@ public class PaintBrushPacket extends NetworkPacketData {
         this.width=com.destan.trafficengine.item.RoadPaintPlan.normalizeWidth(width); this.offhand=hand==InteractionHand.OFF_HAND;
         this.dashGap=dashGap; this.linePosition=Math.max(0,Math.min(2,linePosition));
         this.pathShape=com.destan.trafficengine.item.RoadCurveGeometry.normalize(pathShape);
-        if(batch && this.pathShape>0)this.linePosition=0;
+        this.linePosition=com.destan.trafficengine.item.RoadPaintPlan.normalizePosition(batch,this.width,this.pathShape,this.linePosition);
         this.areaStyle=Math.max(0,Math.min(3,areaStyle));this.areaShape=Math.max(0,Math.min(2,areaShape));
     }
     @Override protected void write(CompoundTag nbt) {
@@ -38,7 +38,7 @@ public class PaintBrushPacket extends NetworkPacketData {
         batch=nbt.getBoolean("batch");width=nbt.getInt("width");offhand=nbt.getBoolean("offhand");
         dashGap=nbt.getInt("dash_gap")==4?4:2;linePosition=Math.max(0,Math.min(2,nbt.getInt("line_position")));
         pathShape=com.destan.trafficengine.item.RoadCurveGeometry.normalize(nbt.getInt("path_shape"));
-        if(batch && pathShape>0)linePosition=0;
+        linePosition=com.destan.trafficengine.item.RoadPaintPlan.normalizePosition(batch,width,pathShape,linePosition);
         areaStyle=Math.max(0,Math.min(3,nbt.getInt("area_style")));areaShape=Math.max(0,Math.min(2,nbt.getInt("area_shape")));
     }
     public static void handle(PaintBrushPacket packet, NetworkPacketContext context) {
@@ -49,7 +49,7 @@ public class PaintBrushPacket extends NetworkPacketData {
         tag.putInt(RoadPainting.STYLE,Math.max(-1,Math.min(3,packet.lineStyle)));
         tag.putBoolean(RoadPainting.BATCH,packet.batch);tag.putInt(RoadPainting.WIDTH,com.destan.trafficengine.item.RoadPaintPlan.normalizeWidth(packet.width));
         tag.putInt(RoadPainting.DASH_GAP,packet.dashGap==4?4:2);
-        tag.putInt(RoadPainting.POSITION,packet.linePosition);
+        tag.putInt(RoadPainting.POSITION,com.destan.trafficengine.item.RoadPaintPlan.normalizePosition(packet.batch,packet.width,packet.pathShape,packet.linePosition));
         tag.putInt(RoadPainting.PATH,packet.pathShape);
         tag.putInt(RoadPainting.AREA_STYLE,packet.areaStyle);tag.putInt(RoadPainting.AREA_SHAPE,packet.areaShape);
         RoadPainting.clearSelection(tag);ItemData.set(stack,tag);sender.getInventory().setChanged();

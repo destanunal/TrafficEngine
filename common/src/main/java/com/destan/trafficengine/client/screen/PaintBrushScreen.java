@@ -70,7 +70,7 @@ public class PaintBrushScreen extends TrafficEngineScreen {
         this.dashGap = dashGap == 4 ? 4 : 2;
         this.linePosition = Math.max(0, Math.min(2, linePosition));
         this.pathShape=com.destan.trafficengine.item.RoadCurveGeometry.normalize(pathShape);
-        if(batch && this.pathShape>0)this.linePosition=0;
+        this.linePosition=com.destan.trafficengine.item.RoadPaintPlan.normalizePosition(batch,this.paintWidth,this.pathShape,this.linePosition);
         this.areaStyle=Math.max(0,Math.min(3,areaStyle));this.areaShape=Math.max(0,Math.min(2,areaShape));
         // This is the same diffuse tint used by the old preview.
         this.tint = color.getTextureColor().getAsARGB();
@@ -220,7 +220,7 @@ public class PaintBrushScreen extends TrafficEngineScreen {
         patternId = id;
         Pattern selected = PatternCatalog.byId(id);
         areaPreview=areaStyle>0?RoadAreaPreview.sample(areaShape,areaStyle)
-            :batchPainting && pathShape>0?RoadAreaPreview.curveSample(pathShape,lineStyle,dashGap,linePosition):null;
+            :batchPainting && pathShape>0?RoadAreaPreview.curveSample(pathShape,paintWidth,lineStyle,dashGap,linePosition):null;
         previewTexture = areaPreview!=null || lineStyle>=0 ? null : selected==null ? null : selected.texture();
         selectionLabel = areaStyle==0 && batchPainting && pathShape>0?Component.translatable("gui.trafficengine.paint_brush.path."+pathShape).getString():areaStyle>0?font.plainSubstrByWidth(Component.translatable("gui.trafficengine.paint_brush.area.style."+areaStyle).getString(),96)
             :lineStyle >= 0 ? font.plainSubstrByWidth(Component.translatable("gui.trafficengine.paint_brush.connection." + (lineStyle + 1)).getString(), 96) : "#" + id;
@@ -304,11 +304,11 @@ public class PaintBrushScreen extends TrafficEngineScreen {
             g.fill(gridX + gridWidth + 3, thumbY, gridX + gridWidth + 7, thumbY + thumb, TEColors.ACCENT);
         }
         g.drawString(font, previewLabel, previewX + 8, gridY + 5, TEColors.MUTED, false);
-        int size = Math.max(24, Math.min(66, previewHeight - 78));
+        int size = Math.max(24, Math.min(lineStyle>=0 || areaPreview!=null?96:66, previewHeight - (lineStyle>=0 || areaPreview!=null?55:78)));
         int px = previewX + (112 - size) / 2;
         g.fill(px, gridY + 19, px + size, gridY + 19 + size, TEColors.FIELD);
         if(areaPreview!=null)RoadAreaPreview.draw(g,areaPreview,px+4,gridY+23,size-8,size-8,tint);
-        else if(lineStyle>=0) com.destan.trafficengine.client.gui.RoadLinePreview.straight(g,px+4,gridY+23,size-8,size-8,lineStyle,1,dashGap,linePosition,true,tint);
+        else if(lineStyle>=0) com.destan.trafficengine.client.gui.RoadLinePreview.straight(g,px+4,gridY+23,size-8,size-8,lineStyle,batchPainting?paintWidth:1,dashGap,linePosition,true,tint);
         if (previewTexture != null) drawPattern(g, previewTexture, px + 4, gridY + 23, size - 8);
         int detailsY = gridY + 22 + size;
         g.drawString(font, selectionLabel, previewX + 8, detailsY, TEColors.ACCENT, false);

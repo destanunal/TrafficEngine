@@ -67,6 +67,7 @@ public class ModCreativeModeTab {
         output.accept(ModBlocks.GUARDRAIL.get());
         output.accept(ModBlocks.RETRACTABLE_BARRIER.get());
         output.accept(ModBlocks.BOOM_BARRIER.get());
+        output.accept(ModItems.BOOM_BARRIER_ARM.get());
         output.accept(ModBlocks.TRAFFIC_CONE.get());
         output.accept(ModBlocks.TRAFFIC_BOLLARD.get());
         output.accept(ModBlocks.TRAFFIC_BARREL.get());

@@ -15,20 +15,23 @@ public class BoomBarrierBlockEntity extends BlockEntity {
     private AABB renderBounds;
     public BoomBarrierBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.BOOM_BARRIER_BLOCK_ENTITY.get(), pos, state);
-        renderBounds = BoomBarrierBlock.renderBounds(pos,state.getValue(BoomBarrierBlock.FACING));
+        renderBounds = BoomBarrierBlock.renderBounds(pos,state);
         from = target = state.getValue(BoomBarrierBlock.OPEN) ? 1 : 0;
     }
     public float progress(float partialTick) {
         if (level == null || from == target) return target;
         float elapsed = Mth.clamp((level.getGameTime() - changedAt + partialTick) / 12F, 0, 1);
+        // Settle once: idle barriers take the constant-time early return above on later frames.
+        if (elapsed >= 1) { from = target; return target; }
         return Mth.lerp(elapsed * elapsed * (3 - 2 * elapsed), from, target);
     }
     /** Forge/NeoForge culling hook; Fabric uses the renderer off-screen flag. */
     public AABB getRenderBoundingBox() { return renderBounds; }
     @Override public void setBlockState(BlockState state) {
         if (renderBounds != null && state.hasProperty(BoomBarrierBlock.FACING)
-                && getBlockState().getValue(BoomBarrierBlock.FACING)!=state.getValue(BoomBarrierBlock.FACING))
-            renderBounds=BoomBarrierBlock.renderBounds(worldPosition,state.getValue(BoomBarrierBlock.FACING));
+                && (getBlockState().getValue(BoomBarrierBlock.FACING)!=state.getValue(BoomBarrierBlock.FACING)
+                    || BoomBarrierBlock.length(getBlockState())!=BoomBarrierBlock.length(state)))
+            renderBounds=BoomBarrierBlock.renderBounds(worldPosition,state);
         if (state.hasProperty(BoomBarrierBlock.OPEN)) {
             float next = state.getValue(BoomBarrierBlock.OPEN) ? 1 : 0;
             if (level==null) from=target=next;

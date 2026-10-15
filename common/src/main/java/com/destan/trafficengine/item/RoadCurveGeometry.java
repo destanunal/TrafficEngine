@@ -47,7 +47,10 @@ public final class RoadCurveGeometry {
 
     /** Preserve the 2:4-pixel pattern proportions at the small path-preview scale. */
     public static Map<Cell,float[]> preview(List<Cell> points, int shape, int style, int dashGap, int position) {
-        return generate(points,shape,1,style,dashGap,position,style==0?0.5:1,0.75);
+        return preview(points,shape,1,style,dashGap,position);
+    }
+    public static Map<Cell,float[]> preview(List<Cell> points,int shape,int width,int style,int dashGap,int position) {
+        return generate(path(points,shape),width,style,dashGap,0,style==0?0.25:0.5,0.375,1.5);
     }
 
     private static Map<Cell,float[]> generate(List<Cell> cells,int shape,int width,int style,int dashGap,int position,
@@ -57,15 +60,19 @@ public final class RoadCurveGeometry {
 
     private static Map<Cell,float[]> generate(Path path,int width,int style,int dashGap,int position,
             double thickness,double bandOffset) {
+        return generate(path,width,style,dashGap,position,thickness,bandOffset,RoadPaintPlan.LINE_SPACING);
+    }
+    private static Map<Cell,float[]> generate(Path path,int width,int style,int dashGap,int position,
+            double thickness,double bandOffset,double spacing) {
         if(path==null || width<1 || width>RoadPaintPlan.MAX_WIDTH || width%2==0 || style<0 || style>3 || position<0 || position>2) return Map.of();
         // Curve and roundabout clicks define the center of the entire painted layout.
-        double extent=(width/2)*RoadPaintPlan.LINE_SPACING+(style==2?bandOffset:0)+thickness/2;
+        double extent=(width/2)*spacing+(style==2?bandOffset:0)+thickness/2;
         Joint[] joints=joints(path,extent);
         if(joints==null) return Map.of();
         Map<Cell,List<Float>> pieces=new LinkedHashMap<>();
         double[] bands=style==2?new double[]{-bandOffset,bandOffset}:new double[]{0};
         for(int lane=-width/2;lane<=width/2;lane++) for(double band:bands) {
-            Lane strip=lane(path,joints,lane*RoadPaintPlan.LINE_SPACING+band,thickness);
+            Lane strip=lane(path,joints,lane*spacing+band,thickness);
             double length=strip.distance[strip.distance.length-1];
             if(style==1) {
                 int gap=dashGap==4?4:2;
