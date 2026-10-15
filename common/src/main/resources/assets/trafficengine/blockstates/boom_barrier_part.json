@@ -1,1 +1,10 @@
-{"variants":{"":{"model":"trafficengine:block/boom_barrier_arm"}}}
+{
+  "variants": {
+    "vertical=false": {
+      "model": "trafficengine:block/boom_barrier_arm"
+    },
+    "vertical=true": {
+      "model": "trafficengine:block/boom_barrier_hinge"
+    }
+  }
+}

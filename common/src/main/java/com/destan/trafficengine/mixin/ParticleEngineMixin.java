@@ -1,6 +1,8 @@
 package com.destan.trafficengine.mixin;
 
 import com.destan.trafficengine.block.BikeLaneSeparatorBlock;
+import com.destan.trafficengine.block.BoomBarrierBlock;
+import com.destan.trafficengine.block.BoomBarrierPartBlock;
 import com.destan.trafficengine.block.AsphaltSpeedBumpBlock;
 import com.destan.trafficengine.block.TrafficIslandBollardBlock;
 import com.destan.trafficengine.registry.ModBlockTags;
@@ -47,7 +49,11 @@ public class ParticleEngineMixin {
                 || state.getBlock() instanceof GuardrailBlock) {
             trafficengine$breakParticleNumerator = 7;
             trafficengine$breakParticleDenominator = 20;
-        } else if (state.getBlock() instanceof TrafficIslandBollardBlock) {
+        } else if (state.getBlock() instanceof BoomBarrierBlock) {
+            trafficengine$breakParticleNumerator = 9;
+            trafficengine$breakParticleDenominator = 32;
+        } else if (state.getBlock() instanceof TrafficIslandBollardBlock
+                || state.getBlock() instanceof BoomBarrierPartBlock) {
             trafficengine$breakParticleDenominator = 2;
         } else if (state.is(ModBlockTags.REDUCED_BREAK_PARTICLES)) {
             trafficengine$breakParticleNumerator = 3;
@@ -63,7 +69,7 @@ public class ParticleEngineMixin {
         }
     }
 
-    // Distribute the retained particles evenly; each five bump particles becomes three.
+    // Distribute the retained particles evenly for each configured reduction.
     @Inject(method = "add(Lnet/minecraft/client/particle/Particle;)V", at = @At("HEAD"), cancellable = true)
     private void trafficengine$skipSomeBreakParticles(Particle particle, CallbackInfo ci) {
         if (trafficengine$breakParticleDenominator == 1) return;

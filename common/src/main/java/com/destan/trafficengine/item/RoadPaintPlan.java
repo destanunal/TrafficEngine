@@ -13,6 +13,9 @@ public final class RoadPaintPlan {
     public static final int LINE_SPACING = 4;
     private RoadPaintPlan() {}
     public static int normalizeWidth(int width) { return Math.max(1,Math.min(MAX_WIDTH,width)) | 1; }
+    public static int normalizePosition(boolean batch,int width,int shape,int position) {
+        return batch && (shape>0 || normalizeWidth(width)>1)?0:Math.max(0,Math.min(2,position));
+    }
     public static List<Cell> between(Cell start, Cell end, int width) {
         long deltaX = (long)end.x - start.x, deltaZ = (long)end.z - start.z;
         long deltaY = (long)end.y - start.y;

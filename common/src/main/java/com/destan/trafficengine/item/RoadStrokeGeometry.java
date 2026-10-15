@@ -36,7 +36,7 @@ public final class RoadStrokeGeometry {
         Map<RoadPaintPlan.Cell,List<Float>> pieces=new LinkedHashMap<>();
         double thickness=lineWidth(style);
         double[] bands=style==2?new double[]{-0.1875,0.1875}:new double[]{0};
-        double side=positionOffset(position);
+        double side=positionOffset(width>1?0:position);
         if(reversed)side=-side;
         for(int lane=-width/2;lane<=width/2;lane++) for(double band:bands) {
             if(style==1) {

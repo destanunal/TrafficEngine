@@ -56,8 +56,8 @@ public final class RoadPainting {
         return brush.getTag()!=null && brush.getTag().getInt(DASH_GAP)==4?4:2;
     }
     public static int position(ItemStack brush) {
-        if (brush.getTag()!=null && brush.getTag().getBoolean(BATCH) && pathShape(brush)>0) return 0;
-        return brush.getTag()==null?0:Math.max(0,Math.min(2,brush.getTag().getInt(POSITION)));
+        CompoundTag tag = brush.getTag();
+        return tag==null?0:RoadPaintPlan.normalizePosition(tag.getBoolean(BATCH),tag.getInt(WIDTH),pathShape(brush),tag.getInt(POSITION));
     }
     public static int pathShape(ItemStack brush) {
         CompoundTag tag = brush.getTag();

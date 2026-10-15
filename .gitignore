@@ -18,3 +18,13 @@ classes/
 .metadata
 .settings
 *.launch
+
+# Local development artifacts
+*.log
+*.tmp
+*.bak
+*.hprof
+/docs/*-road-tools-*.md
+
+# Release notes are published separately.
+/CHANGELOG.md
