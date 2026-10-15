@@ -44,7 +44,8 @@ public class TrafficPoleBaseBlock extends Block implements SimpleWaterloggedBloc
         if (!player.mayBuild() || !level.mayInteract(player, pos)) return InteractionResult.FAIL;
         if (!level.isClientSide) {
             BlockState pole = ModBlocks.TRAFFIC_SIGN_POST.get().defaultBlockState()
-                .setValue(TrafficSignPostBlock.WATERLOGGED, state.getValue(WATERLOGGED));
+                .setValue(TrafficSignPostBlock.WATERLOGGED, state.getValue(WATERLOGGED))
+                .setValue(TrafficSignPostBlock.BASE_SUPPORT, true);
             for (Direction side : Direction.values()) {
                 BlockPos other = pos.relative(side);
                 pole = pole.updateShape(side, level.getBlockState(other), level, pos, other);

@@ -27,7 +27,7 @@ public record RoadSignDesign(int rows, int alignment, int textSize, int ink, int
         this(rows, alignment, textSize, ink, frame, bold, leftArrows, dividers, 0);
     }
 
-    public int visibleRows(boolean large) { return rows; }
+    public int visibleRows(boolean large) { return large ? rows : Math.min(2, rows); }
 
     public RoadSignDesign withRows(int count) {
         return new RoadSignDesign(count, alignment, textSize, ink, frame, bold, leftArrows, dividers, panelColors);

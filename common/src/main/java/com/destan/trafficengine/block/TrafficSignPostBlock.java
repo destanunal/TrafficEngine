@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.HashMap;
 import com.destan.trafficengine.block.data.ITrafficPostLike;
 import com.destan.trafficengine.registry.ModBlockTags;
-import com.destan.trafficengine.registry.ModBlocks;
 import com.destan.trafficengine.registry.ModItemTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -55,6 +54,7 @@ public class TrafficSignPostBlock extends Block implements SimpleWaterloggedBloc
     public static final BooleanProperty DOWN = PipeBlock.DOWN;
     public static final BooleanProperty EXTEND_BOTTOM = BooleanProperty.create("bottom_extension");
     public static final BooleanProperty DIAGONAL = BooleanProperty.create("diagonal");
+    public static final BooleanProperty BASE_SUPPORT = BooleanProperty.create("base_support");
 
     protected static final Map<Direction, BooleanProperty> PROPERTY_BY_DIRECTION = PipeBlock.PROPERTY_BY_DIRECTION.entrySet().stream().collect(Util.toMap());
     
@@ -66,6 +66,10 @@ public class TrafficSignPostBlock extends Block implements SimpleWaterloggedBloc
     private static final VoxelShape SHAPE_UP = Block.box(7, 9, 7, 9, 16, 9);
     private static final VoxelShape SHAPE_DOWN = Block.box(7, 0, 7, 9, 7, 9);
     private static final VoxelShape SHAPE_EXTEND_DOWN = Block.box(7, -16, 7, 9, 0, 9);
+
+    private static final VoxelShape SUPPORT_SHAPE = Shapes.or(
+        Block.box(5.75, 0, 5.75, 10.25, 1.5, 10.25),
+        Block.box(6.5, 1.5, 6.5, 9.5, 3, 9.5)).optimize();
 
     private static final Map<BlockState, VoxelShape> shapes = new HashMap<>();
     private static VoxelShape createShape(BlockState state) {
@@ -103,6 +107,8 @@ public class TrafficSignPostBlock extends Block implements SimpleWaterloggedBloc
         if (state.getValue(EXTEND_BOTTOM)) {
             shape = Shapes.or(shape, SHAPE_EXTEND_DOWN);
         }
+        if (state.getValue(BASE_SUPPORT) && state.getValue(AXIS) == Axis.Y)
+            shape = Shapes.or(shape, SUPPORT_SHAPE).optimize();
         return shape;
     }
 
@@ -125,12 +131,16 @@ public class TrafficSignPostBlock extends Block implements SimpleWaterloggedBloc
             .setValue(DOWN, false)
             .setValue(EXTEND_BOTTOM, false)
             .setValue(DIAGONAL, false)
+            .setValue(BASE_SUPPORT, false)
         ); 
     }
 
     @Override
     public VoxelShape getShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext) {
-        return shapes.computeIfAbsent(pState, TrafficSignPostBlock::createShape);
+        // Water and diagonal attachment metadata do not change this carrier's geometry.
+        BlockState geometry = pState.setValue(WATERLOGGED, false).setValue(DIAGONAL, false);
+        if (geometry.getValue(AXIS) != Axis.Y) geometry = geometry.setValue(BASE_SUPPORT, false);
+        return shapes.computeIfAbsent(geometry, TrafficSignPostBlock::createShape);
     } 
 
     public boolean isPathfindable(BlockState pState, BlockGetter pLevel, BlockPos pPos, PathComputationType pType) {
@@ -154,23 +164,18 @@ public class TrafficSignPostBlock extends Block implements SimpleWaterloggedBloc
     }
 
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
-        if (!player.getItemInHand(hand).is(ModItemTags.WRENCHES) || state.getValue(AXIS) != Axis.Y) return InteractionResult.PASS;
-        // A footing must not remove a side connection used by a sign or light.
-        if (state.getValue(NORTH) || state.getValue(EAST) || state.getValue(SOUTH) || state.getValue(WEST)) return InteractionResult.PASS;
-        BlockState below = level.getBlockState(pos.below());
-        if (below.getBlock() instanceof TrafficPoleBaseBlock
-                || below.getBlock() instanceof TrafficSignPostBlock && below.getValue(AXIS) == Axis.Y) return InteractionResult.PASS;
+        if (!player.getItemInHand(hand).is(ModItemTags.WRENCHES)
+                || !isLowestPole(state, level.getBlockState(pos.below()))) return InteractionResult.PASS;
         if (!player.mayBuild() || !level.mayInteract(player, pos)) return InteractionResult.FAIL;
         if (!level.isClientSide) {
-            BlockState above = level.getBlockState(pos.above());
-            BlockState base = ModBlocks.TRAFFIC_POLE_BASE.get().defaultBlockState()
-                .setValue(TrafficPoleBaseBlock.WATERLOGGED, state.getValue(WATERLOGGED))
-                .setValue(TrafficPoleBaseBlock.CONNECTED,
-                    TrafficPoleBaseBlock.hasPole(above));
-            level.setBlockAndUpdate(pos, base);
+            level.setBlockAndUpdate(pos, state.cycle(BASE_SUPPORT));
             level.playSound(null, pos, SoundEvents.COMPARATOR_CLICK, SoundSource.BLOCKS, 0.3F, 0.8F);
         }
         return InteractionResult.sidedSuccess(level.isClientSide);
+    }
+    private static boolean isLowestPole(BlockState state, BlockState below) {
+        return state.getValue(AXIS) == Axis.Y && !(below.getBlock() instanceof TrafficPoleBaseBlock)
+            && !(below.getBlock() instanceof TrafficSignPostBlock && below.getValue(AXIS) == Axis.Y);
     }
     private static boolean needsBottomExtension(BlockState pState, BlockState belowBlock) {
         return pState.getValue(AXIS).test(Direction.UP) && (belowBlock.hasProperty(BlockStateProperties.LAYERS) || (belowBlock.getBlock() instanceof SlabBlock && belowBlock.getValue(BlockStateProperties.SLAB_TYPE) == SlabType.BOTTOM) || belowBlock.is(ModBlockTags.POST_EXTENSION));
@@ -186,7 +191,8 @@ public class TrafficSignPostBlock extends Block implements SimpleWaterloggedBloc
 
         BlockState updated = pState
             .setValue(PROPERTY_BY_DIRECTION.get(pFacing), this.connectsTo(pLevel, pCurrentPos, pState, pFacingState, pFacingState.isFaceSturdy(pLevel, pFacingPos, pFacing.getOpposite()), pFacing.getOpposite()))
-            .setValue(EXTEND_BOTTOM, needsBottomExtension(pState, belowBlock));
+            .setValue(EXTEND_BOTTOM, needsBottomExtension(pState, belowBlock))
+            .setValue(BASE_SUPPORT, pState.getValue(BASE_SUPPORT) && isLowestPole(pState, belowBlock));
         return updated.setValue(DIAGONAL,
             updated.getValue(AXIS) == Axis.Y && hasDiagonalAttachment(pLevel, pCurrentPos));
     }
@@ -279,7 +285,7 @@ public class TrafficSignPostBlock extends Block implements SimpleWaterloggedBloc
     @Override
     protected void createBlockStateDefinition(Builder<Block, BlockState> pBuilder) {
         super.createBlockStateDefinition(pBuilder);
-        pBuilder.add(WATERLOGGED, AXIS, NORTH, SOUTH, WEST, EAST, UP, DOWN, EXTEND_BOTTOM, DIAGONAL);
+        pBuilder.add(WATERLOGGED, AXIS, NORTH, SOUTH, WEST, EAST, UP, DOWN, EXTEND_BOTTOM, DIAGONAL, BASE_SUPPORT);
     }
     
     @Override

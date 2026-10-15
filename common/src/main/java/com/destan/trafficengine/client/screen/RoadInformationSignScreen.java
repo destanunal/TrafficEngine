@@ -99,13 +99,13 @@ public class RoadInformationSignScreen extends ScaledTrafficEngineScreen {
         int count=design.visibleRows(sign.kind()==Kind.HIGHWAY);
         for(int i=0;i<count;i++) {
             final int row=i;
-            edit(left+20,top+92+i*70,108,lines[i],96,Component.translatable(KEY+"destination",i+1),value->lines[row]=value,i);
-            EditBox distance=addRenderableWidget(new TEEditBox(font,left+136,top+92+i*70,50,20,text("distance")));
+            edit(left+20,top+92+i*70,164,lines[i],96,Component.translatable(KEY+"destination",i+1),value->lines[row]=value,i);
+            EditBox distance=addRenderableWidget(new TEEditBox(font,left+190,top+92+i*70,32,20,text("distance")));
             distance.setMaxLength(12);distance.setValue(distances[i]);
             distance.setHint(Component.literal("km"));
             distance.setTooltip(net.minecraft.client.gui.components.Tooltip.create(text("distance")));
             distance.setResponder(value->distances[row]=value);distanceFields[i]=distance;
-            panelButtons[i]=addRenderableWidget(new TEButton(left+194,top+92+i*70,78,22,text("panel"),
+            panelButtons[i]=addRenderableWidget(new TEButton(left+228,top+92+i*70,44,22,text("panel"),
                     b->togglePanelMenu(row)).selected(design.panelColor(i)!=RoadSignDesign.NO_PANEL));
             for(int j=0;j<ARROWS.length;j++) {
                 final int arrow=j;
@@ -208,7 +208,7 @@ public class RoadInformationSignScreen extends ScaledTrafficEngineScreen {
                 else design=new RoadSignDesign(2,0,125,0,1,false,true,false);
             });
         }
-        int count=3;
+        int count=sign.kind()==Kind.HIGHWAY?3:2;
         for(int i=1;i<=count;i++) {
             final int value=i;
             choice(left+20+(i-1)*86,top+141,80,Component.translatable(KEY+"rows.value",i),design.visibleRows(sign.kind()==Kind.HIGHWAY)==i,()->updateDesign(value,design.alignment(),design.textSize(),design.ink(),design.frame(),design.bold(),design.leftArrows(),design.dividers()));
