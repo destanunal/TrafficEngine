@@ -21,11 +21,10 @@ Traffic Engine offers customizable traffic equipment, advanced controllers and m
 
 *   **6 Asphalt Types & Slopes:** Choose Default, Damaged, Heavy Damaged, Light, Dark or Dirty asphalt. Each type includes matching slopes and varied textures.
 *   **Road Markings:** Use the Paint Brush to add lanes, arrows, letters, numbers, bicycle symbols, motorcycle symbols and pedestrian markings.
-*   **Automatic Lines:** Paint thin, dashed, double or thick lines on the left, center or right. Neighboring single-block lines connect automatically.
+*   **Automatic Lines:** Paint thin, dashed, double or thick lines. Single-line straight painting supports left, center and right positions; wider layouts stay centered. Neighboring single-block lines connect automatically.
 *   **Curves & Roundabouts:** Select three middle road points for a smooth curve, or four middle road points in order around a roundabout. Road-edge guidance helps keep the line centered. Thin, dashed, double and thick lines use the same paint and undo system.
 *   **Multi-Block Painting:** Select the start and end of a road to paint flat, sloped or diagonal routes. Choose widths of 1, 3, 5 or 7 and city or highway dashed-line layouts. Automatic parallel lines leave three empty blocks between them.
 *   **Area Painting:** Fill rectangular, triangular or quadrilateral areas with crosshatching, parallel hatching or full paint.
-*   **Boom Barrier:** A lifting parking barrier controlled with a wrench or redstone.
 *   **Undo:** Restore up to your last three single-block, multi-block, curved or area painting operations.
 *   **Pattern Search & Favorites:** Browse markings by category, search for a pattern and save your favorites for quick access.
 *   **Quick Copy:** Shift + right-click a painted road with the Paint Brush to copy its pattern, color and supported line settings, including full paint.
@@ -70,6 +69,7 @@ Traffic Engine offers customizable traffic equipment, advanced controllers and m
 *   **Paintable Bicycle Lane Separators:** Recolor the stripes while keeping the dark body color.
 *   **Traffic Island Bollards:** Add directional markers that light up at night. Use the Wrench to switch the arrow or Shift + Wrench to rotate the bollard.
 *   **Foldable Scissor Barriers:** Right-click with the **Wrench** to fold or unfold a retractable scissor barrier.
+*   **Modular Boom Barriers:** Place a motor and add up to 16 arm sections to set the length. Use the Wrench or redstone to open and close it; Shift + right-click with the Wrench removes the last section.
 *   **Traffic Poles:** Combine poles with signs and compatible traffic equipment to build detailed roadside setups. Add a Traffic Pole Base for a footing that adapts when a vertical pole is placed on top.
 
 ***
