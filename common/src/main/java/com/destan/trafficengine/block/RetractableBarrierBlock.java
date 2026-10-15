@@ -57,11 +57,11 @@ public class RetractableBarrierBlock extends HorizontalDirectionalBlock {
 
     // Both folded orientations are cached, just like the expanded collision shapes.
     private static final VoxelShape FOLDED_NORTH_SOUTH = Shapes.or(
-        Block.box(5.25, 2.25, 6.25, 10.75, 15.5, 9.75),
-        Block.box(4.75, 0, 5.5, 11.25, 2.5, 10.5)).optimize();
+        Block.box(3.75, 1.5, 6.35, 12.25, 15.5, 9.65),
+        Block.box(3.25, 0, 6, 5.75, 1.5, 10), Block.box(10.25, 0, 6, 12.75, 1.5, 10)).optimize();
     private static final VoxelShape FOLDED_EAST_WEST = Shapes.or(
-        Block.box(6.25, 2.25, 5.25, 9.75, 15.5, 10.75),
-        Block.box(5.5, 0, 4.75, 10.5, 2.5, 11.25)).optimize();
+        Block.box(6.35, 1.5, 3.75, 9.65, 15.5, 12.25),
+        Block.box(6, 0, 3.25, 10, 1.5, 5.75), Block.box(6, 0, 10.25, 10, 1.5, 12.75)).optimize();
 
     private static final VoxelShape[][] SHAPES = new VoxelShape[4][2];
 

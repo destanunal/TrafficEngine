@@ -5,6 +5,15 @@ import java.util.Map;
 import java.util.HashMap;
 import com.destan.trafficengine.block.data.ITrafficPostLike;
 import com.destan.trafficengine.registry.ModBlockTags;
+import com.destan.trafficengine.registry.ModBlocks;
+import com.destan.trafficengine.registry.ModItemTags;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -144,6 +153,28 @@ public class TrafficSignPostBlock extends Block implements SimpleWaterloggedBloc
         };
     }
 
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        if (!player.getItemInHand(hand).is(ModItemTags.WRENCHES) || state.getValue(AXIS) != Axis.Y) return InteractionResult.PASS;
+        // A footing must not remove a side connection used by a sign or light.
+        if (state.getValue(NORTH) || state.getValue(EAST) || state.getValue(SOUTH) || state.getValue(WEST)) return InteractionResult.PASS;
+        BlockState below = level.getBlockState(pos.below());
+        if (below.getBlock() instanceof TrafficPoleBaseBlock
+                || below.getBlock() instanceof TrafficSignPostBlock && below.getValue(AXIS) == Axis.Y) return InteractionResult.PASS;
+        if (!player.mayBuild() || !level.mayInteract(player, pos)) return InteractionResult.FAIL;
+        if (!level.isClientSide) {
+            BlockState above = level.getBlockState(pos.above());
+            BlockState base = ModBlocks.TRAFFIC_POLE_BASE.get().defaultBlockState()
+                .setValue(TrafficPoleBaseBlock.WATERLOGGED, state.getValue(WATERLOGGED))
+                .setValue(TrafficPoleBaseBlock.CONNECTED,
+                    TrafficPoleBaseBlock.hasPole(above));
+            level.setBlockAndUpdate(pos, base);
+            level.playSound(null, pos, SoundEvents.COMPARATOR_CLICK, SoundSource.BLOCKS, 0.3F, 0.8F);
+        }
+        return InteractionResult.sidedSuccess(level.isClientSide);
+    }
+    @Override protected net.minecraft.world.ItemInteractionResult useItemOn(net.minecraft.world.item.ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        return com.destan.trafficengine.util.PortingInteractions.forItem(use(state, level, pos, player, hand, hit));
+    }
     private static boolean needsBottomExtension(BlockState pState, BlockState belowBlock) {
         return pState.getValue(AXIS).test(Direction.UP) && (belowBlock.hasProperty(BlockStateProperties.LAYERS) || (belowBlock.getBlock() instanceof SlabBlock && belowBlock.getValue(BlockStateProperties.SLAB_TYPE) == SlabType.BOTTOM) || belowBlock.is(ModBlockTags.POST_EXTENSION));
     }

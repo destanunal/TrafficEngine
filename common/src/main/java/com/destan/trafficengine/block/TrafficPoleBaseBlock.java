@@ -1,6 +1,15 @@
 package com.destan.trafficengine.block;
 
 import com.destan.trafficengine.block.data.ITrafficPostLike;
+import com.destan.trafficengine.registry.ModBlocks;
+import com.destan.trafficengine.registry.ModItemTags;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -24,14 +33,33 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 public class TrafficPoleBaseBlock extends Block implements SimpleWaterloggedBlock, ITrafficPostLike {
     public static final BooleanProperty CONNECTED = BooleanProperty.create("connected");
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
-    private static final VoxelShape BASE = Block.box(4, 0, 4, 12, 10, 12);
-    private static final VoxelShape MOUNTED = Shapes.or(BASE, Block.box(5.75, 10, 5.75, 10.25, 12, 10.25), Block.box(6.5, 12, 6.5, 9.5, 14, 9.5), Block.box(7, 14, 7, 9, 16, 9));
+    private static final VoxelShape BASE = Block.box(4, 0, 4, 12, 6, 12);
+    private static final VoxelShape MOUNTED = Shapes.or(BASE, Block.box(5.75, 6, 5.75, 10.25, 7.5, 10.25), Block.box(6.5, 7.5, 6.5, 9.5, 9, 9.5), Block.box(7, 9, 7, 9, 16, 9));
     public TrafficPoleBaseBlock() {
         super(Properties.of().mapColor(MapColor.METAL).strength(2.5F).sound(SoundType.METAL).requiresCorrectToolForDrops().noOcclusion());
         registerDefaultState(stateDefinition.any().setValue(CONNECTED, false).setValue(WATERLOGGED, false));
     }
-    private static boolean hasPole(BlockState state) {
-        return state.getBlock() instanceof TrafficSignPostBlock && state.getValue(TrafficSignPostBlock.AXIS) == Direction.Axis.Y;
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        if (!player.getItemInHand(hand).is(ModItemTags.WRENCHES)) return InteractionResult.PASS;
+        if (!player.mayBuild() || !level.mayInteract(player, pos)) return InteractionResult.FAIL;
+        if (!level.isClientSide) {
+            BlockState pole = ModBlocks.TRAFFIC_SIGN_POST.get().defaultBlockState()
+                .setValue(TrafficSignPostBlock.WATERLOGGED, state.getValue(WATERLOGGED));
+            for (Direction side : Direction.values()) {
+                BlockPos other = pos.relative(side);
+                pole = pole.updateShape(side, level.getBlockState(other), level, pos, other);
+            }
+            level.setBlockAndUpdate(pos, pole);
+            level.playSound(null, pos, SoundEvents.COMPARATOR_CLICK, SoundSource.BLOCKS, 0.3F, 0.8F);
+        }
+        return InteractionResult.sidedSuccess(level.isClientSide);
+    }
+    @Override protected net.minecraft.world.ItemInteractionResult useItemOn(net.minecraft.world.item.ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        return com.destan.trafficengine.util.PortingInteractions.forItem(use(state, level, pos, player, hand, hit));
+    }
+    static boolean hasPole(BlockState state) {
+        if (state.getBlock() instanceof TrafficSignPostBlock) return state.getValue(TrafficSignPostBlock.AXIS) == Direction.Axis.Y;
+        return state.getBlock() instanceof ITrafficPostLike post && post.canConnect(state, Direction.DOWN);
     }
     @Override public BlockState getStateForPlacement(BlockPlaceContext context) {
         return defaultBlockState().setValue(CONNECTED, hasPole(context.getLevel().getBlockState(context.getClickedPos().above())))

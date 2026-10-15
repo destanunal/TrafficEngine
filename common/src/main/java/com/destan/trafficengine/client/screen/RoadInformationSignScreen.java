@@ -26,6 +26,8 @@ public class RoadInformationSignScreen extends ScaledTrafficEngineScreen {
     private static final String[] ARROWS={"—","↑","←","→","↖","↗","↓"};
     private final RoadInformationSignBlockEntity sign;
     private final String[] lines=new String[3];
+    private final String[] distances=new String[3];
+    private final EditBox[] distanceFields=new EditBox[3];
     private final int[] arrows=new int[3];
     private final EditBox[] fields=new EditBox[3];
     private final TEButton[] panelButtons=new TEButton[3];
@@ -42,7 +44,7 @@ public class RoadInformationSignScreen extends ScaledTrafficEngineScreen {
     public RoadInformationSignScreen(RoadInformationSignBlockEntity sign) {
         super(Component.translatable(KEY+(sign.kind()==Kind.VARIABLE_SPEED?"speed_title":sign.kind()==Kind.HIGHWAY?"large_title":"title")));
         this.sign=sign;
-        for(int i=0;i<3;i++) {lines[i]=sign.destination(i);arrows[i]=sign.arrow(i);}
+        for(int i=0;i<3;i++) {lines[i]=sign.destination(i);arrows[i]=sign.arrow(i);distances[i]=sign.distance(i);}
         theme=sign.theme();speed=sign.speed();enabled=sign.enabled();design=sign.design();
     }
     private Component text(String suffix) {return Component.translatable(KEY+suffix);}
@@ -63,6 +65,7 @@ public class RoadInformationSignScreen extends ScaledTrafficEngineScreen {
         layoutWindow(592,336);addCloseButton();
         previewX=left+304;previewWidth=windowWidth-320;
         java.util.Arrays.fill(fields,null);
+        java.util.Arrays.fill(distanceFields,null);
         java.util.Arrays.fill(panelButtons,null);
         panelChoices.clear();panelMenuRow=-1;
         speedInput=null;
@@ -96,7 +99,12 @@ public class RoadInformationSignScreen extends ScaledTrafficEngineScreen {
         int count=design.visibleRows(sign.kind()==Kind.HIGHWAY);
         for(int i=0;i<count;i++) {
             final int row=i;
-            edit(left+20,top+92+i*70,166,lines[i],96,Component.translatable(KEY+"destination",i+1),value->lines[row]=value,i);
+            edit(left+20,top+92+i*70,108,lines[i],96,Component.translatable(KEY+"destination",i+1),value->lines[row]=value,i);
+            EditBox distance=addRenderableWidget(new TEEditBox(font,left+136,top+92+i*70,50,20,text("distance")));
+            distance.setMaxLength(12);distance.setValue(distances[i]);
+            distance.setHint(Component.literal("km"));
+            distance.setTooltip(net.minecraft.client.gui.components.Tooltip.create(text("distance")));
+            distance.setResponder(value->distances[row]=value);distanceFields[i]=distance;
             panelButtons[i]=addRenderableWidget(new TEButton(left+194,top+92+i*70,78,22,text("panel"),
                     b->togglePanelMenu(row)).selected(design.panelColor(i)!=RoadSignDesign.NO_PANEL));
             for(int j=0;j<ARROWS.length;j++) {
@@ -200,7 +208,7 @@ public class RoadInformationSignScreen extends ScaledTrafficEngineScreen {
                 else design=new RoadSignDesign(2,0,125,0,1,false,true,false);
             });
         }
-        int count=sign.kind()==Kind.HIGHWAY?3:2;
+        int count=3;
         for(int i=1;i<=count;i++) {
             final int value=i;
             choice(left+20+(i-1)*86,top+141,80,Component.translatable(KEY+"rows.value",i),design.visibleRows(sign.kind()==Kind.HIGHWAY)==i,()->updateDesign(value,design.alignment(),design.textSize(),design.ink(),design.frame(),design.bold(),design.leftArrows(),design.dividers()));
@@ -236,7 +244,7 @@ public class RoadInformationSignScreen extends ScaledTrafficEngineScreen {
         previewLeft=previewX+(previewWidth-RoadSignGraphics.width(sign.kind())*previewScale)/2;
         previewTop=top+99+(194-RoadSignGraphics.height(sign.kind())*previewScale)/2;
         g.pose().translate(previewLeft,previewTop,150);g.pose().scale(previewScale,previewScale,1);
-        new RoadSignGraphics(g.pose(),g.bufferSource(),font,LightTexture.FULL_BRIGHT).draw(sign.kind(),lines,arrows,"",theme,speed,enabled,design);
+        new RoadSignGraphics(g.pose(),g.bufferSource(),font,LightTexture.FULL_BRIGHT).draw(sign.kind(),lines,arrows,distances,"",theme,speed,enabled,design);
         g.flush();g.pose().popPose();
         if(panelMenuRow>=0) {
             g.pose().pushPose();g.pose().translate(0,0,300);
@@ -282,7 +290,7 @@ public class RoadInformationSignScreen extends ScaledTrafficEngineScreen {
     @Override public void onClose() {
         if(!saved && !discard) {
             saved=true;
-            ModNetworkManager.UPDATE_ROAD_INFORMATION_SIGN.send(NetworkDirection.toServer(),new RoadInformationSignPacket(sign.getBlockPos(),lines,arrows,"",theme,speed,enabled,design));
+            ModNetworkManager.UPDATE_ROAD_INFORMATION_SIGN.send(NetworkDirection.toServer(),new RoadInformationSignPacket(sign.getBlockPos(),lines,arrows,distances,"",theme,speed,enabled,design));
         }
         super.onClose();
     }
