@@ -158,19 +158,41 @@ public class TrafficLightSchedule implements NbtSerializable {
     /** Manual red covers the pure-red interval; the two yellow transitions are additional. */
     public int getSequentialCycleTicks() {
         int minimumCycle = 0;
+        int directions = 0;
         TrafficLightScheduleEntryData first = null;
         for (TrafficLightScheduleEntryData entry : entries) {
             int duration = entry.getDurationTicks();
             if (duration > 0) {
                 if (first == null) first = entry;
+                directions++;
                 minimumCycle += duration + SAFETY_INTERVAL_TICKS + redYellowTicks * 2;
             }
+        }
+        if (!manualController && trigger == TrafficLightTrigger.ON_REQUEST && directions == 1) {
+            // With no other vehicle direction, reserve a complete requested crossing interval.
+            minimumCycle = first.getDurationTicks() * 2 + redYellowTicks * 2
+                + CROSSING_INTERVAL_TICKS + PEDESTRIAN_RED_BEFORE_VEHICLE_TRANSITION_TICKS;
         }
         if (manualController && first != null) {
             // Keep all directions on one cycle. Invalid external data cannot create overlapping greens.
             return Math.max(minimumCycle, first.getDurationTicks() + first.getManualRedTicks() + redYellowTicks * 2);
         }
         return minimumCycle;
+    }
+
+    /** A request leaves the idle through-green at outgoing yellow, then returns to that green. */
+    public int getSequentialStartTick() {
+        if (trigger == TrafficLightTrigger.ON_REQUEST)
+            for (TrafficLightScheduleEntryData entry : entries)
+                if (entry.getDurationTicks() > 0)
+                    return SAFETY_INTERVAL_TICKS + redYellowTicks + entry.getDurationTicks();
+        return 0;
+    }
+
+    public int getSequentialEndTick() {
+        int cycle = getSequentialCycleTicks();
+        return cycle > 0 && trigger == TrafficLightTrigger.ON_REQUEST
+            ? cycle + SAFETY_INTERVAL_TICKS + redYellowTicks : cycle;
     }
 
     /** Converts an existing controller plan into one green interval per ID for the simple editor. */

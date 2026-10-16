@@ -141,7 +141,8 @@ public class TrafficLightControllerBlockEntity extends SyncedBlockEntity {
         if (running && getFirstOrMainSchedule().hasPhaseTimings()) {
             TrafficLightSchedule schedule = getFirstOrMainSchedule();
             int cycle = schedule.isSequentialGreens() ? schedule.getSequentialCycleTicks() : 0;
-            if (!pendingSchedules.isEmpty() && cycle > 0 && Math.floorMod(ticks, cycle) == 0) {
+            if (!pendingSchedules.isEmpty() && cycle > 0 && schedule.getTrigger() != TrafficLightTrigger.ON_REQUEST
+                    && Math.floorMod(ticks, cycle) == 0) {
                 activatePendingSchedules();
                 ticks = 0;
                 totalTicks = 0;
@@ -182,7 +183,8 @@ public class TrafficLightControllerBlockEntity extends SyncedBlockEntity {
             // The phase cursor must be written with the chunk on world exit/reload.
             // setChanged() does not broadcast a block-entity packet every tick.
             setChanged();
-            if (!schedule.isLoop() && ticks >= (schedule.isSequentialGreens() ? schedule.getSequentialCycleTicks() : schedule.getLongestCycleTicks())) {
+            if (!schedule.isLoop() && ticks >= (schedule.isSequentialGreens() ? schedule.getSequentialEndTick() : schedule.getLongestCycleTicks())) {
+                if (schedule.getTrigger() == TrafficLightTrigger.ON_REQUEST) activatePendingSchedules();
                 setRunning(false);
                 if (schedule.getTrigger() == TrafficLightTrigger.ON_REQUEST) applyRequestIdle(level);
             }
@@ -349,7 +351,8 @@ public class TrafficLightControllerBlockEntity extends SyncedBlockEntity {
         if (forceRestart || !this.isFirstIteration()) {
             activatePendingSchedules();
             this.totalTicks = 0;
-            this.ticks = 0;
+            TrafficLightSchedule schedule = getFirstOrMainSchedule();
+            this.ticks = schedule.isSequentialGreens() ? schedule.getSequentialStartTick() : 0;
             this.running = true;
             notifyUpdate();
         }
@@ -367,7 +370,7 @@ public class TrafficLightControllerBlockEntity extends SyncedBlockEntity {
         TrafficLightSchedule schedule = getFirstOrMainSchedule();
         if (schedule.hasPhaseTimings()) {
             int cycle = schedule.isSequentialGreens()
-                ? schedule.getSequentialCycleTicks() : schedule.getLongestCycleTicks();
+                ? schedule.getSequentialEndTick() - schedule.getSequentialStartTick() : schedule.getLongestCycleTicks();
             return totalTicks < cycle;
         }
         return this.totalTicks == this.ticks;

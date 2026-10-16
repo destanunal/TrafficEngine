@@ -30,9 +30,21 @@ public final class RoadSignGraphics {
     private static final double[] CIRCLE_COS = new double[97], CIRCLE_SIN = new double[97];
     private static final double[] CORNER_COS = new double[20], CORNER_SIN = new double[20];
     private static final double[][] ARROWS = new double[7][14];
+    // Two sizes, three frame styles and four connection masks; built once, reused every frame.
+    private static final double[][][][][][] SIGN_FRAMES = new double[2][3][4][][][];
     static {
         for (int i=0;i<=96;i++) { double angle=i*Math.PI/48;CIRCLE_COS[i]=Math.cos(angle);CIRCLE_SIN[i]=Math.sin(angle); }
         for (int c=0;c<4;c++) for(int s=0;s<=4;s++) { double angle=Math.toRadians(-90+c*90+s*22.5);CORNER_COS[c*5+s]=Math.cos(angle);CORNER_SIN[c*5+s]=Math.sin(angle); }
+        for (int size = 0; size < 2; size++) for (int frame = 0; frame < 3; frame++) for (int joins = 0; joins < 4; joins++) {
+            double[][][] layers = new double[frame + 1][][];
+            for (int layer = 0; layer <= frame; layer++) {
+                double inset = layer == 0 ? 0 : frame == 1 ? 1.3 : layer == 1 ? 0.8 : 2.8;
+                boolean left = (joins & 1) != 0, right = (joins & 2) != 0;
+                layers[layer] = roundedPerimeter(left ? 0 : inset, inset, right ? 192 : 192 - inset,
+                        (size == 0 ? 72 : 144) - inset, left ? 0 : 4 - inset, right ? 0 : 4 - inset);
+            }
+            SIGN_FRAMES[size][frame][joins] = layers;
+        }
         double[][] points={{-2,12},{2,12},{2,-2},{7,-2},{0,-11},{-7,-2},{-2,-2}};
         for(int direction=0;direction<7;direction++) {
             double angle=switch(direction) {case 2 -> -Math.PI/2;case 3 -> Math.PI/2;case 4 -> -Math.PI/4;case 5 -> Math.PI/4;case 6 -> Math.PI;default -> 0;};
@@ -63,6 +75,9 @@ public final class RoadSignGraphics {
         };
     }
     public void draw(Kind kind, String[] lines, int[] arrows, String[] distances, String route, int theme, int speed, boolean enabled, RoadSignDesign design) {
+        draw(kind, lines, arrows, distances, route, theme, speed, enabled, design, 0);
+    }
+    public void draw(Kind kind, String[] lines, int[] arrows, String[] distances, String route, int theme, int speed, boolean enabled, RoadSignDesign design, int joins) {
         geometryBuffer = null;
         modernLettering = kind != Kind.VARIABLE_SPEED;
         int w = width(kind), h = height(kind);
@@ -73,14 +88,16 @@ public final class RoadSignGraphics {
         else if (design.ink() == 3) ink = 0xFF17252E;
         depth = 0;
         int frame = kind == Kind.VARIABLE_SPEED ? 2 : design.frame();
-        // White is a fine painted border; metal has a wider silver rim and dark outer edge.
-        double inset = frame == 0 ? 0 : frame == 1 ? 1.3 : 2.8;
-        if (frame == 1) roundedBorder(0, 0, w, h, 4, inset, 0xFFFFFFFF);
-        else if (frame == 2) {
+        if (kind == Kind.VARIABLE_SPEED) {
             roundedBorder(0, 0, w, h, 4, 0.8, 0xFF53616B);
             roundedBorder(0.8, 0.8, w - 0.8, h - 0.8, 3.2, 2, 0xFFA8B4BC);
+            roundedRect(2.8, 2.8, w - 2.8, h - 2.8, 1.2, color);
+        } else {
+            double[][][] layers = SIGN_FRAMES[kind == Kind.DIRECTION ? 0 : 1][frame][joins & 3];
+            if (frame > 0) borderBetween(layers[0], layers[1], frame == 1 ? 0xFFFFFFFF : 0xFF53616B);
+            if (frame == 2) borderBetween(layers[1], layers[2], 0xFFA8B4BC);
+            fillPerimeter(layers[frame], color);
         }
-        roundedRect(inset, inset, w - inset, h - inset, Math.max(0, 4 - inset), color);
         depth = 0.2F;
         if (kind == Kind.VARIABLE_SPEED) {
             // The concentric bands share edges, never overlapping at the same depth.
@@ -97,15 +114,22 @@ public final class RoadSignGraphics {
             return;
         }
         int count = design.visibleRows(kind == Kind.HIGHWAY);
-        float first = 12;
-        float rowHeight = (h - first - 10) / count;
+        // Equal top/bottom margins and row cells keep every layout vertically centered.
+        float first = 6;
+        float rowHeight = (h - first * 2) / count;
+        float rowGap = design.dividers() && count > 1 ? 10 : 8;
+        float contentHeight = rowHeight - rowGap;
+        float glyphHeight = font.lineHeight + 2F;
+        float paddingY = 2F;
+        // The road font's optical center differs from Minecraft's 9px bitmap line box.
+        float textCenter = modernLettering ? 5F : font.lineHeight / 2F;
         for (int i = 0; i < count; i++) {
             float center = first + (i + 0.5F) * rowHeight;
             boolean hasArrow = arrows[i] != 0;
             float left = hasArrow && design.leftArrows() ? 43 : 12;
             float right = hasArrow && !design.leftArrows() ? 149 : w - 12;
             String distance = distances[i];
-            float desiredScale = Math.min(1.8F * design.textSize() / 100, (rowHeight-2) / (font.lineHeight+2F));
+            float desiredScale = Math.min(1.8F * design.textSize() / 100, (contentHeight-paddingY*2) / glyphHeight);
             int distanceLength = distance.isEmpty() ? 0 : font.width(label(distance, false));
             float distanceScale = distanceLength == 0 ? 0 : Math.min(desiredScale, Math.min(64, (right-left)*0.4F)/distanceLength);
             float distanceWidth = distanceLength*distanceScale;
@@ -113,9 +137,8 @@ public final class RoadSignGraphics {
             if (!distance.isEmpty()) right -= distanceWidth+8;
             int panel = design.panelColor(i);
             Component label = label(lines[i], design.bold());
-            float glyphHeight = font.lineHeight + 2F;
-            float paddingY = 2F;
-            float availableHeight = rowHeight - 2 - (panel == RoadSignDesign.NO_PANEL ? 0 : paddingY*2);
+            // Reserve panel padding for all rows, so mixed panels retain matching text sizes.
+            float availableHeight = contentHeight - paddingY*2;
             int labelWidth = font.width(label);
             float scale = Math.min(1.8F * design.textSize() / 100,
                     Math.min((right-left)/Math.max(1,labelWidth), availableHeight/glyphHeight));
@@ -133,14 +156,14 @@ public final class RoadSignGraphics {
                         0.2, panelColor(panel));
                 depth = 0.3F;
             }
-            text(lines[i], x, center-font.lineHeight*scale/2, right-left, scale,
+            text(lines[i], x, center-textCenter*scale, right-left, scale,
                     panel == RoadSignDesign.WHITE_PANEL ? 0xFF17252E : panel != RoadSignDesign.NO_PANEL ? 0xFFFFFFFF : ink,
                     design.bold());
             depth = 0.2F;
             if (!distance.isEmpty()) text(distance, distanceRight-distanceWidth,
-                    center-font.lineHeight*distanceScale/2, distanceWidth, distanceScale, ink, false);
+                    center-textCenter*distanceScale, distanceWidth, distanceScale, ink, false);
             arrow(arrows[i], design.leftArrows() ? 25 : 167, center, ink,
-                    Math.min(1F,rowHeight/28) * (arrows[i]==4 || arrows[i]==5 ? 1.18F : 1));
+                    Math.min(1F,contentHeight/28) * (arrows[i]==4 || arrows[i]==5 ? 1.18F : 1));
             if (design.dividers() && i < count - 1) {
                 depth = 0.25F;
                 rect(12, first+(i+1)*rowHeight-0.35F, w-12, first+(i+1)*rowHeight+0.35F, ink);
@@ -150,8 +173,10 @@ public final class RoadSignGraphics {
     }
     private void roundedRect(double x1, double y1, double x2, double y2, double radius, int color) {
         if (radius <= 0) { rect(x1, y1, x2, y2, color); return; }
-        double[][] perimeter = roundedPerimeter(x1, y1, x2, y2, radius);
-        double cx=(x1+x2)/2,cy=(y1+y2)/2;
+        fillPerimeter(roundedPerimeter(x1, y1, x2, y2, radius), color);
+    }
+    private void fillPerimeter(double[][] perimeter, int color) {
+        double cx=(perimeter[0][0]+perimeter[10][0])/2,cy=(perimeter[0][1]+perimeter[10][1])/2;
         for (int i=0;i<perimeter.length;i++) {
             double[] a=perimeter[i],b=perimeter[(i+1)%perimeter.length];
             quad(cx,cy,a[0],a[1],b[0],b[1],b[0],b[1],color);
@@ -161,6 +186,9 @@ public final class RoadSignGraphics {
         double[][] outer = roundedPerimeter(x1, y1, x2, y2, radius);
         double[][] inner = roundedPerimeter(x1 + inset, y1 + inset, x2 - inset, y2 - inset,
                 Math.max(0, radius - inset));
+        borderBetween(outer, inner, color);
+    }
+    private void borderBetween(double[][] outer, double[][] inner, int color) {
         // Border and fill share edges instead of covering the same surface twice.
         for (int i=0;i<outer.length;i++) {
             int next=(i+1)%outer.length;
@@ -169,8 +197,12 @@ public final class RoadSignGraphics {
         }
     }
     private static double[][] roundedPerimeter(double x1, double y1, double x2, double y2, double radius) {
+        return roundedPerimeter(x1, y1, x2, y2, radius, radius);
+    }
+    private static double[][] roundedPerimeter(double x1, double y1, double x2, double y2, double leftRadius, double rightRadius) {
         double[][] perimeter = new double[20][2];
         for (int corner=0;corner<4;corner++) {
+            double radius = corner < 2 ? rightRadius : leftRadius;
             double cx=corner<2?x2-radius:x1+radius,cy=corner==0||corner==3?y1+radius:y2-radius;
             for (int step=0;step<=4;step++) {
                 int i=corner*5+step;
