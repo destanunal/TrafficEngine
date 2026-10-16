@@ -52,6 +52,8 @@ public final class RoadSignGraphics {
     private static final double[] CIRCLE_COS = new double[97], CIRCLE_SIN = new double[97];
     private static final double[] CORNER_COS = new double[20], CORNER_SIN = new double[20];
     private static final double[][] ARROWS = new double[7][14];
+    private static final double[][] ARROW_CENTERS = new double[7][2];
+    private static final float[] ARROW_HEIGHTS = new float[7];
     private static final int[] ICON_VERTICES = {0, 1, 2, 6, 5, 3, 4, 4};
     // Two sizes, three frame styles and four connection masks; built once, reused every frame.
     private static final double[][][][][][] SIGN_FRAMES = new double[2][3][4][][][];
@@ -71,7 +73,19 @@ public final class RoadSignGraphics {
         double[][] points={{-2,12},{2,12},{2,-2},{7,-2},{0,-11},{-7,-2},{-2,-2}};
         for(int direction=0;direction<7;direction++) {
             double angle=switch(direction) {case 2 -> -Math.PI/2;case 3 -> Math.PI/2;case 4 -> -Math.PI/4;case 5 -> Math.PI/4;case 6 -> Math.PI;default -> 0;};
-            for(int i=0;i<points.length;i++) {ARROWS[direction][i*2]=points[i][0]*Math.cos(angle)-points[i][1]*Math.sin(angle);ARROWS[direction][i*2+1]=points[i][0]*Math.sin(angle)+points[i][1]*Math.cos(angle);}
+            double minX = Double.POSITIVE_INFINITY, minY = Double.POSITIVE_INFINITY;
+            double maxX = Double.NEGATIVE_INFINITY, maxY = Double.NEGATIVE_INFINITY;
+            double cos = Math.cos(angle), sin = Math.sin(angle);
+            for (int i = 0; i < points.length; i++) {
+                double x = points[i][0] * cos - points[i][1] * sin;
+                double y = points[i][0] * sin + points[i][1] * cos;
+                ARROWS[direction][i * 2] = x; ARROWS[direction][i * 2 + 1] = y;
+                minX = Math.min(minX, x); maxX = Math.max(maxX, x);
+                minY = Math.min(minY, y); maxY = Math.max(maxY, y);
+            }
+            ARROW_CENTERS[direction][0] = (minX + maxX) / 2;
+            ARROW_CENTERS[direction][1] = (minY + maxY) / 2;
+            ARROW_HEIGHTS[direction] = (float) (maxY - minY);
         }
     }
 
@@ -152,19 +166,39 @@ public final class RoadSignGraphics {
         }
         int count = design.visibleRows(kind == Kind.HIGHWAY);
         float rowHeight = (h - 12F) / count;
-        float contentHeight = rowHeight - 8;
-        float dividerGap = design.dividers() && count > 1 ? 3 : 0;
-        float baseArrowHeight = Math.min(16, Math.max(8, rowHeight * 0.4F - 4));
-        float arrowGrowth = baseArrowHeight * 0.35F;
-        int centeredArrowCount = 0;
-        if (design.centeredArrows()) for (int i = 0; i < count; i++) if (arrows[i] != 0) centeredArrowCount++;
-        // Share the added arrow space equally, then return it to each occupied arrow lane.
-        float sharedRowHeight = rowHeight - centeredArrowCount * arrowGrowth / count;
-        float rowTop = 6 - (count - 1) * dividerGap / 2;
-        float glyphHeight = font.lineHeight + 2F, paddingY = 2;
+        boolean compactDouble = kind == Kind.DIRECTION && count == 2;
+        float glyphHeight = font.lineHeight + 2F, paddingY = compactDouble ? 1.5F : 2, arrowGap = 2;
+        float requestedScale = 1.8F * design.textSize() / 100;
+        int arrowCount = 0;
+        float arrowSpan = 0;
+        for (int i = 0; i < count; i++) if (arrows[i] != 0) {
+            arrowCount++;
+            int direction = arrows[i] >= 0 && arrows[i] < ARROWS.length ? arrows[i] : 1;
+            arrowSpan += compactDouble ? ARROW_HEIGHTS[direction] : 23;
+        }
+        // Reserve divider clearance in both modes, so toggling it never resizes the lettering.
+        float rowGap = compactDouble ? 2 : count > 1 ? 3 : 0;
+        boolean compactSingle = kind == Kind.DIRECTION && count == 1 && design.centeredArrows();
+        float inset = compactSingle ? 9 : compactDouble ? 4 : 6;
+        float availableHeight = h - inset * 2 - (count - 1) * rowGap;
+        float arrowScale = compactSingle ? 21.6F / 23 : Math.min(1F, (rowHeight - 8) / 28) * 1.35F;
+        if (compactDouble && arrowCount > 0) {
+            // Fit text and actual arrow bounds together. Size changes must not hit a fixed text ceiling.
+            float fixedSpacing = count * paddingY * 2 + arrowCount * arrowGap;
+            float desiredHeight = count * glyphHeight * requestedScale + arrowSpan * arrowScale;
+            arrowScale *= Math.min(1F, (availableHeight - fixedSpacing) / desiredHeight);
+        } else if (arrowCount > 0 && !compactSingle) {
+            // Use the same safe size in all three positions, including crowded small signs.
+            float minimumTextHeight = glyphHeight * Math.min(requestedScale, 1F) + paddingY * 2;
+            float maximumArrowHeight = (availableHeight - count * minimumTextHeight - arrowCount * arrowGap) / arrowCount;
+            arrowScale = Math.min(arrowScale, maximumArrowHeight / 23);
+        }
+        float arrowHeight = arrowScale * 23;
+        float textHeight = (availableHeight - (design.centeredArrows() ? arrowSpan * arrowScale + arrowCount * arrowGap : 0)) / count;
+        float sharedScale = Math.min(requestedScale, (textHeight - paddingY * 2) / glyphHeight);
         float minimumPanelHeight = design.alignment() == 1 && count < 3
-                ? Math.min(rowHeight - 4, Math.min(48, Math.max(32, rowHeight * 0.65F))) : 0;
-        float textCenter = 5F;
+                ? Math.min(textHeight, Math.min(rowHeight - 4, Math.min(48, Math.max(32, rowHeight * 0.65F)))) : 0;
+        float rowTop = inset;
         Row[] rows = layout.rows;
         for (int i = 0; i < count; i++) {
             Row row = rows[i];
@@ -172,38 +206,32 @@ public final class RoadSignGraphics {
             row.panel = design.panelColor(i);
             row.group = i;
             row.centerArrow = design.centeredArrows() && arrows[i] != 0;
-            float cellHeight = sharedRowHeight + (row.centerArrow ? arrowGrowth : 0);
+            int direction = arrows[i] >= 0 && arrows[i] < ARROWS.length ? arrows[i] : 1;
+            float rowArrowHeight = compactDouble ? ARROW_HEIGHTS[direction] * arrowScale : arrowHeight;
+            float cellHeight = textHeight + (row.centerArrow ? rowArrowHeight + arrowGap : 0);
             row.center = rowTop + cellHeight / 2;
-            row.dividerY = rowTop + cellHeight + dividerGap / 2;
-            rowTop += cellHeight + dividerGap;
-            row.textCenter = row.center;
-            row.arrowX = design.centeredArrows() ? w / 2F : design.leftArrows() ? 25 : 167;
-            row.arrowScale = Math.min(1F, contentHeight / 28) * 1.35F;
-            row.arrowY = row.center;
-            row.textHeight = sharedRowHeight - 8;
-            row.minimumPanelHeight = Math.min(minimumPanelHeight, sharedRowHeight - 4);
-            if (row.centerArrow) {
-                float arrowHeight = baseArrowHeight * 1.35F;
-                row.arrowScale = arrowHeight / 23;
-                if (!lines[i].isEmpty() || !distances[i].isEmpty()) {
-                    row.textHeight = cellHeight - 6 - arrowHeight - 2;
-                    row.textCenter -= (arrowHeight + 2) / 2;
-                    row.minimumPanelHeight = Math.min(minimumPanelHeight, row.textHeight);
-                    row.arrowY = row.center + (cellHeight - 6 - arrowHeight) / 2 - row.arrowScale / 2;
-                } else row.arrowY -= row.arrowScale / 2;
-            }
+            row.textCenter = rowTop + textHeight / 2;
+            row.dividerY = rowTop + cellHeight + rowGap / 2;
+            row.textHeight = textHeight;
+            row.minimumPanelHeight = minimumPanelHeight;
+            row.arrowScale = arrowScale;
+            double[] offset = ARROW_CENTERS[direction];
+            row.arrowX = design.centeredArrows() ? w / 2F - (float) offset[0] * arrowScale : design.leftArrows() ? 25 : 167;
+            row.arrowY = row.center - (float) offset[1] * arrowScale;
+            if (row.centerArrow && (!lines[i].isEmpty() || !distances[i].isEmpty()))
+                row.arrowY = rowTop + textHeight + arrowGap + rowArrowHeight / 2 - (float) offset[1] * arrowScale;
+            rowTop += cellHeight + rowGap;
             boolean sideArrow = arrows[i] != 0 && !design.centeredArrows();
             row.left = sideArrow && design.leftArrows() ? 48 : 12;
             row.right = sideArrow && !design.leftArrows() ? 144 : w - 12;
             row.distanceRight = row.right;
-            float desiredScale = Math.min(1.8F * design.textSize() / 100, (row.textHeight - paddingY * 2) / glyphHeight);
             int distanceLength = distances[i].isEmpty() ? 0 : font.width(row.distance);
-            row.distanceScale = distanceLength == 0 ? 0 : Math.min(desiredScale, Math.min(64, (row.right - row.left) * 0.4F) / distanceLength);
+            row.distanceScale = distanceLength == 0 ? 0 : Math.min(sharedScale, Math.min(64, (row.right - row.left) * 0.4F) / distanceLength);
             row.distanceWidth = distanceLength * row.distanceScale;
             if (!distances[i].isEmpty()) row.right -= row.distanceWidth + 8;
             row.captionWidth = lines[i].isEmpty() ? 0 : font.width(row.caption);
         }
-        // A fixed three-row workspace is retained by the renderer/editor. No per-frame layout arrays.
+        // Resolve shared columns first, then choose one lettering scale for the whole sign.
         for (int start = 0; start < count;) {
             Row first = rows[start];
             int end = start;
@@ -218,19 +246,27 @@ public final class RoadSignGraphics {
             }
             for (int i = start; i <= end; i++) {
                 Row row = rows[i];
-                row.group = start;
-                row.left = left; row.right = right;
-                row.scale = Math.min(1.8F * design.textSize() / 100,
-                        Math.min((right - left) / Math.max(1, row.captionWidth), (row.textHeight - paddingY * 2) / glyphHeight));
-                float width = row.captionWidth * row.scale;
-                row.x = design.alignment() == 1 ? (left + right - width) / 2
-                        : design.alignment() == 2 ? right - width : left;
-                float panelHeight = Math.max(glyphHeight * row.scale + paddingY * 2, row.minimumPanelHeight);
-                row.panelTop = row.textCenter - panelHeight / 2;
-                row.panelBottom = row.textCenter + panelHeight / 2;
-                row.panelLeft = design.alignment() == 1 ? left - 4 : row.x - 4;
-                row.panelRight = design.alignment() == 1 ? right + 4 : row.x + width + 4;
+                row.group = start; row.left = left; row.right = right;
+                if (row.captionWidth > 0) sharedScale = Math.min(sharedScale, (right - left) / row.captionWidth);
             }
+            start = end + 1;
+        }
+        for (int i = 0; i < count; i++) {
+            Row row = rows[i];
+            row.scale = sharedScale;
+            float width = row.captionWidth * sharedScale;
+            row.x = design.alignment() == 1 ? (row.left + row.right - width) / 2
+                    : design.alignment() == 2 ? row.right - width : row.left;
+            float panelHeight = Math.max(glyphHeight * sharedScale + paddingY * 2, minimumPanelHeight);
+            row.panelTop = row.textCenter - panelHeight / 2;
+            row.panelBottom = row.textCenter + panelHeight / 2;
+            row.panelLeft = design.alignment() == 1 ? row.left - 4 : row.x - 4;
+            row.panelRight = design.alignment() == 1 ? row.right + 4 : row.x + width + 4;
+        }
+        for (int start = 0; start < count;) {
+            Row first = rows[start];
+            int end = start;
+            while (end + 1 < count && rows[end + 1].group == start) end++;
             if (first.panel != RoadSignDesign.NO_PANEL && !lines[start].isEmpty()) {
                 depth = 0.25F;
                 int border = first.panel == RoadSignDesign.WHITE_PANEL ? 0xFF17252E : 0xFFFFFFFF;
@@ -244,11 +280,11 @@ public final class RoadSignGraphics {
             Row row = rows[i];
             boolean panel = row.panel != RoadSignDesign.NO_PANEL && !lines[i].isEmpty();
             depth = panel ? 0.3F : 0.2F;
-            if (!lines[i].isEmpty()) drawText(row.caption, row.x, row.textCenter - textCenter * row.scale, row.scale,
+            if (!lines[i].isEmpty()) drawText(row.caption, row.x, row.textCenter - 5 * sharedScale, sharedScale,
                     row.panel == RoadSignDesign.WHITE_PANEL ? 0xFF17252E : panel ? 0xFFFFFFFF : ink);
             depth = 0.2F;
             if (!distances[i].isEmpty()) drawText(row.distance, row.distanceRight - row.distanceWidth,
-                    row.textCenter - textCenter * row.distanceScale, row.distanceScale, ink);
+                    row.textCenter - 5 * row.distanceScale, row.distanceScale, ink);
             arrow(arrows[i], row.arrowX, row.arrowY, ink, row.arrowScale);
             if (design.dividers() && i < count - 1) {
                 boolean insidePanel = panel && row.group == rows[i + 1].group;
