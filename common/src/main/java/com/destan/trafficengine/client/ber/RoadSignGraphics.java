@@ -126,8 +126,6 @@ public final class RoadSignGraphics {
             return;
         }
         int count = design.visibleRows(kind == Kind.HIGHWAY);
-        int textRows = 0;
-        for (int i = 0; i < count; i++) if (!lines[i].isEmpty()) textRows++;
         // Equal top/bottom margins and row cells keep every layout vertically centered.
         float first = 6;
         float rowHeight = (h - first * 2) / count;
@@ -163,9 +161,9 @@ public final class RoadSignGraphics {
                     : design.alignment() == 2 ? right-textWidth : left;
             if (panel != RoadSignDesign.NO_PANEL && !lines[i].isEmpty()) {
                 depth = 0.25F;
-                // A lone destination gets a wider plaque, still clear of arrows and distance.
-                float panelLeft = textRows == 1 ? left - 4 : x - 4;
-                float panelRight = textRows == 1 ? right + 4 : x + textWidth + 4;
+                // Centered text fills its available plaque width, independently of row count.
+                float panelLeft = design.alignment() == 1 ? left - 4 : x - 4;
+                float panelRight = design.alignment() == 1 ? right + 4 : x + textWidth + 4;
                 float panelTop = center - glyphHeight*scale/2 - paddingY;
                 float panelBottom = center + glyphHeight*scale/2 + paddingY;
                 int border = panel == RoadSignDesign.WHITE_PANEL ? 0xFF17252E : 0xFFFFFFFF;
