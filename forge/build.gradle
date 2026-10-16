@@ -41,10 +41,13 @@ dependencies {
 
     // Keep optional development mods on Loom's runtime classpath so production
     // (obfuscated) jars are remapped before the development client loads them.
-    modLocalRuntime files("run/dev-mods/journeymap-forge-1.20.1-6.0.6.jar")
-    modLocalRuntime files("run/dev-mods/journeymap-api-forge-1.20.1-2.0.0.jar")
-    modLocalRuntime files("run/dev-mods/common-networking-forge-1.0.6-1.20.1.jar")
-    runtimeOnly files("run/dev-mods/pngj-2.1.0.jar")
+    // An absent local dev-mod directory must also work on clean CI checkouts.
+    modLocalRuntime fileTree(dir: "run/dev-mods", includes: [
+        "journeymap-forge-1.20.1-6.0.6.jar",
+        "journeymap-api-forge-1.20.1-2.0.0.jar",
+        "common-networking-forge-1.0.6-1.20.1.jar"
+    ])
+    runtimeOnly fileTree(dir: "run/dev-mods", include: "pngj-2.1.0.jar")
 
     compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:${rootProject.mixin_extras_version}"))
     implementation("io.github.llamalad7:mixinextras-forge:${rootProject.mixin_extras_version}")
@@ -54,12 +57,7 @@ dependencies {
 }
 
 processResources {
-    inputs.property 'version', project.version
     from(rootProject.file('mod_icon.png'))
-
-    filesMatching('META-INF/mods.toml') {
-        expand version: project.version
-    }
 }
 
 shadowJar {

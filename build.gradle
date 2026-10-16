@@ -58,8 +58,9 @@ subprojects {
     }
 
     processResources {
+        // Loader projects set their full version after this shared configuration.
+        def resourceVersion = providers.provider { project.version.toString() }
         def expandProps = [
-            "version": version,
             "minecraft_version": rootProject.minecraft_version,
             "license": rootProject.license,
             "modid": rootProject.archives_name,
@@ -76,9 +77,10 @@ subprojects {
             "java_version": rootProject.java_version
         ]
         filesMatching(['pack.mcmeta', 'fabric.mod.json', 'META-INF/mods.toml']) {
-            expand expandProps
+            expand(expandProps + [version: resourceVersion.get()])
         }
         inputs.properties(expandProps)
+        inputs.property("version", resourceVersion)
         exclude ".cache" // Remove cache from generated data
         // The obsolete editor sheet is not a runtime asset.
         exclude "assets/trafficengine/textures/gui/icons-old.png"
