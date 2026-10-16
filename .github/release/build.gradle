@@ -17,11 +17,13 @@ if (!(loader in (minecraft == '1.20.1' ? ['fabric', 'forge'] : ['fabric', 'neofo
     throw new GradleException('Unsupported loader for this Minecraft version')
 if (!(releaseChannel in ['release', 'beta', 'alpha'])) throw new GradleException('Unsupported release channel')
 
+def distribution = layout.projectDirectory.file(archivePath)
+
 publishMods {
-    file = layout.projectDirectory.file(archivePath)
+    file = distribution
     changelog = providers.fileContents(layout.projectDirectory.file(changelogPath)).asText
     version = releaseVersion + '+' + minecraft + '-' + loader
-    displayName = 'Traffic Engine ' + releaseVersion + ' (' + loader + ', ' + minecraft + ')'
+    displayName = distribution.asFile.name
     type = releaseChannel == 'beta' ? BETA : releaseChannel == 'alpha' ? ALPHA : STABLE
     modLoaders.add(loader)
 
