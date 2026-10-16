@@ -135,6 +135,9 @@ public final class RoadSignGraphics {
         float firstCenter = (h - (count - 1) * rowStep) / 2;
         float glyphHeight = font.lineHeight + 2F;
         float paddingY = 2F;
+        // Centered one- and two-row plaques use more vertical space, within their row.
+        float minimumPanelHeight = design.alignment() == 1 && count < 3
+                ? Math.min(rowHeight - 4, Math.min(48, Math.max(32, rowHeight * 0.65F))) : 0;
         // The road font's optical center differs from Minecraft's 9px bitmap line box.
         float textCenter = modernLettering ? 5F : font.lineHeight / 2F;
         for (int i = 0; i < count; i++) {
@@ -164,8 +167,9 @@ public final class RoadSignGraphics {
                 // Centered text fills its available plaque width, independently of row count.
                 float panelLeft = design.alignment() == 1 ? left - 4 : x - 4;
                 float panelRight = design.alignment() == 1 ? right + 4 : x + textWidth + 4;
-                float panelTop = center - glyphHeight*scale/2 - paddingY;
-                float panelBottom = center + glyphHeight*scale/2 + paddingY;
+                float panelHeight = Math.max(glyphHeight * scale + paddingY * 2, minimumPanelHeight);
+                float panelTop = center - panelHeight / 2;
+                float panelBottom = center + panelHeight / 2;
                 int border = panel == RoadSignDesign.WHITE_PANEL ? 0xFF17252E : 0xFFFFFFFF;
                 roundedBorder(panelLeft, panelTop, panelRight, panelBottom, 0.8, 0.6, border);
                 roundedRect(panelLeft + 0.6, panelTop + 0.6, panelRight - 0.6, panelBottom - 0.6,
