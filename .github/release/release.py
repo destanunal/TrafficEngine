@@ -181,7 +181,8 @@ def main():
         (args.directory / "changelog.md").write_text(notes + "\n", encoding="utf-8")
         output("version", release["version"])
         output("build_matrix", json.dumps({"include": release["builds"]}, separators=(",", ":")))
-        output("publish_matrix", json.dumps({"include": release["uploads"]}, separators=(",", ":")))
+        destinations = list(dict.fromkeys(item["destination"] for item in release["uploads"]))
+        output("publish_destinations", json.dumps(destinations, separators=(",", ":")))
         print("Pinned source commits. All four distributions must pass checks before uploading.")
     else:
         release = json.loads(args.plan.read_text(encoding="utf-8"))

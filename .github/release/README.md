@@ -5,6 +5,10 @@ GitHub Actions içindeki **Publish Traffic Engine** akışı iki kaynak dalını
 - Minecraft 1.20.1: Fabric ve Forge
 - Minecraft 1.21.1: Fabric ve NeoForge
 
+Derlemeler paralel çalışır. Siteye yüklemeler sırayla tamamlanır: **Fabric 1.20.1 → Forge 1.20.1 → Fabric 1.21.1 → NeoForge 1.21.1**. Her adım öncekinin başarıyla bitmesini bekler. Bir yükleme başarısız olursa sonraki adımlar durur; **Re-run failed jobs** ile kaldığı yerden devam eder.
+
+CurseForge dosya listesi yeni yüklemeleri üstte gösterdiği için tamamlanan grubun görünür sırası bunun tersi olabilir.
+
 ## Bir defalık kurulum
 
 1. [Depo anahtarları](https://github.com/destanunal/TrafficEngine/settings/secrets/actions) sayfasını açın.
