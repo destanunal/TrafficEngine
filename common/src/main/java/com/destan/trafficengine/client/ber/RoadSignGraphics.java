@@ -17,7 +17,7 @@ public final class RoadSignGraphics {
     private static final ResourceLocation WHITE = new ResourceLocation("trafficengine", "textures/block/road_sign_white.png");
     private static final ResourceLocation ROAD_FONT = new ResourceLocation("trafficengine", "road_sign");
     private static final net.minecraft.network.chat.Style ROAD_STYLE = net.minecraft.network.chat.Style.EMPTY.withFont(ROAD_FONT);
-    private static final net.minecraft.network.chat.Style ROAD_BOLD_STYLE = ROAD_STYLE.withBold(true);
+    private static final net.minecraft.network.chat.Style ROAD_BOLD_STYLE = net.minecraft.network.chat.Style.EMPTY.withFont(new ResourceLocation("trafficengine", "road_sign_bold"));
     private boolean modernLettering;
     private final PoseStack pose;
     private final MultiBufferSource buffers;
@@ -30,6 +30,7 @@ public final class RoadSignGraphics {
     private static final double[] CIRCLE_COS = new double[97], CIRCLE_SIN = new double[97];
     private static final double[] CORNER_COS = new double[20], CORNER_SIN = new double[20];
     private static final double[][] ARROWS = new double[7][14];
+    private static final int[] ICON_VERTICES = {0, 1, 2, 6, 5, 3, 4, 4};
     // Two sizes, three frame styles and four connection masks; built once, reused every frame.
     private static final double[][][][][][] SIGN_FRAMES = new double[2][3][4][][][];
     static {
@@ -58,6 +59,17 @@ public final class RoadSignGraphics {
     public RoadSignGraphics(PoseStack pose, MultiBufferSource buffers, Font font, int light, boolean world) {
         this.pose = pose; this.buffers = buffers; this.font = font; this.light = light;
         this.world = world;
+    }
+    /** The editor icons reuse the sign arrows, with identical scale in every direction. */
+    public static void drawArrowIcon(PoseStack pose, MultiBufferSource buffers, int direction, float x, float y, int color) {
+        if (direction <= 0 || direction >= ARROWS.length) return;
+        double[] points = ARROWS[direction];
+        VertexConsumer consumer = buffers.getBuffer(RenderType.gui());
+        for (int index : ICON_VERTICES) {
+            float px = x + (float) points[index * 2] * 0.45F;
+            float py = y + (float) points[index * 2 + 1] * 0.45F;
+            consumer.vertex(pose.last().pose(), px, py, 0).color(color).endVertex();
+        }
     }
     public static int width(Kind kind) { return kind == Kind.VARIABLE_SPEED ? 96 : 192; }
     public static int height(Kind kind) { return switch (kind) { case HIGHWAY -> 144; case DIRECTION -> 72; case VARIABLE_SPEED -> 96; }; }
@@ -114,17 +126,21 @@ public final class RoadSignGraphics {
             return;
         }
         int count = design.visibleRows(kind == Kind.HIGHWAY);
+        int textRows = 0;
+        for (int i = 0; i < count; i++) if (!lines[i].isEmpty()) textRows++;
         // Equal top/bottom margins and row cells keep every layout vertically centered.
         float first = 6;
         float rowHeight = (h - first * 2) / count;
-        float rowGap = design.dividers() && count > 1 ? 10 : 8;
-        float contentHeight = rowHeight - rowGap;
+        // Divider toggling preserves the text scale; spread rows symmetrically instead.
+        float contentHeight = rowHeight - 8;
+        float rowStep = rowHeight + (design.dividers() && count > 1 ? 3 : 0);
+        float firstCenter = (h - (count - 1) * rowStep) / 2;
         float glyphHeight = font.lineHeight + 2F;
         float paddingY = 2F;
         // The road font's optical center differs from Minecraft's 9px bitmap line box.
         float textCenter = modernLettering ? 5F : font.lineHeight / 2F;
         for (int i = 0; i < count; i++) {
-            float center = first + (i + 0.5F) * rowHeight;
+            float center = firstCenter + i * rowStep;
             boolean hasArrow = arrows[i] != 0;
             float left = hasArrow && design.leftArrows() ? 43 : 12;
             float right = hasArrow && !design.leftArrows() ? 149 : w - 12;
@@ -147,7 +163,9 @@ public final class RoadSignGraphics {
                     : design.alignment() == 2 ? right-textWidth : left;
             if (panel != RoadSignDesign.NO_PANEL && !lines[i].isEmpty()) {
                 depth = 0.25F;
-                float panelLeft = x - 4, panelRight = x + textWidth + 4;
+                // A lone destination gets a wider plaque, still clear of arrows and distance.
+                float panelLeft = textRows == 1 ? left - 4 : x - 4;
+                float panelRight = textRows == 1 ? right + 4 : x + textWidth + 4;
                 float panelTop = center - glyphHeight*scale/2 - paddingY;
                 float panelBottom = center + glyphHeight*scale/2 + paddingY;
                 int border = panel == RoadSignDesign.WHITE_PANEL ? 0xFF17252E : 0xFFFFFFFF;
@@ -163,10 +181,11 @@ public final class RoadSignGraphics {
             if (!distance.isEmpty()) text(distance, distanceRight-distanceWidth,
                     center-textCenter*distanceScale, distanceWidth, distanceScale, ink, false);
             arrow(arrows[i], design.leftArrows() ? 25 : 167, center, ink,
-                    Math.min(1F,contentHeight/28) * (arrows[i]==4 || arrows[i]==5 ? 1.18F : 1));
+                    Math.min(1F,contentHeight/28));
             if (design.dividers() && i < count - 1) {
                 depth = 0.25F;
-                rect(12, first+(i+1)*rowHeight-0.35F, w-12, first+(i+1)*rowHeight+0.35F, ink);
+                float divider = firstCenter + (i + 0.5F) * rowStep;
+                rect(12, divider - 0.35F, w - 12, divider + 0.35F, ink);
                 depth = 0.2F;
             }
         }
@@ -230,31 +249,13 @@ public final class RoadSignGraphics {
         pose.pushPose(); pose.translate(x, y, depth + 0.1F); pose.scale(scale, scale, 1);
         MultiBufferSource lettering = world ? type -> buffers.getBuffer(RoadSignRenderTypes.lettering(type)) : buffers;
         Font.DisplayMode mode = world ? Font.DisplayMode.POLYGON_OFFSET : Font.DisplayMode.NORMAL;
-        if (bold) drawBold(label, color, lettering, mode);
-        else font.drawInBatch(label, 0, 0, color, false, pose.last().pose(), lettering, mode, 0, light);
+        // The road bold font has its own outlines: one glyph pass, without shifted copies.
+        font.drawInBatch(label, 0, 0, color, false, pose.last().pose(), lettering, mode, 0, light);
         pose.popPose();
         geometryBuffer = null; // Lettering can flush the previous geometry batch.
     }
-    private void drawBold(Component label, int color, MultiBufferSource lettering, Font.DisplayMode mode) {
-        float[] cursor = {0};
-        label.getVisualOrderText().accept((index, style, codePoint) -> {
-            var glyph = net.minecraft.util.FormattedCharSequence.codepoint(codePoint, style.withBold(false));
-            float advance = font.getSplitter().stringWidth(
-                    net.minecraft.util.FormattedCharSequence.codepoint(codePoint, style));
-            float weight = advance - font.getSplitter().stringWidth(glyph);
-            font.drawInBatch(glyph, cursor[0], 0, color, false, pose.last().pose(), lettering, mode, 0, light);
-            if (weight > 0) {
-                // Bitmap glyphs inset their UV edges. A small overlap closes the seam
-                // between the normal and bold copy, while retaining native advances.
-                font.drawInBatch(glyph, cursor[0] + weight * 0.95F, 0, color, false,
-                        pose.last().pose(), lettering, mode, 0, light);
-            }
-            cursor[0] += advance;
-            return true;
-        });
-    }
     private void arrow(int direction, float x, float y, int color) {
-        arrow(direction,x,y,color,direction==4 || direction==5 ? 1.18F : 1);
+        arrow(direction,x,y,color,1);
     }
     private void arrow(int direction, float x, float y, int color,float scale) {
         if (direction == 0) return;
@@ -266,13 +267,14 @@ public final class RoadSignGraphics {
         quad(x1,y1,x2,y1,x2,y2,x1,y2,color);
     }
     private void quad(double x1,double y1,double x2,double y2,double x3,double y3,double x4,double y4,int color) {
+        // Joined borders collapse to lines. Do not submit them: projection rounding can flash pixels.
+        double area=x1*y2-x2*y1+x2*y3-x3*y2+x3*y4-x4*y3+x4*y1-x1*y4;
+        if (Math.abs(area) < 1.0e-8) return;
         if (geometryBuffer == null || geometryDepth != depth) {
             geometryBuffer = buffers.getBuffer(world ? RoadSignRenderTypes.atDepth(depth) : RenderType.text(WHITE));
             geometryDepth = depth;
         }
         VertexConsumer consumer = geometryBuffer;
-        // Use the same winding as BakedGlyph. The world renderer flips the Y axis.
-        double area=x1*y2-x2*y1+x2*y3-x3*y2+x3*y4-x4*y3+x4*y1-x1*y4;
         vertex(consumer,x1,y1,color,0,0);
         if(area>0) {
             vertex(consumer,x4,y4,color,0,1); vertex(consumer,x3,y3,color,1,1); vertex(consumer,x2,y2,color,1,0);

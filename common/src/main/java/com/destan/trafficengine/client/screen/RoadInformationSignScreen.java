@@ -23,7 +23,7 @@ import org.lwjgl.glfw.GLFW;
 /** A local draft with direct choices and the same live preview as the placed sign. */
 public class RoadInformationSignScreen extends ScaledTrafficEngineScreen {
     private static final String KEY="gui.trafficengine.road_sign.";
-    private static final String[] ARROWS={"—","↑","←","→","↖","↗","↓"};
+    private static final String[] ARROWS={"","↑","←","→","↖","↗","↓"};
     private final RoadInformationSignBlockEntity sign;
     private final String[] lines=new String[3];
     private final String[] distances=new String[3];
@@ -109,20 +109,15 @@ public class RoadInformationSignScreen extends ScaledTrafficEngineScreen {
                     b->togglePanelMenu(row)).selected(design.panelColor(i)!=RoadSignDesign.NO_PANEL));
             for(int j=0;j<ARROWS.length;j++) {
                 final int arrow=j;
-                if (j==4 || j==5) {
-                    addRenderableWidget(new TEButton(left+20+j*36,top+120+i*70,30,22,Component.literal(ARROWS[j]),
-                            b->{arrows[row]=arrow;selectedRow=row;refreshEditor();}) {
-                        @Override protected void renderLabel(GuiGraphics g,int color) {
-                            g.pose().pushPose();
-                            g.pose().translate(getX()+getWidth()/2F,getY()+getHeight()/2F,0);
-                            g.pose().scale(1.45F,1.45F,1);
-                            g.drawString(font,getMessage(),-font.width(getMessage())/2,-font.lineHeight/2,color,false);
-                            g.pose().popPose();
-                        }
-                    }.selected(arrows[i]==j));
-                } else {
-                    choice(left+20+j*36,top+120+i*70,30,Component.literal(ARROWS[j]),arrows[i]==j,()->{arrows[row]=arrow;selectedRow=row;});
-                }
+                TEButton button = addRenderableWidget(new TEButton(left+20+j*36,top+120+i*70,30,22,
+                        arrow == 0 ? text("panel.none") : Component.literal(ARROWS[j]),
+                        b->{arrows[row]=arrow;selectedRow=row;refreshEditor();}) {
+                    @Override protected void renderLabel(GuiGraphics g,int color) {
+                        RoadSignGraphics.drawArrowIcon(g.pose(),g.bufferSource(),arrow,
+                                getX()+getWidth()/2F,getY()+getHeight()/2F,color);
+                    }
+                }.selected(arrows[i]==j));
+                if (arrow == 0) button.setTooltip(net.minecraft.client.gui.components.Tooltip.create(text("panel.none")));
             }
         }
         setInitialFocus(fields[Math.min(selectedRow,count-1)]);
