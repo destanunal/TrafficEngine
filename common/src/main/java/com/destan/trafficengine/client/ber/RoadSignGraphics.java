@@ -28,7 +28,7 @@ public final class RoadSignGraphics {
         boolean centerArrow, cachedBold;
         String captionValue, distanceValue;
         Component caption, distance;
-        float center, textCenter, textHeight, minimumPanelHeight, left, right, x, scale;
+        float center, dividerY, textCenter, textHeight, minimumPanelHeight, left, right, x, scale;
         float distanceRight, distanceScale, distanceWidth, arrowX, arrowY, arrowScale;
         float panelLeft, panelRight, panelTop, panelBottom;
         void updateLabels(String value, String km, boolean bold) {
@@ -153,8 +153,14 @@ public final class RoadSignGraphics {
         int count = design.visibleRows(kind == Kind.HIGHWAY);
         float rowHeight = (h - 12F) / count;
         float contentHeight = rowHeight - 8;
-        float rowStep = rowHeight + (design.dividers() && count > 1 ? 3 : 0);
-        float firstCenter = (h - (count - 1) * rowStep) / 2;
+        float dividerGap = design.dividers() && count > 1 ? 3 : 0;
+        float baseArrowHeight = Math.min(16, Math.max(8, rowHeight * 0.4F - 4));
+        float arrowGrowth = baseArrowHeight * 0.35F;
+        int centeredArrowCount = 0;
+        if (design.centeredArrows()) for (int i = 0; i < count; i++) if (arrows[i] != 0) centeredArrowCount++;
+        // Share the added arrow space equally, then return it to each occupied arrow lane.
+        float sharedRowHeight = rowHeight - centeredArrowCount * arrowGrowth / count;
+        float rowTop = 6 - (count - 1) * dividerGap / 2;
         float glyphHeight = font.lineHeight + 2F, paddingY = 2;
         float minimumPanelHeight = design.alignment() == 1 && count < 3
                 ? Math.min(rowHeight - 4, Math.min(48, Math.max(32, rowHeight * 0.65F))) : 0;
@@ -165,27 +171,30 @@ public final class RoadSignGraphics {
             row.updateLabels(lines[i], distances[i], design.bold());
             row.panel = design.panelColor(i);
             row.group = i;
-            row.center = firstCenter + i * rowStep;
-            row.textCenter = row.center;
             row.centerArrow = design.centeredArrows() && arrows[i] != 0;
+            float cellHeight = sharedRowHeight + (row.centerArrow ? arrowGrowth : 0);
+            row.center = rowTop + cellHeight / 2;
+            row.dividerY = rowTop + cellHeight + dividerGap / 2;
+            rowTop += cellHeight + dividerGap;
+            row.textCenter = row.center;
             row.arrowX = design.centeredArrows() ? w / 2F : design.leftArrows() ? 25 : 167;
-            row.arrowScale = Math.min(1F, contentHeight / 28);
+            row.arrowScale = Math.min(1F, contentHeight / 28) * 1.35F;
             row.arrowY = row.center;
-            row.textHeight = contentHeight;
-            row.minimumPanelHeight = minimumPanelHeight;
+            row.textHeight = sharedRowHeight - 8;
+            row.minimumPanelHeight = Math.min(minimumPanelHeight, sharedRowHeight - 4);
             if (row.centerArrow) {
-                float arrowHeight = Math.min(16, Math.max(8, rowHeight * 0.4F - 4));
+                float arrowHeight = baseArrowHeight * 1.35F;
                 row.arrowScale = arrowHeight / 23;
                 if (!lines[i].isEmpty() || !distances[i].isEmpty()) {
-                    row.textHeight = rowHeight - 6 - arrowHeight - 2;
+                    row.textHeight = cellHeight - 6 - arrowHeight - 2;
                     row.textCenter -= (arrowHeight + 2) / 2;
                     row.minimumPanelHeight = Math.min(minimumPanelHeight, row.textHeight);
-                    row.arrowY = row.center + (rowHeight - 6 - arrowHeight) / 2 - row.arrowScale / 2;
+                    row.arrowY = row.center + (cellHeight - 6 - arrowHeight) / 2 - row.arrowScale / 2;
                 } else row.arrowY -= row.arrowScale / 2;
             }
             boolean sideArrow = arrows[i] != 0 && !design.centeredArrows();
-            row.left = sideArrow && design.leftArrows() ? 43 : 12;
-            row.right = sideArrow && !design.leftArrows() ? 149 : w - 12;
+            row.left = sideArrow && design.leftArrows() ? 48 : 12;
+            row.right = sideArrow && !design.leftArrows() ? 144 : w - 12;
             row.distanceRight = row.right;
             float desiredScale = Math.min(1.8F * design.textSize() / 100, (row.textHeight - paddingY * 2) / glyphHeight);
             int distanceLength = distances[i].isEmpty() ? 0 : font.width(row.distance);
@@ -244,7 +253,7 @@ public final class RoadSignGraphics {
             if (design.dividers() && i < count - 1) {
                 boolean insidePanel = panel && row.group == rows[i + 1].group;
                 depth = insidePanel ? 0.3F : 0.25F;
-                float divider = row.center + rowStep / 2;
+                float divider = row.dividerY;
                 rect(insidePanel ? row.panelLeft + 4 : 12, divider - 0.35F,
                         insidePanel ? row.panelRight - 4 : w - 12, divider + 0.35F,
                         insidePanel && row.panel == RoadSignDesign.WHITE_PANEL ? 0xFF17252E : ink);
