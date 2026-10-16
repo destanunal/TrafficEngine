@@ -36,6 +36,7 @@ public class RoadInformationSignScreen extends ScaledTrafficEngineScreen {
     private static final int PANEL_MENU_WIDTH=100,PANEL_MENU_HEIGHT=108;
     private EditBox speedInput;
     private RoadSignDesign design;
+    private final RoadSignGraphics.Layout previewLayout = new RoadSignGraphics.Layout();
     private int theme,speed,tab,selectedRow;
     private boolean enabled,saved,discard;
     private int previewX,previewWidth;
@@ -57,8 +58,8 @@ public class RoadInformationSignScreen extends ScaledTrafficEngineScreen {
         box.setMaxLength(max);box.setValue(value);box.setResponder(respond);
         if(row>=0)fields[row]=box;
     }
-    private void updateDesign(int rows,int alignment,int size,int ink,int frame,boolean bold,boolean leftArrows,boolean dividers) {
-        design=new RoadSignDesign(rows,alignment,size,ink,frame,bold,leftArrows,dividers,design.panelColors());
+    private void updateDesign(int rows,int alignment,int size,int ink,int frame,boolean bold,int arrowPosition,boolean dividers) {
+        design=new RoadSignDesign(rows,alignment,size,ink,frame,bold,arrowPosition,dividers,design.panelColors());
     }
 
     @Override protected void initEditor() {
@@ -184,14 +185,14 @@ public class RoadInformationSignScreen extends ScaledTrafficEngineScreen {
         }
         for(int i=0;i<4;i++) {
             final int value=i;
-            choice(left+20+i*65,top+183,59,text("ink."+i),design.ink()==i,()->updateDesign(design.rows(),design.alignment(),design.textSize(),value,design.frame(),design.bold(),design.leftArrows(),design.dividers()));
+            choice(left+20+i*65,top+183,59,text("ink."+i),design.ink()==i,()->updateDesign(design.rows(),design.alignment(),design.textSize(),value,design.frame(),design.bold(),design.arrowPosition(),design.dividers()));
         }
         for(int i=0;i<3;i++) {
             final int value=i;
-            choice(left+20+i*86,top+225,80,text("frame."+i),design.frame()==i,()->updateDesign(design.rows(),design.alignment(),design.textSize(),design.ink(),value,design.bold(),design.leftArrows(),design.dividers()));
+            choice(left+20+i*86,top+225,80,text("frame."+i),design.frame()==i,()->updateDesign(design.rows(),design.alignment(),design.textSize(),design.ink(),value,design.bold(),design.arrowPosition(),design.dividers()));
         }
-        choice(left+20,top+267,122,text(design.bold()?"bold.on":"bold.off"),design.bold(),()->updateDesign(design.rows(),design.alignment(),design.textSize(),design.ink(),design.frame(),!design.bold(),design.leftArrows(),design.dividers()));
-        choice(left+150,top+267,122,text(design.dividers()?"dividers.on":"dividers.off"),design.dividers(),()->updateDesign(design.rows(),design.alignment(),design.textSize(),design.ink(),design.frame(),design.bold(),design.leftArrows(),!design.dividers()));
+        choice(left+20,top+267,122,text(design.bold()?"bold.on":"bold.off"),design.bold(),()->updateDesign(design.rows(),design.alignment(),design.textSize(),design.ink(),design.frame(),!design.bold(),design.arrowPosition(),design.dividers()));
+        choice(left+150,top+267,122,text(design.dividers()?"dividers.on":"dividers.off"),design.dividers(),()->updateDesign(design.rows(),design.alignment(),design.textSize(),design.ink(),design.frame(),design.bold(),design.arrowPosition(),!design.dividers()));
     }
 
     private void initLayout() {
@@ -206,17 +207,23 @@ public class RoadInformationSignScreen extends ScaledTrafficEngineScreen {
         int count=sign.kind()==Kind.HIGHWAY?3:2;
         for(int i=1;i<=count;i++) {
             final int value=i;
-            choice(left+20+(i-1)*86,top+141,80,Component.translatable(KEY+"rows.value",i),design.visibleRows(sign.kind()==Kind.HIGHWAY)==i,()->updateDesign(value,design.alignment(),design.textSize(),design.ink(),design.frame(),design.bold(),design.leftArrows(),design.dividers()));
+            choice(left+20+(i-1)*86,top+141,80,Component.translatable(KEY+"rows.value",i),design.visibleRows(sign.kind()==Kind.HIGHWAY)==i,()->updateDesign(value,design.alignment(),design.textSize(),design.ink(),design.frame(),design.bold(),design.arrowPosition(),design.dividers()));
         }
         for(int i=0;i<3;i++) {
             final int value=i;
-            choice(left+20+i*86,top+186,80,text("align."+i),design.alignment()==i,()->updateDesign(design.rows(),value,design.textSize(),design.ink(),design.frame(),design.bold(),design.leftArrows(),design.dividers()));
+            choice(left+20+i*86,top+186,80,text("align."+i),design.alignment()==i,()->updateDesign(design.rows(),value,design.textSize(),design.ink(),design.frame(),design.bold(),design.arrowPosition(),design.dividers()));
         }
-        choice(left+20,top+231,34,Component.literal("−"),false,()->updateDesign(design.rows(),design.alignment(),design.textSize()-5,design.ink(),design.frame(),design.bold(),design.leftArrows(),design.dividers()));
+        choice(left+20,top+231,34,Component.literal("−"),false,()->updateDesign(design.rows(),design.alignment(),design.textSize()-5,design.ink(),design.frame(),design.bold(),design.arrowPosition(),design.dividers()));
         addRenderableWidget(new TEButton(left+60,top+231,172,22,Component.literal(design.textSize()+"%"),b->{})).active=false;
-        choice(left+238,top+231,34,Component.literal("+"),false,()->updateDesign(design.rows(),design.alignment(),design.textSize()+5,design.ink(),design.frame(),design.bold(),design.leftArrows(),design.dividers()));
-        choice(left+20,top+273,122,text("arrows.left"),design.leftArrows(),()->updateDesign(design.rows(),design.alignment(),design.textSize(),design.ink(),design.frame(),design.bold(),true,design.dividers()));
-        choice(left+150,top+273,122,text("arrows.right"),!design.leftArrows(),()->updateDesign(design.rows(),design.alignment(),design.textSize(),design.ink(),design.frame(),design.bold(),false,design.dividers()));
+        choice(left+238,top+231,34,Component.literal("+"),false,()->updateDesign(design.rows(),design.alignment(),design.textSize()+5,design.ink(),design.frame(),design.bold(),design.arrowPosition(),design.dividers()));
+        for (int i = RoadSignDesign.ARROWS_LEFT; i <= RoadSignDesign.ARROWS_RIGHT; i++) {
+            final int position = i;
+            String key = i == RoadSignDesign.ARROWS_LEFT ? "arrows.left"
+                    : i == RoadSignDesign.ARROWS_CENTER ? "arrows.center" : "arrows.right";
+            choice(left+20+i*86,top+273,80,text(key),design.arrowPosition()==i,
+                    ()->updateDesign(design.rows(),design.alignment(),design.textSize(),design.ink(),design.frame(),
+                            design.bold(),position,design.dividers()));
+        }
     }
 
     @Override public void render(GuiGraphics g,int mx,int my,float tick) {
@@ -239,7 +246,7 @@ public class RoadInformationSignScreen extends ScaledTrafficEngineScreen {
         previewLeft=previewX+(previewWidth-RoadSignGraphics.width(sign.kind())*previewScale)/2;
         previewTop=top+99+(194-RoadSignGraphics.height(sign.kind())*previewScale)/2;
         g.pose().translate(previewLeft,previewTop,150);g.pose().scale(previewScale,previewScale,1);
-        new RoadSignGraphics(g.pose(),g.bufferSource(),font,LightTexture.FULL_BRIGHT).draw(sign.kind(),lines,arrows,distances,"",theme,speed,enabled,design);
+        new RoadSignGraphics(g.pose(),g.bufferSource(),font,LightTexture.FULL_BRIGHT,false,previewLayout).draw(sign.kind(),lines,arrows,distances,"",theme,speed,enabled,design);
         g.flush();g.pose().popPose();
         if(panelMenuRow>=0) {
             g.pose().pushPose();g.pose().translate(0,0,300);

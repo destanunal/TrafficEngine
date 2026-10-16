@@ -19,6 +19,28 @@ public final class RoadSignGraphics {
     private static final net.minecraft.network.chat.Style ROAD_STYLE = net.minecraft.network.chat.Style.EMPTY.withFont(ROAD_FONT);
     private static final net.minecraft.network.chat.Style ROAD_BOLD_STYLE = net.minecraft.network.chat.Style.EMPTY.withFont(new ResourceLocation("trafficengine", "road_sign_bold"));
     private boolean modernLettering;
+    private final Layout layout;
+    public static final class Layout {
+        private final Row[] rows = {new Row(), new Row(), new Row()};
+    }
+    private static final class Row {
+        int panel, group, captionWidth;
+        boolean centerArrow, cachedBold;
+        String captionValue, distanceValue;
+        Component caption, distance;
+        float center, textCenter, textHeight, minimumPanelHeight, left, right, x, scale;
+        float distanceRight, distanceScale, distanceWidth, arrowX, arrowY, arrowScale;
+        float panelLeft, panelRight, panelTop, panelBottom;
+        void updateLabels(String value, String km, boolean bold) {
+            if (!value.equals(captionValue) || bold != cachedBold) {
+                captionValue = value; cachedBold = bold;
+                caption = Component.literal(value).setStyle(bold ? ROAD_BOLD_STYLE : ROAD_STYLE);
+            }
+            if (!km.equals(distanceValue)) {
+                distanceValue = km; distance = Component.literal(km).setStyle(ROAD_STYLE);
+            }
+        }
+    }
     private final PoseStack pose;
     private final MultiBufferSource buffers;
     private final Font font;
@@ -57,8 +79,11 @@ public final class RoadSignGraphics {
         this(pose, buffers, font, light, false);
     }
     public RoadSignGraphics(PoseStack pose, MultiBufferSource buffers, Font font, int light, boolean world) {
+        this(pose, buffers, font, light, world, new Layout());
+    }
+    public RoadSignGraphics(PoseStack pose, MultiBufferSource buffers, Font font, int light, boolean world, Layout layout) {
         this.pose = pose; this.buffers = buffers; this.font = font; this.light = light;
-        this.world = world;
+        this.world = world; this.layout = layout;
     }
     /** The editor icons reuse the sign arrows, with identical scale in every direction. */
     public static void drawArrowIcon(PoseStack pose, MultiBufferSource buffers, int direction, float x, float y, int color) {
@@ -126,72 +151,108 @@ public final class RoadSignGraphics {
             return;
         }
         int count = design.visibleRows(kind == Kind.HIGHWAY);
-        // Equal top/bottom margins and row cells keep every layout vertically centered.
-        float first = 6;
-        float rowHeight = (h - first * 2) / count;
-        // Divider toggling preserves the text scale; spread rows symmetrically instead.
+        float rowHeight = (h - 12F) / count;
         float contentHeight = rowHeight - 8;
         float rowStep = rowHeight + (design.dividers() && count > 1 ? 3 : 0);
         float firstCenter = (h - (count - 1) * rowStep) / 2;
-        float glyphHeight = font.lineHeight + 2F;
-        float paddingY = 2F;
-        // Centered one- and two-row plaques use more vertical space, within their row.
+        float glyphHeight = font.lineHeight + 2F, paddingY = 2;
         float minimumPanelHeight = design.alignment() == 1 && count < 3
                 ? Math.min(rowHeight - 4, Math.min(48, Math.max(32, rowHeight * 0.65F))) : 0;
-        // The road font's optical center differs from Minecraft's 9px bitmap line box.
-        float textCenter = modernLettering ? 5F : font.lineHeight / 2F;
+        float textCenter = 5F;
+        Row[] rows = layout.rows;
         for (int i = 0; i < count; i++) {
-            float center = firstCenter + i * rowStep;
-            boolean hasArrow = arrows[i] != 0;
-            float left = hasArrow && design.leftArrows() ? 43 : 12;
-            float right = hasArrow && !design.leftArrows() ? 149 : w - 12;
-            String distance = distances[i];
-            float desiredScale = Math.min(1.8F * design.textSize() / 100, (contentHeight-paddingY*2) / glyphHeight);
-            int distanceLength = distance.isEmpty() ? 0 : font.width(label(distance, false));
-            float distanceScale = distanceLength == 0 ? 0 : Math.min(desiredScale, Math.min(64, (right-left)*0.4F)/distanceLength);
-            float distanceWidth = distanceLength*distanceScale;
-            float distanceRight = right;
-            if (!distance.isEmpty()) right -= distanceWidth+8;
-            int panel = design.panelColor(i);
-            Component label = label(lines[i], design.bold());
-            // Reserve panel padding for all rows, so mixed panels retain matching text sizes.
-            float availableHeight = contentHeight - paddingY*2;
-            int labelWidth = font.width(label);
-            float scale = Math.min(1.8F * design.textSize() / 100,
-                    Math.min((right-left)/Math.max(1,labelWidth), availableHeight/glyphHeight));
-            float textWidth = labelWidth * scale;
-            float x = design.alignment() == 1 ? (left + right - textWidth) / 2
-                    : design.alignment() == 2 ? right-textWidth : left;
-            if (panel != RoadSignDesign.NO_PANEL && !lines[i].isEmpty()) {
-                depth = 0.25F;
-                // Centered text fills its available plaque width, independently of row count.
-                float panelLeft = design.alignment() == 1 ? left - 4 : x - 4;
-                float panelRight = design.alignment() == 1 ? right + 4 : x + textWidth + 4;
-                float panelHeight = Math.max(glyphHeight * scale + paddingY * 2, minimumPanelHeight);
-                float panelTop = center - panelHeight / 2;
-                float panelBottom = center + panelHeight / 2;
-                int border = panel == RoadSignDesign.WHITE_PANEL ? 0xFF17252E : 0xFFFFFFFF;
-                roundedBorder(panelLeft, panelTop, panelRight, panelBottom, 0.8, 0.6, border);
-                roundedRect(panelLeft + 0.6, panelTop + 0.6, panelRight - 0.6, panelBottom - 0.6,
-                        0.2, panelColor(panel));
-                depth = 0.3F;
+            Row row = rows[i];
+            row.updateLabels(lines[i], distances[i], design.bold());
+            row.panel = design.panelColor(i);
+            row.group = i;
+            row.center = firstCenter + i * rowStep;
+            row.textCenter = row.center;
+            row.centerArrow = design.centeredArrows() && arrows[i] != 0;
+            row.arrowX = design.centeredArrows() ? w / 2F : design.leftArrows() ? 25 : 167;
+            row.arrowScale = Math.min(1F, contentHeight / 28);
+            row.arrowY = row.center;
+            row.textHeight = contentHeight;
+            row.minimumPanelHeight = minimumPanelHeight;
+            if (row.centerArrow) {
+                float arrowHeight = Math.min(16, Math.max(8, rowHeight * 0.4F - 4));
+                row.arrowScale = arrowHeight / 23;
+                if (!lines[i].isEmpty() || !distances[i].isEmpty()) {
+                    row.textHeight = rowHeight - 6 - arrowHeight - 2;
+                    row.textCenter -= (arrowHeight + 2) / 2;
+                    row.minimumPanelHeight = Math.min(minimumPanelHeight, row.textHeight);
+                    row.arrowY = row.center + (rowHeight - 6 - arrowHeight) / 2 - row.arrowScale / 2;
+                } else row.arrowY -= row.arrowScale / 2;
             }
-            text(lines[i], x, center-textCenter*scale, right-left, scale,
-                    panel == RoadSignDesign.WHITE_PANEL ? 0xFF17252E : panel != RoadSignDesign.NO_PANEL ? 0xFFFFFFFF : ink,
-                    design.bold());
-            depth = 0.2F;
-            if (!distance.isEmpty()) text(distance, distanceRight-distanceWidth,
-                    center-textCenter*distanceScale, distanceWidth, distanceScale, ink, false);
-            arrow(arrows[i], design.leftArrows() ? 25 : 167, center, ink,
-                    Math.min(1F,contentHeight/28));
-            if (design.dividers() && i < count - 1) {
+            boolean sideArrow = arrows[i] != 0 && !design.centeredArrows();
+            row.left = sideArrow && design.leftArrows() ? 43 : 12;
+            row.right = sideArrow && !design.leftArrows() ? 149 : w - 12;
+            row.distanceRight = row.right;
+            float desiredScale = Math.min(1.8F * design.textSize() / 100, (row.textHeight - paddingY * 2) / glyphHeight);
+            int distanceLength = distances[i].isEmpty() ? 0 : font.width(row.distance);
+            row.distanceScale = distanceLength == 0 ? 0 : Math.min(desiredScale, Math.min(64, (row.right - row.left) * 0.4F) / distanceLength);
+            row.distanceWidth = distanceLength * row.distanceScale;
+            if (!distances[i].isEmpty()) row.right -= row.distanceWidth + 8;
+            row.captionWidth = lines[i].isEmpty() ? 0 : font.width(row.caption);
+        }
+        // A fixed three-row workspace is retained by the renderer/editor. No per-frame layout arrays.
+        for (int start = 0; start < count;) {
+            Row first = rows[start];
+            int end = start;
+            if (design.alignment() == 1 && first.panel != RoadSignDesign.NO_PANEL && !lines[start].isEmpty()) {
+                while (end + 1 < count && rows[end + 1].panel == first.panel && !lines[end + 1].isEmpty()
+                        && !rows[end].centerArrow) end++;
+            }
+            float left = first.left, right = first.right;
+            for (int i = start + 1; i <= end; i++) {
+                left = Math.max(left, rows[i].left);
+                right = Math.min(right, rows[i].right);
+            }
+            for (int i = start; i <= end; i++) {
+                Row row = rows[i];
+                row.group = start;
+                row.left = left; row.right = right;
+                row.scale = Math.min(1.8F * design.textSize() / 100,
+                        Math.min((right - left) / Math.max(1, row.captionWidth), (row.textHeight - paddingY * 2) / glyphHeight));
+                float width = row.captionWidth * row.scale;
+                row.x = design.alignment() == 1 ? (left + right - width) / 2
+                        : design.alignment() == 2 ? right - width : left;
+                float panelHeight = Math.max(glyphHeight * row.scale + paddingY * 2, row.minimumPanelHeight);
+                row.panelTop = row.textCenter - panelHeight / 2;
+                row.panelBottom = row.textCenter + panelHeight / 2;
+                row.panelLeft = design.alignment() == 1 ? left - 4 : row.x - 4;
+                row.panelRight = design.alignment() == 1 ? right + 4 : row.x + width + 4;
+            }
+            if (first.panel != RoadSignDesign.NO_PANEL && !lines[start].isEmpty()) {
                 depth = 0.25F;
-                float divider = firstCenter + (i + 0.5F) * rowStep;
-                rect(12, divider - 0.35F, w - 12, divider + 0.35F, ink);
+                int border = first.panel == RoadSignDesign.WHITE_PANEL ? 0xFF17252E : 0xFFFFFFFF;
+                roundedBorder(first.panelLeft, first.panelTop, first.panelRight, rows[end].panelBottom, 0.8, 0.6, border);
+                roundedRect(first.panelLeft + 0.6, first.panelTop + 0.6, first.panelRight - 0.6,
+                        rows[end].panelBottom - 0.6, 0.2, panelColor(first.panel));
+            }
+            start = end + 1;
+        }
+        for (int i = 0; i < count; i++) {
+            Row row = rows[i];
+            boolean panel = row.panel != RoadSignDesign.NO_PANEL && !lines[i].isEmpty();
+            depth = panel ? 0.3F : 0.2F;
+            if (!lines[i].isEmpty()) drawText(row.caption, row.x, row.textCenter - textCenter * row.scale, row.scale,
+                    row.panel == RoadSignDesign.WHITE_PANEL ? 0xFF17252E : panel ? 0xFFFFFFFF : ink);
+            depth = 0.2F;
+            if (!distances[i].isEmpty()) drawText(row.distance, row.distanceRight - row.distanceWidth,
+                    row.textCenter - textCenter * row.distanceScale, row.distanceScale, ink);
+            arrow(arrows[i], row.arrowX, row.arrowY, ink, row.arrowScale);
+            if (design.dividers() && i < count - 1) {
+                boolean insidePanel = panel && row.group == rows[i + 1].group;
+                depth = insidePanel ? 0.3F : 0.25F;
+                float divider = row.center + rowStep / 2;
+                rect(insidePanel ? row.panelLeft + 4 : 12, divider - 0.35F,
+                        insidePanel ? row.panelRight - 4 : w - 12, divider + 0.35F,
+                        insidePanel && row.panel == RoadSignDesign.WHITE_PANEL ? 0xFF17252E : ink);
                 depth = 0.2F;
             }
         }
     }
+
     private void roundedRect(double x1, double y1, double x2, double y2, double radius, int color) {
         if (radius <= 0) { rect(x1, y1, x2, y2, color); return; }
         fillPerimeter(roundedPerimeter(x1, y1, x2, y2, radius), color);
@@ -248,6 +309,9 @@ public final class RoadSignGraphics {
         if (value.isEmpty()) return;
         Component label = label(value, bold);
         float scale = Math.min(requestedScale, available / Math.max(1, font.width(label)));
+        drawText(label, x, y, scale, color);
+    }
+    private void drawText(Component label, float x, float y, float scale, int color) {
         pose.pushPose(); pose.translate(x, y, depth + 0.1F); pose.scale(scale, scale, 1);
         MultiBufferSource lettering = world ? type -> buffers.getBuffer(RoadSignRenderTypes.lettering(type)) : buffers;
         Font.DisplayMode mode = world ? Font.DisplayMode.POLYGON_OFFSET : Font.DisplayMode.NORMAL;
