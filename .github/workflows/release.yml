@@ -82,7 +82,7 @@ jobs:
     outputs:
       version: ${{ steps.plan.outputs.version }}
       build_matrix: ${{ steps.plan.outputs.build_matrix }}
-      publish_matrix: ${{ steps.plan.outputs.publish_matrix }}
+      publish_destinations: ${{ steps.plan.outputs.publish_destinations }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -159,57 +159,63 @@ jobs:
           compression-level: 0
           if-no-files-found: error
 
-  publish:
-    name: Upload ${{ matrix.minecraft }} ${{ matrix.loader }} to ${{ matrix.destination }}
+
+  publish_fabric_120:
+    name: "1/4 Fabric 1.20.1"
     if: ${{ inputs.mode == 'publish' }}
     needs: [prepare, build]
-    runs-on: ubuntu-24.04
-    timeout-minutes: 20
-    strategy:
-      fail-fast: false
-      max-parallel: 4
-      matrix: ${{ fromJSON(needs.prepare.outputs.publish_matrix) }}
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          ref: ${{ github.sha }}
-          persist-credentials: false
-      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
-        with:
-          name: release-plan
-          path: release-plan
-          digest-mismatch: error
-      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
-        with:
-          name: trafficengine-${{ needs.prepare.outputs.version }}-${{ matrix.minecraft }}
-          path: release-input
-          digest-mismatch: error
-      - name: Recheck the exact distribution before uploading
-        id: distribution
-        env:
-          MINECRAFT: ${{ matrix.minecraft }}
-          LOADER: ${{ matrix.loader }}
-        run: >-
-          python3 -B .github/release/release.py verify
-          --directory release-input --plan release-plan/plan.json
-          --minecraft "$MINECRAFT" --loader "$LOADER"
-      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
-        with:
-          distribution: temurin
-          java-version: '21'
-      - uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
-      - name: Upload this file to the selected site
-        env:
-          DESTINATION: ${{ matrix.destination }}
-          MINECRAFT: ${{ matrix.minecraft }}
-          LOADER: ${{ matrix.loader }}
-          RELEASE_VERSION: ${{ needs.prepare.outputs.version }}
-          RELEASE_CHANNEL: ${{ inputs.channel }}
-          RELEASE_ARCHIVE: ${{ steps.distribution.outputs.artifact }}
-          CURSEFORGE_TOKEN: ${{ matrix.destination == 'curseforge' && secrets.CURSEFORGE_TOKEN || '' }}
-          MODRINTH_TOKEN: ${{ matrix.destination == 'modrinth' && secrets.MODRINTH_TOKEN || '' }}
-        run: |
-          bash ./gradlew --project-dir .github/release publishMods --no-daemon --stacktrace \
-            "-Pdestination=$DESTINATION" "-Pminecraft=$MINECRAFT" "-Ploader=$LOADER" \
-            "-PreleaseVersion=$RELEASE_VERSION" "-PreleaseChannel=$RELEASE_CHANNEL" \
-            "-PartifactPath=$RELEASE_ARCHIVE" "-PchangelogPath=$GITHUB_WORKSPACE/release-plan/changelog.md"
+    uses: ./.github/workflows/publish-distribution.yml
+    with:
+      version: ${{ needs.prepare.outputs.version }}
+      channel: ${{ inputs.channel }}
+      minecraft: '1.20.1'
+      loader: fabric
+      destinations: ${{ needs.prepare.outputs.publish_destinations }}
+    secrets:
+      CURSEFORGE_TOKEN: ${{ inputs.targets != 'modrinth' && secrets.CURSEFORGE_TOKEN || '' }}
+      MODRINTH_TOKEN: ${{ inputs.targets != 'curseforge' && secrets.MODRINTH_TOKEN || '' }}
+
+  publish_forge_120:
+    name: "2/4 Forge 1.20.1"
+    if: ${{ inputs.mode == 'publish' }}
+    needs: [prepare, publish_fabric_120]
+    uses: ./.github/workflows/publish-distribution.yml
+    with:
+      version: ${{ needs.prepare.outputs.version }}
+      channel: ${{ inputs.channel }}
+      minecraft: '1.20.1'
+      loader: forge
+      destinations: ${{ needs.prepare.outputs.publish_destinations }}
+    secrets:
+      CURSEFORGE_TOKEN: ${{ inputs.targets != 'modrinth' && secrets.CURSEFORGE_TOKEN || '' }}
+      MODRINTH_TOKEN: ${{ inputs.targets != 'curseforge' && secrets.MODRINTH_TOKEN || '' }}
+
+  publish_fabric_121:
+    name: "3/4 Fabric 1.21.1"
+    if: ${{ inputs.mode == 'publish' }}
+    needs: [prepare, publish_forge_120]
+    uses: ./.github/workflows/publish-distribution.yml
+    with:
+      version: ${{ needs.prepare.outputs.version }}
+      channel: ${{ inputs.channel }}
+      minecraft: '1.21.1'
+      loader: fabric
+      destinations: ${{ needs.prepare.outputs.publish_destinations }}
+    secrets:
+      CURSEFORGE_TOKEN: ${{ inputs.targets != 'modrinth' && secrets.CURSEFORGE_TOKEN || '' }}
+      MODRINTH_TOKEN: ${{ inputs.targets != 'curseforge' && secrets.MODRINTH_TOKEN || '' }}
+
+  publish_neoforge_121:
+    name: "4/4 NeoForge 1.21.1"
+    if: ${{ inputs.mode == 'publish' }}
+    needs: [prepare, publish_fabric_121]
+    uses: ./.github/workflows/publish-distribution.yml
+    with:
+      version: ${{ needs.prepare.outputs.version }}
+      channel: ${{ inputs.channel }}
+      minecraft: '1.21.1'
+      loader: neoforge
+      destinations: ${{ needs.prepare.outputs.publish_destinations }}
+    secrets:
+      CURSEFORGE_TOKEN: ${{ inputs.targets != 'modrinth' && secrets.CURSEFORGE_TOKEN || '' }}
+      MODRINTH_TOKEN: ${{ inputs.targets != 'curseforge' && secrets.MODRINTH_TOKEN || '' }}

@@ -46,6 +46,16 @@ class ReleaseChecks(unittest.TestCase):
                           ("1.21.1", "fabric"), ("1.21.1", "neoforge")})
         self.assertTrue(all(item["sha"] == "a" * 40 for item in plan["uploads"]))
 
+    def test_upload_order_for_each_destination(self):
+        expected = [("1.20.1", "fabric"), ("1.20.1", "forge"),
+                    ("1.21.1", "fabric"), ("1.21.1", "neoforge")]
+        for target in ("curseforge", "modrinth", "both"):
+            uploads = self.make_plan(targets=target)["uploads"]
+            for site in {item["destination"] for item in uploads}:
+                with self.subTest(target=target, site=site):
+                    self.assertEqual([(item["minecraft"], item["loader"]) for item in uploads
+                                      if item["destination"] == site], expected)
+
     def test_build_needs_no_site_tokens(self):
         for target in ("curseforge", "modrinth", "both"):
             self.make_plan(targets=target)
