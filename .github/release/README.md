@@ -26,6 +26,9 @@ CurseForge **1654475**, Modrinth **GkM5npCP**.
 Tamamlanan çalışmanın **Artifacts** bölümünde dört son kullanıcı JAR'ı, SHA-256 değerleri ve kullanılan kaynak commitleri bulunur. Dosyalar 14 gün saklanır.
 
 Bir yükleme başarısız olursa **Re-run failed jobs** kullanın. Başarılı yüklemeler böylece tekrar gönderilmez; bütün çalışmayı tekrar çalıştırmak aynı sürümü yeniden yüklemeye çalışabilir.
+
+Kaynak kod veya akış dosyası düzeltildiyse yeni commitleri kullanmak için **Run workflow** ile yeni çalışma başlatın. **Re-run failed jobs**, önceki çalışmanın sabit kaynak commitlerini ve akışını tekrar kullanır.
+
 Sitelerin inceleme/onay süreci yükleme tamamlandıktan sonra da sürebilir.
 
 ## Geliştirme
