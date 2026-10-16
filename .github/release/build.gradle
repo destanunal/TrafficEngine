@@ -1,0 +1,55 @@
+plugins {
+    id 'me.modmuss50.mod-publish-plugin' version '2.2.1'
+}
+
+// Separate build: ordinary development never resolves this publishing plugin.
+def destination = providers.gradleProperty('destination').orElse('curseforge').get()
+def minecraft = providers.gradleProperty('minecraft').orElse('1.20.1').get()
+def loader = providers.gradleProperty('loader').orElse('fabric').get()
+def releaseVersion = providers.gradleProperty('releaseVersion').orElse('0.0.0').get()
+def releaseChannel = providers.gradleProperty('releaseChannel').orElse('release').get()
+def archivePath = providers.gradleProperty('artifactPath').orElse('missing-distribution.jar').get()
+def changelogPath = providers.gradleProperty('changelogPath').orElse('missing-changelog.md').get()
+
+if (!(destination in ['curseforge', 'modrinth'])) throw new GradleException('Unsupported destination')
+if (!(minecraft in ['1.20.1', '1.21.1'])) throw new GradleException('Unsupported Minecraft version')
+if (!(loader in (minecraft == '1.20.1' ? ['fabric', 'forge'] : ['fabric', 'neoforge'])))
+    throw new GradleException('Unsupported loader for this Minecraft version')
+if (!(releaseChannel in ['release', 'beta', 'alpha'])) throw new GradleException('Unsupported release channel')
+
+publishMods {
+    file = layout.projectDirectory.file(archivePath)
+    changelog = providers.fileContents(layout.projectDirectory.file(changelogPath)).asText
+    version = releaseVersion + '+' + minecraft + '-' + loader
+    displayName = 'Traffic Engine ' + releaseVersion + ' (' + loader + ', ' + minecraft + ')'
+    type = releaseChannel == 'beta' ? BETA : releaseChannel == 'alpha' ? ALPHA : STABLE
+    modLoaders.add(loader)
+
+    if (destination == 'curseforge') {
+        curseforge {
+            projectId = '1654475'
+            accessToken = providers.environmentVariable('CURSEFORGE_TOKEN')
+            minecraftVersions.add(minecraft)
+            javaVersions.add(minecraft == '1.20.1' ? JavaVersion.VERSION_17 : JavaVersion.VERSION_21)
+            client = true
+            server = true
+            embeds('architectury-api')
+            if (loader == 'fabric') {
+                requires('fabric-api')
+                embeds('forge-config-api-port')
+            }
+        }
+    } else {
+        modrinth {
+            projectId = 'GkM5npCP'
+            accessToken = providers.environmentVariable('MODRINTH_TOKEN')
+            minecraftVersions.add(minecraft)
+            environment = CLIENT_AND_SERVER
+            embeds('architectury-api')
+            if (loader == 'fabric') {
+                requires('fabric-api')
+                embeds('forge-config-api-port')
+            }
+        }
+    }
+}

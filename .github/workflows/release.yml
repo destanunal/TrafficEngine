@@ -1,0 +1,215 @@
+name: Publish Traffic Engine
+run-name: Traffic Engine ${{ inputs.version }} - ${{ inputs.mode }} (${{ inputs.targets }})
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Mod version (must match both source branches)
+        required: true
+        default: '1.8.2'
+        type: string
+      mode:
+        description: Build only, or build and upload
+        required: true
+        default: build
+        type: choice
+        options: [build, publish]
+      targets:
+        description: Upload destination (CurseForge works independently of Modrinth approval)
+        required: true
+        default: curseforge
+        type: choice
+        options: [curseforge, both, modrinth]
+      channel:
+        description: Release channel
+        required: true
+        default: release
+        type: choice
+        options: [release, beta, alpha]
+      changelog:
+        description: Release notes (update the heading when changing version)
+        required: true
+        type: string
+        default: |
+          # **🆕 Traffic Engine Update 1.8.2**
+
+          This update improves road signs, fixes request-button traffic-light cycles and refines lighting, poles and barriers.
+
+          ---
+
+          ## **🪧 Road Signs**
+
+          - Matching signs placed side by side now connect into larger signs with continuous outer frames.
+          - Added optional right-aligned distances.
+          - Added a center position for arrows and improved arrow sizing.
+          - Center-aligned panels are now wider, and adjacent panels of the same color can merge.
+          - Improved vertical spacing, divider clearance and consistent text sizing across rows.
+          - Fixed small two-row signs displaying undersized text and ignoring text-size increases.
+          - Added clearer road lettering and a dedicated bold font.
+
+          ---
+
+          ## **🚦 Traffic Lights & Street Lamps**
+
+          - Fixed incorrect signal transitions after pressing a request button, including single-direction crossing setups.
+          - Improved colored-light compatibility with Embeddium and platform rendering pipelines.
+          - Corrected pole alignment on small street-lamp models.
+
+          ---
+
+          ## **🚧 Poles & Barriers**
+
+          - Boom barriers can now be extended with separate arm sections to customize their length.
+          - Added Wrench-controlled base supports to the lowest vertical traffic pole.
+          - Lowered traffic-pole bases and improved their connections.
+          - Refined folded scissor-barrier models and hitboxes, removing the dark bottom plate.
+          - Fixed stripe shading on diagonal Bicycle Lane Separators.
+          - Improved boom-barrier arm appearance at different viewing distances.
+
+permissions:
+  contents: read
+
+concurrency:
+  group: trafficengine-release-${{ inputs.version }}
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    name: Check release settings
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    outputs:
+      version: ${{ steps.plan.outputs.version }}
+      build_matrix: ${{ steps.plan.outputs.build_matrix }}
+      publish_matrix: ${{ steps.plan.outputs.publish_matrix }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Test release validation
+        run: python3 -B -m unittest discover -s .github/release -p 'test_*.py'
+      - name: Resolve immutable source commits and check required secrets
+        id: plan
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_VERSION: ${{ inputs.version }}
+          RELEASE_MODE: ${{ inputs.mode }}
+          RELEASE_TARGETS: ${{ inputs.targets }}
+          RELEASE_CHANNEL: ${{ inputs.channel }}
+          RELEASE_CHANGELOG: ${{ inputs.changelog }}
+          CURSEFORGE_TOKEN: ${{ inputs.mode == 'publish' && inputs.targets != 'modrinth' && secrets.CURSEFORGE_TOKEN || '' }}
+          MODRINTH_TOKEN: ${{ inputs.mode == 'publish' && inputs.targets != 'curseforge' && secrets.MODRINTH_TOKEN || '' }}
+        run: python3 -B .github/release/release.py prepare --directory "$RUNNER_TEMP/release-plan"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: release-plan
+          path: ${{ runner.temp }}/release-plan/*
+          retention-days: 14
+          overwrite: true
+          if-no-files-found: error
+
+  build:
+    name: Build Minecraft ${{ matrix.minecraft }}
+    needs: prepare
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.prepare.outputs.build_matrix) }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          path: automation
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ matrix.sha }}
+          path: source
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: release-plan
+          path: release-plan
+          digest-mismatch: error
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
+      - name: Build only the final loader distributions
+        working-directory: source
+        env:
+          NATIVE_LOADER: ${{ matrix.native }}
+        run: bash ./gradlew :fabric:remapJar ":$NATIVE_LOADER:remapJar" --no-daemon --stacktrace
+      - name: Verify version, loader, Java compatibility and checksums
+        env:
+          MINECRAFT: ${{ matrix.minecraft }}
+        run: >-
+          python3 -B automation/.github/release/release.py collect
+          --root source --directory dist --plan release-plan/plan.json --minecraft "$MINECRAFT"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: trafficengine-${{ needs.prepare.outputs.version }}-${{ matrix.minecraft }}
+          path: dist/*
+          retention-days: 14
+          overwrite: true
+          compression-level: 0
+          if-no-files-found: error
+
+  publish:
+    name: Upload ${{ matrix.minecraft }} ${{ matrix.loader }} to ${{ matrix.destination }}
+    if: ${{ inputs.mode == 'publish' }}
+    needs: [prepare, build]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix: ${{ fromJSON(needs.prepare.outputs.publish_matrix) }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: release-plan
+          path: release-plan
+          digest-mismatch: error
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: trafficengine-${{ needs.prepare.outputs.version }}-${{ matrix.minecraft }}
+          path: release-input
+          digest-mismatch: error
+      - name: Recheck the exact distribution before uploading
+        id: distribution
+        env:
+          MINECRAFT: ${{ matrix.minecraft }}
+          LOADER: ${{ matrix.loader }}
+        run: >-
+          python3 -B .github/release/release.py verify
+          --directory release-input --plan release-plan/plan.json
+          --minecraft "$MINECRAFT" --loader "$LOADER"
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
+      - name: Upload this file to the selected site
+        env:
+          DESTINATION: ${{ matrix.destination }}
+          MINECRAFT: ${{ matrix.minecraft }}
+          LOADER: ${{ matrix.loader }}
+          RELEASE_VERSION: ${{ needs.prepare.outputs.version }}
+          RELEASE_CHANNEL: ${{ inputs.channel }}
+          RELEASE_ARCHIVE: ${{ steps.distribution.outputs.artifact }}
+          CURSEFORGE_TOKEN: ${{ matrix.destination == 'curseforge' && secrets.CURSEFORGE_TOKEN || '' }}
+          MODRINTH_TOKEN: ${{ matrix.destination == 'modrinth' && secrets.MODRINTH_TOKEN || '' }}
+        run: |
+          bash ./gradlew --project-dir .github/release publishMods --no-daemon --stacktrace \
+            "-Pdestination=$DESTINATION" "-Pminecraft=$MINECRAFT" "-Ploader=$LOADER" \
+            "-PreleaseVersion=$RELEASE_VERSION" "-PreleaseChannel=$RELEASE_CHANNEL" \
+            "-PartifactPath=$RELEASE_ARCHIVE" "-PchangelogPath=$GITHUB_WORKSPACE/release-plan/changelog.md"
