@@ -29,7 +29,7 @@ public class RoadInformationSignRenderer extends BaseBlockEntityRenderer<RoadInf
             kind == Kind.VARIABLE_SPEED ? LightTexture.FULL_BRIGHT : graphics.packedLight(), true).draw(kind,
                 new String[]{sign.destination(0),sign.destination(1),sign.destination(2)},
                 new int[]{sign.arrow(0),sign.arrow(1),sign.arrow(2)},
-                sign.distances(),sign.route(),sign.theme(),sign.displayedSpeed(),sign.enabled(),sign.design());
+                sign.distances(),sign.route(),sign.theme(),sign.displayedSpeed(),sign.enabled(),sign.design(),sign.horizontalConnections());
         pose.popPose();
     }
     @Override public boolean shouldRenderOffScreen(RoadInformationSignBlockEntity sign) {
