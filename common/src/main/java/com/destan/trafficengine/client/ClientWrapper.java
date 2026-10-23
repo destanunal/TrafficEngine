@@ -26,6 +26,14 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
 public class ClientWrapper {
+    public static void showChevronPanelSettings(Level level, BlockPos pos) {
+        Minecraft.getInstance().setScreen(new com.destan.trafficengine.client.screen.ChevronPanelScreen(level, pos));
+    }
+
+    public static void showWarningLightSettings(Level level, BlockPos pos) {
+        Minecraft.getInstance().setScreen(new com.destan.trafficengine.client.screen.WarningLightScreen(level, pos));
+    }
+
 
 
     private static final Queue<Runnable> afterRenderTasks = new ConcurrentLinkedQueue<>();

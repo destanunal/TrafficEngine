@@ -1,6 +1,7 @@
 package com.destan.trafficengine.client.gui;
 
 import java.io.IOException;
+import com.destan.trafficengine.data.RoadPatternNumbers;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.BitSet;
@@ -21,6 +22,7 @@ public final class PatternFavorites {
     }
     public static boolean contains(int id) {
         load();
+        id = RoadPatternNumbers.canonicalId(id);
         return id >= 0 && id < 318 && FAVORITES.get(id);
     }
     private static void load() {
@@ -35,7 +37,7 @@ public final class PatternFavorites {
             } catch (IllegalArgumentException ignored) {}
             for (String token : props.getProperty("favorites", "").split(",")) {
                 try {
-                    int id = Integer.parseInt(token);
+                    int id = RoadPatternNumbers.canonicalId(Integer.parseInt(token));
                     if (id >= 0 && id < 318) FAVORITES.set(id);
                 } catch (NumberFormatException ignored) {}
             }
@@ -43,6 +45,7 @@ public final class PatternFavorites {
     }
     public static void toggle(int id) {
         load();
+        id = RoadPatternNumbers.canonicalId(id);
         if (id < 0 || id >= 318) return;
         FAVORITES.flip(id);
         save();

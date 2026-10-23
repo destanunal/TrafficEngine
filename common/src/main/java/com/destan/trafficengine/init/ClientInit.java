@@ -86,6 +86,8 @@ public class ClientInit {
             
             /* RENDER LAYERS */
             RenderTypeRegistry.register(RenderType.cutout(),
+                ModBlocks.TEMPORARY_PEDESTRIAN_FENCE.get(),
+                ModBlocks.WARNING_LIGHT.get(),
                 ModBlocks.WHITE_DELINEATOR.get(),
                 ModBlocks.YELLOW_DELINEATOR.get(),
                 ModBlocks.SMALL_WHITE_DELINEATOR.get(),

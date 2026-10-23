@@ -63,6 +63,10 @@ public class TrafficLightTextureManager {
     }
 
     public static void render(RenderContext<?> graphics, BlockEntity be, TrafficLightIcon icon, TrafficLightColor color, int packedLight) {
+        if (be instanceof com.destan.trafficengine.block.entity.TrafficLightBlockEntity signal && !signal.getCustomMask().isEmpty() && color != TrafficLightColor.NONE) {
+            int rgb = color == TrafficLightColor.RED ? 0xFFFF2020 : color == TrafficLightColor.YELLOW ? 0xFFFFCF20 : color == TrafficLightColor.GREEN ? 0xFF20FF40 : -1;
+            renderStencil(graphics, signal.getCustomMask(), rgb, packedLight); return;
+        }
         TrafficLightIcon applicable = icon.isApplicableToColor(color) ? icon : TrafficLightIcon.NONE;
         TrafficLightBulbModel model = modelsByIconAndColor[applicable.ordinal()][color.ordinal()];
         (model == null ? FALLBACK_MODEL : model).render(graphics, be, packedLight);
@@ -195,4 +199,90 @@ public class TrafficLightTextureManager {
             }
         }
     }
+
+    private static final RenderType WARNING_LENS_OFF_TYPE = RenderType.text(new ResourceLocation(TrafficEngine.MOD_ID, "textures/block/warning_lens_off.png"));
+    private static final RenderType WARNING_LENS_ON_TYPE = RenderType.text(new ResourceLocation(TrafficEngine.MOD_ID, "textures/block/warning_lens_on.png"));
+    private static final RenderType STENCIL_TYPE = RenderType.text(new ResourceLocation(TrafficEngine.MOD_ID, "textures/block/paint_overlay.png"));
+    private record StencilTexture(ResourceLocation location, RenderType renderType) {}
+    // Keep texture memory bounded. Once full, new stencils use their precomputed rectangles
+    // until disconnect, so a busy scene cannot cause texture eviction/upload churn.
+    private static final java.util.Map<com.destan.trafficengine.data.PixelPattern, StencilTexture> STENCILS = new java.util.HashMap<>();
+    private static StencilTexture stencilTexture(com.destan.trafficengine.data.PixelPattern pattern) {
+        StencilTexture cached = STENCILS.get(pattern);
+        if (cached != null || STENCILS.size() >= 256) return cached;
+        NativeImage pixels = new NativeImage(16, 16, true);
+        for (int y = 0; y < 16; y++) for (int x = 0; x < 16; x++) pixels.setPixelRGBA(x, y, pattern.pixel(x, y) ? -1 : 0);
+        ResourceLocation location = new ResourceLocation(TrafficEngine.MOD_ID, "dynamic/stencil/" + STENCILS.size());
+        Minecraft.getInstance().getTextureManager().register(location, new net.minecraft.client.renderer.texture.DynamicTexture(pixels));
+        cached = new StencilTexture(location, RenderType.text(location)); STENCILS.put(pattern, cached);
+        return cached;
+    }
+    public static void clearStencilCache() {
+        for (StencilTexture texture : STENCILS.values()) Minecraft.getInstance().getTextureManager().release(texture.location());
+        STENCILS.clear();
+    }
+    public static void renderStencil(RenderContext<?> graphics, com.destan.trafficengine.data.PixelPattern pattern, int color, int light) {
+        modelsByIconAndColor[TrafficLightIcon.NONE.ordinal()][TrafficLightColor.NONE.ordinal()].render(graphics, graphics.blockEntity(), light);
+        renderStencilPixels(graphics, pattern, color);
+    }
+    /** The unlit lens is baked into the chunk. An active lamp adds just one tinted quad. */
+    public static void renderWarningLens(RenderContext<?> graphics, int color) {
+        VertexConsumer consumer = graphics.multiBufferSource().getBuffer(WARNING_LENS_ON_TYPE);
+        var pose = graphics.poseStack().last();
+        var matrix = pose.pose();
+        var normal = pose.normal();
+        int red = color >>> 16 & 255, green = color >>> 8 & 255, blue = color & 255;
+        for (int vertex = 0; vertex < 4; vertex++) {
+            float u = vertex < 2 ? 0 : 1, v = vertex == 0 || vertex == 3 ? 0 : 1;
+            float x = u*4, y = v*4-4, z = 1.002F;
+            consumer.vertex(matrix.m00()*x+matrix.m10()*y+matrix.m20()*z+matrix.m30(),
+                    matrix.m01()*x+matrix.m11()*y+matrix.m21()*z+matrix.m31(),
+                    matrix.m02()*x+matrix.m12()*y+matrix.m22()*z+matrix.m32())
+                .color(red, green, blue, 255).uv(u, v).uv2(LightTexture.FULL_BRIGHT)
+                .overlayCoords(graphics.packedOverlay()).normal(normal.m20(), normal.m21(), normal.m22()).endVertex();
+        }
+    }
+    public static void renderWarningPreview(net.minecraft.client.gui.GuiGraphics g, int x, int y, int size, boolean lit, int color) {
+        warningPreviewQuad(g, WARNING_LENS_OFF_TYPE, x, y, size, 0xFFFFFFFF);
+        if (lit) warningPreviewQuad(g, WARNING_LENS_ON_TYPE, x, y, size, color);
+    }
+    private static void warningPreviewQuad(net.minecraft.client.gui.GuiGraphics g, RenderType type, int x, int y, int size, int color) {
+        var matrix = g.pose().last().pose();
+        VertexConsumer consumer = g.bufferSource().getBuffer(type);
+        int red = color >>> 16 & 255, green = color >>> 8 & 255, blue = color & 255;
+        for (int vertex = 0; vertex < 4; vertex++) {
+            float u = vertex < 2 ? 0 : 1, v = vertex == 0 || vertex == 3 ? 0 : 1;
+            float px = x+u*size, py = y+v*size;
+            consumer.vertex(matrix.m00()*px+matrix.m10()*py+matrix.m30(),
+                    matrix.m01()*px+matrix.m11()*py+matrix.m31(), matrix.m02()*px+matrix.m12()*py+matrix.m32())
+                .color(red, green, blue, 255).uv(u, v).uv2(LightTexture.FULL_BRIGHT).endVertex();
+        }
+    }
+    private static void renderStencilPixels(RenderContext<?> graphics, com.destan.trafficengine.data.PixelPattern pattern, int color) {
+        if (pattern.isEmpty()) return;
+        StencilTexture texture = stencilTexture(pattern);
+        VertexConsumer consumer = graphics.multiBufferSource().getBuffer(texture == null ? STENCIL_TYPE : texture.renderType());
+        var pose = graphics.poseStack().last();
+        int red = color >>> 16 & 255, green = color >>> 8 & 255, blue = color & 255;
+        if (texture != null) {
+            for (int vertex = 0; vertex < 4; vertex++) {
+                float u = vertex < 2 ? 0 : 1, v = vertex == 0 || vertex == 3 ? 0 : 1;
+                consumer.vertex(pose.pose(), u * 4, v * 4 - 4, 1.002F).color(red, green, blue, 255).uv(u, v)
+                    .uv2(LightTexture.FULL_BRIGHT).overlayCoords(graphics.packedOverlay()).normal(pose.normal(), 0, 0, 1).endVertex();
+            }
+            return;
+        }
+        var rectangles = pattern.rectangles();
+        for (int i = 0; i < rectangles.size(); i++) {
+            var rect = rectangles.get(i);
+            float left = rect.x() * .25F, right = (rect.x() + rect.width()) * .25F;
+            float top = rect.y() * .25F - 4, bottom = (rect.y() + rect.height()) * .25F - 4;
+            for (int vertex = 0; vertex < 4; vertex++) {
+                float x = vertex < 2 ? left : right, y = vertex == 0 || vertex == 3 ? top : bottom;
+                consumer.vertex(pose.pose(), x, y, 1.002F).color(red, green, blue, 255).uv(.5F, .5F)
+                    .uv2(LightTexture.FULL_BRIGHT).overlayCoords(graphics.packedOverlay()).normal(pose.normal(), 0, 0, 1).endVertex();
+            }
+        }
+    }
+
 }

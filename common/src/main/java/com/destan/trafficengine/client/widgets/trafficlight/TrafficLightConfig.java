@@ -21,6 +21,7 @@ public class TrafficLightConfig {
     public final Set<TrafficLightColor> enabledColors = new HashSet<>();
     public TrafficLightType type = TrafficLightType.NOCOUNTDOWN;
     public TrafficLightModel model = TrafficLightModel.THREE_LIGHTS;
+    public com.destan.trafficengine.data.PixelPattern customMask = com.destan.trafficengine.data.PixelPattern.EMPTY;
     public TrafficLightIcon icon = TrafficLightIcon.NONE;
     public TrafficLightControlType controlType = TrafficLightControlType.REMOTE;
     public TrafficLightColor[] colors = new TrafficLightColor[TrafficLightModel.maxRequiredSlots()];
@@ -41,6 +42,7 @@ public class TrafficLightConfig {
             }
             this.type = blockEntity.getTLType();
             this.icon = blockEntity.getIcon();
+            this.customMask = blockEntity.getCustomMask();
             this.controlType = blockEntity.getControlType();
             TrafficLightColor[] slots = blockEntity.getColorSlots();
             for (int i = 0; i < slots.length && i < this.colors.length; i++) {

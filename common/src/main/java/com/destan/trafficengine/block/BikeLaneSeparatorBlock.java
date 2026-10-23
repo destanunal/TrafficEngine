@@ -3,13 +3,8 @@ package com.destan.trafficengine.block;
 import com.destan.trafficengine.block.data.RoundedSeparatorHitbox;
 import com.destan.trafficengine.block.data.ColorableBlock;
 import com.destan.trafficengine.util.ColorValue;
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
-import java.util.List;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.core.BlockPos;
@@ -97,10 +92,6 @@ public class BikeLaneSeparatorBlock extends ColorableBlock {
         return ColorValue.WHITE;
     }
 
-    @Override
-    public void appendHoverText(ItemStack stack, BlockGetter level, List<Component> tooltip, TooltipFlag flag) {
-        tooltip.add(Component.translatable("block.trafficengine.bike_lane_separator.tooltip").withStyle(ChatFormatting.GRAY));
-    }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {

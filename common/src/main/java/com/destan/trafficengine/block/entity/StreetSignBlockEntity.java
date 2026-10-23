@@ -33,15 +33,21 @@ public class StreetSignBlockEntity extends WritableTrafficSignBlockEntity implem
         return new WritableSignConfig(new ConfiguredLineData[] {
             new ConfiguredLineData(0, -1.0F / 16.0F * 4.25f, new Vec2(1, 1.5f), new Vec2(1.5f, 1.5f), 1.0F / 16.0F * 15, 1, 0)
         }, true, 1.0F / 16.0F * 6.5f, y, WritableSignConfig.DEFAULT_SCALE, 90, 0.4f, 0.0f, 0.02f, (blockState) -> {
-            return 90 + (blockState.getValue(WritableTrafficSign.FACING) == Direction.EAST || blockState.getValue(WritableTrafficSign.FACING) == Direction.WEST ? blockState.getValue(WritableTrafficSign.FACING).getOpposite().toYRot() : blockState.getValue(WritableTrafficSign.FACING).toYRot()); 
+            return 90 + (blockState.getValue(WritableTrafficSign.FACING) == Direction.EAST || blockState.getValue(WritableTrafficSign.FACING) == Direction.WEST ? blockState.getValue(WritableTrafficSign.FACING).getOpposite().toYRot() : blockState.getValue(WritableTrafficSign.FACING).toYRot());
         }, ColorValue.pickBasedOnBrightness(this.getColor().getTextureColor(), ColorValue.WHITE, ColorValue.BLACK, 0.5f).getAsARGB());
     }
 
     @Override
     public void load(CompoundTag compound)
     {
+        PaintColor previousColor = this.color;
         super.load(compound);
         this.color = PaintColor.getByIndex(compound.getInt(NBT_COLOR));
+        // The block-state packet can rebuild Embeddium's mesh before the paint
+        // data arrives. Invalidate it after reading the new colour, once per change.
+        if (previousColor != this.color && level != null && level.isClientSide) {
+            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
+        }
     }
 
     @Override
@@ -52,9 +58,12 @@ public class StreetSignBlockEntity extends WritableTrafficSignBlockEntity implem
 
     @Override
     public void setColor(PaintColor color) {
+        if (this.color == color) return;
         this.color = color;
         notifyUpdate();
-        getLevel().sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 512);        
+        if (level != null && level.isClientSide) {
+            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
+        }
     }
 
     @Override

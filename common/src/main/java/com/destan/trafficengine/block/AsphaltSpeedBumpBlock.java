@@ -1,18 +1,13 @@
 package com.destan.trafficengine.block;
 
-import java.util.List;
 import com.destan.trafficengine.block.data.ColorableBlock;
 import com.destan.trafficengine.registry.ModItemTags;
 import com.destan.trafficengine.util.ColorValue;
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.BlockGetter;
@@ -140,12 +135,6 @@ public class AsphaltSpeedBumpBlock extends ColorableBlock implements SimpleWater
             .setValue(END, swap ? state.getValue(START) : state.getValue(END));
     }
 
-    @Override
-    public void appendHoverText(ItemStack stack, BlockGetter level, List<Component> tooltip, TooltipFlag flag) {
-        String id = "rubber_speed_bump"; // Kept for compatibility with existing worlds.
-        tooltip.add(Component.translatable("block.trafficengine." + id + ".tooltip").withStyle(ChatFormatting.GRAY));
-        tooltip.add(Component.translatable("block.trafficengine.modular_road.tooltip.controls").withStyle(ChatFormatting.DARK_GRAY));
-    }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {

@@ -1,5 +1,6 @@
 package com.destan.trafficengine.client.screen;
 
+import com.destan.trafficengine.client.gui.TEText;
 import java.util.*;
 import java.io.*;
 import java.awt.image.BufferedImage;
@@ -54,7 +55,7 @@ public class TrafficSignWorkbenchGui extends AbstractContainerScreen<TrafficSign
     private final int[] pixels = new int[1024];
     private int[] imported;
     private String name = "", importError;
-    private boolean dirty, busy;
+    private boolean dirty, busy, drawingCanvas;
     private EditBox nameBox, hexBox;
     private DynamicTexture canvasTexture;
     private ResourceLocation canvasLocation;
@@ -98,6 +99,7 @@ public class TrafficSignWorkbenchGui extends AbstractContainerScreen<TrafficSign
     }
     private boolean cataloguePresent() { return menu.patternSlot.getItem().getItem() instanceof PatternCatalogueItem; }
     private void buildPage() {
+        drawingCanvas = false; lastPixel = -1;
         clearWidgets(); importButtons.clear(); nameBox = null; hexBox = null; colorPicker = null;
         addRenderableWidget(new TECloseButton(leftPos + 325, topPos + 8, 24, 20, b -> { if (!busy) onClose(); }));
         if (!cataloguePresent()) return;
@@ -277,11 +279,11 @@ public class TrafficSignWorkbenchGui extends AbstractContainerScreen<TrafficSign
     }
     private boolean canvasContains(double x, double y) { return x >= leftPos + CANVAS_X && x < leftPos + CANVAS_X + CANVAS_SIZE && y >= topPos + CANVAS_Y && y < topPos + CANVAS_Y + CANVAS_SIZE; }
     private int pixelAt(double x, double y) { return (int)(y - topPos - CANVAS_Y) / 4 * 32 + (int)(x - leftPos - CANVAS_X) / 4; }
-    private void paint(int position, int mouseButton) {
+    private void paint(int position) {
         int x = position % 32, y = position / 32;
         if (!shape.isPixelValid(x, y)) return;
         if (tool == 2) { if (pixels[position] != 0) setEditorColor(pixels[position], false); return; }
-        int value = mouseButton == 1 || tool == 1 ? 0 : color;
+        int value = tool == 1 ? 0 : color;
         if (tool == 3) {
             int replace = pixels[position]; if (replace == value) return;
             int[] queue = new int[1024]; int head = 0, end = 1; queue[0] = position; pixels[position] = value;
@@ -297,22 +299,29 @@ public class TrafficSignWorkbenchGui extends AbstractContainerScreen<TrafficSign
         dirty = true;
     }
     @Override public boolean mouseClicked(double x, double y, int button) { x /= guiScale; y /= guiScale;
-        if (page == Page.EDIT && canvasContains(x, y) && !busy && button <= 1) { lastPixel = pixelAt(x, y); paint(lastPixel, button); return true; }
+        drawingCanvas = false; lastPixel = -1;
+        if (page == Page.EDIT && canvasContains(x, y) && !busy && button == 0) {
+            drawingCanvas = true; lastPixel = pixelAt(x, y); paint(lastPixel); return true;
+        }
         return super.mouseClicked(x, y, button);
     }
     @Override public boolean mouseDragged(double x, double y, int button, double dx, double dy) { x /= guiScale; y /= guiScale; dx /= guiScale; dy /= guiScale;
-        if (page == Page.EDIT && canvasContains(x, y) && !busy && button <= 1) {
+        if (drawingCanvas && page == Page.EDIT && !busy && button == 0) {
+            if (!canvasContains(x, y)) { lastPixel = -1; return true; }
             int next = pixelAt(x, y);
             if (tool <= 1 && lastPixel >= 0) {
                 int ax = lastPixel % 32, ay = lastPixel / 32, bx = next % 32, by = next / 32;
                 int steps = Math.max(Math.abs(bx - ax), Math.abs(by - ay));
-                for (int i = 1; i <= steps; i++) paint(Math.round(ay + (by - ay) * i / (float)steps) * 32 + Math.round(ax + (bx - ax) * i / (float)steps), button);
-            } else if (next != lastPixel) paint(next, button);
+                for (int i = 1; i <= steps; i++) paint(Math.round(ay + (by - ay) * i / (float)steps) * 32 + Math.round(ax + (bx - ax) * i / (float)steps));
+            } else if (next != lastPixel) paint(next);
             lastPixel = next; return true;
         }
-        lastPixel = -1; return super.mouseDragged(x, y, button, dx, dy);
+        return super.mouseDragged(x, y, button, dx, dy);
     }
-    @Override public boolean mouseReleased(double x, double y, int button) { x /= guiScale; y /= guiScale; lastPixel = -1; return super.mouseReleased(x, y, button); }
+    @Override public boolean mouseReleased(double x, double y, int button) { x /= guiScale; y /= guiScale;
+        if (button == 0) { drawingCanvas = false; lastPixel = -1; }
+        return super.mouseReleased(x, y, button);
+    }
     @Override public boolean mouseScrolled(double x, double y, double delta) { x /= guiScale; y /= guiScale;
         if (page == Page.IMPORT) { importRow += delta > 0 ? -1 : 1; buildImport(); return true; }
         return super.mouseScrolled(x, y, delta);
@@ -331,7 +340,7 @@ public class TrafficSignWorkbenchGui extends AbstractContainerScreen<TrafficSign
     }
     @Override public boolean isPauseScreen() { return false; }
     @Override protected void renderLabels(GuiGraphics g, int mx, int my) {
-        g.drawString(font,playerInventoryTitle,inventoryLabelX,inventoryLabelY,TEColors.MUTED,false);
+        TEText.drawString(g, font,playerInventoryTitle,inventoryLabelX,inventoryLabelY,TEColors.MUTED,false);
     }
     @Override public void removed() {
         if (preview != null) { preview.close(); preview = null; }
@@ -343,7 +352,7 @@ public class TrafficSignWorkbenchGui extends AbstractContainerScreen<TrafficSign
         TEPanel.draw(g, leftPos + 69, topPos + 233, 222, 58);
         for (var slot : menu.slots) { g.fill(leftPos + slot.x - 1, topPos + slot.y - 1, leftPos + slot.x + 17, topPos + slot.y + 17, TEColors.BORDER); g.fill(leftPos + slot.x, topPos + slot.y, leftPos + slot.x + 16, topPos + slot.y + 16, TEColors.FIELD); }
         TEPanel.draw(g, leftPos + 16, topPos + 78, 328, 146);
-        g.drawString(font, text("catalogue"), leftPos + 43, topPos + 58, TEColors.MUTED, false);
+        TEText.drawString(g, font, text("catalogue"), leftPos + 43, topPos + 58, TEColors.MUTED, false);
         if (!cataloguePresent()) { renderCatalogueHelp(g, true); return; }
         switch (page) {
             case MAIN -> {
@@ -351,41 +360,41 @@ public class TrafficSignWorkbenchGui extends AbstractContainerScreen<TrafficSign
                 if (preview != null && preview.isFullyLoaded()) {
                     var d = preview.getRawData();
                     if (d.getWidth() > 0 && d.getHeight() > 0) g.blit(preview.getTextureLocation(), leftPos + 130, topPos + 90, 100, 100, 0, 0, d.getWidth(), d.getHeight(), d.getWidth(), d.getHeight());
-                    g.drawString(font, font.plainSubstrByWidth(selected.getName(), 164), leftPos + 111, topPos + 191, TEColors.TEXT, false);
+                    TEText.drawString(g, font, font.plainSubstrByWidth(selected.getName(), 164), leftPos + 111, topPos + 191, TEColors.TEXT, false);
                 }
-                g.drawCenteredString(font, selected == null ? "0" : Integer.toString(PatternCatalogueItem.getSelectedIndex(menu.patternSlot.getItem()) + 1), leftPos + 180, topPos + 208, TEColors.MUTED);
+                TEText.drawCenteredString(g, font, selected == null ? "0" : Integer.toString(PatternCatalogueItem.getSelectedIndex(menu.patternSlot.getItem()) + 1), leftPos + 180, topPos + 208, TEColors.MUTED);
             }
-            case CREATE -> g.drawString(font, text("createpattern.instruction"), leftPos + 26, topPos + 86, TEColors.MUTED, false);
+            case CREATE -> TEText.drawString(g, font, text("createpattern.instruction"), leftPos + 26, topPos + 86, TEColors.MUTED, false);
             case EDIT -> {
                 renderPixelPreview(g, pixels, leftPos + CANVAS_X, topPos + CANVAS_Y, CANVAS_SIZE);
                 TEPanel.outline(g, leftPos + CANVAS_X - 1, topPos + CANVAS_Y - 1, CANVAS_SIZE + 2, CANVAS_SIZE + 2, TEColors.BORDER);
-                g.drawString(font, colorCaption, leftPos + 260, topPos + 113, TEColors.TEXT, false);
+                TEText.drawString(g, font, colorCaption, leftPos + 260, topPos + 113, TEColors.TEXT, false);
             }
             case COLOR -> {
-                g.drawString(font, text("color.title"), leftPos + 26, topPos + 84, TEColors.TEXT, false);
+                TEText.drawString(g, font, text("color.title"), leftPos + 26, topPos + 84, TEColors.TEXT, false);
                 g.fill(leftPos + 234, topPos + 97, leftPos + 332, topPos + 126, color);
                 TEPanel.outline(g, leftPos + 234, topPos + 97, 98, 29, TEColors.BORDER);
-                g.drawString(font, "HEX", leftPos + 234, topPos + 139, TEColors.MUTED, false);
+                TEText.drawString(g, font, "HEX", leftPos + 234, topPos + 139, TEColors.MUTED, false);
             }
             case IMPORT -> {
                 TEPanel.draw(g, leftPos + 234, topPos + 93, 100, 96);
                 if (imported != null) renderPixelPreview(g, imported, leftPos + 248, topPos + 105, 72);
-                if (importError != null) g.drawString(font, font.plainSubstrByWidth(importError, 304), leftPos + 26, topPos + 191, 0xFFFF8888, false);
+                if (importError != null) TEText.drawString(g, font, font.plainSubstrByWidth(importError, 304), leftPos + 26, topPos + 191, 0xFFFF8888, false);
             }
-            case DISCARD -> g.drawWordWrap(font,text("discard.question"),leftPos+84,topPos+107,205,TEColors.TEXT);
-            case DELETE -> { g.drawWordWrap(font, text("delete.question"), leftPos + 84, topPos + 107, 205, TEColors.TEXT); if (selected != null) g.drawString(font, font.plainSubstrByWidth(selected.getName(), 205), leftPos + 84, topPos + 139, TEColors.MUTED, false); }
+            case DISCARD -> TEText.drawWordWrap(g, font,text("discard.question"),leftPos+84,topPos+107,205,TEColors.TEXT);
+            case DELETE -> { TEText.drawWordWrap(g, font, text("delete.question"), leftPos + 84, topPos + 107, 205, TEColors.TEXT); if (selected != null) TEText.drawString(g, font, font.plainSubstrByWidth(selected.getName(), 205), leftPos + 84, topPos + 139, TEColors.MUTED, false); }
         }
     }
     private void renderCatalogueHelp(GuiGraphics g, boolean missingCatalogue) {
         int centerX = leftPos + (missingCatalogue ? 180 : 196);
         int y = topPos + (missingCatalogue ? 120 : 112);
         for (FormattedCharSequence line : missingCatalogue ? insertCatalogueTitle : emptyCatalogueTitle) {
-            g.drawString(font, line, centerX - font.width(line) / 2, y, TEColors.ACCENT, false);
+            TEText.drawString(g, font, line, centerX - font.width(line) / 2, y, TEColors.ACCENT, false);
             y += 12;
         }
         y += 8;
         for (FormattedCharSequence line : missingCatalogue ? insertCatalogueHelp : emptyCatalogueHelp) {
-            g.drawString(font, line, centerX - font.width(line) / 2, y, TEColors.MUTED, false);
+            TEText.drawString(g, font, line, centerX - font.width(line) / 2, y, TEColors.MUTED, false);
             y += 12;
         }
     }

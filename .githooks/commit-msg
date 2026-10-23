@@ -1,0 +1,23 @@
+#!/bin/sh
+# Keep source-browser commit headings tied to Minecraft, not the mod release.
+set -eu
+
+case "$(git symbolic-ref --quiet --short HEAD 2>/dev/null || :)" in
+    mc-1.20.1) expected='Minecraft 1.20.1' ;;
+    mc-1.21.1) expected='Minecraft 1.21.1' ;;
+    *) exit 0 ;;
+esac
+
+message_file=$1
+original=$(sed -n '1p' "$message_file" | tr -d '\r')
+# Preserve Git's normal cancellation for an empty message.
+[ -n "$original" ] || exit 0
+[ "$original" != "$expected" ] || exit 0
+
+temporary="${message_file}.trafficengine-$$"
+trap 'rm -f "$temporary"' 0 HUP INT TERM
+{
+    printf '%s\n\n%s\n' "$expected" "$original"
+    sed '1d' "$message_file"
+} > "$temporary"
+cat "$temporary" > "$message_file"

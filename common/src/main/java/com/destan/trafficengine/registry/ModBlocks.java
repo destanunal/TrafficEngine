@@ -84,6 +84,8 @@ public class ModBlocks {
         }
     }
 
+    public static final RegistrySupplier<Block> CHEVRON_PANEL = registerBlock("chevron_panel", ChevronPanelBlock::new, ModCreativeModeTab.MOD_TAB, false);
+    public static final RegistrySupplier<Block> TEMPORARY_PEDESTRIAN_FENCE = registerBlock("temporary_pedestrian_fence", TemporaryPedestrianFenceBlock::new, ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> HIGHWAY_DIRECTION_SIGN = registerBlock("highway_direction_sign", () -> new RoadInformationSignBlock(RoadInformationSignBlock.Kind.HIGHWAY), ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> ROAD_DIRECTION_SIGN = registerBlock("road_direction_sign", () -> new RoadInformationSignBlock(RoadInformationSignBlock.Kind.DIRECTION), ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> VARIABLE_SPEED_SIGN = registerBlock("variable_speed_sign", () -> new RoadInformationSignBlock(RoadInformationSignBlock.Kind.VARIABLE_SPEED), ModCreativeModeTab.MOD_TAB, false);
@@ -125,6 +127,7 @@ public class ModBlocks {
     public static final RegistrySupplier<Block> LED_DEVICE_PART = registerBlockWithoutItem("led_device_part", LedDevicePartBlock::new);
     public static final RegistrySupplier<Block> TRAFFIC_DISPLAY = registerBlock("traffic_display", () -> new LedDeviceBlock(LedDeviceType.TRAFFIC_DISPLAY), ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> LARGE_TRAFFIC_DISPLAY = registerBlock("large_traffic_display", () -> new LedDeviceBlock(LedDeviceType.LARGE_TRAFFIC_DISPLAY), ModCreativeModeTab.MOD_TAB, LargeTrafficDisplayBlockItem.class);
+    public static final RegistrySupplier<Block> WARNING_LIGHT = registerBlock("warning_light", WarningLightBlock::new, ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> LED_LIGHT = registerBlock("led_light", () -> new LedDeviceBlock(LedDeviceType.LED_LIGHT), ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> REFLECTOR = registerColoredBlock("reflector", () -> new ReflectorBlock(), ModCreativeModeTab.MOD_TAB, false);
 

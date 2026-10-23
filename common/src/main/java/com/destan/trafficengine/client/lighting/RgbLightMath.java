@@ -16,6 +16,13 @@ public final class RgbLightMath {
         int max=Math.max(r,Math.max(g,b));
         return max==0 ? 0 : pack(Math.round((float)r*strength/max),Math.round((float)g*strength/max),Math.round((float)b*strength/max));
     }
+    /** Embeddium stores vertex colours as ABGR, with red in the low byte. */
+    public static int tintAbgr(int color, float red, float green, float blue) {
+        int r = Math.round((color & 255) * red);
+        int g = Math.round((color >>> 8 & 255) * green);
+        int b = Math.round((color >>> 16 & 255) * blue);
+        return (color & 0xFF000000) | (b << 16) | (g << 8) | r;
+    }
     public static float factor(int channel, int rgb, int blockLight, int skyLight) {
         float colored=maximum(rgb), white=Math.max(0,blockLight-colored)+Math.max(0,skyLight);
         if (colored==0) return 1;

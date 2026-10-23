@@ -56,6 +56,21 @@ class ReleaseChecks(unittest.TestCase):
                     self.assertEqual([(item["minecraft"], item["loader"]) for item in uploads
                                       if item["destination"] == site], expected)
 
+    def test_two_component_release_version(self):
+        plan = self.make_plan(version="1.9", targets="curseforge",
+            notes="# **🆕 Traffic Engine Update 1.9**\n\nRelease notes.",
+            resolve=lambda mc: ("a" * 40, {"mod_version": "1.9", "minecraft_version": mc}))
+        self.assertEqual([(i["minecraft"], i["loader"]) for i in plan["uploads"]],
+            [("1.20.1", "fabric"), ("1.20.1", "forge"), ("1.21.1", "fabric"), ("1.21.1", "neoforge")])
+        for minecraft, loaders in release.PLATFORMS.items():
+            for loader in loaders:
+                self.assertEqual(release.filename("1.9", minecraft, loader),
+                    f"trafficengine-{loader}-1.9+{minecraft}.jar")
+                release.inspect_archive(self.archive(minecraft, loader, version="1.9"), "1.9", minecraft, loader)
+        for bad in ("1", "1.9.1.2", "1.9+1.20.1", "../1.9"):
+            with self.subTest(bad=bad), self.assertRaises(ValueError):
+                release.filename(bad, "1.20.1", "fabric")
+
     def test_build_needs_no_site_tokens(self):
         for target in ("curseforge", "modrinth", "both"):
             self.make_plan(targets=target)

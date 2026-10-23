@@ -55,9 +55,12 @@ public class TrafficSignBlock extends BaseEntityBlock implements SimpleWaterlogg
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     public static final BooleanProperty WALL_MOUNTED = BooleanProperty.create("wall_mounted");
     public static final BooleanProperty DIAGONAL = BooleanProperty.create("diagonal");
+    public static final net.minecraft.world.level.block.state.properties.IntegerProperty DIRECT_MOUNTED = net.minecraft.world.level.block.state.properties.IntegerProperty.create("direct_mounted", 0, 3);
     public static final BooleanProperty POST_MOUNTED = BooleanProperty.create("post_mounted");
     public static final EnumProperty<TrafficSignShape> SHAPE = EnumProperty.create("shape", TrafficSignShape.class);
 
+    private static final VoxelShape[][] WALL_SHAPES = new VoxelShape[TrafficSignShape.values().length][4];
+    private static final VoxelShape[][][] DIRECT_SHAPES = new VoxelShape[3][TrafficSignShape.values().length][4];
     private static final VoxelShape[][] DIAGONAL_SHAPES = new VoxelShape[TrafficSignShape.values().length][4];
     private static final VoxelShape[][] POST_MOUNTED_SHAPES =
         new VoxelShape[TrafficSignShape.values().length][4];
@@ -69,6 +72,12 @@ public class TrafficSignBlock extends BaseEntityBlock implements SimpleWaterlogg
                     DiagonalVoxelShapes.rotateClockwise45(shape.getVoxelShape(direction));
 
                 Direction supportDirection = direction.getOpposite();
+                VoxelShape wall = getWallMountedShape(shape, direction);
+                WALL_SHAPES[shape.ordinal()][direction.get2DDataValue()] = wall;
+                for (int mount = 1; mount <= 3; mount++) {
+                    double depth = directDepth(mount) / 16.0;
+                    DIRECT_SHAPES[mount - 1][shape.ordinal()][direction.get2DDataValue()] = wall.move(supportDirection.getStepX() * depth, 0, supportDirection.getStepZ() * depth);
+                }
                 VoxelShape plate = createTiltedPostMountedShape(
                     withoutCenterPole(shape.getVoxelShape(direction)),
                     supportDirection
@@ -139,18 +148,22 @@ public class TrafficSignBlock extends BaseEntityBlock implements SimpleWaterlogg
             .setValue(WALL_MOUNTED, false)
             .setValue(DIAGONAL, false)
             .setValue(POST_MOUNTED, false)
+            .setValue(DIRECT_MOUNTED, 0)
             .setValue(SHAPE, TrafficSignShape.SQUARE)
         );
     }
 
     @Override
     public VoxelShape getShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext) {
+        if (pState.getValue(DIRECT_MOUNTED) > 0) {
+            return DIRECT_SHAPES[pState.getValue(DIRECT_MOUNTED) - 1][pState.getValue(SHAPE).ordinal()][pState.getValue(FACING).get2DDataValue()];
+        }
         if (pState.getValue(POST_MOUNTED)) {
             return POST_MOUNTED_SHAPES[pState.getValue(SHAPE).ordinal()]
                 [pState.getValue(FACING).get2DDataValue()];
         }
         if (pState.getValue(WALL_MOUNTED)) {
-            return getWallMountedShape(pState.getValue(SHAPE), pState.getValue(FACING));
+            return WALL_SHAPES[pState.getValue(SHAPE).ordinal()][pState.getValue(FACING).get2DDataValue()];
         }
         return getFreestandingShape(
             pState.getValue(SHAPE),
@@ -263,14 +276,19 @@ public class TrafficSignBlock extends BaseEntityBlock implements SimpleWaterlogg
         Direction clickedFace = pContext.getClickedFace();
         boolean wallMounted = false;
         boolean postMounted = false;
+        boolean directMounted = false;
+        int directMount = 0;
 
         // Only the regular traffic sign changes mode automatically. Subclasses
         // such as the double-sided and legacy wall sign keep their own behavior.
         if (this.getClass() == TrafficSignBlock.class && clickedFace.getAxis().isHorizontal()) {
             BlockPos supportPos = pContext.getClickedPos().relative(clickedFace.getOpposite());
             BlockState supportState = pContext.getLevel().getBlockState(supportPos);
-            postMounted = supportState.getBlock() instanceof TrafficSignPostBlock;
-            wallMounted = postMounted
+            directMounted = directSupport(supportState, clickedFace)
+                && (!(supportState.getBlock() instanceof TrafficSignPostBlock) || pContext.getPlayer() != null && pContext.getPlayer().isShiftKeyDown());
+            directMount = directMounted ? directMountKind(supportState, clickedFace) : 0;
+            postMounted = !directMounted && supportState.getBlock() instanceof TrafficSignPostBlock;
+            wallMounted = directMounted || postMounted
                 || supportState.isFaceSturdy(pContext.getLevel(), supportPos, clickedFace);
             if (postMounted) {
                 wallMounted = false;
@@ -291,7 +309,8 @@ public class TrafficSignBlock extends BaseEntityBlock implements SimpleWaterlogg
             .setValue(WATERLOGGED, flag)
             .setValue(WALL_MOUNTED, wallMounted)
             .setValue(DIAGONAL, diagonal)
-            .setValue(POST_MOUNTED, postMounted);
+            .setValue(POST_MOUNTED, postMounted)
+            .setValue(DIRECT_MOUNTED, directMount);
     }
 
     private static int getPlacementSector(float rotation) {
@@ -328,11 +347,14 @@ public class TrafficSignBlock extends BaseEntityBlock implements SimpleWaterlogg
     @Override
     protected void createBlockStateDefinition(Builder<Block, BlockState> pBuilder) {
         super.createBlockStateDefinition(pBuilder);
-        pBuilder.add(FACING, WATERLOGGED, WALL_MOUNTED, DIAGONAL, POST_MOUNTED, SHAPE);
+        pBuilder.add(FACING, WATERLOGGED, WALL_MOUNTED, DIAGONAL, POST_MOUNTED, DIRECT_MOUNTED, SHAPE);
     }
 
     @Override
     public boolean canSurvive(BlockState pState, LevelReader pLevel, BlockPos pPos) {
+        if (pState.getValue(DIRECT_MOUNTED) > 0) {
+            return directSupport(pLevel.getBlockState(pPos.relative(pState.getValue(FACING).getOpposite())), pState.getValue(FACING));
+        }
         if (pState.getValue(POST_MOUNTED)) {
             BlockPos supportPos = pPos.relative(pState.getValue(FACING).getOpposite());
             return pLevel.getBlockState(supportPos).getBlock() instanceof TrafficSignPostBlock;
@@ -361,6 +383,8 @@ public class TrafficSignBlock extends BaseEntityBlock implements SimpleWaterlogg
             return Blocks.AIR.defaultBlockState();
         }
   
+        if (supportChanged && pState.getValue(DIRECT_MOUNTED) > 0)
+            pState = pState.setValue(DIRECT_MOUNTED, directMountKind(pFacingState, pState.getValue(FACING)));
         return super.updateShape(pState, pFacing, pFacingState, pLevel, pCurrentPos, pFacingPos);
     }
 
@@ -387,6 +411,7 @@ public class TrafficSignBlock extends BaseEntityBlock implements SimpleWaterlogg
 
     @Override
     public boolean canConnect(BlockState pState, Direction pDirection) {
+        if (pState.getValue(DIRECT_MOUNTED) > 0) return false;
         if (pState.getValue(POST_MOUNTED)) {
             // The inclined plate already reaches into the supporting post's
             // block. A separate horizontal arm passes through the sign and is
@@ -406,4 +431,23 @@ public class TrafficSignBlock extends BaseEntityBlock implements SimpleWaterlogg
     public BlockEntity newBlockEntity(BlockPos pPos, BlockState pState) {
         return new TrafficSignBlockEntity(pPos, pState);
     }
+
+    private static boolean directSupport(BlockState state, Direction side) {
+        if (!side.getAxis().isHorizontal()) return false;
+        if (state.getBlock() instanceof TrafficLightBlock) {
+            return (state.getBlock() instanceof HorizontalTrafficLightBlock || !state.getValue(TrafficLightBlock.DIAGONAL)) && side == state.getValue(TrafficLightBlock.FACING).getOpposite();
+        }
+        if (state.getBlock() instanceof RoadBarrierFenceBlock) return side.getAxis() == state.getValue(RoadBarrierFenceBlock.FACING).getAxis();
+        if (state.getBlock() instanceof ConcreteBarrierBlock) return side.getAxis() == state.getValue(ConcreteBarrierBlock.FACING).getAxis();
+        return state.getBlock() instanceof TrafficSignPostBlock;
+    }
+
+
+    public static int directDepth(int mount) { return mount == 2 ? 3 : mount == 3 ? 6 : 7; }
+    private static int directMountKind(BlockState support, Direction face) {
+        if (support.getBlock() instanceof ConcreteBarrierBlock) return 2;
+        if (support.getBlock() instanceof RoadBarrierFenceBlock && face == support.getValue(RoadBarrierFenceBlock.FACING)) return 3;
+        return 1;
+    }
+
 }

@@ -1,5 +1,6 @@
 package com.destan.trafficengine.client.screen;
 
+import com.destan.trafficengine.client.gui.TEText;
 import java.util.*;
 import com.destan.trafficengine.block.data.*;
 import com.destan.trafficengine.block.entity.*;
@@ -68,7 +69,7 @@ public class TrafficLightScheduleEditor extends TrafficEngineScreen {
         }) {
             @Override protected void renderLabel(GuiGraphics g, int color) {
                 g.renderItem(triggerIcon, getX() + 3, getY() + 2);
-                g.drawString(font, getMessage(), getX() + 22 + Math.max(0, (getWidth() - 26 - font.width(getMessage())) / 2), getY() + 6, color, false);
+                TEText.drawString(g, font, getMessage(), getX() + 22 + Math.max(0, (getWidth() - 26 - font.width(getMessage())) / 2), getY() + 6, color, false);
             }
         });
         Component blinkLabel = text("blink_toggle").copy().append(": ");
@@ -80,8 +81,8 @@ public class TrafficLightScheduleEditor extends TrafficEngineScreen {
                 Component state = schedule.isBlinkAtEnd() ? CommonComponents.OPTION_ON : CommonComponents.OPTION_OFF;
                 int x = getX() + (getWidth() - font.width(blinkLabel) - font.width(state)) / 2;
                 int y = getY() + (getHeight() - font.lineHeight) / 2;
-                g.drawString(font, blinkLabel, x, y, color, false);
-                g.drawString(font, state, x + font.width(blinkLabel), y + 1,
+                TEText.drawString(g, font, blinkLabel, x, y, color, false);
+                TEText.drawString(g, font, state, x + font.width(blinkLabel), y + 1,
                     schedule.isBlinkAtEnd() ? 0xFF55FF55 : 0xFFFF5555, false);
             }
         });
@@ -283,9 +284,9 @@ public class TrafficLightScheduleEditor extends TrafficEngineScreen {
     @Override public void render(GuiGraphics g, int mx, int my, float tick) {
         renderWindow(g);
         if (controller) {
-            g.drawString(font, text("transition_light"), left + 12, top + 98, TEColors.MUTED, false);
+            TEText.drawString(g, font, text("transition_light"), left + 12, top + 98, TEColors.MUTED, false);
             Component durationLabel = text("red_yellow_seconds");
-            g.drawString(font, durationLabel, left + windowWidth - 70 - font.width(durationLabel), top + 98, TEColors.MUTED, false);
+            TEText.drawString(g, font, durationLabel, left + windowWidth - 70 - font.width(durationLabel), top + 98, TEColors.MUTED, false);
         }
         String key = error != null ? error : controller ? schedule.isManualController() ? "help_manual" : "help_sequence" : "help_own";
         if (!key.equals(helpKey)) { helpLabel = MultiLineLabel.create(font, text(key), windowWidth - 24, 2); helpKey = key; }
@@ -297,13 +298,13 @@ public class TrafficLightScheduleEditor extends TrafficEngineScreen {
         TEPanel.draw(g, left + 12, rowTop - 18, windowWidth - 24, visibleRows * ROW_HEIGHT + 22);
         g.fill(left + 13, rowTop - 1, left + windowWidth - 13, rowTop, TEColors.BORDER);
         if (controller) {
-            g.drawString(font, text("phase_id"), left + 20, headerY, TEColors.MUTED, false);
+            TEText.drawString(g, font, text("phase_id"), left + 20, headerY, TEColors.MUTED, false);
             Component greenLabel = text("green_seconds"), redLabel = text("red_seconds");
-            g.drawString(font, greenLabel, left + 102 + (65 - font.width(greenLabel)) / 2, headerY, GREEN, false);
-            g.drawString(font, redLabel, left + 190 + (65 - font.width(redLabel)) / 2, headerY, RED, false);
+            TEText.drawString(g, font, greenLabel, left + 102 + (65 - font.width(greenLabel)) / 2, headerY, GREEN, false);
+            TEText.drawString(g, font, redLabel, left + 190 + (65 - font.width(redLabel)) / 2, headerY, RED, false);
         } else {
-            g.drawString(font, text("color"), left + 24, headerY, TEColors.MUTED, false);
-            g.drawString(font, text("seconds"), left + 215, headerY, TEColors.MUTED, false);
+            TEText.drawString(g, font, text("color"), left + 24, headerY, TEColors.MUTED, false);
+            TEText.drawString(g, font, text("seconds"), left + 215, headerY, TEColors.MUTED, false);
         }
         int cycleTicks = controller && !schedule.isManualController() ? schedule.getSequentialCycleTicks() : 0;
         for (int i = offset; i < Math.min(schedule.getEntries().size(), offset + visibleRows); i++) {
@@ -313,7 +314,7 @@ public class TrafficLightScheduleEditor extends TrafficEngineScreen {
                 var e = schedule.getEntries().get(i);
                 int red = e.getDurationTicks() <= 0 ? 0 : Math.max(0, cycleTicks - e.getDurationTicks() - schedule.getRedYellowTicks() * 2);
                 String seconds = Integer.toString(red / 20);
-                g.drawString(font, seconds, left + 190 + (65 - font.width(seconds)) / 2, y + 9, RED, false);
+                TEText.drawString(g, font, seconds, left + 190 + (65 - font.width(seconds)) / 2, y + 9, RED, false);
             }
         }
         if (maxOffset() > 0) {

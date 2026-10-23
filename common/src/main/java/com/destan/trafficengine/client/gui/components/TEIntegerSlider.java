@@ -1,5 +1,6 @@
 package com.destan.trafficengine.client.gui.components;
 
+import com.destan.trafficengine.client.gui.TEText;
 import java.util.function.IntConsumer;
 import java.util.function.IntFunction;
 import com.destan.trafficengine.client.gui.theme.TEColors;
@@ -35,6 +36,6 @@ public class TEIntegerSlider extends AbstractSliderButton {
         TEPanel.fillRounded(g, knob - 3, getY() + height - 6, 6, 6, TEColors.ACCENT);
         var font = Minecraft.getInstance().font;
         String text = font.plainSubstrByWidth(getMessage().getString(), width - 12);
-        g.drawString(font, text, getX() + (width - font.width(text)) / 2, getY() + 3, TEColors.TEXT, false);
+        TEText.drawString(g, font, text, getX() + (width - font.width(text)) / 2, getY() + 3, TEColors.TEXT, false);
     }
 }

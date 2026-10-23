@@ -1,5 +1,6 @@
 package com.destan.trafficengine.client.screen;
 
+import com.destan.trafficengine.client.gui.TEText;
 import com.destan.trafficengine.block.entity.TownSignBlockEntity;
 import com.destan.trafficengine.block.TownSignBlock;
 import com.destan.trafficengine.block.data.TownSignVariant;
@@ -68,7 +69,7 @@ public class WritableTrafficSignScreen extends TrafficEngineScreen {
     }
     private void renderPreview(GuiGraphics g) {
         TEPanel.draw(g,left+12,top+49,142,132);
-        g.drawString(font,Component.translatable("gui.trafficengine.patterns.preview"),left+20,top+57,TEColors.MUTED,false);
+        TEText.drawString(g, font,Component.translatable("gui.trafficengine.patterns.preview"),left+20,top+57,TEColors.MUTED,false);
         float scale=84, center=left+83, baseY=top+116;
         var state=sign.getBlockState().getBlock().defaultBlockState();
         if(state.hasProperty(WritableTrafficSign.FACING)) state=state.setValue(WritableTrafficSign.FACING,Direction.NORTH);
@@ -90,7 +91,7 @@ public class WritableTrafficSignScreen extends TrafficEngineScreen {
             g.pose().pushPose();
             g.pose().translate(center+data.xOffset()*scale,baseY+data.yOffset()*scale-SignTextConfig.DEFAULT_LINE_HEIGHT/2F*config.lineData()[0].lineHeightScale()+config.getLineHeightsUntil(i)+config.getLineOffset(i,sy),105);
             g.pose().scale(sx,sy,1);
-            g.drawString(font,line,-font.width(line)/2,0,data.color()|0xFF000000,false);
+            TEText.drawString(g, font,line,-font.width(line)/2,0,data.color()|0xFF000000,false);
             g.pose().popPose();
         }
     }

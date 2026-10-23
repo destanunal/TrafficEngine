@@ -63,6 +63,7 @@ public final class RoadMarkingMesh {
             if (neighbour == null || !connectedRoad(neighbour.state)
                     || neighbour.state.getValue(ConnectedRoadBlock.STYLE) != state.getValue(ConnectedRoadBlock.STYLE)
                     || !(level.getBlockEntity(neighbour.pos) instanceof ColoredBlockEntity other)) continue;
+            if (!other.getCustomRoadPattern().isEmpty()) continue;
             // Old saved straight meshes may also belong to a multi-block operation.
             // Keep their existing ports until an explicitly automatic neighbour is painted.
             if (entity.getAutomaticLinePosition() == -2 && other.getAutomaticLinePosition() < 0

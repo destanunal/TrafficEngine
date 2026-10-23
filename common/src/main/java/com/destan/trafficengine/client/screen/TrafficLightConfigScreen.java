@@ -1,5 +1,6 @@
 package com.destan.trafficengine.client.screen;
 
+import com.destan.trafficengine.client.gui.TEText;
 import java.util.ArrayList;
 import java.util.List;
 import com.destan.trafficengine.Constants;
@@ -15,6 +16,7 @@ import com.destan.trafficengine.client.TrafficLightTextureManager;
 import com.destan.trafficengine.client.ModGuiIcons;
 import com.destan.trafficengine.client.gui.TrafficEngineScreen;
 import com.destan.trafficengine.client.gui.components.TEButton;
+import com.destan.trafficengine.client.gui.components.TESignalIcons;
 import com.destan.trafficengine.client.gui.components.TECloseButton;
 import com.destan.trafficengine.client.gui.components.TENumberBox;
 import com.destan.trafficengine.client.gui.components.TEPanel;
@@ -193,18 +195,33 @@ public class TrafficLightConfigScreen extends TrafficEngineScreen {
             choice.setTooltip(Tooltip.create(model.getValueTranslation()));
         }
         label(text("icon_label"), 89);
-        // Two columns leave room for names at the smallest Minecraft GUI scale.
         TrafficLightIcon[] icons = TrafficLightIcon.getAllowedForType(config.type);
-        int iconWidth = (formWidth - 11) / 2;
+        int columns = Math.max(1, (formWidth - 10 + 4) / 30);
         for (int i = 0; i < icons.length; i++) {
             TrafficLightIcon icon = icons[i];
-            button(formX + 5 + i % 2 * iconWidth, 102 + i / 2 * 24, iconWidth - 3,
-                icon.getValueTranslation(), config.icon == icon, b -> {
-                    config.icon = icon;
-                    config.useTwoLightColors();
-                    rebuildForm();
-                });
+            int y = 102 + i / columns * 30;
+            IconButton choice = field(new IconButton(formX + 5 + i % columns * 30, formY + y, icon, b -> {
+                config.icon = icon;
+                config.customMask = com.destan.trafficengine.data.PixelPattern.EMPTY;
+                config.useTwoLightColors();
+                rebuildForm();
+            }), y);
+            choice.setSelected(config.customMask.isEmpty() && config.icon == icon);
         }
+        Component addTitle = Component.translatable("gui.trafficengine.stencil.add_icon");
+        int addWidth = Math.min(formWidth - 10, font.width(addTitle) + 34);
+        int addX = 5 + icons.length % columns * 30;
+        int addY = 102 + icons.length / columns * 30;
+        // A labelled drawing action follows the presets, with a gap and wrapping when needed.
+        if (icons.length % columns != 0) {
+            addX += 8;
+            if (addX + addWidth > formWidth - 5) {
+                addX = 5;
+                addY += 30;
+            }
+        }
+        CustomIconButton add = field(new CustomIconButton(formX + addX, formY + addY, addWidth, addTitle), addY);
+        add.setSelected(!config.customMask.isEmpty());
     }
 
     private TrafficLightColor slotColor(int slot) {
@@ -456,7 +473,7 @@ public class TrafficLightConfigScreen extends TrafficEngineScreen {
         for (int i = 0; i < maxSlots; i++) safeColors[i] = slotColor(i);
         ModNetworkManager.UPDATE_TRAFFIC_LIGHT_PACKET.send(NetworkDirection.toServer(), new TrafficLightPacket(
             config.blockPos, config.enabledColors, config.type, config.model, config.icon, config.controlType,
-            safeColors, config.phaseId, config.additionalPedestrianStopIds, config.scheduleEnabled));
+            safeColors, config.phaseId, config.additionalPedestrianStopIds, config.scheduleEnabled).withMask(config.customMask));
         super.onClose();
     }
 
@@ -464,14 +481,14 @@ public class TrafficLightConfigScreen extends TrafficEngineScreen {
         renderWindow(g);
         TEPanel.draw(g, previewX, previewY, previewWidth, previewHeight);
         TEPanel.draw(g, formX, formY - 3, formWidth, formHeight + 6);
-        g.drawString(font, previewLabel, previewX + 8, previewY + 8, TEColors.MUTED, false);
+        TEText.drawString(g, font, previewLabel, previewX + 8, previewY + 8, TEColors.MUTED, false);
         renderPreview(g);
         g.enableScissor(formX + 1, formY, formX + formWidth - 1, formY + formHeight);
         for (FormLabel label : labels) {
-            g.drawString(font, label.text, formX + 5,
+            TEText.drawString(g, font, label.text, formX + 5,
                 formY + label.y - scroll, TEColors.MUTED, false);
         }
-        for (HelpLine line : helpLines) g.drawString(font, line.text, formX + 5, formY + line.y - scroll, TEColors.MUTED, false);
+        for (HelpLine line : helpLines) TEText.drawString(g, font, line.text, formX + 5, formY + line.y - scroll, TEColors.MUTED, false);
         for (FormWidget entry : form) entry.widget.render(g, mouseX, mouseY, partialTick);
         g.disableScissor();
         if (maxScroll() > 0) {
@@ -482,7 +499,7 @@ public class TrafficLightConfigScreen extends TrafficEngineScreen {
         }
         for (TEButton widget : chrome) widget.render(g, mouseX, mouseY, partialTick);
         if (showIdWarning()) {
-            g.drawString(font, invalidIdLabel, left + 12,
+            TEText.drawString(g, font, invalidIdLabel, left + 12,
                 top + windowHeight - 23, 0xFFE86A63, false);
         }
     }
@@ -509,7 +526,14 @@ public class TrafficLightConfigScreen extends TrafficEngineScreen {
             int sx = lampX + Math.round(6 * previewScale);
             int sy = lampY + Math.round((1.5f + i * 5) * previewScale);
             int size = Math.round(4 * previewScale);
-            g.blit(signalTextures[i], sx, sy, size, size, 0, 0, 16, 16, 16, 16);
+            if (config.customMask.isEmpty()) g.blit(signalTextures[i], sx, sy, size, size, 0, 0, 16, 16, 16, 16);
+            else {
+                g.fill(sx, sy, sx + size, sy + size, 0xFF11151B);
+                TrafficLightColor color = slotColor(i);
+                int tint = color == TrafficLightColor.RED ? 0xFFFF2020 : color == TrafficLightColor.YELLOW ? 0xFFFFCF20 : color == TrafficLightColor.GREEN ? 0xFF20FF40 : -1;
+                if (color != TrafficLightColor.NONE) for (var rect : config.customMask.rectangles())
+                    g.fill(sx + rect.x() * size / 16, sy + rect.y() * size / 16, sx + (rect.x() + rect.width()) * size / 16, sy + (rect.y() + rect.height()) * size / 16, tint);
+            }
             if (selectedSignal == i) {
                 TEPanel.outline(g, sx - 2, sy - 2, size + 4, size + 4, TEColors.SELECTION_BORDER);
                 TEPanel.outline(g, sx - 1, sy - 1, size + 2, size + 2, TEColors.SELECTION_BORDER);
@@ -518,6 +542,38 @@ public class TrafficLightConfigScreen extends TrafficEngineScreen {
         g.flush();
         RenderSystem.disableBlend();
         g.pose().popPose();
+    }
+
+    private final class IconButton extends TEButton {
+        private final TrafficLightIcon icon;
+        IconButton(int x, int y, TrafficLightIcon icon, OnPress action) {
+            super(x, y, 26, 26, icon.getValueTranslation(), action);
+            this.icon = icon;
+            setTooltip(Tooltip.create(getMessage()));
+        }
+        @Override protected void renderLabel(GuiGraphics g, int color) {
+            TESignalIcons.draw(g, icon, getX() + 5, getY() + 5, color);
+        }
+    }
+    private final class CustomIconButton extends TEButton {
+        CustomIconButton(int x, int y, int width, Component title) {
+            super(x, y, width, 22, title, b ->
+                minecraft.setScreen(new PixelPatternScreen(TrafficLightConfigScreen.this, config.customMask,
+                    value -> { config.customMask = value; rebuildRequested = true; })));
+            setTooltip(Tooltip.create(getMessage()));
+        }
+        @Override protected void renderLabel(GuiGraphics g, int color) {
+            float scale = TEText.layoutScale(g);
+            int textWidth = Math.round(font.width(getMessage()) * scale);
+            if (width < textWidth + 34) {
+                super.renderLabel(g, color);
+                return;
+            }
+            int x = getX() + (width - 22 - textWidth) / 2;
+            TEWorkbenchIcons.draw(g, ModGuiIcons.EDIT, x, getY() + (height - 16) / 2, color);
+            TEText.drawString(g, font, getMessage(), x + 22,
+                getY() + (height - Math.round(font.lineHeight * scale)) / 2, color, false);
+        }
     }
 
     private final class SignalButton extends TEButton {

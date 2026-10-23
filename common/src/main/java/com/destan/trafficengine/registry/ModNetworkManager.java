@@ -40,6 +40,7 @@ public class ModNetworkManager {
 
     public static final NetworkPacketType.Send<NetworkDirection.C2S, CreativePatternCataloguePacket> UPDATE_CREATIVE_PATTERN_CATALOG_ITEM = NETWORK.registerSendOnlyPacket("update_creative_pattern_catalog_item", NetworkDirection.C2S, CreativePatternCataloguePacket::handle, CreativePatternCataloguePacket::new);
     public static final NetworkPacketType.Send<NetworkDirection.C2S, LinkerModePacket> UPDATE_LINK_MODE = NETWORK.registerSendOnlyPacket("update_link_mode", NetworkDirection.C2S, LinkerModePacket::handle, LinkerModePacket::new);
+    public static final NetworkPacketType.Send<NetworkDirection.C2S, com.destan.trafficengine.network.packets.cts.ChevronPanelPacket> UPDATE_CHEVRON_PANEL = NETWORK.registerSendOnlyPacket("update_chevron_panel", NetworkDirection.C2S, com.destan.trafficengine.network.packets.cts.ChevronPanelPacket::handle, com.destan.trafficengine.network.packets.cts.ChevronPanelPacket::new);
     public static final NetworkPacketType.Send<NetworkDirection.C2S, LedDevicePacket> UPDATE_LED_DEVICE = NETWORK.registerSendOnlyPacket("update_led_device", NetworkDirection.C2S, LedDevicePacket::handle, LedDevicePacket::new);
     public static final NetworkPacketType.Send<NetworkDirection.C2S, PaintBrushPacket> UPDATE_PAINT_BRUSH = NETWORK.registerSendOnlyPacket("update_paint_brush", NetworkDirection.C2S, PaintBrushPacket::handle, PaintBrushPacket::new);
     public static final NetworkPacketType.Send<NetworkDirection.C2S, PatternCatalogueIndexPacket> UPDATE_PATTERN_CATALOG_INDEX = NETWORK.registerSendOnlyPacket("update_pattern_catalog_index", NetworkDirection.C2S, PatternCatalogueIndexPacket::handle, PatternCatalogueIndexPacket::new);
@@ -62,5 +63,8 @@ public class ModNetworkManager {
     public static final NetworkPacketType.Send<NetworkDirection.C2S, PaintBrushUndoPacket> UNDO_PAINT_BRUSH = NETWORK.registerSendOnlyPacket(
         "undo_paint_brush", NetworkDirection.C2S, PaintBrushUndoPacket::handle, PaintBrushUndoPacket::new);
 
+    public static final NetworkPacketType.Send<NetworkDirection.C2S, com.destan.trafficengine.network.packets.cts.WarningLightPacket> UPDATE_WARNING_LIGHT = NETWORK.registerSendOnlyPacket(
+        "update_warning_light", NetworkDirection.C2S, com.destan.trafficengine.network.packets.cts.WarningLightPacket::handle,
+        com.destan.trafficengine.network.packets.cts.WarningLightPacket::new);
     public static void init() {}
 }

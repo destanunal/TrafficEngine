@@ -50,6 +50,7 @@ public class TrafficLightBlockEntityRenderer extends RotatableBlockEntityRendere
     public static void flushTimerCache() { timerPersistence.flush(false); }
 
     public static void clearRuntimeCache() {
+        TrafficLightTextureManager.clearStencilCache();
         timerPersistence.flush(true);
         startTimes.clear();
         knownDurations.clear();
@@ -140,6 +141,7 @@ public class TrafficLightBlockEntityRenderer extends RotatableBlockEntityRendere
         BlockState state = graphics.blockEntity() == null ? null : graphics.blockEntity().getBlockState();
         boolean diagonal = state != null
             && !(state.getBlock() instanceof HorizontalTrafficLightBlock)
+            && !(state.getBlock() instanceof com.destan.trafficengine.block.WarningLightBlock)
             && state.hasProperty(TrafficLightBlock.DIAGONAL)
             && state.getValue(TrafficLightBlock.DIAGONAL);
 
@@ -160,7 +162,9 @@ public class TrafficLightBlockEntityRenderer extends RotatableBlockEntityRendere
     }
 
     private void renderOriented(RenderContext<TrafficLightBlockEntity> graphics, float pPartialTick) {
-        // YENİ EKLENEN KONTROL BLOĞU:
+        if (graphics.blockEntity().getBlockState().getBlock() instanceof com.destan.trafficengine.block.WarningLightBlock) {
+            WarningLightRenderer.render(graphics); return;
+        }
         if (graphics.blockEntity().getBlockState().getBlock() instanceof HorizontalTrafficLightBlock) {
             this.horizontalRenderer.renderBlock(graphics, pPartialTick);
             return;
