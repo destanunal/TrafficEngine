@@ -41,8 +41,14 @@ public class HouseNumberSignBlockEntity extends WritableTrafficSignBlockEntity i
 
     @Override
     public void loadAdditional(CompoundTag compound, HolderLookup.Provider provider) {
+        PaintColor previousColor = this.color;
         super.loadAdditional(compound, provider);
         this.color = PaintColor.getByIndex(compound.getInt(NBT_COLOR));
+        // The block-state packet can rebuild Embeddium's mesh before the paint
+        // data arrives. Invalidate it after reading the new colour, once per change.
+        if (previousColor != this.color && level != null && level.isClientSide) {
+            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
+        }
     }
 
     @Override
@@ -53,9 +59,12 @@ public class HouseNumberSignBlockEntity extends WritableTrafficSignBlockEntity i
 
     @Override
     public void setColor(PaintColor color) {
+        if (this.color == color) return;
         this.color = color;
         notifyUpdate();
-        getLevel().sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 512);
+        if (level != null && level.isClientSide) {
+            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
+        }
     }
 
     @Override

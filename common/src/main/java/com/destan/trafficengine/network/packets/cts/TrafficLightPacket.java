@@ -47,6 +47,8 @@ public class TrafficLightPacket extends NetworkPacketData {
     private int phaseId;
     private Collection<Integer> additionalPedestrianStopIds = List.of();
     private boolean scheduleEnabled;
+    private com.destan.trafficengine.data.PixelPattern mask = com.destan.trafficengine.data.PixelPattern.EMPTY;
+    public TrafficLightPacket withMask(com.destan.trafficengine.data.PixelPattern value) { mask = value; return this; }
 
     public TrafficLightPacket(PacketStatus status) {
         super(status);
@@ -86,6 +88,7 @@ public class TrafficLightPacket extends NetworkPacketData {
         nbt.putInt(NBT_ID, phaseId);
         nbt.putIntArray(NBT_ADDITIONAL_STOP_IDS, additionalPedestrianStopIds.stream().mapToInt(Integer::intValue).toArray());
         nbt.putBoolean(NBT_SCHEDULED, scheduleEnabled);
+        if (!mask.isEmpty()) nbt.putLongArray("custom_mask", mask.bits());
     }
 
     @Override
@@ -100,6 +103,7 @@ public class TrafficLightPacket extends NetworkPacketData {
         this.phaseId = nbt.getInt(NBT_ID);
         this.additionalPedestrianStopIds = Arrays.stream(nbt.getIntArray(NBT_ADDITIONAL_STOP_IDS)).limit(8).boxed().toList();
         this.scheduleEnabled = nbt.getBoolean(NBT_SCHEDULED);
+        mask = com.destan.trafficengine.data.PixelPattern.of(nbt.getLongArray("custom_mask"));
     }
     
     
@@ -107,9 +111,13 @@ public class TrafficLightPacket extends NetworkPacketData {
         ServerPlayer player = (ServerPlayer)context.getPlayer();
         if (player != null) {
             Level level = player.level();
-            if (level.isLoaded(packet.pos)) {
+            if (level.isLoaded(packet.pos) && !player.isSpectator()
+                    && player.distanceToSqr(packet.pos.getX()+.5, packet.pos.getY()+.5, packet.pos.getZ()+.5) <= 64
+                    && level.mayInteract(player, packet.pos)
+                    && player.mayUseItemAt(packet.pos, net.minecraft.core.Direction.UP, player.getMainHandItem())
+                    && level.getBlockState(packet.pos).getBlock() instanceof TrafficLightBlock
+                    && !(level.getBlockState(packet.pos).getBlock() instanceof com.destan.trafficengine.block.WarningLightBlock)) {
                 BlockState state = level.getBlockState(packet.pos);
-                if (!(state.getBlock() instanceof TrafficLightBlock)) return;
                 if (state.getValue(TrafficLightBlock.MODEL) != packet.model) {
                     level.setBlockAndUpdate(packet.pos, state.setValue(TrafficLightBlock.MODEL, packet.model));
                 }
@@ -121,6 +129,7 @@ public class TrafficLightPacket extends NetworkPacketData {
                         blockEntity.setAdditionalPedestrianStopIds(packet.additionalPedestrianStopIds);
                     }
                     if (blockEntity.getIcon() != packet.icon) blockEntity.setIcon(packet.icon);
+                    blockEntity.setCustomMask(packet.mask);
                     if (!Arrays.equals(blockEntity.getColorSlots(), packet.colors)) blockEntity.setColorSlots(packet.colors);
                     if (packet.controlType == TrafficLightControlType.STATIC) blockEntity.enableOnlyColors(packet.enabledColors);
                     if (blockEntity.getTLType() != packet.type) blockEntity.setType(packet.type);

@@ -63,7 +63,9 @@ public class RoadInformationSignBlock extends WritableTrafficSign implements ITr
         if (mounted) {
             if(back<23) shape=Shapes.or(shape,box(facing,7,7,back,9,9,23));
         } else {
-            double carrierTop=kind==Kind.DIRECTION?(upper?16:14):top;
+            // A highway panel extends above its block; a connected upper pole
+            // already supplies that part of the carrier.
+            double carrierTop=upper?16:kind==Kind.DIRECTION?14:top;
             shape=Shapes.or(shape,box(facing,7,0,7,9,carrierTop,9));
             double low=kind==Kind.DIRECTION?5:3, high=kind==Kind.HIGHWAY?19:kind==Kind.DIRECTION?9:11;
             shape=Shapes.or(shape,box(facing,7,low,back,9,low+2,9),box(facing,7,high,back,9,high+2,9));

@@ -1,6 +1,7 @@
 package com.destan.trafficengine.client.screen;
 
 import com.destan.trafficengine.util.ItemData;
+import com.destan.trafficengine.client.gui.TEText;
 import java.util.ArrayList;
 import java.util.List;
 import com.destan.trafficengine.block.data.RoadType;
@@ -111,12 +112,12 @@ public class RoadConstructionToolScreen extends TrafficEngineScreen {
     }
     @Override public void render(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
         renderWindow(g);
-        g.drawString(font, text("road_blocks"), left + 14, top + 117, TEColors.MUTED, false);
+        TEText.drawString(g, font, text("road_blocks"), left + 14, top + 117, TEColors.MUTED, false);
         TEPanel.draw(g, left + 14, top + 166, windowWidth - 28, 56);
-        g.drawString(font, text("required_resources"), left + 22, top + 174, TEColors.MUTED, false);
+        TEText.drawString(g, font, text("required_resources"), left + 22, top + 174, TEColors.MUTED, false);
         if (pos1 != null && pos2 != null) {
-            g.renderItem(blockIcon, left + 22, top + 192); g.drawString(font, blockCount, left + 43, top + 196, TEColors.TEXT, false);
-            g.renderItem(slopeIcon, left + windowWidth / 2, top + 192); g.drawString(font, slopeCount, left + windowWidth / 2 + 21, top + 196, TEColors.TEXT, false);
+            g.renderItem(blockIcon, left + 22, top + 192); TEText.drawString(g, font, blockCount, left + 43, top + 196, TEColors.TEXT, false);
+            g.renderItem(slopeIcon, left + windowWidth / 2, top + 192); TEText.drawString(g, font, slopeCount, left + windowWidth / 2 + 21, top + 196, TEColors.TEXT, false);
         }
         super.render(g, mouseX, mouseY, partialTick);
     }

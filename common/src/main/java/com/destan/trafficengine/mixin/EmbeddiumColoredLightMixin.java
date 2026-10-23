@@ -1,6 +1,7 @@
 package com.destan.trafficengine.mixin;
 
 import com.destan.trafficengine.client.lighting.ClientColoredLighting;
+import com.destan.trafficengine.client.lighting.RgbLightMath;
 import com.destan.trafficengine.client.model.EmissiveQuad;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.world.phys.Vec3;
@@ -25,11 +26,7 @@ public abstract class EmbeddiumColoredLightMixin {
                 baked.getDirection(), light);
         if (tint == null) return;
         for (int i=0;i<4;i++) {
-            int color = colors[i];
-            int red = Math.round((color>>16&255)*tint.red());
-            int green = Math.round((color>>8&255)*tint.green());
-            int blue = Math.round((color&255)*tint.blue());
-            colors[i] = (color&0xFF000000)|(red<<16)|(green<<8)|blue;
+            colors[i] = RgbLightMath.tintAbgr(colors[i], tint.red(), tint.green(), tint.blue());
             int minimum = tint.brightness()<<4;
             if ((light[i]&0xF0)<minimum) light[i]=(light[i]&~0xF0)|minimum;
         }

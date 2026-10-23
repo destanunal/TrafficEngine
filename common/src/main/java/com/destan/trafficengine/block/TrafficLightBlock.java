@@ -101,12 +101,16 @@ public class TrafficLightBlock extends ColorableBlock implements SimpleWaterlogg
         });
     }
 
+    private static final SoundType LAMP_SOUNDS = new SoundType(SoundType.ANVIL.getVolume(), SoundType.ANVIL.getPitch(),
+        SoundType.ANVIL.getBreakSound(), SoundType.ANVIL.getStepSound(), SoundType.COPPER.getPlaceSound(),
+        SoundType.ANVIL.getHitSound(), SoundType.ANVIL.getFallSound());
+
     public TrafficLightBlock() {
         super(BlockBehaviour.Properties.of()
             .mapColor(MapColor.METAL)
             .strength(5f)
             .requiresCorrectToolForDrops()
-            .sound(SoundType.ANVIL)
+            .sound(LAMP_SOUNDS)
         );
         this.registerDefaultState(this.stateDefinition.any()
             .setValue(FACING, Direction.NORTH)

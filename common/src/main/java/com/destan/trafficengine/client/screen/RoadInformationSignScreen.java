@@ -1,5 +1,6 @@
 package com.destan.trafficengine.client.screen;
 
+import com.destan.trafficengine.client.gui.TEText;
 import com.destan.trafficengine.block.RoadInformationSignBlock.Kind;
 import com.destan.trafficengine.block.entity.RoadInformationSignBlockEntity;
 import com.destan.trafficengine.client.ber.RoadSignGraphics;
@@ -52,7 +53,7 @@ public class RoadInformationSignScreen extends ScaledTrafficEngineScreen {
     private void choice(int x,int y,int width,Component caption,boolean selected,Runnable action) {
         addRenderableWidget(new TEButton(x,y,width,22,caption,b->{action.run();refreshEditor();}).selected(selected));
     }
-    private void label(GuiGraphics g,String key,int y) {g.drawString(font,text(key),left+20,top+y,TEColors.MUTED,false);}
+    private void label(GuiGraphics g,String key,int y) {TEText.drawString(g, font,text(key),left+20,top+y,TEColors.MUTED,false);}
     private void edit(int x,int y,int width,String value,int max,Component caption,java.util.function.Consumer<String> respond,int row) {
         EditBox box=addRenderableWidget(new TEEditBox(font,x,y,width,20,caption));
         box.setMaxLength(max);box.setValue(value);box.setResponder(respond);
@@ -160,7 +161,7 @@ public class RoadInformationSignScreen extends ScaledTrafficEngineScreen {
                 @Override protected void renderLabel(GuiGraphics g,int foreground) {
                     if(value==RoadSignDesign.NO_PANEL)g.fill(getX()+6,getY()+9,getX()+14,getY()+11,foreground);
                     else g.fill(getX()+6,getY()+6,getX()+14,getY()+14,RoadSignGraphics.panelColor(value));
-                    g.drawString(font,getMessage(),getX()+20,getY()+6,foreground,false);
+                    TEText.drawString(g, font,getMessage(),getX()+20,getY()+6,foreground,false);
                 }
             }.selected(design.panelColor(row)==color));
             panelChoices.add(option);
@@ -172,7 +173,7 @@ public class RoadInformationSignScreen extends ScaledTrafficEngineScreen {
         addRenderableWidget(new TEButton(x,y,width,22,text(key),b->{action.run();refreshEditor();}) {
             @Override protected void renderLabel(GuiGraphics g,int foreground) {
                 g.fill(getX()+6,getY()+6,getX()+14,getY()+16,color);
-                g.drawString(font,getMessage(),getX()+20,getY()+7,foreground,false);
+                TEText.drawString(g, font,getMessage(),getX()+20,getY()+7,foreground,false);
             }
         }.selected(selected));
     }
@@ -234,13 +235,13 @@ public class RoadInformationSignScreen extends ScaledTrafficEngineScreen {
             label(g,"speed",82);label(g,"speed.presets",139);label(g,"screen.title",219);
         } else if(tab==0) {
             int count=design.visibleRows(sign.kind()==Kind.HIGHWAY);
-            for(int i=0;i<count;i++)g.drawString(font,Component.translatable(KEY+"destination",i+1),left+20,top+79+i*70,TEColors.MUTED,false);
+            for(int i=0;i<count;i++)TEText.drawString(g, font,Component.translatable(KEY+"destination",i+1),left+20,top+79+i*70,TEColors.MUTED,false);
         } else if(tab==1) {
             label(g,"background",82);label(g,"ink.title",168);label(g,"frame.title",211);label(g,"details",253);
         } else {
             label(g,"template.title",82);label(g,"rows.title",127);label(g,"align.title",172);label(g,"size.title",217);label(g,"arrows.title",259);
         }
-        g.drawString(font,text("live_preview"),previewX+12,top+83,TEColors.ACCENT,false);
+        TEText.drawString(g, font,text("live_preview"),previewX+12,top+83,TEColors.ACCENT,false);
         g.flush();g.pose().pushPose();
         previewScale=Math.min((previewWidth-24F)/RoadSignGraphics.width(sign.kind()),194F/RoadSignGraphics.height(sign.kind()));
         previewLeft=previewX+(previewWidth-RoadSignGraphics.width(sign.kind())*previewScale)/2;

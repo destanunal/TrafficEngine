@@ -4,10 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import com.destan.trafficengine.TrafficEngine;
+import com.destan.trafficengine.data.RoadPatternNumbers;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
-/** Client-only presentation metadata. IDs and their original display order stay intact. */
+/** Client-only choices and captions. Persistent IDs stay stable across catalogue changes. */
 public final class PatternCatalog {
     public enum Category {
         ALL, LINES, ARROWS, LETTERS, NUMBERS, SYMBOLS, FAVORITES;
@@ -18,6 +19,7 @@ public final class PatternCatalog {
         private final Category category;
         Pattern(int id, Category category) { this.id = id; this.category = category; }
         public int id() { return id; }
+        public int displayNumber() { return RoadPatternNumbers.displayNumber(id); }
         public Category category() { return category; }
         public ResourceLocation texture() {
             return ResourceLocation.fromNamespaceAndPath(TrafficEngine.MOD_ID,
@@ -29,13 +31,13 @@ public final class PatternCatalog {
             }
             if (category == Category.LETTERS) return Component.literal(Character.toString((char)('A' + id - 261)));
             if (category == Category.NUMBERS) return Component.literal(Integer.toString(id - 287));
-            return Component.translatable("gui.trafficengine.patterns.number", id);
+            return Component.translatable("gui.trafficengine.patterns.number", displayNumber());
         }
         public boolean matches(String query) {
             String needle = query.strip().toLowerCase(Locale.ROOT);
             if (needle.isEmpty()) return true;
             if (needle.startsWith("#")) needle = needle.substring(1);
-            return Integer.toString(id).equals(needle) || name().getString().toLowerCase(Locale.ROOT).contains(needle)
+            return Integer.toString(displayNumber()).equals(needle) || name().getString().toLowerCase(Locale.ROOT).contains(needle)
                 || category.title().getString().toLowerCase(Locale.ROOT).contains(needle);
         }
     }
@@ -45,6 +47,7 @@ public final class PatternCatalog {
         List<Pattern> entries = new ArrayList<>();
         entries.add(new Pattern(0, Category.SYMBOLS));
         for (int id = 1; id <= 314; id++) {
+            if (!RoadPatternNumbers.isVisible(id)) continue;
             entries.add(new Pattern(id, category(id)));
             if (id == 1) entries.add(new Pattern(316, Category.LINES));
             if (id == 246) entries.add(new Pattern(317, Category.ARROWS));

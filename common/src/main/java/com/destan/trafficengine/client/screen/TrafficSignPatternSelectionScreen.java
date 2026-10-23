@@ -1,5 +1,6 @@
 package com.destan.trafficengine.client.screen;
 
+import com.destan.trafficengine.client.gui.TEText;
 import java.util.*;
 import com.destan.trafficengine.block.data.TrafficSignShape;
 import com.destan.trafficengine.client.gui.*;
@@ -120,9 +121,9 @@ public class TrafficSignPatternSelectionScreen extends TrafficEngineScreen {
         TEPanel.draw(g, left + 12, gridY, gridWidth, rows * cellSize + 4);
         int px = left + windowWidth - 105;
         TEPanel.draw(g, px - 6, gridY, 99, rows * cellSize + 4);
-        g.drawString(font, Component.translatable("gui.trafficengine.patterns.preview"), px, gridY + 8, TEColors.MUTED, false);
+        TEText.drawString(g, font, Component.translatable("gui.trafficengine.patterns.preview"), px, gridY + 8, TEColors.MUTED, false);
         var ref = ((PatternCatalogueItem)stack.getItem()).getSelectedImageData(stack);
-        if (ref != null) { drawTexture(g, ref, px + 9, gridY + 30, 64); g.drawString(font, font.plainSubstrByWidth(ref.getName(), 88), px, gridY + 113, TEColors.TEXT, false); }
+        if (ref != null) { drawTexture(g, ref, px + 9, gridY + 30, 64); TEText.drawString(g, font, font.plainSubstrByWidth(ref.getName(), 88), px, gridY + 113, TEColors.TEXT, false); }
         super.render(g, mx, my, tick);
     }
 }

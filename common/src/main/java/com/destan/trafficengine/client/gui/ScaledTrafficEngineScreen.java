@@ -11,12 +11,13 @@ public abstract class ScaledTrafficEngineScreen extends TrafficEngineScreen {
 
     @Override protected final void init() {
         int actualWidth = width, actualHeight = height;
-        uiScale = Math.min(1, Math.min(width / 608F, height / 356F));
+        uiScale = Math.min(preferredScale(), Math.min(width / 608F, height / 356F));
         width = Math.round(width / uiScale); height = Math.round(height / uiScale);
         initEditor();
         width = actualWidth; height = actualHeight;
     }
 
+    protected float preferredScale() { return 1; }
     protected abstract void initEditor();
     protected void refreshEditor() { clearWidgets(); init(); }
     protected void beginWindow(GuiGraphics g) {

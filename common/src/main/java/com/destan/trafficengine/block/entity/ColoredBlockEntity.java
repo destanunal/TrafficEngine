@@ -14,6 +14,8 @@ import net.minecraft.world.level.block.state.BlockState;
 public class ColoredBlockEntity extends SyncedBlockEntity implements IColorBlockEntity {
 
     // Properties
+    private com.destan.trafficengine.data.PixelPattern customRoadPattern = com.destan.trafficengine.data.PixelPattern.EMPTY;
+    public static final String CUSTOM_ROAD_PATTERN = "custom_road_pattern";
     protected PaintColor color = PaintColor.NONE;
     // Road blocks use a second tint for their painted marking. Keeping this
     // separate lets a white/blue marking sit on an already painted road.
@@ -32,6 +34,7 @@ public class ColoredBlockEntity extends SyncedBlockEntity implements IColorBlock
         setStrokeVertices(vertices,dashGap,-1);
     }
     public void setStrokeVertices(float[] vertices,int dashGap,int automaticPosition) {
+        customRoadPattern = com.destan.trafficengine.data.PixelPattern.EMPTY;
         roadDashGap=dashGap==4?4:2;
         automaticLinePosition=Math.max(-1,Math.min(2,automaticPosition));
         strokeVertices=vertices.clone();notifyUpdate();
@@ -75,6 +78,7 @@ public class ColoredBlockEntity extends SyncedBlockEntity implements IColorBlock
         float[] previousStroke=strokeVertices;
         int previousAutomaticPosition=automaticLinePosition;
         super.loadAdditional(compound, provider);
+        customRoadPattern = com.destan.trafficengine.data.PixelPattern.of(compound.getLongArray(CUSTOM_ROAD_PATTERN));
         int savedPosition=compound.contains("road_auto_position")?compound.getInt("road_auto_position"):-2;
         automaticLinePosition=savedPosition>=-2 && savedPosition<=2?savedPosition:-1;
         int[] packed=compound.getIntArray("road_stroke");
@@ -85,6 +89,7 @@ public class ColoredBlockEntity extends SyncedBlockEntity implements IColorBlock
             if(!Float.isFinite(value) || value<0 || value>1.01F) {strokeVertices=new float[0];break;}
             strokeVertices[i]=value;
         }
+        if (!customRoadPattern.isEmpty()) strokeVertices = patternVertices();
         this.color = PaintColor.getByIndex(compound.getInt(NBT_COLOR));
         if (compound.contains(NBT_MARKING_COLOR)) {
             this.markingColor = PaintColor.getByIndex(compound.getInt(NBT_MARKING_COLOR));
@@ -100,6 +105,7 @@ public class ColoredBlockEntity extends SyncedBlockEntity implements IColorBlock
         // Rebuild the client mesh now instead of waiting for a second click.
         if (level != null && level.isClientSide
                 && (previousColor != this.color || previousMarkingColor != this.markingColor
+
                     || previousAutomaticPosition!=automaticLinePosition
                     || !java.util.Arrays.equals(previousStroke,strokeVertices))) {
             refreshRoadMeshes();
@@ -110,11 +116,12 @@ public class ColoredBlockEntity extends SyncedBlockEntity implements IColorBlock
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.saveAdditional(tag, provider);
+        if (!customRoadPattern.isEmpty()) tag.putLongArray(CUSTOM_ROAD_PATTERN, customRoadPattern.bits());
         tag.putInt(NBT_COLOR, color.getIndex());
         tag.putInt(NBT_MARKING_COLOR, markingColor.getIndex());
         tag.putInt("road_dash_gap",roadDashGap);
         tag.putInt("road_auto_position",automaticLinePosition);
-        if(strokeVertices.length>0) {
+        if(strokeVertices.length>0 && customRoadPattern.isEmpty()) {
             int[] packed=new int[strokeVertices.length];
             for(int i=0;i<packed.length;i++)packed[i]=Float.floatToRawIntBits(strokeVertices[i]);
             tag.putIntArray("road_stroke",packed);
@@ -144,4 +151,29 @@ public class ColoredBlockEntity extends SyncedBlockEntity implements IColorBlock
         notifyUpdate();
         getLevel().sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
     }
+
+    public com.destan.trafficengine.data.PixelPattern getCustomRoadPattern() { return customRoadPattern; }
+    private float[] patternVertices() {
+        int turns = switch (getBlockState().getValue(com.destan.trafficengine.block.data.RoadBlock.FACING)) {
+            case EAST -> 1; case SOUTH -> 2; case WEST -> 3; default -> 0;
+        };
+        return customRoadPattern.roadVertices((float)com.destan.trafficengine.item.RoadMarkingMesh.height(getBlockState()) + com.destan.trafficengine.item.RoadMarkingMesh.LIFT, turns);
+    }
+    public void setCustomRoadPattern(com.destan.trafficengine.data.PixelPattern pattern) {
+        customRoadPattern = pattern; automaticLinePosition = -1;
+        strokeVertices = pattern.isEmpty() ? new float[0] : patternVertices();
+        notifyUpdate(); refreshRoadMeshes();
+        if (level != null) level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+    }
+
+
+    @Override public void setBlockState(BlockState state) {
+        BlockState before = getBlockState(); super.setBlockState(state);
+        if (customRoadPattern != null && !customRoadPattern.isEmpty() && state.hasProperty(com.destan.trafficengine.block.data.RoadBlock.FACING)
+                && (before.getValue(com.destan.trafficengine.block.data.RoadBlock.FACING) != state.getValue(com.destan.trafficengine.block.data.RoadBlock.FACING)
+                    || com.destan.trafficengine.item.RoadMarkingMesh.height(before) != com.destan.trafficengine.item.RoadMarkingMesh.height(state))) {
+            strokeVertices = patternVertices(); refreshRoadMeshes();
+        }
+    }
+
 }

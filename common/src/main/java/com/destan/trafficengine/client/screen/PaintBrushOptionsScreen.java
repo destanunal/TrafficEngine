@@ -1,5 +1,6 @@
 package com.destan.trafficengine.client.screen;
 
+import com.destan.trafficengine.client.gui.TEText;
 import com.destan.trafficengine.client.gui.ScaledTrafficEngineScreen;
 import com.destan.trafficengine.client.gui.components.TEButton;
 import com.destan.trafficengine.client.gui.components.TEPanel;
@@ -23,6 +24,7 @@ public class PaintBrushOptionsScreen extends ScaledTrafficEngineScreen {
         addRenderableWidget(new TEButton(x,y,width,22,caption,b->{parent.areaStyle=0;action.run();refreshEditor();}).selected(selected));
     }
 
+    @Override protected float preferredScale() { return .94F; }
     @Override protected void initEditor() {
         layoutWindow(536,330); addCloseButton();
         controlsWidth=318; previewX=left+controlsWidth+30; previewWidth=windowWidth-controlsWidth-44;
@@ -82,20 +84,20 @@ public class PaintBrushOptionsScreen extends ScaledTrafficEngineScreen {
     @Override public void render(GuiGraphics g,int mx,int my,float tick) {
         beginWindow(g);
         int x=left+16;
-        g.drawString(font,text("mode.title"),x,top+46,TEColors.MUTED,false);
-        g.drawString(font,text("connection.title"),x,top+92,TEColors.MUTED,false);
-        g.drawString(font,text("style.title"),x,top+136,TEColors.MUTED,false);
-        g.drawString(font,text("path.title"),x,top+180,TEColors.MUTED,false);
-        if(showLanePattern) g.drawString(font,text("dash.title"),x,top+224,TEColors.MUTED,false);
-        g.drawString(font,Component.translatable(KEY+"width",parent.batchPainting?parent.paintWidth:1),x,widthControlsY-17,TEColors.MUTED,false);
+        TEText.drawString(g, font,text("mode.title"),x,top+46,TEColors.MUTED,false);
+        TEText.drawString(g, font,text("connection.title"),x,top+92,TEColors.MUTED,false);
+        TEText.drawString(g, font,text("style.title"),x,top+136,TEColors.MUTED,false);
+        TEText.drawString(g, font,text("path.title"),x,top+180,TEColors.MUTED,false);
+        if(showLanePattern) TEText.drawString(g, font,text("dash.title"),x,top+224,TEColors.MUTED,false);
+        TEText.drawString(g, font,Component.translatable(KEY+"width",parent.batchPainting?parent.paintWidth:1),x,widthControlsY-17,TEColors.MUTED,false);
         TEPanel.draw(g,previewX,top+46,previewWidth,244);
-        g.drawString(font,text("preview"),previewX+10,top+56,TEColors.ACCENT,false);
+        TEText.drawString(g, font,text("preview"),previewX+10,top+56,TEColors.ACCENT,false);
         drawRoadPreview(g);
-        g.drawWordWrap(font,text("connection."+(parent.lineStyle+1)),previewX+10,top+(parent.batchPainting && parent.paintWidth>1?182:134),previewWidth-20,TEColors.TEXT);
-        if(showLinePosition) g.drawString(font,text("position.title"),previewX+10,top+160,TEColors.MUTED,false);
+        TEText.drawWordWrap(g, font,text("connection."+(parent.lineStyle+1)),previewX+10,top+(parent.batchPainting && parent.paintWidth>1?182:134),previewWidth-20,TEColors.TEXT);
+        if(showLinePosition) TEText.drawString(g, font,text("position.title"),previewX+10,top+160,TEColors.MUTED,false);
         int usageY=top+(showLinePosition || parent.batchPainting && parent.paintWidth>1?210:160);
-        g.drawString(font,text("usage.title"),previewX+10,usageY,TEColors.ACCENT,false);
-        g.drawWordWrap(font,text(!parent.batchPainting?"usage.single":parent.pathShape==1?"usage.curve":parent.pathShape==2?"usage.roundabout":"usage.batch"),previewX+10,usageY+16,previewWidth-20,TEColors.TEXT);
+        TEText.drawString(g, font,text("usage.title"),previewX+10,usageY,TEColors.ACCENT,false);
+        TEText.drawWordWrap(g, font,text(!parent.batchPainting?"usage.single":parent.pathShape==1?"usage.curve":parent.pathShape==2?"usage.roundabout":"usage.batch"),previewX+10,usageY+16,previewWidth-20,TEColors.TEXT);
         finishWindow(g,mx,my,tick);
     }
 
@@ -105,7 +107,7 @@ public class PaintBrushOptionsScreen extends ScaledTrafficEngineScreen {
         if(pathPreview!=null) {com.destan.trafficengine.client.gui.RoadAreaPreview.draw(g,pathPreview,x,y,w,h,parent.paintTint());return;}
         int style=parent.lineStyle;
         if(style<0) {
-            g.drawCenteredString(font,text("preview.pattern"),x+w/2,y+(h-font.lineHeight)/2,TEColors.TEXT);return;
+            TEText.drawCenteredString(g, font,text("preview.pattern"),x+w/2,y+(h-font.lineHeight)/2,TEColors.TEXT);return;
         }
         com.destan.trafficengine.client.gui.RoadLinePreview.straight(g,x,y,w,h,style,
             parent.batchPainting?parent.paintWidth:1,parent.dashGap,parent.linePosition,false,parent.paintTint());

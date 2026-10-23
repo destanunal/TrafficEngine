@@ -7,6 +7,7 @@ import net.minecraft.network.chat.Component;
 import com.destan.trafficengine.Constants;
 import com.destan.trafficengine.client.ClientWrapper;
 import com.destan.trafficengine.data.PaintColor;
+import com.destan.trafficengine.data.RoadPatternNumbers;
 import com.destan.trafficengine.block.PaintBucketBlock;
 import com.destan.trafficengine.block.data.RoadBlock;
 import com.destan.trafficengine.block.entity.ColoredBlockEntity;
@@ -47,7 +48,7 @@ public class BrushItem extends Item {
     @Override
     public boolean canAttackBlock(BlockState state, Level worldIn, BlockPos pos, Player player) {
         if (player.isCreative()) {
-            if (state.getBlock() instanceof IPaintableBlock block) {  
+            if (state.getBlock() instanceof IPaintableBlock block) {
                 block.onRemoveColor(state, worldIn, pos, player);
                 return false;
             }
@@ -85,7 +86,8 @@ public class BrushItem extends Item {
             PaintColor paintColor = PaintColor.getByIndex(ItemData.get(stack).getInt(NBT_COLOR));
             String color = paintColor.getValueTranslation().getString();
 
-            list.add(Component.translatable("item.trafficengine.paint_brush.tooltip.pattern", "§f" + ItemData.get(stack).getInt(NBT_PATTERN)).withStyle(ChatFormatting.GRAY));
+            if (ItemData.get(stack).getBoolean("custom_road_enabled")) list.add(Component.translatable("gui.trafficengine.stencil.custom").withStyle(ChatFormatting.GRAY));
+            else list.add(Component.translatable("item.trafficengine.paint_brush.tooltip.pattern", "§f" + RoadPatternNumbers.displayNumber(ItemData.get(stack).getInt(NBT_PATTERN))).withStyle(ChatFormatting.GRAY));
             if (ItemData.get(stack).getInt(NBT_PAINT) == 0) {
                 list.add(Component.translatable("item.trafficengine.paint_brush.tooltip.color", Component.translatable("item.trafficengine.paint_brush.tooltip.color_empty")).withStyle(ChatFormatting.GRAY));
             } else {
@@ -170,10 +172,19 @@ public class BrushItem extends Item {
         BlockState state = level.getBlockState(pos);
         Player player = pContext.getPlayer();
 
+        if (player != null && RoadPainting.isRoad(state)) {
+            var custom = nbt.getBoolean("custom_road_enabled") ? com.destan.trafficengine.data.PixelPattern.of(nbt.getLongArray(ColoredBlockEntity.CUSTOM_ROAD_PATTERN)) : com.destan.trafficengine.data.PixelPattern.EMPTY;
+            boolean copyCustom = player.isShiftKeyDown() && level.getBlockEntity(pos) instanceof ColoredBlockEntity colored && !colored.getCustomRoadPattern().isEmpty();
+            if (!custom.isEmpty() || copyCustom) {
+                InteractionResult result = CustomRoadPainting.use(pContext, custom);
+                if (result != InteractionResult.PASS) return result;
+            }
+        }
         if (player != null && player.isShiftKeyDown() && state.getBlock() instanceof RoadBlock) {
             if (state.getBlock() instanceof com.destan.trafficengine.block.ConnectedRoadBlock
                     || state.getBlock() instanceof com.destan.trafficengine.block.ConnectedRoadSlopeBlock) {
                 if (!level.isClientSide) {
+                    nbt.putBoolean("custom_road_enabled", false);
                     nbt.putInt(RoadPainting.AREA_STYLE,0);
                     nbt.putInt(RoadPainting.STYLE, state.getValue(com.destan.trafficengine.block.ConnectedRoadBlock.STYLE).ordinal());
                     if (level.getBlockEntity(pos) instanceof ColoredBlockEntity colored) {
@@ -200,7 +211,8 @@ public class BrushItem extends Item {
                         if (!level.isClientSide) {
                             nbt.putInt(NBT_PATTERN, pattern);
                             nbt.putInt(RoadPainting.STYLE, -1);
-                            nbt.putInt(RoadPainting.AREA_STYLE,0);
+                            nbt.putBoolean("custom_road_enabled", false);
+                    nbt.putInt(RoadPainting.AREA_STYLE,0);
                             RoadPainting.clearSelection(nbt);
                             nbt.putInt(NBT_COLOR, color.getIndex());
                             ItemData.set(stack, nbt);

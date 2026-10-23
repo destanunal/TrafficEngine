@@ -33,7 +33,9 @@ public class TrafficSignBlockEntityRenderer extends RotatableBlockEntityRenderer
             && state.hasProperty(TrafficSignBlock.POST_MOUNTED)
             && state.getValue(TrafficSignBlock.POST_MOUNTED);
 
-        if (diagonal) {
+        boolean direct = state != null && state.getValue(TrafficSignBlock.DIRECT_MOUNTED) > 0;
+        if (direct) { graphics.poseStack().pushPose(); graphics.poseStack().translate(0, 0, -TrafficSignBlock.directDepth(state.getValue(TrafficSignBlock.DIRECT_MOUNTED))); }
+        else if (diagonal) {
             graphics.poseStack().pushPose();
             graphics.poseStack().translate(8.0f, 8.0f, 8.0f);
             graphics.poseStack().mulPose(Axis.YP.rotationDegrees(-45.0f));
@@ -51,7 +53,7 @@ public class TrafficSignBlockEntityRenderer extends RotatableBlockEntityRenderer
         try {
             renderOriented(graphics);
         } finally {
-            if (diagonal || postMounted) {
+            if (direct || diagonal || postMounted) {
                 graphics.poseStack().popPose();
             }
         }

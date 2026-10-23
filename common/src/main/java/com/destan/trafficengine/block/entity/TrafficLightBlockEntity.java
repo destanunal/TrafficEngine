@@ -57,6 +57,10 @@ public class TrafficLightBlockEntity extends ColoredBlockEntity {
     private Integer pendingPhaseId = null;
     private final Set<Integer> additionalPedestrianStopIds = new LinkedHashSet<>();
     private TrafficLightControlType controlType = TrafficLightControlType.REMOTE;
+    private com.destan.trafficengine.data.PixelPattern customMask = com.destan.trafficengine.data.PixelPattern.EMPTY;
+    private com.destan.trafficengine.data.FlashSequence flashSequence = com.destan.trafficengine.data.WarningLightSettings.DEFAULT_SEQUENCE;
+    private int warningPrimary = 0xFFFFAA00, warningSecondary = 0xFFFFAA00;
+    private boolean warningRedstone, warningPowered;
     private TrafficLightIcon icon = TrafficLightIcon.NONE;
     private TrafficLightType type = TrafficLightType.NOCOUNTDOWN;
     // Önceki halinde 3 renk vardı, dördüncü (NONE) ekleyerek hafızayı 4'e çıkardık.
@@ -122,6 +126,12 @@ public class TrafficLightBlockEntity extends ColoredBlockEntity {
             this.pendingSchedule.fromNbt(compound.getCompound(NBT_PENDING_SCHEDULE));
         }
         this.icon = TrafficLightIcon.getIconByIndex(compound.getByte(NBT_ICON));
+        customMask = com.destan.trafficengine.data.PixelPattern.of(compound.getLongArray("custom_mask"));
+        if (getBlockState().getBlock() instanceof com.destan.trafficengine.block.WarningLightBlock) {
+            var warning = com.destan.trafficengine.data.WarningLightSettings.read(compound);
+            flashSequence = warning.sequence(); warningPrimary = warning.primary(); warningSecondary = warning.secondary();
+            warningRedstone = warning.redstone(); warningPowered = compound.getBoolean("warning_powered");
+        }
         this.type = TrafficLightType.getTypeByIndex(compound.getByte(NBT_TYPE));
         int[] colorSlots = compound.getIntArray(NBT_COLOR_SLOTS);
         for (int i = 0; i < colorSlots.length && i < this.colorSlots.length; i++) {
@@ -165,6 +175,11 @@ public class TrafficLightBlockEntity extends ColoredBlockEntity {
         if (pendingSchedule != null) tag.put(NBT_PENDING_SCHEDULE, pendingSchedule.toNbt());
         tag.putIntArray(NBT_COLOR_SLOTS, Arrays.stream(colorSlots).mapToInt(x -> x.getIndex()).toArray());
         tag.putByte(NBT_ICON, icon.getIndex());
+        if (!customMask.isEmpty()) tag.putLongArray("custom_mask", customMask.bits());
+        if (getBlockState().getBlock() instanceof com.destan.trafficengine.block.WarningLightBlock) {
+            getWarningSettings().write(tag);
+            tag.putBoolean("warning_powered", warningPowered);
+        }
         tag.putByte(NBT_TYPE, type.getIndex());
         ListTag enabledColorsTag = new ListTag();
         enabledColorsTag.addAll(enabledColors.stream().map(x -> ByteTag.valueOf(x.getIndex())).toList());
@@ -569,4 +584,24 @@ public class TrafficLightBlockEntity extends ColoredBlockEntity {
     public int getTicker() {
         return this.ticker; // Eger bu satirda "ticker" kirmizi yanarsa, degiskenin adi farkli demektir (orn: tick, timer). O zaman adini ona gore degistirirsin.
     }
+
+    public com.destan.trafficengine.data.PixelPattern getCustomMask() { return customMask; }
+    public void setCustomMask(com.destan.trafficengine.data.PixelPattern mask) { if (!customMask.equals(mask)) { customMask = mask; notifyUpdate(); } }
+    public com.destan.trafficengine.data.FlashSequence getFlashSequence() { return flashSequence; }
+    public com.destan.trafficengine.data.WarningLightSettings getWarningSettings() {
+        return new com.destan.trafficengine.data.WarningLightSettings(warningPrimary, warningSecondary, flashSequence, warningRedstone);
+    }
+    public int getWarningColor(int slot) { return slot == 0 ? warningPrimary : warningSecondary; }
+    public boolean isWarningRedstone() { return warningRedstone; }
+    public boolean isWarningActive() { return !warningRedstone || warningPowered; }
+    public void setWarningPowered(boolean value) { if (warningPowered != value) { warningPowered = value; if (warningRedstone) notifyUpdate(); else setChanged(); } }
+    public void configureWarning(int primary, int secondary, com.destan.trafficengine.data.FlashSequence sequence, boolean redstone) {
+        int first = 0xFF000000 | primary, second = 0xFF000000 | secondary;
+        boolean powered = level != null && level.hasNeighborSignal(worldPosition);
+        if (warningPrimary == first && warningSecondary == second && flashSequence.equals(sequence)
+                && warningRedstone == redstone && warningPowered == powered) return;
+        warningPrimary = first; warningSecondary = second; flashSequence = sequence; warningRedstone = redstone;
+        warningPowered = powered; notifyUpdate();
+    }
+
 }

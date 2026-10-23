@@ -42,8 +42,8 @@ def github_json(path, token):
 
 
 def plan(version, mode, targets, channel, notes, tokens, resolve):
-    require(re.fullmatch(r"\d+\.\d+\.\d+(?:-[A-Za-z0-9][A-Za-z0-9.-]*)?", version),
-            "Use a version such as 1.8.2 or 1.8.3-beta.1.")
+    require(re.fullmatch(r"\d+\.\d+(?:\.\d+)?(?:-[A-Za-z0-9][A-Za-z0-9.-]*)?", version),
+            "Use a version such as 1.9, 1.9.1 or 1.9-beta.1.")
     require(mode in ("build", "publish"), "Unknown operation.")
     require(targets in ("curseforge", "modrinth", "both"), "Unknown destination.")
     require(channel in ("release", "beta", "alpha"), "Unknown release channel.")
@@ -70,7 +70,7 @@ def plan(version, mode, targets, channel, notes, tokens, resolve):
 
 def filename(version, minecraft, loader):
     require(minecraft in PLATFORMS and loader in PLATFORMS[minecraft], "Unsupported Minecraft/loader pair.")
-    require(re.fullmatch(r"\d+\.\d+\.\d+(?:-[A-Za-z0-9][A-Za-z0-9.-]*)?", version), "Invalid version.")
+    require(re.fullmatch(r"\d+\.\d+(?:\.\d+)?(?:-[A-Za-z0-9][A-Za-z0-9.-]*)?", version), "Invalid version.")
     return "trafficengine-" + loader + "-" + version + "+" + minecraft + ".jar"
 
 

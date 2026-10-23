@@ -1,5 +1,6 @@
 package com.destan.trafficengine.client.screen;
 
+import com.destan.trafficengine.client.gui.TEText;
 import java.util.List;
 import net.minecraft.util.FormattedCharSequence;
 
@@ -12,6 +13,7 @@ import com.destan.trafficengine.network.NetworkDirection;
 import net.minecraft.client.gui.GuiGraphics;
 import com.destan.trafficengine.client.gui.TrafficEngineScreen;
 import com.destan.trafficengine.client.gui.components.TEButton;
+import com.destan.trafficengine.client.gui.components.TEPaintToolButton;
 import com.destan.trafficengine.client.gui.components.TEPanel;
 import com.destan.trafficengine.client.gui.components.TEColorPicker;
 import com.destan.trafficengine.client.gui.theme.TEColors;
@@ -37,6 +39,8 @@ public class LedDeviceScreen extends TrafficEngineScreen {
     private long pixels;
     private final int[] pixelColors;
     private int paintingButton = -1;
+    private boolean erasing;
+    private TEPaintToolButton pencilButton, eraserButton;
     private int lastPaintX = -1, lastPaintY = -1;
     private int gridX, gridY, gridCell;
     private int paintHintY;
@@ -50,7 +54,8 @@ public class LedDeviceScreen extends TrafficEngineScreen {
     private static final int HUE_WIDTH = 12;
 
     public LedDeviceScreen(Level level, BlockPos pos) {
-        super(Component.translatable("gui.trafficengine.led_device.title"));
+        super(Component.translatable(((LedDeviceBlock)level.getBlockState(pos).getBlock()).getDeviceType() == LedDeviceType.LED_LIGHT
+            ? "gui.trafficengine.led_screen.title" : "gui.trafficengine.led_device.title"));
         this.level = level; this.pos = pos;
         this.blockEntity = (LedDeviceBlockEntity)level.getBlockEntity(pos);
         this.scrolling=blockEntity.isScrolling();this.scrollSpeed=blockEntity.getScrollSpeed();
@@ -82,6 +87,12 @@ public class LedDeviceScreen extends TrafficEngineScreen {
         contentX = left + colorPanelWidth + 24;
         contentWidth = windowWidth - colorPanelWidth - 36;
         previewY = top + 64;
+        if (type() == LedDeviceType.LED_LIGHT) {
+            int toolWidth = (contentWidth - 22) / 2;
+            pencilButton = addRenderableWidget(new TEPaintToolButton(contentX + 8, previewY + 2, toolWidth, false, b -> selectTool(false)));
+            eraserButton = addRenderableWidget(new TEPaintToolButton(contentX + 14 + toolWidth, previewY + 2, toolWidth, true, b -> selectTool(true)));
+            selectTool(erasing);
+        }
         int messageFieldHeight = windowHeight < 250 ? 10 : 12;
         int messageRowStep = messageFieldHeight + 6;
         int rowGaps = Math.max(1, messageSlotCount() - 1);
@@ -115,9 +126,10 @@ public class LedDeviceScreen extends TrafficEngineScreen {
             messageBoxes[i] = box;
             addRenderableWidget(box);
         }
-        gridCell = Math.min(18, Math.min((contentWidth - 20) / 8, previewHeight / 8));
+        int gridAreaY = previewY + 32, gridAreaHeight = Math.max(8, previewHeight - 24);
+        gridCell = Math.max(1, Math.min(18, Math.min((contentWidth - 20) / 8, gridAreaHeight / 8)));
         gridX = contentX + (contentWidth - gridCell * 8) / 2;
-        gridY = previewY + (previewHeight - gridCell * 8) / 2;
+        gridY = gridAreaY + (gridAreaHeight - gridCell * 8) / 2;
         paintHintLines = font.split(paintHint, contentWidth - 16);
         int hintHeight = Math.max(0, paintHintLines.size() - 1) * (font.lineHeight + 2) + font.lineHeight;
         paintHintY = Math.max(gridY + gridCell * 8 + 5, top + windowHeight - 52 - hintHeight);
@@ -157,8 +169,14 @@ public class LedDeviceScreen extends TrafficEngineScreen {
         onClose();
     }
 
+    private void selectTool(boolean erase) {
+        erasing = erase;
+        paintingButton = -1; lastPaintX = lastPaintY = -1;
+        pencilButton.setSelected(!erase); eraserButton.setSelected(erase);
+    }
+
     @Override public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if ((button == 0 || button == 1) && isOnGrid(mouseX, mouseY)) {
+        if (button == 0 && isOnGrid(mouseX, mouseY)) {
             paintingButton = button;
             lastPaintX = lastPaintY = -1;
             paintAt(mouseX, mouseY);
@@ -187,7 +205,7 @@ public class LedDeviceScreen extends TrafficEngineScreen {
             float progress = steps == 0 ? 0 : (float)step / steps;
             int index = Math.round(fromY + (y - fromY) * progress) * 8
                 + Math.round(fromX + (x - fromX) * progress);
-            if (paintingButton == 1) pixels &= ~(1L << index);
+            if (erasing) pixels &= ~(1L << index);
             else {
                 pixels |= 1L << index;
                 pixelColors[index] = 0xFF000000 | selectedColor;
@@ -242,17 +260,17 @@ public class LedDeviceScreen extends TrafficEngineScreen {
         int colorPanelWidth = contentX - left - 24;
         TEPanel.draw(graphics, left + 12, top + 47, colorPanelWidth, windowHeight - 89);
         TEPanel.draw(graphics, contentX, top + 47, contentWidth, windowHeight - 89);
-        graphics.drawString(font, colorLabel, paletteX, top + 52, TEColors.MUTED, false);
+        TEText.drawString(graphics, font, colorLabel, paletteX, top + 52, TEColors.MUTED, false);
         graphics.fill(paletteX, top + 61, paletteX + paletteWidth + HUE_GAP + HUE_WIDTH, top + 63, 0xFF000000 | selectedColor);
-        graphics.drawString(font, "HEX", paletteX, paletteY + paletteHeight + 11, TEColors.MUTED, false);
-        graphics.drawString(font, previewLabel, contentX + 8, top + 52, TEColors.MUTED, false);
+        TEText.drawString(graphics, font, "HEX", paletteX, paletteY + paletteHeight + 11, TEColors.MUTED, false);
+        TEText.drawString(graphics, font, previewLabel, contentX + 8, top + 52, TEColors.MUTED, false);
         if (type().isTrafficDisplay()) {
             renderMessagePreview(graphics);
-            graphics.drawString(font, messageLabel, contentX + 8, messageLabelY, TEColors.MUTED, false);
+            TEText.drawString(graphics, font, messageLabel, contentX + 8, messageLabelY, TEColors.MUTED, false);
         } else {
             int hintY = paintHintY;
             for (FormattedCharSequence line : paintHintLines) {
-                graphics.drawString(font, line, contentX + (contentWidth - font.width(line)) / 2,
+                TEText.drawString(graphics, font, line, contentX + (contentWidth - font.width(line)) / 2,
                     hintY, TEColors.MUTED, false);
                 hintY += font.lineHeight + 2;
             }
@@ -286,8 +304,8 @@ public class LedDeviceScreen extends TrafficEngineScreen {
                 double time=level.getGameTime();
                 var visible=com.destan.trafficengine.client.ScrollingText.window(text,font::width,(w-10f)/scale,time,scrollSpeed);
                 graphics.pose().translate(-(w-10f)/scale/2+visible.x(),0,0);
-                graphics.drawString(font,visible.text(),0,0,0xFF000000|selectedColor,false);
-            } else graphics.drawString(font, text, -font.width(text) / 2, 0, 0xFF000000 | selectedColor, false);
+                TEText.drawString(graphics, font,visible.text(),0,0,0xFF000000|selectedColor,false);
+            } else TEText.drawString(graphics, font, text, -font.width(text) / 2, 0, 0xFF000000 | selectedColor, false);
             graphics.pose().popPose();
         }
     }
