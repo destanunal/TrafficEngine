@@ -69,7 +69,7 @@ public class TrafficSignClientTexture implements AutoCloseable {
 
         this.rawData = rawData;
         SafeDynamicTexture tex = EMPTY_TEXTURE;
-        if (rawData.getPixelData().length > 0) {
+        if (com.destan.trafficengine.util.SignTextureLimits.validPng(rawData.getPixelData(), rawData.getWidth(), rawData.getHeight())) {
             try {
                 tex = new SafeDynamicTexture(NativeImage.read(new ByteArrayInputStream(rawData.getPixelData())));
             } catch (IOException e) {

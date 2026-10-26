@@ -38,6 +38,8 @@ public class TrafficLightPacket extends NetworkPacketData {
     private static final String NBT_SCHEDULED = "IsScheduled";
 
     private BlockPos pos;
+    private int signalFace;
+    public TrafficLightPacket withFace(int face){signalFace=face==1?1:0;return this;}
     private Collection<TrafficLightColor> enabledColors;
     private TrafficLightType type;
     private TrafficLightModel model;
@@ -48,6 +50,8 @@ public class TrafficLightPacket extends NetworkPacketData {
     private Collection<Integer> additionalPedestrianStopIds = List.of();
     private boolean scheduleEnabled;
     private com.destan.trafficengine.data.PixelPattern mask = com.destan.trafficengine.data.PixelPattern.EMPTY;
+    private com.destan.trafficengine.data.SignalSymbols signalSymbols;
+    public TrafficLightPacket withSymbols(com.destan.trafficengine.data.SignalSymbols value) { signalSymbols=value;return this; }
     public TrafficLightPacket withMask(com.destan.trafficengine.data.PixelPattern value) { mask = value; return this; }
 
     public TrafficLightPacket(PacketStatus status) {
@@ -71,6 +75,7 @@ public class TrafficLightPacket extends NetworkPacketData {
     @Override
     protected void write(CompoundTag nbt) {
         NbtPositions.putNbtPos(nbt, NBT_POS, pos);
+        if(signalFace!=0)nbt.putByte("SignalFace",(byte)signalFace);
         ListTag enabledColorsList = new ListTag();
         for (TrafficLightColor color : enabledColors) {
             enabledColorsList.add(ByteTag.valueOf(color.getGroupIndex()));
@@ -89,11 +94,13 @@ public class TrafficLightPacket extends NetworkPacketData {
         nbt.putIntArray(NBT_ADDITIONAL_STOP_IDS, additionalPedestrianStopIds.stream().mapToInt(Integer::intValue).toArray());
         nbt.putBoolean(NBT_SCHEDULED, scheduleEnabled);
         if (!mask.isEmpty()) nbt.putLongArray("custom_mask", mask.bits());
+        if(signalSymbols!=null)signalSymbols.write(nbt);
     }
 
     @Override
     protected void read(CompoundTag nbt) {
         this.pos = NbtPositions.getNbtBlockPos(nbt, NBT_POS);
+        signalFace=nbt.getByte("SignalFace")==1?1:0;
         this.type = TrafficLightType.getTypeByIndex(nbt.getByte(NBT_TYPE));
         this.enabledColors = nbt.getList(NBT_ENABLED_COLORS, Tag.TAG_BYTE).stream().map(x -> TrafficLightColor.getColorByGroupIndex(((ByteTag)x).getAsByte(), type)).toList();
         this.model = TrafficLightModel.getModelByLightsCount(nbt.getByte(NBT_MODEL));
@@ -104,6 +111,7 @@ public class TrafficLightPacket extends NetworkPacketData {
         this.additionalPedestrianStopIds = Arrays.stream(nbt.getIntArray(NBT_ADDITIONAL_STOP_IDS)).limit(8).boxed().toList();
         this.scheduleEnabled = nbt.getBoolean(NBT_SCHEDULED);
         mask = com.destan.trafficengine.data.PixelPattern.of(nbt.getLongArray("custom_mask"));
+        signalSymbols=nbt.contains("SignalSymbols")?com.destan.trafficengine.data.SignalSymbols.read(nbt):null;
     }
     
     
@@ -118,10 +126,12 @@ public class TrafficLightPacket extends NetworkPacketData {
                     && level.getBlockState(packet.pos).getBlock() instanceof TrafficLightBlock
                     && !(level.getBlockState(packet.pos).getBlock() instanceof com.destan.trafficengine.block.WarningLightBlock)) {
                 BlockState state = level.getBlockState(packet.pos);
-                if (state.getValue(TrafficLightBlock.MODEL) != packet.model) {
-                    level.setBlockAndUpdate(packet.pos, state.setValue(TrafficLightBlock.MODEL, packet.model));
+                if(packet.signalFace==1 && !(state.getBlock() instanceof com.destan.trafficengine.block.DoubleTrafficLightBlock))return;
+                var modelProperty=packet.signalFace==1?com.destan.trafficengine.block.DoubleTrafficLightBlock.BACK_MODEL:TrafficLightBlock.MODEL;
+                if (state.getValue(modelProperty) != packet.model) {
+                    level.setBlockAndUpdate(packet.pos, state.setValue(modelProperty, packet.model));
                 }
-                if (level.getBlockEntity(packet.pos) instanceof TrafficLightBlockEntity blockEntity) {
+                if (com.destan.trafficengine.util.SignalFaces.get(level,packet.pos,packet.signalFace) instanceof TrafficLightBlockEntity blockEntity) {
                     if (blockEntity.isRunning() != packet.scheduleEnabled) blockEntity.setRunning(packet.scheduleEnabled);
                     if (blockEntity.getControlType() != packet.controlType) blockEntity.setControlType(packet.controlType);
                     if (blockEntity.getPhaseIdForEditing() != packet.phaseId) blockEntity.queuePhaseId(packet.phaseId);
@@ -130,6 +140,7 @@ public class TrafficLightPacket extends NetworkPacketData {
                     }
                     if (blockEntity.getIcon() != packet.icon) blockEntity.setIcon(packet.icon);
                     blockEntity.setCustomMask(packet.mask);
+                    if(packet.signalSymbols!=null)blockEntity.setSignalSymbols(packet.signalSymbols);
                     if (!Arrays.equals(blockEntity.getColorSlots(), packet.colors)) blockEntity.setColorSlots(packet.colors);
                     if (packet.controlType == TrafficLightControlType.STATIC) blockEntity.enableOnlyColors(packet.enabledColors);
                     if (blockEntity.getTLType() != packet.type) blockEntity.setType(packet.type);

@@ -64,6 +64,6 @@ public abstract class MultipartPatternModelCacheMixin {
     private boolean trafficengine$isPatternBlock(ModelState modelState) {
         if (modelState != BlockModelRotation.X0_Y0) return false;
         ResourceLocation id = BuiltInRegistries.BLOCK.getKey(definition.getOwner());
-        return "trafficengine".equals(id.getNamespace()) && id.getPath().contains("_pattern_");
+        return "trafficengine".equals(id.getNamespace());
     }
 }

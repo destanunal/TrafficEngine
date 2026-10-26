@@ -28,33 +28,47 @@ public final class TEText {
         pose.m31((float)(Math.round((pose.m31() + y * pose.m11()) * pixels) / pixels));
         pose.m00(pixelScale(pose.m00(), pixels)); pose.m11(pixelScale(pose.m11(), pixels));
     }
-    public static int drawString(GuiGraphics g, Font font, String text, int x, int y, int color, boolean shadow) {
+    public static float centeredY(GuiGraphics g, Font font, Object caption, int top, int height) {
+        return MenuTextBounds.centeredExact(top,height,layoutScale(g),MenuTextBounds.of(font,caption));
+    }
+    public static int width(Font font,Object caption) { return MenuTextBounds.of(font,caption).width(); }
+    public static float centeredLinesY(GuiGraphics g,Font font,java.util.List<FormattedCharSequence> lines,int top,int height) {
+        if(lines.isEmpty())return top+height/2;
+        float scale=layoutScale(g);int step=Math.round(font.lineHeight*scale);
+        float min=Float.POSITIVE_INFINITY,max=Float.NEGATIVE_INFINITY;
+        for(int i=0;i<lines.size();i++) {
+            var bounds=MenuTextBounds.of(font,lines.get(i));
+            min=Math.min(min,i*step+bounds.top()*scale);max=Math.max(max,i*step+bounds.bottom()*scale);
+        }
+        return top+(height-(max-min))/2F-min;
+    }
+    public static int drawString(GuiGraphics g, Font font, String text, float x, float y, int color, boolean shadow) {
         Matrix4f pose = g.pose().last().pose();
-        if (!aligned(pose)) return g.drawString(font, text, x, y, color, shadow);
+        if (!aligned(pose)) return g.drawString(font, text, Math.round(x), Math.round(y), color, shadow);
         float sx = pose.m00(), sy = pose.m11(), tx = pose.m30(), ty = pose.m31();
         position(pose, x, y, Minecraft.getInstance().getWindow().getGuiScale());
         try { return g.drawString(font, text, 0, 0, color, shadow); }
         finally { pose.m00(sx).m11(sy).m30(tx).m31(ty); }
     }
-    public static int drawString(GuiGraphics g, Font font, Component text, int x, int y, int color, boolean shadow) {
+    public static int drawString(GuiGraphics g, Font font, Component text, float x, float y, int color, boolean shadow) {
         return drawString(g, font, text.getVisualOrderText(), x, y, color, shadow);
     }
-    public static int drawString(GuiGraphics g, Font font, FormattedCharSequence text, int x, int y, int color, boolean shadow) {
+    public static int drawString(GuiGraphics g, Font font, FormattedCharSequence text, float x, float y, int color, boolean shadow) {
         Matrix4f pose = g.pose().last().pose();
-        if (!aligned(pose)) return g.drawString(font, text, x, y, color, shadow);
+        if (!aligned(pose)) return g.drawString(font, text, Math.round(x), Math.round(y), color, shadow);
         float sx = pose.m00(), sy = pose.m11(), tx = pose.m30(), ty = pose.m31();
         position(pose, x, y, Minecraft.getInstance().getWindow().getGuiScale());
         try { return g.drawString(font, text, 0, 0, color, shadow); }
         finally { pose.m00(sx).m11(sy).m30(tx).m31(ty); }
     }
-    public static void drawCenteredString(GuiGraphics g, Font font, Component text, int x, int y, int color) {
-        drawString(g, font, text, x - Math.round(font.width(text) * layoutScale(g) / 2), y, color, false);
+    public static void drawCenteredString(GuiGraphics g, Font font, Component text, float x, float y, int color) {
+        drawString(g, font, text, x - width(font,text) * layoutScale(g) / 2F, y, color, false);
     }
-    public static void drawCenteredString(GuiGraphics g, Font font, String text, int x, int y, int color) {
-        drawString(g, font, text, x - Math.round(font.width(text) * layoutScale(g) / 2), y, color, false);
+    public static void drawCenteredString(GuiGraphics g, Font font, String text, float x, float y, int color) {
+        drawString(g, font, text, x - width(font,text) * layoutScale(g) / 2F, y, color, false);
     }
-    public static void drawCenteredString(GuiGraphics g, Font font, FormattedCharSequence text, int x, int y, int color) {
-        drawString(g, font, text, x - Math.round(font.width(text) * layoutScale(g) / 2), y, color, false);
+    public static void drawCenteredString(GuiGraphics g, Font font, FormattedCharSequence text, float x, float y, int color) {
+        drawString(g, font, text, x - width(font,text) * layoutScale(g) / 2F, y, color, false);
     }
     public static void drawWordWrap(GuiGraphics g, Font font, FormattedText text, int x, int y, int width, int color) {
         float scale = layoutScale(g);

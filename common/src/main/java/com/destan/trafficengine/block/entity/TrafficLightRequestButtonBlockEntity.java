@@ -55,9 +55,9 @@ public class TrafficLightRequestButtonBlockEntity extends SyncedBlockEntity {
                 boolean isRunning = false;
 
                 if (this.linkLocation != null) {
-                    if (level.getBlockEntity(this.linkLocation.getLocationBlockPos()) instanceof TrafficLightBlockEntity blockEntity) {
+                    if (com.destan.trafficengine.util.SignalFaces.get(level,this.linkLocation) instanceof TrafficLightBlockEntity blockEntity) {
                         isRunning = blockEntity.isFirstIteration();
-                    } else  if (level.getBlockEntity(this.linkLocation.getLocationBlockPos()) instanceof TrafficLightControllerBlockEntity blockEntity) {
+                    } else  if (com.destan.trafficengine.util.SignalFaces.get(level,this.linkLocation) instanceof TrafficLightControllerBlockEntity blockEntity) {
                         isRunning = blockEntity.isFirstIteration();
                     }
                 }
@@ -93,8 +93,8 @@ public class TrafficLightRequestButtonBlockEntity extends SyncedBlockEntity {
 
     public boolean isValidLinked() {
         return this.getLinkLocation() != null && (
-            level.getBlockEntity(this.linkLocation.getLocationBlockPos()) instanceof TrafficLightControllerBlockEntity ||
-            level.getBlockEntity(this.linkLocation.getLocationBlockPos()) instanceof TrafficLightBlockEntity
+            com.destan.trafficengine.util.SignalFaces.get(level,this.linkLocation) instanceof TrafficLightControllerBlockEntity ||
+            com.destan.trafficengine.util.SignalFaces.get(level,this.linkLocation) instanceof TrafficLightBlockEntity
         );
     }
 
@@ -108,14 +108,14 @@ public class TrafficLightRequestButtonBlockEntity extends SyncedBlockEntity {
             
         this.listening = true;
 
-        if (level.getBlockEntity(this.linkLocation.getLocationBlockPos()) instanceof TrafficLightBlockEntity blockEntity) {
+        if (com.destan.trafficengine.util.SignalFaces.get(level,this.linkLocation) instanceof TrafficLightBlockEntity blockEntity) {
             if (blockEntity.getControlType() == TrafficLightControlType.OWN_SCHEDULE
                     && blockEntity.getSchedule().getTrigger() == TrafficLightTrigger.ON_REQUEST) {
                 blockEntity.startSchedule(false);
                 notifyUpdate();
                 return true;
             }
-        } else if (level.getBlockEntity(this.linkLocation.getLocationBlockPos()) instanceof TrafficLightControllerBlockEntity blockEntity) {
+        } else if (com.destan.trafficengine.util.SignalFaces.get(level,this.linkLocation) instanceof TrafficLightControllerBlockEntity blockEntity) {
             if (blockEntity.getFirstOrMainSchedule().getTrigger() == TrafficLightTrigger.ON_REQUEST) {
                 blockEntity.startSchedule(false);
                 notifyUpdate();

@@ -1,0 +1,15 @@
+// Validate loader source code against compiled common classes, without creating a common JAR.
+gradle.projectsEvaluated {
+    def common = rootProject.project(':common')
+    rootProject.subprojects.findAll { it.name != 'common' }.each { platform ->
+        platform.tasks.named('compileJava').configure { task ->
+            def original = task.classpath.filter { !it.toPath().startsWith(common.layout.buildDirectory.dir('libs').get().asFile.toPath()) }
+            task.classpath = original + common.sourceSets.main.output.classesDirs
+            task.dependsOn(common.tasks.named('compileJava'))
+        }
+    }
+}
+gradle.taskGraph.whenReady { graph ->
+    def packages = graph.allTasks.findAll { it.name in ['jar', 'build', 'assemble', 'shadowJar', 'remapJar', 'transformProductionFabric', 'transformProductionForge', 'transformProductionNeoForge'] }
+    if (!packages.isEmpty()) throw new GradleException('Compile-only validation refuses packaging tasks: ' + packages*.path)
+}

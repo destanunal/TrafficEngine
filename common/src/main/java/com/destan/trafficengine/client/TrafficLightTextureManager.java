@@ -22,6 +22,52 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 public class TrafficLightTextureManager {
+
+    // Finite enum-indexed aliases, reloaded by SimpleTexture with resource packs.
+    private static final ResourceLocation[][] ROUND_TEXTURES=new ResourceLocation[TrafficLightIcon.values().length][TrafficLightColor.values().length];
+    private static final boolean[][] ROUND_REGISTERED=new boolean[TrafficLightIcon.values().length][TrafficLightColor.values().length];
+    private static ResourceLocation roundLocation(TrafficLightIcon icon,TrafficLightColor color) {
+        int i=icon.ordinal(),c=color.ordinal();
+        if(ROUND_TEXTURES[i][c]==null)ROUND_TEXTURES[i][c]=ResourceLocation.fromNamespaceAndPath(TrafficEngine.MOD_ID,"dynamic/round_lens/"+icon.getName()+"_"+color.getName());
+        return ROUND_TEXTURES[i][c];
+    }
+    public static ResourceLocation getRoundResourceLocation(TrafficLightIcon icon,TrafficLightColor color) {
+        icon=icon.isApplicableToColor(color)?icon:TrafficLightIcon.NONE;
+        ResourceLocation location=roundLocation(icon,color);
+        if(!ROUND_REGISTERED[icon.ordinal()][color.ordinal()]) {
+            Minecraft.getInstance().getTextureManager().register(location,new RoundLensTexture(getResourceLocation(icon,color)));
+            ROUND_REGISTERED[icon.ordinal()][color.ordinal()]=true;
+        }
+        return location;
+    }
+    public static boolean usesRoundLenses(net.minecraft.world.level.block.Block block) {
+        return block.getClass()==com.destan.trafficengine.block.TrafficLightBlock.class
+            ||block instanceof com.destan.trafficengine.block.DoubleTrafficLightBlock
+            ||block instanceof com.destan.trafficengine.block.HorizontalTrafficLightBlock;
+    }
+    private static boolean roundLens(RenderContext<?> graphics) {
+        var entity=graphics.blockEntity();
+        if(entity==null)return false;
+        var block=entity.getBlockState().getBlock();
+        return usesRoundLenses(block);
+    }
+    /** Alpha clipping occurs only when a texture is loaded/reloaded, never per frame. */
+    private static final class RoundLensTexture extends SimpleTexture {
+        RoundLensTexture(ResourceLocation source){super(source);}
+        @Override protected TextureImage getTextureImage(ResourceManager resources) {
+            TextureImage source=super.getTextureImage(resources);
+            try {
+                NativeImage image=source.getImage();
+                int w=image.getWidth(),h=image.getHeight();
+                for(int y=0;y<h;y++)for(int x=0;x<w;x++) {
+                    double dx=(2.0*x+1-w)/w,dy=(2.0*y+1-h)/h;
+                    if(dx*dx+dy*dy>1)image.setPixelRGBA(x,y,0);
+                }
+                return source;
+            }catch(IOException error){source.close();return new TextureImage(error);}
+        }
+    }
+
     private static final TrafficLightBulbModel FALLBACK_MODEL = TrafficLightBulbModel.create(null);
     private static final String TEXTURE_PATH = "block/traffic_light";
     private static final ResourceLocation OFF_TEXTURE = ResourceLocation.fromNamespaceAndPath(TrafficEngine.MOD_ID, "textures/" + TEXTURE_PATH + "/off.png");
@@ -60,6 +106,16 @@ public class TrafficLightTextureManager {
 
     public static Collection<ResourceLocation> getAllTextureLocations() {
         return models.stream().map(x -> x.getKey().getTextureLocation()).toList();
+    }
+
+    public static void renderSlot(RenderContext<?> graphics, com.destan.trafficengine.block.entity.TrafficLightBlockEntity signal,
+            int slot, TrafficLightIcon fallback, TrafficLightColor color, int light) {
+        var symbols=signal.getSignalSymbols();
+        var mask=symbols.mask(slot,signal.getCustomMask());
+        if(!mask.isEmpty() && color!=TrafficLightColor.NONE) {
+            int rgb=color==TrafficLightColor.RED?0xFFFF2020:color==TrafficLightColor.YELLOW?0xFFFFCF20:color==TrafficLightColor.GREEN?0xFF20FF40:-1;
+            renderStencil(graphics,mask,rgb,light);
+        } else render(graphics,null,symbols.icon(slot,fallback),color,light);
     }
 
     public static void render(RenderContext<?> graphics, BlockEntity be, TrafficLightIcon icon, TrafficLightColor color, int packedLight) {
@@ -126,6 +182,8 @@ public class TrafficLightTextureManager {
         private static final float[] UV = {0,0, 0,1, 1,1, 1,0};
         private final TrafficLightTextureKey key;
         private final RenderType renderType;
+        private final RenderType roundRenderType;
+        private static final RenderType ROUND_OFF_TYPE=RenderType.text(roundLocation(TrafficLightIcon.NONE,TrafficLightColor.NONE));
         private final ResourceLocation iconTexture;
         private final boolean separateIcon;
         private boolean textureRegistered;
@@ -135,30 +193,50 @@ public class TrafficLightTextureManager {
             separateIcon = key != null && key.getIcon() != TrafficLightIcon.NONE;
             iconTexture = separateIcon ? ResourceLocation.fromNamespaceAndPath(TrafficEngine.MOD_ID,
                 "dynamic/traffic_light/" + key.getIcon().getName() + "_" + key.getColor().getName()) : null;
-            renderType = key == null ? null : RenderType.text(separateIcon ? iconTexture : key.getTextureLocation());
+            ResourceLocation asset = separateIcon ? iconTexture : key == null ? OFF_TEXTURE : key.getTextureLocation();
+            renderType = key == null ? null : RenderType.text(asset);
+            roundRenderType=key==null?null:RenderType.text(roundLocation(key.getIcon(),key.getColor()));
         }
         static TrafficLightBulbModel create(TrafficLightTextureKey key) { return new TrafficLightBulbModel(key); }
         TrafficLightTextureKey getKey() { return key; }
 
         void render(RenderContext<?> graphics, BlockEntity entity, int packedLight) {
             if (key == null) return;
+            boolean round=roundLens(graphics);
+            if(round)getRoundResourceLocation(TrafficLightIcon.NONE,TrafficLightColor.NONE);
+            int faces=round?1:4;
             if (separateIcon) {
                 if (!textureRegistered) {
                     // SimpleTexture reloads its mask with resource packs; no image work per frame.
                     Minecraft.getInstance().getTextureManager().register(iconTexture, new IconTexture(key.getTextureLocation()));
                     textureRegistered = true;
                 }
-                VertexConsumer background = graphics.multiBufferSource().getBuffer(RenderType.text(OFF_TEXTURE));
-                for (int face = 0; face < 4; face++) renderFace(graphics, background, face, packedLight);
+                VertexConsumer background = graphics.multiBufferSource().getBuffer(round?ROUND_OFF_TYPE:RenderType.text(OFF_TEXTURE));
+                for (int face = 0; face < faces; face++) renderFace(graphics, background, face, packedLight);
+                if(round)renderRim(graphics,background,packedLight,false);
                 VertexConsumer icon = graphics.multiBufferSource().getBuffer(renderType);
                 graphics.poseStack().pushPose();
                 graphics.poseStack().translate(0, 0, 0.001F);
                 renderFace(graphics, icon, 0, LightTexture.FULL_BRIGHT);
                 graphics.poseStack().popPose();
             } else {
-                VertexConsumer consumer = graphics.multiBufferSource().getBuffer(renderType);
+                if(round)getRoundResourceLocation(key.getIcon(),key.getColor());
+                VertexConsumer consumer = graphics.multiBufferSource().getBuffer(round?roundRenderType:renderType);
                 int light = key.isOffState() ? packedLight : LightTexture.FULL_BRIGHT;
-                for (int face = 0; face < 4; face++) renderFace(graphics, consumer, face, light);
+                for (int face = 0; face < faces; face++) renderFace(graphics, consumer, face, light);
+                if(round)renderRim(graphics,consumer,light,!key.isOffState());
+            }
+        }
+
+        private void renderRim(RenderContext<?> graphics,VertexConsumer consumer,int light,boolean lit) {
+            var pose=graphics.poseStack().last();int shade=lit?170:255;
+            for(int side=0;side<8;side++) {
+                float[] positions=com.destan.trafficengine.client.model.TrafficLensGeometry.SIDES[side];
+                float[] normal=com.destan.trafficengine.client.model.TrafficLensGeometry.NORMALS[side];
+                for(int vertex=0;vertex<4;vertex++) {int p=vertex*3;
+                    consumer.addVertex(pose.pose(),positions[p],positions[p+1],positions[p+2])
+                        .setColor(shade,shade,shade,255).setUv(.5F,.5F).setOverlay(graphics.packedOverlay()).setLight(light).setNormal(pose,normal[0],normal[1],normal[2]);
+                }
             }
         }
 
@@ -170,8 +248,7 @@ public class TrafficLightTextureManager {
                 float u = UV[vertex * 2] * (face == 1 || face == 2 ? 1 / 16F : 1);
                 float v = UV[vertex * 2 + 1] * (face == 3 ? 1 / 16F : 1);
                 consumer.addVertex(pose.pose(), positions[p], positions[p + 1], positions[p + 2])
-                    .setColor(255, 255, 255, 255).setUv(u, v).setLight(light)
-                    .setOverlay(graphics.packedOverlay()).setNormal(pose, normal[0], normal[1], normal[2]);
+                    .setColor(255, 255, 255, 255).setUv(u, v).setOverlay(graphics.packedOverlay()).setLight(light).setNormal(pose, normal[0], normal[1], normal[2]);
             }
         }
     }

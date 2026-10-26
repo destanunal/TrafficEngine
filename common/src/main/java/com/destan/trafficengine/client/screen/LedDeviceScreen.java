@@ -40,6 +40,8 @@ public class LedDeviceScreen extends TrafficEngineScreen {
     private final int[] pixelColors;
     private int paintingButton = -1;
     private boolean erasing;
+    private final com.destan.trafficengine.data.PixelBrush brush = new com.destan.trafficengine.data.PixelBrush(8);
+    private com.destan.trafficengine.client.gui.components.TEIntegerSlider sizeSlider;
     private TEPaintToolButton pencilButton, eraserButton;
     private int lastPaintX = -1, lastPaintY = -1;
     private int gridX, gridY, gridCell;
@@ -87,12 +89,6 @@ public class LedDeviceScreen extends TrafficEngineScreen {
         contentX = left + colorPanelWidth + 24;
         contentWidth = windowWidth - colorPanelWidth - 36;
         previewY = top + 64;
-        if (type() == LedDeviceType.LED_LIGHT) {
-            int toolWidth = (contentWidth - 22) / 2;
-            pencilButton = addRenderableWidget(new TEPaintToolButton(contentX + 8, previewY + 2, toolWidth, false, b -> selectTool(false)));
-            eraserButton = addRenderableWidget(new TEPaintToolButton(contentX + 14 + toolWidth, previewY + 2, toolWidth, true, b -> selectTool(true)));
-            selectTool(erasing);
-        }
         int messageFieldHeight = windowHeight < 250 ? 10 : 12;
         int messageRowStep = messageFieldHeight + 6;
         int rowGaps = Math.max(1, messageSlotCount() - 1);
@@ -127,9 +123,17 @@ public class LedDeviceScreen extends TrafficEngineScreen {
             addRenderableWidget(box);
         }
         int gridAreaY = previewY + 32, gridAreaHeight = Math.max(8, previewHeight - 24);
-        gridCell = Math.max(1, Math.min(18, Math.min((contentWidth - 20) / 8, gridAreaHeight / 8)));
-        gridX = contentX + (contentWidth - gridCell * 8) / 2;
+        gridCell = Math.max(1, Math.min(18, Math.min((contentWidth - 54) / 8, gridAreaHeight / 8)));
+        gridX = contentX + 34 + (contentWidth - 42 - gridCell * 8) / 2;
         gridY = gridAreaY + (gridAreaHeight - gridCell * 8) / 2;
+        if (type() == LedDeviceType.LED_LIGHT) {
+            pencilButton = addRenderableWidget(new TEPaintToolButton(contentX + 6, gridY, 22, false, b -> selectTool(false)));
+            eraserButton = addRenderableWidget(new TEPaintToolButton(contentX + 6, gridY + 28, 22, true, b -> selectTool(true)));
+            sizeSlider = addRenderableWidget(new com.destan.trafficengine.client.gui.components.TEIntegerSlider(
+                contentX + 8, previewY + 2, contentWidth - 16, 1, 8, 1, brush.size(),
+                n -> Component.translatable("gui.trafficengine.drawing.size", n), brush::setSize));
+            selectTool(erasing);
+        }
         paintHintLines = font.split(paintHint, contentWidth - 16);
         int hintHeight = Math.max(0, paintHintLines.size() - 1) * (font.lineHeight + 2) + font.lineHeight;
         paintHintY = Math.max(gridY + gridCell * 8 + 5, top + windowHeight - 52 - hintHeight);
@@ -175,6 +179,15 @@ public class LedDeviceScreen extends TrafficEngineScreen {
         pencilButton.setSelected(!erase); eraserButton.setSelected(erase);
     }
 
+    @Override public boolean mouseScrolled(double x, double y, double horizontal, double delta) {
+        if (type() == LedDeviceType.LED_LIGHT && x >= contentX && x < contentX + contentWidth
+                && y >= previewY && y < gridY + gridCell * 8) {
+            sizeSlider.setIntValue(brush.size() + (int)Math.signum(delta));
+            paintingButton = -1; lastPaintX = lastPaintY = -1; return true;
+        }
+        return super.mouseScrolled(x, y, horizontal, delta);
+    }
+
     @Override public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (button == 0 && isOnGrid(mouseX, mouseY)) {
             paintingButton = button;
@@ -200,17 +213,10 @@ public class LedDeviceScreen extends TrafficEngineScreen {
         int y = (int)(mouseY - gridY) / gridCell;
         int fromX = lastPaintX < 0 ? x : lastPaintX;
         int fromY = lastPaintY < 0 ? y : lastPaintY;
-        int steps = Math.max(Math.abs(x - fromX), Math.abs(y - fromY));
-        for (int step = 0; step <= steps; step++) {
-            float progress = steps == 0 ? 0 : (float)step / steps;
-            int index = Math.round(fromY + (y - fromY) * progress) * 8
-                + Math.round(fromX + (x - fromX) * progress);
+        brush.stroke(fromX, fromY, x, y, 8, index -> {
             if (erasing) pixels &= ~(1L << index);
-            else {
-                pixels |= 1L << index;
-                pixelColors[index] = 0xFF000000 | selectedColor;
-            }
-        }
+            else { pixels |= 1L << index; pixelColors[index] = 0xFF000000 | selectedColor; }
+        });
         lastPaintX = x;
         lastPaintY = y;
     }
@@ -278,8 +284,13 @@ public class LedDeviceScreen extends TrafficEngineScreen {
                 boolean on = (pixels & (1L << (y * 8 + x))) != 0;
                 int x1 = gridX + x * gridCell, y1 = gridY + y * gridCell;
                 graphics.fill(x1, y1, x1 + gridCell - 1, y1 + gridCell - 1, on ? pixelColors[y * 8 + x] : TEColors.FIELD);
-                if (mouseX >= x1 && mouseX < x1 + gridCell && mouseY >= y1 && mouseY < y1 + gridCell)
-                    TEPanel.outline(graphics, x1, y1, gridCell, gridCell, TEColors.ACCENT);
+            }
+            if (mouseX >= gridX && mouseX < gridX + gridCell * 8 && mouseY >= gridY && mouseY < gridY + gridCell * 8) {
+                int bx = brush.start((mouseX - gridX) / gridCell), by = brush.start((mouseY - gridY) / gridCell);
+                int left = Math.max(0, bx), top = Math.max(0, by);
+                TEPanel.outline(graphics, gridX + left * gridCell, gridY + top * gridCell,
+                    (Math.min(8, bx + brush.size()) - left) * gridCell,
+                    (Math.min(8, by + brush.size()) - top) * gridCell, TEColors.ACCENT);
             }
         }
         super.render(graphics, mouseX, mouseY, partialTick);

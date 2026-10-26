@@ -17,11 +17,13 @@ public class TrafficLightConfig {
     
     public final Level level;
     public final BlockPos blockPos;
+    public final int signalFace;
 
     public final Set<TrafficLightColor> enabledColors = new HashSet<>();
     public TrafficLightType type = TrafficLightType.NOCOUNTDOWN;
     public TrafficLightModel model = TrafficLightModel.THREE_LIGHTS;
     public com.destan.trafficengine.data.PixelPattern customMask = com.destan.trafficengine.data.PixelPattern.EMPTY;
+    public com.destan.trafficengine.data.SignalSymbols signalSymbols = com.destan.trafficengine.data.SignalSymbols.DEFAULT;
     public TrafficLightIcon icon = TrafficLightIcon.NONE;
     public TrafficLightControlType controlType = TrafficLightControlType.REMOTE;
     public TrafficLightColor[] colors = new TrafficLightColor[TrafficLightModel.maxRequiredSlots()];
@@ -29,20 +31,24 @@ public class TrafficLightConfig {
     public final Set<Integer> additionalPedestrianStopIds = new HashSet<>();
     public boolean scheduleEnabled = true;
 
-    public TrafficLightConfig(Level level, BlockPos pos) {
+    public TrafficLightConfig(Level level,BlockPos pos){this(level,pos,0);}
+    public TrafficLightConfig(Level level, BlockPos pos, int face) {
+        this.signalFace=face==1?1:0;
         this.level = level;
         this.blockPos = pos;
 
         if (level.getBlockState(pos).getBlock() instanceof TrafficLightBlock) {            
             this.model = level.getBlockState(pos).getValue(TrafficLightBlock.MODEL);
         }
-        if (level.getBlockEntity(pos) instanceof TrafficLightBlockEntity blockEntity) {
+        if (com.destan.trafficengine.util.SignalFaces.get(level,pos,signalFace) instanceof TrafficLightBlockEntity blockEntity) {
             for (TrafficLightColor color : blockEntity.getEnabledColors()) {
                 this.enabledColors.add(color);
             }
+            this.model = blockEntity.getBlockState().getValue(TrafficLightBlock.MODEL);
             this.type = blockEntity.getTLType();
             this.icon = blockEntity.getIcon();
             this.customMask = blockEntity.getCustomMask();
+            this.signalSymbols = blockEntity.getSignalSymbols();
             this.controlType = blockEntity.getControlType();
             TrafficLightColor[] slots = blockEntity.getColorSlots();
             for (int i = 0; i < slots.length && i < this.colors.length; i++) {

@@ -35,6 +35,8 @@ import net.minecraft.world.item.ItemStack;
 
 /** Pages share one container screen so editing never closes or drops the inventory. */
 public class TrafficSignWorkbenchGui extends AbstractContainerScreen<TrafficSignWorkbenchMenu> {
+    private final com.destan.trafficengine.data.PixelBrush brush = new com.destan.trafficengine.data.PixelBrush(16);
+    private com.destan.trafficengine.client.gui.components.TEIntegerSlider brushSizeSlider;
     private enum Page { MAIN, CREATE, EDIT, IMPORT, COLOR, DELETE, DISCARD }
     private Page page = Page.MAIN;
     private double guiScale = 1;
@@ -142,6 +144,9 @@ public class TrafficSignWorkbenchGui extends AbstractContainerScreen<TrafficSign
                     }
                 });
                 pick.setTooltip(Tooltip.create(text("editor.pick_color")));
+                brushSizeSlider = addRenderableWidget(new com.destan.trafficengine.client.gui.components.TEIntegerSlider(
+                    leftPos + 260, topPos + 132, 60, 1, 16, 1, brush.size(),
+                    n -> Component.literal(n + " px"), brush::setSize));
                 nameBox = addRenderableWidget(new TEEditBox(font, leftPos + 152, topPos + 53, 180, 18, text("editor.text")));
                 nameBox.setMaxLength(20); nameBox.setTextColor(TEColors.TEXT); nameBox.setValue(name); nameBox.setResponder(value -> name = value);
             }
@@ -295,7 +300,9 @@ public class TrafficSignWorkbenchGui extends AbstractContainerScreen<TrafficSign
                     pixels[neighbor] = value; queue[end++] = neighbor;
                 }
             }
-        } else pixels[position] = value;
+        } else brush.stamp(x, y, 32, index -> {
+            if (shape.isPixelValid(index % 32, index / 32)) pixels[index] = value;
+        });
         dirty = true;
     }
     @Override public boolean mouseClicked(double x, double y, int button) { x /= guiScale; y /= guiScale;
@@ -323,6 +330,9 @@ public class TrafficSignWorkbenchGui extends AbstractContainerScreen<TrafficSign
         return super.mouseReleased(x, y, button);
     }
     @Override public boolean mouseScrolled(double x, double y, double horizontal, double delta) { x /= guiScale; y /= guiScale;
+        if (page == Page.EDIT && canvasContains(x, y) && (tool == 0 || tool == 1)) {
+            brushSizeSlider.setIntValue(brush.size() + (int)Math.signum(delta)); lastPixel = -1; return true;
+        }
         if (page == Page.IMPORT) { importRow += delta > 0 ? -1 : 1; buildImport(); return true; }
         return super.mouseScrolled(x, y, horizontal, delta);
     }

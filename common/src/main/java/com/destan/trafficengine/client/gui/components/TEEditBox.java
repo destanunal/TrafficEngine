@@ -21,7 +21,7 @@ public class TEEditBox extends EditBox {
         // Use the same four-pixel text inset as a bordered vanilla field.
         setBordered(false);
         g.pose().pushPose();
-        g.pose().translate(4, (height - 8) / 2, 0);
+        g.pose().translate(4, com.destan.trafficengine.client.gui.TEText.centeredY(g, net.minecraft.client.Minecraft.getInstance().font, getValue(), 0, height), 0);
         try {
             super.renderWidget(g, mouseX, mouseY, partialTick);
         } finally {

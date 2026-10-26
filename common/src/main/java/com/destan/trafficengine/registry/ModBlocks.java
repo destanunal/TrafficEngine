@@ -84,6 +84,10 @@ public class ModBlocks {
         }
     }
 
+    public static final RegistrySupplier<Block> HYDRAULIC_BOLLARD = registerBlock("hydraulic_bollard", HydraulicBollardBlock::new, ModCreativeModeTab.MOD_TAB, false);
+    public static final RegistrySupplier<Block> PEDESTRIAN_RAILING = registerBlock("pedestrian_railing", PedestrianRailingBlock::new, ModCreativeModeTab.MOD_TAB, false);
+    public static final RegistrySupplier<Block> PEDESTRIAN_RAILING_GATE = registerBlock("pedestrian_railing_gate", PedestrianRailingGateBlock::new, ModCreativeModeTab.MOD_TAB, false);
+    public static final RegistrySupplier<Block> SLOPED_PEDESTRIAN_RAILING = registerBlock("sloped_pedestrian_railing", SlopedPedestrianRailingBlock::new, ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> CHEVRON_PANEL = registerBlock("chevron_panel", ChevronPanelBlock::new, ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> TEMPORARY_PEDESTRIAN_FENCE = registerBlock("temporary_pedestrian_fence", TemporaryPedestrianFenceBlock::new, ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> HIGHWAY_DIRECTION_SIGN = registerBlock("highway_direction_sign", () -> new RoadInformationSignBlock(RoadInformationSignBlock.Kind.HIGHWAY), ModCreativeModeTab.MOD_TAB, false);
@@ -91,12 +95,14 @@ public class ModBlocks {
     public static final RegistrySupplier<Block> VARIABLE_SPEED_SIGN = registerBlock("variable_speed_sign", () -> new RoadInformationSignBlock(RoadInformationSignBlock.Kind.VARIABLE_SPEED), ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> TRAFFIC_POLE_BASE = registerBlock("traffic_pole_base", com.destan.trafficengine.block.TrafficPoleBaseBlock::new, ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> TRAFFIC_SIGN_POST = registerBlock("traffic_sign_post", () -> new TrafficSignPostBlock(), ModCreativeModeTab.MOD_TAB, false);
+    public static final RegistrySupplier<Block> CURVED_TRAFFIC_POLE = registerBlock("curved_traffic_pole", CurvedTrafficPoleBlock::new, ModCreativeModeTab.MOD_TAB, com.destan.trafficengine.item.CurvedTrafficPoleBlockItem.class);
     public static final RegistrySupplier<Block> TRAFFIC_SIGN = registerBlock("traffic_sign", () -> new TrafficSignBlock(), ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> DOUBLE_TRAFFIC_SIGN = registerBlock("double_traffic_sign", () -> new DoubleSidedTrafficSignBlock(), ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> TOWN_SIGN = registerBlock("town_sign", () -> new TownSignBlock(), ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> STREET_SIGN = registerColoredBlock("street_sign", () -> new StreetSignBlock(), ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> HOUSE_NUMBER_SIGN = registerColoredBlock("house_number_sign", () -> new HouseNumberSignBlock(), ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> TRAFFIC_LIGHT = registerColoredBlock("traffic_light", () -> new TrafficLightBlock(), ModCreativeModeTab.MOD_TAB, false);
+    public static final RegistrySupplier<Block> DOUBLE_TRAFFIC_LIGHT = registerColoredBlock("double_traffic_light", () -> new com.destan.trafficengine.block.DoubleTrafficLightBlock(), ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> HORIZONTAL_TRAFFIC_LIGHT = registerColoredBlock("horizontal_traffic_light", () -> new HorizontalTrafficLightBlock(), ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> TRAFFIC_LIGHT_CONTROLLER = registerBlock("traffic_light_controller", () -> new TrafficLightControllerBlock(), ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> TRAFFIC_LIGHT_REQUEST_BUTTON = registerBlock("traffic_light_request_button", () -> new TrafficLightRequestButtonBlock(), ModCreativeModeTab.MOD_TAB, false);

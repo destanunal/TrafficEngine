@@ -183,7 +183,7 @@ public final class WarningLightScreen extends ScaledTrafficEngineScreen {
             TEPanel.surface(g, getX(), getY(), width, height, TEColors.CONTROL, isHoveredOrFocused() ? TEColors.SELECTION_BORDER : TEColors.BORDER);
             int knob = getX() + 3 + (int)Math.round(value * (width - 10));
             g.fill(getX() + 3, getY() + height - 4, knob + 4, getY() + height - 2, TEColors.ACCENT);
-            TEText.drawCenteredString(g, font, getMessage(), getX() + width / 2, getY() + 5, TEColors.TEXT);
+            TEText.drawCenteredString(g, font, getMessage(), getX() + width / 2, TEText.centeredY(g,font,getMessage(),getY(),height), TEColors.TEXT);
         }
     }
 }

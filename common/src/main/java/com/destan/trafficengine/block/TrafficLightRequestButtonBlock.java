@@ -54,10 +54,10 @@ public class TrafficLightRequestButtonBlock extends BaseEntityBlock implements S
 
     public static final VoxelShape SHAPE_COMMON = Block.box(7, 0, 7, 9, 16, 9);
 
-    public static final VoxelShape SHAPE_NORTH = Shapes.or(Block.box(5, 1, 3, 11, 10, 8), SHAPE_COMMON);
-    public static final VoxelShape SHAPE_SOUTH = Shapes.or(Block.box(5, 1, 8, 11, 10, 13), SHAPE_COMMON);
-    public static final VoxelShape SHAPE_EAST = Shapes.or(Block.box(8, 1, 5, 13, 10, 11), SHAPE_COMMON);
-    public static final VoxelShape SHAPE_WEST = Shapes.or(Block.box(3, 1, 5, 8, 10, 11), SHAPE_COMMON);
+    public static final VoxelShape SHAPE_NORTH = Shapes.or(Block.box(5.5, 1, 3.5, 10.5, 15, 8), SHAPE_COMMON);
+    public static final VoxelShape SHAPE_SOUTH = Shapes.or(Block.box(5.5, 1, 8, 10.5, 15, 12.5), SHAPE_COMMON);
+    public static final VoxelShape SHAPE_EAST = Shapes.or(Block.box(8, 1, 5.5, 12.5, 15, 10.5), SHAPE_COMMON);
+    public static final VoxelShape SHAPE_WEST = Shapes.or(Block.box(3.5, 1, 5.5, 8, 15, 10.5), SHAPE_COMMON);
     
     public TrafficLightRequestButtonBlock() {
         super(BlockBehaviour.Properties.of()
@@ -106,7 +106,7 @@ public class TrafficLightRequestButtonBlock extends BaseEntityBlock implements S
     }
 
     private boolean isProperHit(BlockState state, Direction pDirection, double pDistanceY) {
-        if (pDirection ==  state.getValue(FACING) && !(pDistanceY > (double)0.625F) && !(pDistanceY < (double)0.0625F)) {
+        if (pDirection ==  state.getValue(FACING) && !(pDistanceY > (double)0.9375F) && !(pDistanceY < (double)0.0625F)) {
             return true;
         } else {
            return false;

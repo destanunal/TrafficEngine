@@ -90,6 +90,7 @@ public class TrafficLightBlock extends ColorableBlock implements SimpleWaterlogg
                 voxelShapes.put(Direction.EAST, Block.box(10, x.getHitboxBottom(), 4, 15, x.getHitboxTop(), 12));
                 voxelShapes.put(Direction.WEST, Block.box(1, x.getHitboxBottom(), 4, 6, x.getHitboxTop(), 12));
             }
+            voxelShapes.replaceAll((direction,shape) -> Shapes.or(SHAPE_COMMON,shape).optimize());
             shapes.put(x, voxelShapes);
 
             Map<Direction, VoxelShape> rotated = new HashMap<>();
@@ -125,13 +126,17 @@ public class TrafficLightBlock extends ColorableBlock implements SimpleWaterlogg
         return SHAPE_COMMON;
     }
 
+    protected static VoxelShape getCachedShape(TrafficLightModel model,Direction direction,boolean diagonal) {
+        return (diagonal?diagonalShapes:shapes).get(model).get(direction);
+    }
+
     @Override
     public VoxelShape getShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext) {
         TrafficLightModel model = pState.getValue(MODEL);
         Direction facing = pState.getValue(FACING);
         return pState.getValue(DIAGONAL)
             ? diagonalShapes.get(model).get(facing)
-            : Shapes.or(SHAPE_COMMON, shapes.get(model).get(facing));
+            : shapes.get(model).get(facing);
     }
 
     @Override

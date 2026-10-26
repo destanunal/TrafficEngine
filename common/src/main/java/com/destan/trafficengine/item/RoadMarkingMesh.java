@@ -62,7 +62,7 @@ public final class RoadMarkingMesh {
             Surface neighbour = neighbour(level, pos, side, height(state));
             if (neighbour == null || !connectedRoad(neighbour.state)
                     || neighbour.state.getValue(ConnectedRoadBlock.STYLE) != state.getValue(ConnectedRoadBlock.STYLE)
-                    || !(level.getBlockEntity(neighbour.pos) instanceof ColoredBlockEntity other)) continue;
+                    || !(com.destan.trafficengine.util.LoadedRoadData.blockEntity(level,neighbour.pos) instanceof ColoredBlockEntity other)) continue;
             if (!other.getCustomRoadPattern().isEmpty()) continue;
             // Old saved straight meshes may also belong to a multi-block operation.
             // Keep their existing ports until an explicitly automatic neighbour is painted.
@@ -97,15 +97,15 @@ public final class RoadMarkingMesh {
         Surface closest = null;
         for (int dy = -1; dy <= 1; dy++) {
             BlockPos next = pos.relative(side).offset(0, dy, 0);
-            BlockState state = level.getBlockState(next);
-            if (!RoadPainting.isRoad(state) || RoadPainting.isRoad(level.getBlockState(next.above()))) continue;
+            BlockState state = com.destan.trafficengine.util.LoadedRoadData.blockState(level,next);
+            if (!RoadPainting.isRoad(state) || RoadPainting.isRoad(com.destan.trafficengine.util.LoadedRoadData.blockState(level,next.above()))) continue;
             double y = dy + height(state);
             if (closest == null || Math.abs(y - top) < Math.abs(closest.height - top)) closest = new Surface(next, state, y);
         }
         return closest;
     }
     public static float[] renderVertices(BlockGetter level, BlockPos pos, BlockState state) {
-        if (!(level.getBlockEntity(pos) instanceof ColoredBlockEntity entity)) return new float[0];
+        if (!(com.destan.trafficengine.util.LoadedRoadData.blockEntity(level,pos) instanceof ColoredBlockEntity entity)) return new float[0];
         float[] top = topVertices(level, pos, state, entity);
         double height = height(state);
         float[] bottoms = new float[4];

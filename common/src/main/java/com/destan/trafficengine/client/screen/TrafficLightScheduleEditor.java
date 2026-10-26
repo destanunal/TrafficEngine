@@ -29,6 +29,7 @@ public class TrafficLightScheduleEditor extends TrafficEngineScreen {
     private final Screen parent;
     private final BlockPos pos;
     private final boolean controller;
+    private final int signalFace;
     private final TrafficLightSchedule schedule;
     private final List<AbstractWidget> rows = new ArrayList<>();
     private static final int ROW_HEIGHT = 27;
@@ -38,7 +39,6 @@ public class TrafficLightScheduleEditor extends TrafficEngineScreen {
     private String error;
     private TEButton transitionButton;
     private TEScheduleNumberBox transitionDuration;
-    private int lastTransitionSeconds;
     private ItemStack triggerIcon;
     private MultiLineLabel helpLabel = MultiLineLabel.EMPTY;
     private String helpKey;
@@ -49,10 +49,10 @@ public class TrafficLightScheduleEditor extends TrafficEngineScreen {
         this.parent = parent;
         this.pos = pos;
         controller = level.getBlockEntity(pos) instanceof TrafficLightControllerBlockEntity;
-        schedule = (level.getBlockEntity(pos) instanceof TrafficLightControllerBlockEntity c ? c.getScheduleForEditing() : level.getBlockEntity(pos) instanceof TrafficLightBlockEntity l ? l.getSchedule() : new TrafficLightSchedule()).copy();
+        signalFace=parent instanceof TrafficLightConfigScreen configScreen?configScreen.getSignalFace():0;
+        schedule = (level.getBlockEntity(pos) instanceof TrafficLightControllerBlockEntity c ? c.getScheduleForEditing() : com.destan.trafficengine.util.SignalFaces.get(level,pos,signalFace) instanceof TrafficLightBlockEntity l ? l.getSchedule() : new TrafficLightSchedule()).copy();
         schedule.convertToPhaseTimings(!controller);
         if (controller) schedule.convertToSequentialGreens();
-        lastTransitionSeconds = schedule.getRedYellowSeconds() > 0 ? schedule.getRedYellowSeconds() : 2;
     }
     private static Component text(String key) { return Component.translatable("gui.trafficengine.trafficlightschedule." + key); }
     @Override protected void init() {
@@ -69,7 +69,7 @@ public class TrafficLightScheduleEditor extends TrafficEngineScreen {
         }) {
             @Override protected void renderLabel(GuiGraphics g, int color) {
                 g.renderItem(triggerIcon, getX() + 3, getY() + 2);
-                TEText.drawString(g, font, getMessage(), getX() + 22 + Math.max(0, (getWidth() - 26 - font.width(getMessage())) / 2), getY() + 6, color, false);
+                TEText.drawString(g, font, getMessage(), getX() + 22 + Math.max(0, (getWidth() - 26 - TEText.width(font,getMessage())) / 2), TEText.centeredY(g,font,getMessage(),getY(),getHeight()), color, false);
             }
         });
         Component blinkLabel = text("blink_toggle").copy().append(": ");
@@ -80,9 +80,9 @@ public class TrafficLightScheduleEditor extends TrafficEngineScreen {
             @Override protected void renderLabel(GuiGraphics g, int color) {
                 Component state = schedule.isBlinkAtEnd() ? CommonComponents.OPTION_ON : CommonComponents.OPTION_OFF;
                 int x = getX() + (getWidth() - font.width(blinkLabel) - font.width(state)) / 2;
-                int y = getY() + (getHeight() - font.lineHeight) / 2;
+                float y = TEText.centeredY(g,font,getMessage(),getY(),getHeight());
                 TEText.drawString(g, font, blinkLabel, x, y, color, false);
-                TEText.drawString(g, font, state, x + font.width(blinkLabel), y + 1,
+                TEText.drawString(g, font, state, x + font.width(blinkLabel), y,
                     schedule.isBlinkAtEnd() ? 0xFF55FF55 : 0xFFFF5555, false);
             }
         });
@@ -97,9 +97,8 @@ public class TrafficLightScheduleEditor extends TrafficEngineScreen {
             }));
             transitionButton = addRenderableWidget(new TEButton(left + 103, top + 93, 100, 20, transitionCaption(), b -> cycleTransitionLight()));
             transitionDuration = addRenderableWidget(new TEScheduleNumberBox(font, left + windowWidth - 64, top + 94, 50,
-                schedule.getRedYellowSeconds(), 0, TrafficLightSchedule.MAX_RED_YELLOW_SECONDS, true, true, text("red_yellow_seconds"), value -> {
+                schedule.getRedYellowSeconds(), 1, TrafficLightSchedule.MAX_RED_YELLOW_SECONDS, true, true, text("red_yellow_seconds"), value -> {
                     schedule.setRedYellowSeconds((int)value);
-                    if (value > 0) lastTransitionSeconds = (int)value;
                     refreshTransitionControls();
                 }));
             transitionDuration.setTooltip(Tooltip.create(text("transition_duration_help")));
@@ -149,9 +148,7 @@ public class TrafficLightScheduleEditor extends TrafficEngineScreen {
         var current = schedule.getTransitionLight();
         var choices = TrafficLightSchedule.TransitionLight.values();
         var next = choices[(current.ordinal() + 1) % choices.length];
-        if (current != TrafficLightSchedule.TransitionLight.NONE) lastTransitionSeconds = schedule.getRedYellowSeconds();
         schedule.setTransitionLight(next);
-        if (current == TrafficLightSchedule.TransitionLight.NONE) schedule.setRedYellowSeconds(lastTransitionSeconds);
         transitionDuration.setValue(Integer.toString(schedule.getRedYellowSeconds()));
         refreshTransitionControls();
     }
@@ -163,7 +160,7 @@ public class TrafficLightScheduleEditor extends TrafficEngineScreen {
             case YELLOW -> "transition_help.yellow";
             case NONE -> "transition_help.none";
         })));
-        boolean enabled = schedule.getTransitionLight() != TrafficLightSchedule.TransitionLight.NONE;
+        boolean enabled = true; // Outgoing yellow remains configurable even when the incoming transition is None.
         transitionDuration.active = enabled;
         transitionDuration.setEditable(enabled);
         transitionDuration.setTextColor(enabled ? TEColors.TEXT : TEColors.MUTED);
@@ -240,16 +237,16 @@ public class TrafficLightScheduleEditor extends TrafficEngineScreen {
                 if (e.getDurationTicks() <= 0) { error = "invalid_seconds"; break; }
                 if (schedule.isManualController()) {
                     if (e.getManualRedTicks() <= 0) { error = "invalid_manual_red"; break; }
-                    int cycle = e.getDurationTicks() + e.getManualRedTicks() + schedule.getRedYellowTicks() * 2;
+                    int cycle = e.getDurationTicks() + e.getManualRedTicks() + (schedule.getRedYellowTicks() + schedule.getIncomingTransitionTicks());
                     if (common >= 0 && common != cycle) { error = "invalid_manual_cycle"; break; }
                     common = cycle;
-                    minimum += e.getDurationTicks() + TrafficLightSchedule.SAFETY_INTERVAL_TICKS + schedule.getRedYellowTicks() * 2;
+                    minimum += e.getDurationTicks() + TrafficLightSchedule.SAFETY_INTERVAL_TICKS + (schedule.getRedYellowTicks() + schedule.getIncomingTransitionTicks());
                 }
             }
             if (error == null && schedule.isManualController() && common >= 0 && common < minimum) error = "invalid_manual_overlap";
         }
         if (error != null) return;
-        ModNetworkManager.UPDATE_TRAFFIC_LIGHT_SCHEDULE.send(NetworkDirection.toServer(), new TrafficLightSchedulePacket(pos, List.of(schedule)));
+        ModNetworkManager.UPDATE_TRAFFIC_LIGHT_SCHEDULE.send(NetworkDirection.toServer(), new TrafficLightSchedulePacket(pos, List.of(schedule)).withFace(signalFace));
         onClose();
     }
     private int maxOffset() { return Math.max(0, schedule.getEntries().size() - visibleRows); }
@@ -310,7 +307,7 @@ public class TrafficLightScheduleEditor extends TrafficEngineScreen {
             if ((i - offset) % 2 == 1) g.fill(left + 13, y, left + windowWidth - 13, y + ROW_HEIGHT, TEColors.WINDOW);
             if (controller && !schedule.isManualController()) {
                 var e = schedule.getEntries().get(i);
-                int red = e.getDurationTicks() <= 0 ? 0 : Math.max(0, cycleTicks - e.getDurationTicks() - schedule.getRedYellowTicks() * 2);
+                int red = e.getDurationTicks() <= 0 ? 0 : Math.max(0, cycleTicks - e.getDurationTicks() - (schedule.getRedYellowTicks() + schedule.getIncomingTransitionTicks()));
                 String seconds = Integer.toString(red / 20);
                 TEText.drawString(g, font, seconds, left + 190 + (65 - font.width(seconds)) / 2, y + 9, RED, false);
             }

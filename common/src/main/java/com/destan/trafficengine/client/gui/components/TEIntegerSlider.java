@@ -24,9 +24,19 @@ public class TEIntegerSlider extends AbstractSliderButton {
         updateMessage();
     }
     public int intValue() { return Mth.clamp(min + (int)Math.round(value * (max - min) / step) * step, min, max); }
+    public void setIntValue(int integer) {
+        double next = (double)(Mth.clamp(integer, min, max) - min) / Math.max(1, max - min);
+        if (next == value) return;
+        value = next; applyValue(); updateMessage();
+    }
     public void refreshCaption() { updateMessage(); }
     @Override protected void updateMessage() { if (caption != null) setMessage(caption.apply(intValue())); }
     @Override protected void applyValue() { change.accept(intValue()); }
+    private Component fittedSource;
+    private com.destan.trafficengine.client.gui.MenuTextBounds.Bounds fittedBounds;
+    private int fittedWidth;
+    private float fittedScale;
+    private String fittedText="";
     @Override public void renderWidget(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
         TEPanel.surface(g, getX(), getY(), width, height, TEColors.FIELD,
             isHoveredOrFocused() ? TEColors.SELECTION_BORDER : TEColors.BORDER);
@@ -35,7 +45,12 @@ public class TEIntegerSlider extends AbstractSliderButton {
         g.fill(getX() + 4, getY() + height - 4, knob, getY() + height - 2, TEColors.ACCENT);
         TEPanel.fillRounded(g, knob - 3, getY() + height - 6, 6, 6, TEColors.ACCENT);
         var font = Minecraft.getInstance().font;
-        String text = font.plainSubstrByWidth(getMessage().getString(), width - 12);
-        TEText.drawString(g, font, text, getX() + (width - font.width(text)) / 2, getY() + 3, TEColors.TEXT, false);
+        var bounds=com.destan.trafficengine.client.gui.MenuTextBounds.of(font,getMessage());
+        float currentScale=TEText.layoutScale(g);
+        if(fittedSource!=getMessage() || fittedBounds!=bounds || fittedWidth!=width || fittedScale!=currentScale) {
+            fittedSource=getMessage();fittedBounds=bounds;fittedWidth=width;fittedScale=currentScale;
+            fittedText=font.plainSubstrByWidth(getMessage().getString(),Math.max(1,(int)((width-12)/TEText.layoutScale(g))));
+        }
+        TEText.drawCenteredString(g,font,fittedText,getX()+width/2,TEText.centeredY(g,font,fittedText,getY(),height-3),TEColors.TEXT);
     }
 }

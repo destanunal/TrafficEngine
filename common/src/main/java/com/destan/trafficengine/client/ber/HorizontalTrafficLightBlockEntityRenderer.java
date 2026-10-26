@@ -16,15 +16,14 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.RenderType;
 import org.joml.Matrix4f;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class HorizontalTrafficLightBlockEntityRenderer extends RotatableBlockEntityRenderer<TrafficLightBlockEntity> {
 
-    private static final Map<String, Long> startTimes = new HashMap<>();
-    private static final Map<String, Long> knownDurations = new HashMap<>();
-    private static final Map<String, Integer> lastColorMap = new HashMap<>();
-    private static final Map<String, Long> lastLitTimes = new HashMap<>();
+    private static final Map<String, Long> startTimes = BufferedTimerProperties.boundedMap(BufferedTimerProperties.PHASE_LIMIT);
+    private static final Map<String, Long> knownDurations = BufferedTimerProperties.boundedMap(BufferedTimerProperties.PHASE_LIMIT);
+    private static final Map<String, Integer> lastColorMap = BufferedTimerProperties.boundedMap(BufferedTimerProperties.LIGHT_LIMIT);
+    private static final Map<String, Long> lastLitTimes = BufferedTimerProperties.boundedMap(BufferedTimerProperties.LIGHT_LIMIT);
     private static final long BLINK_HOLD_TICKS = 40L;
 
     private static boolean cacheLoaded = false;
@@ -96,14 +95,13 @@ public class HorizontalTrafficLightBlockEntityRenderer extends RotatableBlockEnt
 
             if (be.getLevel() != null && rawColorCode != 0) {
                 long currentTime = be.getLevel().getGameTime();
-                String dim = be.getLevel().dimension().location().toString();
-                String lightKey = dim + "_" + be.getBlockPos().asLong();
-                String phaseKey = lightKey + "_" + rawColorCode;
+                String lightKey = be.getTimingKey();
+                String phaseKey = be.getTimingPhaseKey(rawColorCode);
 
                 Integer lastCol = lastColorMap.get(lightKey);
                 if (lastCol == null || lastCol != rawColorCode) {
                     if (lastCol != null) {
-                        String lastPhaseKey = lightKey + "_" + lastCol;
+                        String lastPhaseKey = be.getTimingPhaseKey(lastCol);
                         long startTime = startTimes.getOrDefault(lastPhaseKey, currentTime);
                         long duration = currentTime - startTime;
                         if (duration > 10) {
@@ -115,10 +113,10 @@ public class HorizontalTrafficLightBlockEntityRenderer extends RotatableBlockEnt
                     lastColorMap.put(lightKey, rawColorCode);
                 }
 
-                if (knownDurations.containsKey(phaseKey)) {
+                Long totalTicks = knownDurations.get(phaseKey);
+                if (totalTicks != null) {
                     long startTime = startTimes.getOrDefault(phaseKey, currentTime);
                     long passedTicks = Math.max(0L, currentTime - startTime);
-                    long totalTicks = knownDurations.get(phaseKey);
                     if (totalTicks <= 0L) return -1;
                     long remainingTicks = totalTicks - (passedTicks % totalTicks);
                     return (int) ((remainingTicks + 19) / 20);
@@ -146,11 +144,11 @@ public class HorizontalTrafficLightBlockEntityRenderer extends RotatableBlockEnt
         else if (isGreen) rawColorCode = 3;
 
         if (isCountdown && !graphics.blockEntity().hasScheduleTiming() && graphics.blockEntity().getLevel() != null) {
-            String lightKey = graphics.blockEntity().getLevel().dimension().location() + "_"
-                + graphics.blockEntity().getBlockPos().asLong();
+            String lightKey = graphics.blockEntity().getTimingKey();
             long gameTime = graphics.blockEntity().getLevel().getGameTime();
             if (rawColorCode != 0) {
-                lastLitTimes.put(lightKey, gameTime);
+                Long previousLit = lastLitTimes.get(lightKey);
+                if (previousLit == null || previousLit.longValue() != gameTime) lastLitTimes.put(lightKey, gameTime);
             } else {
                 Integer heldColor = lastColorMap.get(lightKey);
                 Long lastLit = lastLitTimes.get(lightKey);
@@ -160,9 +158,8 @@ public class HorizontalTrafficLightBlockEntityRenderer extends RotatableBlockEnt
             }
         }
 
-        if (isCountdown && graphics.blockEntity().getLevel() != null && rawColorCode != 0) {
-            getRealRemainingSeconds(graphics.blockEntity(), rawColorCode);
-        }
+        int remainingSeconds = isCountdown && graphics.blockEntity().getLevel() != null && rawColorCode != 0
+            ? getRealRemainingSeconds(graphics.blockEntity(), rawColorCode) : -1;
 
         int activeColorHex = 0xFFFFFFFF;
         boolean isAnyLightOn = false;
@@ -209,7 +206,7 @@ public class HorizontalTrafficLightBlockEntityRenderer extends RotatableBlockEnt
         else if (slotCount >= 4) startX = -1.5f;
 
         graphics.poseStack().pushPose();
-        graphics.poseStack().translate(startX, 10.5f, 13.0f);
+        graphics.poseStack().translate(startX, 10.0f, 12.5f);
 
         TrafficLightIcon currentIcon = graphics.blockEntity().getIcon();
 
@@ -223,9 +220,9 @@ public class HorizontalTrafficLightBlockEntityRenderer extends RotatableBlockEnt
             }
 
             if (renderIcon && slotColor != null && graphics.blockEntity().isColorEnabled(slotColor, true) && !graphics.blockEntity().isScheduleBlinkOff()) {
-                TrafficLightTextureManager.render(graphics, graphics.blockEntity(), currentIcon, slotColor, graphics.packedLight());
+                TrafficLightTextureManager.renderSlot(graphics, graphics.blockEntity(), i, currentIcon, slotColor, graphics.packedLight());
             } else {
-                TrafficLightTextureManager.render(graphics, graphics.blockEntity(), currentIcon, TrafficLightColor.NONE, graphics.packedLight());
+                TrafficLightTextureManager.renderSlot(graphics, graphics.blockEntity(), i, currentIcon, TrafficLightColor.NONE, graphics.packedLight());
             }
 
             // Sağa doğru kaydır (+5.0f)
@@ -235,7 +232,6 @@ public class HorizontalTrafficLightBlockEntityRenderer extends RotatableBlockEnt
 
         // 2. SAYACI ÇİZ
         if (showTimer && isAnyLightOn && timerSlotIndex != -1) {
-            int remainingSeconds = getRealRemainingSeconds(graphics.blockEntity(), rawColorCode);
 
             if (remainingSeconds > 0) {
                 graphics.poseStack().pushPose();
@@ -244,7 +240,7 @@ public class HorizontalTrafficLightBlockEntityRenderer extends RotatableBlockEnt
                 float timerX = startX + (timerSlotIndex * 5.0f) + 2.0f;
 
                 // Yüksekliği 9.5f yaptık (8.0f ile 12.5f'nin tam arası, üste yapışmaz, alta inmez)
-                graphics.poseStack().translate(timerX, 8.6f, 14.05f);
+                graphics.poseStack().translate(timerX, 8.0f, 13.55f);
 
                 float digitWidth = 1.6f;
                 float digitHeight = 3.2f;

@@ -67,6 +67,8 @@ public class TrafficLightConfigScreen extends TrafficEngineScreen {
     private BlockState previewState;
     private Tab tab = Tab.GENERAL;
     private final List<TEButton> chrome = new ArrayList<>();
+    private final List<TEButton> previewTools = new ArrayList<>(4);
+    private int previewTint = -1;
     private final List<FormWidget> form = new ArrayList<>();
     private final List<FormLabel> labels = new ArrayList<>();
     private final List<TENumberBox> numbers = new ArrayList<>();
@@ -79,9 +81,10 @@ public class TrafficLightConfigScreen extends TrafficEngineScreen {
     private int selectedSignal = -1;
     private boolean closed, rebuildRequested, draggingScrollbar;
 
-    public TrafficLightConfigScreen(Level level, BlockPos pos) {
-        super(Component.translatable("gui.trafficengine.trafficlight.title"));
-        config = new TrafficLightConfig(level, pos);
+    public TrafficLightConfigScreen(Level level,BlockPos pos){this(level,pos,0);}
+    public TrafficLightConfigScreen(Level level, BlockPos pos, int face) {
+        super(Component.translatable("gui.trafficengine.trafficlight.title").append(level.getBlockState(pos).getBlock() instanceof com.destan.trafficengine.block.DoubleTrafficLightBlock?Component.literal(" - ").append(Component.translatable(face==1?"gui.trafficengine.signal.back":"gui.trafficengine.signal.front")):Component.empty()));
+        config = new TrafficLightConfig(level, pos, face);
     }
 
     private static Component text(String name) { return Component.translatable("gui.trafficengine.trafficlight." + name); }
@@ -122,6 +125,7 @@ public class TrafficLightConfigScreen extends TrafficEngineScreen {
         rebuildForm();
     }
 
+    public int getSignalFace(){return config.signalFace;}
     private void label(Component text, int y) { labels.add(new FormLabel(font.plainSubstrByWidth(text.getString(), formWidth - 16), y)); }
     private <T extends AbstractWidget> T field(T widget, int y) {
         form.add(new FormWidget(addRenderableWidget(widget), y));
@@ -144,6 +148,8 @@ public class TrafficLightConfigScreen extends TrafficEngineScreen {
             removeWidget(entry.widget);
         }
         form.clear();
+        for(TEButton tool:previewTools){if(getFocused()==tool)setFocused(null);removeWidget(tool);}
+        previewTools.clear();
         labels.clear();
         helpLines.clear();
         numbers.clear();
@@ -153,7 +159,12 @@ public class TrafficLightConfigScreen extends TrafficEngineScreen {
         previewState = ModBlocks.TRAFFIC_LIGHT.get().defaultBlockState()
             .setValue(TrafficLightBlock.FACING, Direction.NORTH).setValue(TrafficLightBlock.MODEL, config.model);
         for (int i = 0; i < config.model.getLightsCount(); i++)
-            signalTextures[i] = TrafficLightTextureManager.getResourceLocation(config.icon, slotColor(i));
+            signalTextures[i] = TrafficLightTextureManager.getRoundResourceLocation(config.signalSymbols.icon(i,config.icon), slotColor(i));
+        previewTint=-1;
+        if(com.destan.trafficengine.util.SignalFaces.get(config.level,config.blockPos,config.signalFace) instanceof com.destan.trafficengine.block.data.IColorBlockEntity painted
+                && painted.getColor()!=com.destan.trafficengine.data.PaintColor.NONE)
+            previewTint=painted.getColor().getTextureColor().getAsARGB();
+        layoutPreview();
         switch (tab) {
             case GENERAL -> generalSettings();
             case SIGNALS -> signalSettings();
@@ -163,6 +174,7 @@ public class TrafficLightConfigScreen extends TrafficEngineScreen {
             setFocused(phaseBox);
             phaseBox.setCursorPosition(Math.min(cursor, phaseBox.getValue().length()));
         }
+        if(tab==Tab.SIGNALS)addSymbolTools();
         scroll = Math.min(scroll, maxScroll());
         positionForm();
     }
@@ -202,6 +214,7 @@ public class TrafficLightConfigScreen extends TrafficEngineScreen {
             int y = 102 + i / columns * 30;
             IconButton choice = field(new IconButton(formX + 5 + i % columns * 30, formY + y, icon, b -> {
                 config.icon = icon;
+                config.signalSymbols = com.destan.trafficengine.data.SignalSymbols.DEFAULT;
                 config.customMask = com.destan.trafficengine.data.PixelPattern.EMPTY;
                 config.useTwoLightColors();
                 rebuildForm();
@@ -230,7 +243,8 @@ public class TrafficLightConfigScreen extends TrafficEngineScreen {
     private void signalSettings() {
         for (int slot = 0; slot < config.model.getLightsCount(); slot++) {
             final int index = slot;
-            int row = slot * 45;
+            int rowStep=Math.min(62,Math.max(28,(formHeight-4)/config.model.getLightsCount()));
+            int row = slot * rowStep;
             label(text("signal_number").copy().append(" " + (slot + 1)), row + 1);
             List<TrafficLightColor> allowed = new ArrayList<>();
             for (TrafficLightColor color : TrafficLightColor.getAllowedForType(config.type, true)) {
@@ -242,13 +256,33 @@ public class TrafficLightConfigScreen extends TrafficEngineScreen {
             for (int i = 0; i < allowed.size(); i++) {
                 TrafficLightColor color = allowed.get(i);
                 SignalButton choice = field(new SignalButton(formX + 5 + i * colorWidth, formY + row + 14,
-                    colorWidth - 3, color, b -> {
+                    colorWidth - 3, index, color, b -> {
                         config.colors[index] = color;
                         selectedSignal = index;
                         rebuildForm();
                     }), row + 14);
+                choice.fitHeight(Math.max(10,Math.min(24,rowStep-18)));
                 choice.setSelected(slotColor(slot) == color);
             }
+
+
+        }
+    }
+
+    private void editSignalSymbol(int slot){
+        selectedSignal=slot;
+        minecraft.setScreen(new SignalSymbolScreen(this,slot,config.signalSymbols,value->{config.signalSymbols=value;rebuildRequested=true;}));
+    }
+    private void addSymbolTools(){
+        for(int i=0;i<config.model.getLightsCount();i++){
+            final int slot=i;
+            int x=lampX+Math.round(4*previewScale)-24;
+            int y=lampY+Math.round((3.5F+i*5)*previewScale)-10;
+            Component title=Component.translatable("gui.trafficengine.stencil.add_drawing");
+            TEButton pencil=addRenderableWidget(new TEButton(x,y,20,20,title,b->editSignalSymbol(slot)){
+                @Override protected void renderLabel(GuiGraphics g,int color){TEWorkbenchIcons.draw(g,ModGuiIcons.EDIT,getX()+2,getY()+2,color);}
+            });
+            pencil.setTooltip(Tooltip.create(title));previewTools.add(pencil);
         }
     }
 
@@ -287,16 +321,16 @@ public class TrafficLightConfigScreen extends TrafficEngineScreen {
             b -> minecraft.setScreen(new TrafficLightScheduleEditor(this, config.level, config.blockPos)));
         int half = (formWidth - 11) / 2;
         button(formX + 5, 71, half - 3, Constants.textCopy, false, b -> {
-            if (config.level.getBlockEntity(config.blockPos) instanceof TrafficLightControllerBlockEntity controller) {
+            if (com.destan.trafficengine.util.SignalFaces.get(config.level,config.blockPos,config.signalFace) instanceof TrafficLightControllerBlockEntity controller) {
                 Clipboard.put(TrafficLightSchedule.class, controller.getScheduleForEditing());
-            } else if (config.level.getBlockEntity(config.blockPos) instanceof TrafficLightBlockEntity light) {
+            } else if (com.destan.trafficengine.util.SignalFaces.get(config.level,config.blockPos,config.signalFace) instanceof TrafficLightBlockEntity light) {
                 Clipboard.put(TrafficLightSchedule.class, light.getSchedule());
             }
         });
         button(formX + 5 + half, 71, half - 3, Constants.textPaste, false, b ->
             Clipboard.get(TrafficLightSchedule.class).ifPresent(schedule ->
                 ModNetworkManager.UPDATE_TRAFFIC_LIGHT_SCHEDULE.send(NetworkDirection.toServer(),
-                    new TrafficLightSchedulePacket(config.blockPos, List.of(schedule)))));
+                    new TrafficLightSchedulePacket(config.blockPos, List.of(schedule)).withFace(config.signalFace))));
         button(formX + 5, 97, formWidth - 13, scheduleStatus(), config.scheduleEnabled, b -> {
             config.scheduleEnabled = !config.scheduleEnabled;
             b.setMessage(scheduleStatus());
@@ -412,6 +446,7 @@ public class TrafficLightConfigScreen extends TrafficEngineScreen {
         return super.keyPressed(keyCode, scanCode, modifiers);
     }
     @Override public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        for(TEButton tool:previewTools)if(tool.isMouseOver(mouseX,mouseY))return tool.mouseClicked(mouseX,mouseY,button);
         if (button == 0 && maxScroll() > 0 && insideForm(mouseX, mouseY) && mouseX >= formX + formWidth - 5) {
             draggingScrollbar = true;
             scrollTo(mouseY);
@@ -425,7 +460,7 @@ public class TrafficLightConfigScreen extends TrafficEngineScreen {
                         && mouseY >= sy && mouseY < sy + 4 * previewScale) { selectedSignal = i; break; }
             }
             tab = selectedSignal < 0 ? Tab.GENERAL : Tab.SIGNALS;
-            scroll = selectedSignal < 0 ? 0 : Math.max(0, selectedSignal * 45 - formHeight / 2);
+            scroll = 0;
             // Refresh the selected tab along with its controls.
             for (int i = 0; i < 3; i++) chrome.get(i).setSelected(i == tab.ordinal());
             rebuildForm();
@@ -469,7 +504,7 @@ public class TrafficLightConfigScreen extends TrafficEngineScreen {
         for (int i = 0; i < maxSlots; i++) safeColors[i] = slotColor(i);
         ModNetworkManager.UPDATE_TRAFFIC_LIGHT_PACKET.send(NetworkDirection.toServer(), new TrafficLightPacket(
             config.blockPos, config.enabledColors, config.type, config.model, config.icon, config.controlType,
-            safeColors, config.phaseId, config.additionalPedestrianStopIds, config.scheduleEnabled).withMask(config.customMask));
+            safeColors, config.phaseId, config.additionalPedestrianStopIds, config.scheduleEnabled).withMask(config.customMask).withSymbols(config.signalSymbols).withFace(config.signalFace));
         super.onClose();
     }
 
@@ -479,6 +514,7 @@ public class TrafficLightConfigScreen extends TrafficEngineScreen {
         TEPanel.draw(g, formX, formY - 3, formWidth, formHeight + 6);
         TEText.drawString(g, font, previewLabel, previewX + 8, previewY + 8, TEColors.MUTED, false);
         renderPreview(g);
+        for(TEButton tool:previewTools)tool.render(g,mouseX,mouseY,partialTick);
         g.enableScissor(formX + 1, formY, formX + formWidth - 1, formY + formHeight);
         for (FormLabel label : labels) {
             TEText.drawString(g, font, label.text, formX + 5,
@@ -500,17 +536,23 @@ public class TrafficLightConfigScreen extends TrafficEngineScreen {
         }
     }
 
-    private void renderPreview(GuiGraphics g) {
+    private void layoutPreview() {
         float modelHeight = Math.max(16, config.model.getTotalHitboxHeight());
         previewScale = Math.min(6, Math.min((previewHeight - 35) / modelHeight, (previewWidth - 20) / 16f));
         lampX = previewX + previewWidth / 2 - Math.round(8 * previewScale);
         lampY = previewY + 24 + Math.round((previewHeight - 30 - modelHeight * previewScale) / 2);
+    }
+    private void renderPreview(GuiGraphics g) {
         g.flush();
-        Lighting.setupForFlatItems();
+        Lighting.setupForEntityInInventory();
         g.pose().pushPose();
         g.pose().translate(lampX, lampY + 16 * previewScale, 100);
         g.pose().scale(16 * previewScale, -16 * previewScale, -16 * previewScale);
-        minecraft.getBlockRenderer().renderSingleBlock(previewState, g.pose(), g.bufferSource(), LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY);
+        var renderer=minecraft.getBlockRenderer();
+        renderer.getModelRenderer().renderModel(g.pose().last(),
+            g.bufferSource().getBuffer(net.minecraft.client.renderer.RenderType.entityCutoutNoCull(net.minecraft.world.inventory.InventoryMenu.BLOCK_ATLAS)),
+            previewState,renderer.getBlockModel(previewState),(previewTint>>>16&255)/255F,(previewTint>>>8&255)/255F,(previewTint&255)/255F,
+            LightTexture.FULL_BRIGHT,OverlayTexture.NO_OVERLAY);
         g.flush();
         g.pose().popPose();
         Lighting.setupFor3DItems();
@@ -522,12 +564,13 @@ public class TrafficLightConfigScreen extends TrafficEngineScreen {
             int sx = lampX + Math.round(6 * previewScale);
             int sy = lampY + Math.round((1.5f + i * 5) * previewScale);
             int size = Math.round(4 * previewScale);
-            if (config.customMask.isEmpty()) g.blit(signalTextures[i], sx, sy, size, size, 0, 0, 16, 16, 16, 16);
+            var mask=config.signalSymbols.mask(i,config.customMask);
+            if (mask.isEmpty()) g.blit(signalTextures[i], sx, sy, size, size, 0, 0, 16, 16, 16, 16);
             else {
                 g.fill(sx, sy, sx + size, sy + size, 0xFF11151B);
                 TrafficLightColor color = slotColor(i);
                 int tint = color == TrafficLightColor.RED ? 0xFFFF2020 : color == TrafficLightColor.YELLOW ? 0xFFFFCF20 : color == TrafficLightColor.GREEN ? 0xFF20FF40 : -1;
-                if (color != TrafficLightColor.NONE) for (var rect : config.customMask.rectangles())
+                if (color != TrafficLightColor.NONE) for (var rect : mask.rectangles())
                     g.fill(sx + rect.x() * size / 16, sy + rect.y() * size / 16, sx + (rect.x() + rect.width()) * size / 16, sy + (rect.y() + rect.height()) * size / 16, tint);
             }
             if (selectedSignal == i) {
@@ -555,12 +598,12 @@ public class TrafficLightConfigScreen extends TrafficEngineScreen {
         CustomIconButton(int x, int y, int width, Component title) {
             super(x, y, width, 22, title, b ->
                 minecraft.setScreen(new PixelPatternScreen(TrafficLightConfigScreen.this, config.customMask,
-                    value -> { config.customMask = value; rebuildRequested = true; })));
+                    value -> { config.customMask = value; config.signalSymbols=com.destan.trafficengine.data.SignalSymbols.DEFAULT; rebuildRequested = true; })));
             setTooltip(Tooltip.create(getMessage()));
         }
         @Override protected void renderLabel(GuiGraphics g, int color) {
             float scale = TEText.layoutScale(g);
-            int textWidth = Math.round(font.width(getMessage()) * scale);
+            int textWidth = Math.round(TEText.width(font,getMessage()) * scale);
             if (width < textWidth + 34) {
                 super.renderLabel(g, color);
                 return;
@@ -568,15 +611,25 @@ public class TrafficLightConfigScreen extends TrafficEngineScreen {
             int x = getX() + (width - 22 - textWidth) / 2;
             TEWorkbenchIcons.draw(g, ModGuiIcons.EDIT, x, getY() + (height - 16) / 2, color);
             TEText.drawString(g, font, getMessage(), x + 22,
-                getY() + (height - Math.round(font.lineHeight * scale)) / 2, color, false);
+                TEText.centeredY(g, font, getMessage(), getY(), height), color, false);
         }
     }
 
     private final class SignalButton extends TEButton {
         private final ResourceLocation texture;
-        SignalButton(int x, int y, int width, TrafficLightColor color, OnPress action) {
+        private final com.destan.trafficengine.data.PixelPattern symbolMask;
+        private final int symbolTint;
+        private final boolean symbolOn;
+        void fitHeight(int value){height=value;}
+        SignalButton(int x,int y,int width,TrafficLightColor color,OnPress action){this(x,y,width,-1,color,action);}
+        SignalButton(int x, int y, int width, int slot, TrafficLightColor color, OnPress action) {
             super(x, y, width, 24, color.getValueTranslation(), action);
-            this.texture = TrafficLightTextureManager.getResourceLocation(config.icon, color);
+            TrafficLightIcon icon=slot<0?config.icon:config.signalSymbols.icon(slot,config.icon);
+            symbolMask=slot<0?config.customMask:config.signalSymbols.mask(slot,config.customMask);
+            symbolOn=color!=TrafficLightColor.NONE;
+            symbolTint=color==TrafficLightColor.RED?0xFFFF2020:color==TrafficLightColor.YELLOW?0xFFFFCF20:color==TrafficLightColor.GREEN?0xFF20FF40:-1;
+            this.texture = TrafficLightTextureManager.getResourceLocation(symbolMask.isEmpty()?icon:TrafficLightIcon.NONE,
+                symbolMask.isEmpty()?color:TrafficLightColor.NONE);
             setTooltip(Tooltip.create(color.getValueTranslation().copy().append("\n").append(color.getValueDescriptionTranslation())));
         }
         @Override public void renderWidget(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
@@ -587,7 +640,7 @@ public class TrafficLightConfigScreen extends TrafficEngineScreen {
             rounded(g, getX() + inset, getY() + inset, width - inset * 2, height - inset * 2,
                 selected ? TEColors.SELECTED : hover ? TEColors.HOVER : TEColors.FIELD);
             renderLabel(g, TEColors.TEXT);
-            if (selected && width >= 50) {
+            if (selected && width >= 50 && height >= 22) {
                 int x = getX() + width - 21, y = getY() + 5;
                 rounded(g, x, y, 14, 14, TEColors.SELECTED);
                 TEWorkbenchIcons.draw(g, ModGuiIcons.CHECK, x - 1, y - 1, TEColors.TEXT);
@@ -602,10 +655,17 @@ public class TrafficLightConfigScreen extends TrafficEngineScreen {
         }
         @Override protected void renderLabel(GuiGraphics g, int color) {
             // Draw the cached icon while retaining the accessible button message.
-            int size = Math.min(16, width - 6);
+            int size = Math.min(16, Math.min(width - 6,height - 6));
             RenderSystem.enableBlend();
-            g.blit(texture, getX() + (width - size) / 2,
-                getY() + (height - size) / 2, size, size, 0, 0, 16, 16, 16, 16);
+            int x=getX()+(width-size)/2,y=getY()+(height-size)/2;
+            g.blit(texture,x,y,size,size,0,0,16,16,16,16);
+            if(symbolOn&&!symbolMask.isEmpty()){
+                var rects=symbolMask.rectangles();
+                for(int i=0;i<rects.size();i++){
+                    var rect=rects.get(i);
+                    g.fill(x+rect.x()*size/16,y+rect.y()*size/16,x+(rect.x()+rect.width())*size/16,y+(rect.y()+rect.height())*size/16,symbolTint);
+                }
+            }
             RenderSystem.disableBlend();
         }
     }
