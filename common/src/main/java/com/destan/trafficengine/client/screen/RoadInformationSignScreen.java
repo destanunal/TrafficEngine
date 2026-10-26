@@ -1,6 +1,7 @@
 package com.destan.trafficengine.client.screen;
 
 import com.destan.trafficengine.client.gui.TEText;
+import com.destan.trafficengine.block.RoadInformationSignBlock;
 import com.destan.trafficengine.block.RoadInformationSignBlock.Kind;
 import com.destan.trafficengine.block.entity.RoadInformationSignBlockEntity;
 import com.destan.trafficengine.client.ber.RoadSignGraphics;
@@ -26,12 +27,12 @@ public class RoadInformationSignScreen extends ScaledTrafficEngineScreen {
     private static final String KEY="gui.trafficengine.road_sign.";
     private static final String[] ARROWS={"","↑","←","→","↖","↗","↓"};
     private final RoadInformationSignBlockEntity sign;
-    private final String[] lines=new String[3];
-    private final String[] distances=new String[3];
-    private final EditBox[] distanceFields=new EditBox[3];
-    private final int[] arrows=new int[3];
-    private final EditBox[] fields=new EditBox[3];
-    private final TEButton[] panelButtons=new TEButton[3];
+    private final String[] lines=new String[4];
+    private final String[] distances=new String[4];
+    private final EditBox[] distanceFields=new EditBox[4];
+    private final int[] arrows=new int[4];
+    private final EditBox[] fields=new EditBox[4];
+    private final TEButton[] panelButtons=new TEButton[4];
     private final List<TEButton> panelChoices=new ArrayList<>();
     private int panelMenuRow=-1,panelMenuX,panelMenuY;
     private static final int PANEL_MENU_WIDTH=100,PANEL_MENU_HEIGHT=108;
@@ -44,9 +45,9 @@ public class RoadInformationSignScreen extends ScaledTrafficEngineScreen {
     private float previewLeft,previewTop,previewScale;
 
     public RoadInformationSignScreen(RoadInformationSignBlockEntity sign) {
-        super(Component.translatable(KEY+(sign.kind()==Kind.VARIABLE_SPEED?"speed_title":sign.kind()==Kind.HIGHWAY?"large_title":"title")));
+        super(Component.translatable(KEY+(sign.kind()==Kind.VARIABLE_SPEED?"speed_title":sign.kind()==Kind.LARGE?"extra_large_title":sign.kind()==Kind.HIGHWAY?"large_title":"title")));
         this.sign=sign;
-        for(int i=0;i<3;i++) {lines[i]=sign.destination(i);arrows[i]=sign.arrow(i);distances[i]=sign.distance(i);}
+        for(int i=0;i<4;i++) {lines[i]=sign.destination(i);arrows[i]=sign.arrow(i);distances[i]=sign.distance(i);}
         theme=sign.theme();speed=sign.speed();enabled=sign.enabled();design=sign.design();
     }
     private Component text(String suffix) {return Component.translatable(KEY+suffix);}
@@ -60,11 +61,12 @@ public class RoadInformationSignScreen extends ScaledTrafficEngineScreen {
         if(row>=0)fields[row]=box;
     }
     private void updateDesign(int rows,int alignment,int size,int ink,int frame,boolean bold,int arrowPosition,boolean dividers) {
-        design=new RoadSignDesign(rows,alignment,size,ink,frame,bold,arrowPosition,dividers,design.panelColors());
+        design=new RoadSignDesign(rows,alignment,size,ink,frame,bold,arrowPosition,dividers,design.panelColors())
+                .constrainedTo(sign.rowCapacity(),RoadInformationSignBlock.maxTextSize(sign.kind()));
     }
 
     @Override protected void initEditor() {
-        layoutWindow(592,336);addCloseButton();
+        layoutWindow(592,sign.kind()==Kind.LARGE?406:336);addCloseButton();
         previewX=left+304;previewWidth=windowWidth-320;
         java.util.Arrays.fill(fields,null);
         java.util.Arrays.fill(distanceFields,null);
@@ -98,7 +100,7 @@ public class RoadInformationSignScreen extends ScaledTrafficEngineScreen {
     }
 
     private void initContent() {
-        int count=design.visibleRows(sign.kind()==Kind.HIGHWAY);
+        int count=design.visibleRows(sign.rowCapacity());
         for(int i=0;i<count;i++) {
             final int row=i;
             edit(left+20,top+92+i*70,164,lines[i],96,Component.translatable(KEY+"destination",i+1),value->lines[row]=value,i);
@@ -147,7 +149,7 @@ public class RoadInformationSignScreen extends ScaledTrafficEngineScreen {
         TEButton anchor=panelButtons[row];
         panelMenuX=anchor.getX()+anchor.getWidth()-PANEL_MENU_WIDTH;
         panelMenuY=anchor.getY()+anchor.getHeight()+3;
-        if(panelMenuY+PANEL_MENU_HEIGHT>top+298)panelMenuY=anchor.getY()-PANEL_MENU_HEIGHT-3;
+        if(panelMenuY+PANEL_MENU_HEIGHT>top+windowHeight-38)panelMenuY=anchor.getY()-PANEL_MENU_HEIGHT-3;
         for(int color=RoadSignDesign.NO_PANEL;color<=RoadSignDesign.GREEN_PANEL;color++) {
             final int value=color;
             TEButton option=addRenderableWidget(new TEButton(panelMenuX+4,panelMenuY+4+color*20,
@@ -161,7 +163,7 @@ public class RoadInformationSignScreen extends ScaledTrafficEngineScreen {
                 @Override protected void renderLabel(GuiGraphics g,int foreground) {
                     if(value==RoadSignDesign.NO_PANEL)g.fill(getX()+6,getY()+9,getX()+14,getY()+11,foreground);
                     else g.fill(getX()+6,getY()+6,getX()+14,getY()+14,RoadSignGraphics.panelColor(value));
-                    TEText.drawString(g, font,getMessage(),getX()+20,getY()+6,foreground,false);
+                    TEText.drawString(g, font,getMessage(),getX()+20+(getWidth()-24-TEText.width(font,getMessage())*TEText.layoutScale(g))/2F,TEText.centeredY(g,font,getMessage(),getY(),getHeight()),foreground,false);
                 }
             }.selected(design.panelColor(row)==color));
             panelChoices.add(option);
@@ -173,12 +175,12 @@ public class RoadInformationSignScreen extends ScaledTrafficEngineScreen {
         addRenderableWidget(new TEButton(x,y,width,22,text(key),b->{action.run();refreshEditor();}) {
             @Override protected void renderLabel(GuiGraphics g,int foreground) {
                 g.fill(getX()+6,getY()+6,getX()+14,getY()+16,color);
-                TEText.drawString(g, font,getMessage(),getX()+20,getY()+7,foreground,false);
+                TEText.drawString(g, font,getMessage(),getX()+20+(getWidth()-24-TEText.width(font,getMessage())*TEText.layoutScale(g))/2F,TEText.centeredY(g,font,getMessage(),getY(),getHeight()),foreground,false);
             }
         }.selected(selected));
     }
     private void initAppearance() {
-        int[] colors={0xFF176B48,0xFF174C9B,0xFF784A2D,0xFFF2F4EF};
+        int[] colors={0xFF176B48,0xFF174C9B,0xFF784A2D,0xFFCDD1CB};
         // Two rows keep color names readable instead of squeezing four long labels together.
         for(int i=0;i<4;i++) {
             final int value=i;
@@ -200,15 +202,16 @@ public class RoadInformationSignScreen extends ScaledTrafficEngineScreen {
         for(int i=0;i<3;i++) {
             final int preset=i;
             choice(left+20+i*86,top+96,80,text("template."+i),false,()->{
-                if(preset==0)design=RoadSignDesign.DEFAULT;
-                else if(preset==1)design=new RoadSignDesign(3,1,110,0,1,true,false,true);
-                else design=new RoadSignDesign(2,0,125,0,1,false,true,false);
+                if(preset==0)design=sign.kind()==Kind.LARGE?RoadSignDesign.LARGE_DEFAULT:RoadSignDesign.DEFAULT.withRows(sign.rowCapacity());
+                else if(preset==1)design=new RoadSignDesign(sign.rowCapacity(),1,sign.kind()==Kind.LARGE?220:110,0,1,true,false,true);
+                else design=new RoadSignDesign(2,0,sign.kind()==Kind.LARGE?250:125,0,1,false,true,false);
             });
         }
-        int count=sign.kind()==Kind.HIGHWAY?3:2;
+        int count=sign.rowCapacity();
+        int pitch=count==4?65:86;
         for(int i=1;i<=count;i++) {
             final int value=i;
-            choice(left+20+(i-1)*86,top+141,80,Component.translatable(KEY+"rows.value",i),design.visibleRows(sign.kind()==Kind.HIGHWAY)==i,()->updateDesign(value,design.alignment(),design.textSize(),design.ink(),design.frame(),design.bold(),design.arrowPosition(),design.dividers()));
+            choice(left+20+(i-1)*pitch,top+141,pitch-6,Component.translatable(KEY+"rows.value",i),design.visibleRows(sign.rowCapacity())==i,()->updateDesign(value,design.alignment(),design.textSize(),design.ink(),design.frame(),design.bold(),design.arrowPosition(),design.dividers()));
         }
         for(int i=0;i<3;i++) {
             final int value=i;
@@ -229,12 +232,12 @@ public class RoadInformationSignScreen extends ScaledTrafficEngineScreen {
 
     @Override public void render(GuiGraphics g,int mx,int my,float tick) {
         beginWindow(g);
-        TEPanel.draw(g,left+12,top+74,276,228);
-        TEPanel.draw(g,previewX,top+74,previewWidth,228);
+        TEPanel.draw(g,left+12,top+74,276,windowHeight-108);
+        TEPanel.draw(g,previewX,top+74,previewWidth,windowHeight-108);
         if(sign.kind()==Kind.VARIABLE_SPEED) {
             label(g,"speed",82);label(g,"speed.presets",139);label(g,"screen.title",219);
         } else if(tab==0) {
-            int count=design.visibleRows(sign.kind()==Kind.HIGHWAY);
+            int count=design.visibleRows(sign.rowCapacity());
             for(int i=0;i<count;i++)TEText.drawString(g, font,Component.translatable(KEY+"destination",i+1),left+20,top+79+i*70,TEColors.MUTED,false);
         } else if(tab==1) {
             label(g,"background",82);label(g,"ink.title",168);label(g,"frame.title",211);label(g,"details",253);
@@ -243,9 +246,10 @@ public class RoadInformationSignScreen extends ScaledTrafficEngineScreen {
         }
         TEText.drawString(g, font,text("live_preview"),previewX+12,top+83,TEColors.ACCENT,false);
         g.flush();g.pose().pushPose();
-        previewScale=Math.min((previewWidth-24F)/RoadSignGraphics.width(sign.kind()),194F/RoadSignGraphics.height(sign.kind()));
+        float previewHeight=windowHeight-142;
+        previewScale=Math.min((previewWidth-24F)/RoadSignGraphics.width(sign.kind()),previewHeight/RoadSignGraphics.height(sign.kind()));
         previewLeft=previewX+(previewWidth-RoadSignGraphics.width(sign.kind())*previewScale)/2;
-        previewTop=top+99+(194-RoadSignGraphics.height(sign.kind())*previewScale)/2;
+        previewTop=top+99+(previewHeight-RoadSignGraphics.height(sign.kind())*previewScale)/2;
         g.pose().translate(previewLeft,previewTop,150);g.pose().scale(previewScale,previewScale,1);
         new RoadSignGraphics(g.pose(),g.bufferSource(),font,LightTexture.FULL_BRIGHT,false,previewLayout).draw(sign.kind(),lines,arrows,distances,"",theme,speed,enabled,design);
         g.flush();g.pose().popPose();
@@ -266,7 +270,7 @@ public class RoadInformationSignScreen extends ScaledTrafficEngineScreen {
         if(button==0 && sign.kind()!=Kind.VARIABLE_SPEED && previewScale>0) {
             double px=(editorCoordinate(x)-previewLeft)/previewScale,py=(editorCoordinate(y)-previewTop)/previewScale;
             float first=12;
-            int count=design.visibleRows(sign.kind()==Kind.HIGHWAY);
+            int count=design.visibleRows(sign.rowCapacity());
             if(px>=0 && px<RoadSignGraphics.width(sign.kind()) && py>=first && py<RoadSignGraphics.height(sign.kind())-10) {
                 selectedRow=Math.min(count-1,(int)((py-first)/((RoadSignGraphics.height(sign.kind())-first-10)/count)));
                 tab=0;refreshEditor();setFocused(fields[selectedRow]);return true;

@@ -58,6 +58,7 @@ public class ModCreativeModeTab {
         output.accept(ModBlocks.CHEVRON_PANEL.get());
         output.accept(ModBlocks.ROAD_DIRECTION_SIGN.get());
         output.accept(ModBlocks.HIGHWAY_DIRECTION_SIGN.get());
+        output.accept(ModBlocks.LARGE_ROAD_DIRECTION_SIGN.get());
         output.accept(ModBlocks.TRAFFIC_SIGN_WORKBENCH.get());
         output.accept(ModBlocks.TRAFFIC_LIGHT_CONTROLLER.get());
         output.accept(ModBlocks.ASPHALT_CURB.get());

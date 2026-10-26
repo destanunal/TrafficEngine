@@ -10,6 +10,9 @@ import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 
 public class RoadInformationSignRenderer extends BaseBlockEntityRenderer<RoadInformationSignBlockEntity> {
+    // A fixed physical clearance keeps the thin border ahead of the baked casing
+    // at shallow angles; cached render layers provide the remaining depth bias.
+    private static final double ARTWORK_CLEARANCE = 1.0 / 256;
     private final Font font;
     private final RoadSignGraphics.Layout layout = new RoadSignGraphics.Layout();
     public RoadInformationSignRenderer(BlockEntityRendererProvider.Context context) { super(context); font = context.getFont(); }
@@ -24,12 +27,12 @@ public class RoadInformationSignRenderer extends BaseBlockEntityRenderer<RoadInf
         var pose = graphics.poseStack(); pose.pushPose();
         pose.translate(0.5, RoadInformationSignBlock.topHeight(kind,mounted)/16, 0.5);
         pose.mulPose(Axis.YP.rotationDegrees(rotation));
-        pose.translate(0, 0, 0.5-RoadInformationSignBlock.frontDepth(mounted,wallMounted)/16+0.001);
+        pose.translate(0, 0, 0.5-RoadInformationSignBlock.frontDepth(mounted,wallMounted)/16+ARTWORK_CLEARANCE);
         pose.scale(1F/96, -1F/96, 1F/96); pose.translate(-RoadSignGraphics.width(kind)/2F, 0, 0);
         new RoadSignGraphics(pose, graphics.multiBufferSource(), font,
             kind == Kind.VARIABLE_SPEED ? LightTexture.FULL_BRIGHT : graphics.packedLight(), true, layout).draw(kind,
-                new String[]{sign.destination(0),sign.destination(1),sign.destination(2)},
-                new int[]{sign.arrow(0),sign.arrow(1),sign.arrow(2)},
+                sign.destinations(),
+                sign.arrows(),
                 sign.distances(),sign.route(),sign.theme(),sign.displayedSpeed(),sign.enabled(),sign.design(),sign.horizontalConnections());
         pose.popPose();
     }

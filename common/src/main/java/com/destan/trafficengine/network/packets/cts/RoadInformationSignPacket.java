@@ -29,17 +29,17 @@ public class RoadInformationSignPacket extends NetworkPacketData {
     }
     @Override protected void write(CompoundTag tag) {
         NbtPositions.putNbtPos(tag, "pos", pos);
-        for (int i = 0; i < 3; i++) {
-            tag.putString("line" + i, lines[i]);
-            tag.putString("distance" + i, distances[i]);
+        for (int i = 0; i < 4; i++) {
+            tag.putString("line" + i, i < lines.length ? lines[i] : "");
+            tag.putString("distance" + i, i < distances.length ? distances[i] : "");
         }
         tag.putIntArray("arrows", arrows); tag.putString("route", route); tag.putInt("theme", theme);
         tag.putInt("speed", speed); tag.putBoolean("enabled", enabled);
         tag.put("design", design.save());
     }
     @Override protected void read(CompoundTag tag) {
-        pos = NbtPositions.getNbtBlockPos(tag, "pos"); lines = new String[3]; distances = new String[3];
-        for (int i = 0; i < 3; i++) {
+        pos = NbtPositions.getNbtBlockPos(tag, "pos"); lines = new String[4]; distances = new String[4];
+        for (int i = 0; i < 4; i++) {
             lines[i] = tag.getString("line" + i);
             distances[i] = tag.getString("distance" + i);
         }

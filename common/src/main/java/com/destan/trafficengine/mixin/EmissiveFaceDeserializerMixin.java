@@ -19,7 +19,7 @@ public class EmissiveFaceDeserializerMixin {
             float[] vertices = new float[12];
             for (int i = 0; i < vertices.length; i++) {
                 vertices[i] = array.get(i).getAsFloat();
-                if (!Float.isFinite(vertices[i]) || vertices[i] < -16 || vertices[i] > 32)
+                if (!Float.isFinite(vertices[i]) || vertices[i] < -32 || vertices[i] > 64)
                     throw new com.google.gson.JsonParseException("Invalid model face corner");
             }
             ((EmissiveFace) cir.getReturnValue()).trafficengine$setVertices(vertices);

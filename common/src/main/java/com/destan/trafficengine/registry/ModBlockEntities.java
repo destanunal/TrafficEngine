@@ -28,7 +28,7 @@ public class ModBlockEntities {
 
     public static final RegistrySupplier<BlockEntityType<com.destan.trafficengine.block.entity.RoadInformationSignBlockEntity>> ROAD_INFORMATION_SIGN_BLOCK_ENTITY = BLOCK_ENTITIES.register(
         "road_information_sign", () -> BlockEntityType.Builder.of(com.destan.trafficengine.block.entity.RoadInformationSignBlockEntity::new,
-            ModBlocks.HIGHWAY_DIRECTION_SIGN.get(), ModBlocks.ROAD_DIRECTION_SIGN.get(), ModBlocks.VARIABLE_SPEED_SIGN.get()).build(null));
+            ModBlocks.LARGE_ROAD_DIRECTION_SIGN.get(), ModBlocks.HIGHWAY_DIRECTION_SIGN.get(), ModBlocks.ROAD_DIRECTION_SIGN.get(), ModBlocks.VARIABLE_SPEED_SIGN.get()).build(null));
 
     public static final RegistrySupplier<BlockEntityType<TrafficLightBlockEntity>>
             TRAFFIC_LIGHT_BLOCK_ENTITY = BLOCK_ENTITIES.register(

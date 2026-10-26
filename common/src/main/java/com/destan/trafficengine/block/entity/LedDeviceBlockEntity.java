@@ -2,6 +2,8 @@ package com.destan.trafficengine.block.entity;
 
 import com.destan.trafficengine.block.LedDeviceBlock;
 import com.destan.trafficengine.block.TrafficSignPostBlock;
+import com.destan.trafficengine.block.CurvedTrafficPoleBlock;
+import net.minecraft.core.Direction;
 import com.destan.trafficengine.block.data.IColorBlockEntity;
 import com.destan.trafficengine.data.PaintColor;
 import com.destan.trafficengine.registry.ModBlockEntities;
@@ -64,9 +66,9 @@ public class LedDeviceBlockEntity extends SyncedBlockEntity implements IColorBlo
 
     public static void tick(Level level, BlockPos pos, BlockState state, LedDeviceBlockEntity blockEntity) {
         if (!level.isClientSide && level.getGameTime() % 20 == 0) {
-            boolean postBelow = level.getBlockState(pos.below()).getBlock() instanceof TrafficSignPostBlock;
-            boolean postAbove = level.getBlockState(pos.above()).getBlock() instanceof TrafficSignPostBlock;
-            boolean postBehind = level.getBlockState(pos.relative(state.getValue(LedDeviceBlock.FACING).getOpposite())).getBlock() instanceof TrafficSignPostBlock;
+            boolean postBelow = CurvedTrafficPoleBlock.isMountingPost(level.getBlockState(pos.below()), Direction.UP);
+            boolean postAbove = CurvedTrafficPoleBlock.isMountingPost(level.getBlockState(pos.above()), Direction.DOWN);
+            boolean postBehind = CurvedTrafficPoleBlock.isMountingPost(level.getBlockState(pos.relative(state.getValue(LedDeviceBlock.FACING).getOpposite())), state.getValue(LedDeviceBlock.FACING));
             boolean postMounted = !state.getValue(LedDeviceBlock.WALL_MOUNTED) && (postBelow || postAbove || postBehind);
             if (state.getValue(LedDeviceBlock.POST_MOUNTED) != postMounted
                 || state.getValue(LedDeviceBlock.POST_ABOVE) != postAbove
