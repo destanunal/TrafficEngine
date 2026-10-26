@@ -54,10 +54,10 @@ public class TrafficLightRequestButtonBlock extends BaseEntityBlock implements S
 
     public static final VoxelShape SHAPE_COMMON = Block.box(7, 0, 7, 9, 16, 9);
 
-    public static final VoxelShape SHAPE_NORTH = Shapes.or(Block.box(5.5, 1, 3.5, 10.5, 15, 8), SHAPE_COMMON);
-    public static final VoxelShape SHAPE_SOUTH = Shapes.or(Block.box(5.5, 1, 8, 10.5, 15, 12.5), SHAPE_COMMON);
-    public static final VoxelShape SHAPE_EAST = Shapes.or(Block.box(8, 1, 5.5, 12.5, 15, 10.5), SHAPE_COMMON);
-    public static final VoxelShape SHAPE_WEST = Shapes.or(Block.box(3.5, 1, 5.5, 8, 15, 10.5), SHAPE_COMMON);
+    public static final VoxelShape SHAPE_NORTH = Shapes.or(Block.box(5.5, 1, 3.5, 10.5, 15, 9.22), SHAPE_COMMON);
+    public static final VoxelShape SHAPE_SOUTH = Shapes.or(Block.box(5.5, 1, 6.78, 10.5, 15, 12.5), SHAPE_COMMON);
+    public static final VoxelShape SHAPE_EAST = Shapes.or(Block.box(6.78, 1, 5.5, 12.5, 15, 10.5), SHAPE_COMMON);
+    public static final VoxelShape SHAPE_WEST = Shapes.or(Block.box(3.5, 1, 5.5, 9.22, 15, 10.5), SHAPE_COMMON);
     
     public TrafficLightRequestButtonBlock() {
         super(BlockBehaviour.Properties.of()

@@ -307,11 +307,13 @@ public class TrafficLightBlockEntityRenderer extends RotatableBlockEntityRendere
 
                 String digits = Integer.toString(Math.min(999, remainingSeconds));
                 float totalWidth = 0;
+                int narrowDigits = 0;
                 for (int i = 0; i < digits.length(); i++) {
                     if (i > 0) totalWidth += digitSpacing;
+                    if (digits.charAt(i) == '1') narrowDigits++;
                     totalWidth += digits.charAt(i) == '1' ? digitThickness : digitWidth;
                 }
-                float scale = totalWidth > 4.2f ? 4.2f / totalWidth : 1.0f;
+                float scale = com.destan.trafficengine.client.model.TrafficLensGeometry.countdownScale(digits.length(), narrowDigits);
                 graphics.poseStack().scale(scale, scale, 1.0f);
                 graphics.poseStack().translate(-totalWidth / 2.0f, -digitHeight / 2.0f, 0);
                 VertexConsumer vc = graphics.multiBufferSource().getBuffer(RenderType.gui());

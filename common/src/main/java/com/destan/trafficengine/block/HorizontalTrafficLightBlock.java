@@ -10,7 +10,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -28,7 +27,8 @@ public class HorizontalTrafficLightBlock extends TrafficLightBlock {
             double half=2.5*(model.getLightsCount()-1);
             VoxelShape housing=Block.box(4.5-half,4.5,.5,11.5+half,11.5,7);
             for(int vertical=0;vertical<3;vertical++) {
-                VoxelShape north=Shapes.or(housing,vertical==2?BOTTOM_CARRIER:vertical==1?VERTICAL_CARRIER:POLE_X).optimize();
+                VoxelShape carrier=vertical==2?BOTTOM_CARRIER:vertical==1?VERTICAL_CARRIER:POLE_X;
+                VoxelShape north=Shapes.or(housing,carrier).optimize();
                 for(Direction facing:Direction.Plane.HORIZONTAL)
                     SHAPES[vertical][model.ordinal()][facing.get2DDataValue()]=RailingGeometry.rotate(north,facing);
             }
@@ -52,16 +52,15 @@ public class HorizontalTrafficLightBlock extends TrafficLightBlock {
         return state.setValue(VERTICAL_MOUNT,above||below).setValue(BOTTOM_SUPPORT,!above&&below);
     }
     @Override public BlockState getStateForPlacement(BlockPlaceContext context){
-        return mountedState(defaultBlockState().setValue(WATERLOGGED,context.getLevel().getFluidState(context.getClickedPos()).getType()==Fluids.WATER)
-            .setValue(FACING,context.getHorizontalDirection().getOpposite()).setValue(DIAGONAL,false),
+        return mountedState(super.getStateForPlacement(context).setValue(DIAGONAL,false),
             context.getLevel(),context.getClickedPos());
     }
     @Override public BlockState updateShape(BlockState state,Direction side,BlockState neighbour,LevelAccessor world,BlockPos pos,BlockPos other){
-        BlockState updated=super.updateShape(state,side,neighbour,world,pos,other);
+        BlockState updated=super.updateShape(state,side,neighbour,world,pos,other).setValue(DIAGONAL,false);
         return side.getAxis()==Direction.Axis.Y?mountedState(updated,world,pos):updated;
     }
     @Override public VoxelShape getShape(BlockState state,BlockGetter world,BlockPos pos,CollisionContext context){
-        return SHAPES[state.getValue(VERTICAL_MOUNT)?(state.getValue(BOTTOM_SUPPORT)?2:1):0][state.getValue(MODEL).ordinal()][state.getValue(FACING).get2DDataValue()];
+        return SHAPES[(state.getValue(VERTICAL_MOUNT)?(state.getValue(BOTTOM_SUPPORT)?2:1):0)][state.getValue(MODEL).ordinal()][state.getValue(FACING).get2DDataValue()];
     }
     @Override public VoxelShape getCollisionShape(BlockState state,BlockGetter world,BlockPos pos,CollisionContext context){return getShape(state,world,pos,context);}
     @Override public VoxelShape getOcclusionShape(BlockState state,BlockGetter world,BlockPos pos){return Shapes.empty();}
