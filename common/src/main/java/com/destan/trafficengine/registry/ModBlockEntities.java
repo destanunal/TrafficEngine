@@ -34,9 +34,9 @@ public class ModBlockEntities {
             TRAFFIC_LIGHT_BLOCK_ENTITY = BLOCK_ENTITIES.register(
             "traffic_light_block_entity",
             () -> BlockEntityType.Builder.of(
-                    TrafficLightBlockEntity::new,
+                    TrafficLightBlockEntity::create,
                     ModBlocks.TRAFFIC_LIGHT.get(),
-                    ModBlocks.HORIZONTAL_TRAFFIC_LIGHT.get(), ModBlocks.WARNING_LIGHT.get()
+                    ModBlocks.HORIZONTAL_TRAFFIC_LIGHT.get(), ModBlocks.WARNING_LIGHT.get(), ModBlocks.DOUBLE_TRAFFIC_LIGHT.get()
             ).build(null)
     );
 

@@ -35,15 +35,22 @@ public class ParticleEngineMixin {
     @Unique private int trafficengine$breakParticleNumerator = 1;
     @Unique private int trafficengine$breakParticleDenominator = 1;
     @Unique private int trafficengine$breakParticleIndex;
+    @Unique private net.minecraft.client.renderer.texture.TextureAtlasSprite trafficengine$railingSprite;
 
     @WrapMethod(method = "destroy")
     private void trafficengine$reduceDestruction(BlockPos pos, BlockState state, Operation<Void> original) {
+        var previousSprite=trafficengine$railingSprite;
+        trafficengine$railingSprite=com.destan.trafficengine.client.PedestrianRailingParticles.supports(state)
+            ?net.minecraft.client.Minecraft.getInstance().getTextureAtlas(net.minecraft.world.inventory.InventoryMenu.BLOCK_ATLAS)
+                .apply(com.destan.trafficengine.client.PedestrianRailingParticles.texture(state)):null;
         int previousNumerator = trafficengine$breakParticleNumerator;
         int previousDenominator = trafficengine$breakParticleDenominator;
         int previousIndex = trafficengine$breakParticleIndex;
         trafficengine$breakParticleNumerator = 1;
         trafficengine$breakParticleDenominator = 1;
-        if (state.getBlock() instanceof RetractableBarrierBlock
+        if (state.getBlock() instanceof com.destan.trafficengine.block.CurvedTrafficPoleBlock) {
+            trafficengine$breakParticleDenominator = 2;
+        } else if (state.getBlock() instanceof RetractableBarrierBlock
                 || state.getBlock() instanceof RoadBarrierFenceBlock
                 || state.getBlock() instanceof ConcreteBarrierBlock
                 || state.getBlock() instanceof GuardrailBlock) {
@@ -66,12 +73,15 @@ public class ParticleEngineMixin {
             trafficengine$breakParticleNumerator = previousNumerator;
             trafficengine$breakParticleDenominator = previousDenominator;
             trafficengine$breakParticleIndex = previousIndex;
+            trafficengine$railingSprite=previousSprite;
         }
     }
 
     // Distribute the retained particles evenly for each configured reduction.
     @Inject(method = "add(Lnet/minecraft/client/particle/Particle;)V", at = @At("HEAD"), cancellable = true)
     private void trafficengine$skipSomeBreakParticles(Particle particle, CallbackInfo ci) {
+        if(trafficengine$railingSprite!=null && particle instanceof net.minecraft.client.particle.TerrainParticle)
+            ((ParticleSpriteAccessor)particle).trafficengine$setSprite(trafficengine$railingSprite);
         if (trafficengine$breakParticleDenominator == 1) return;
         int index = trafficengine$breakParticleIndex++ % trafficengine$breakParticleDenominator;
         if (index * trafficengine$breakParticleNumerator % trafficengine$breakParticleDenominator
@@ -81,6 +91,13 @@ public class ParticleEngineMixin {
     /** Use the straight variant for break particles without changing selection or collision. */
     @ModifyVariable(method = "destroy", at = @At("STORE"), ordinal = 0)
     private VoxelShape trafficengine$useStraightDestructionShape(VoxelShape shape, BlockPos pos, BlockState state) {
+        if (state.getBlock() instanceof com.destan.trafficengine.block.CurvedTrafficPoleBlock) {
+            return com.destan.trafficengine.block.CurvedTrafficPoleBlock.destructionShape();
+        }
+        if (state.getBlock() instanceof com.destan.trafficengine.block.SlopedPedestrianRailingBlock) {
+            return com.destan.trafficengine.client.PedestrianRailingParticles.straightParticleState(
+                com.destan.trafficengine.registry.ModBlocks.PEDESTRIAN_RAILING.get().defaultBlockState(),state).getShape(level,pos);
+        }
         if (state.getBlock() instanceof TrafficLightBlock && state.hasProperty(TrafficLightBlock.DIAGONAL)
                 && state.getValue(TrafficLightBlock.DIAGONAL)) {
             return state.setValue(TrafficLightBlock.DIAGONAL, false).getShape(level, pos);

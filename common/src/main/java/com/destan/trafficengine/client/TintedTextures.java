@@ -30,7 +30,7 @@ public class TintedTextures {
                     return block.getDefaultColor().getAsARGB();
                 }
 
-                if (pLevel.getBlockEntity(pPos) instanceof IColorBlockEntity blockEntity) {
+                if (com.destan.trafficengine.util.LoadedRoadData.blockEntity(pLevel,pPos) instanceof IColorBlockEntity blockEntity) {
                     if (pState.getBlock() instanceof RoadBlock roadBlock && pTintIndex > 1
                             && blockEntity instanceof ColoredBlockEntity coloredBlockEntity) {
                         // Map renderers such as JourneyMap request one colour for the
@@ -109,6 +109,10 @@ public class TintedTextures {
             covered += Math.abs((mesh[i + 6] - x) * (mesh[i + 11] - z)
                     - (mesh[i + 8] - z) * (mesh[i + 9] - x)) / 2;
         }
+        return strokeMapColor(background,paint,covered);
+    }
+
+    public static int strokeMapColor(int background,int paint,double covered) {
         covered = Math.max(0, Math.min(1, covered));
         int color = 0xFF000000;
         for (int shift = 0; shift < 24; shift += 8) {

@@ -133,7 +133,7 @@ public class TrafficLightControllerBlockEntity extends SyncedBlockEntity {
         if (removedInvalidLinks) setChanged();
         trafficLightLocations.forEach(a -> {
             if (level.isLoaded(a.getLocationBlockPos())
-                    && level.getBlockEntity(a.getLocationBlockPos()) instanceof LedDeviceBlockEntity led) {
+                    && com.destan.trafficengine.util.SignalFaces.get(level,a) instanceof LedDeviceBlockEntity led) {
                 led.setControllerEnabled(running);
             }
         });
@@ -152,7 +152,7 @@ public class TrafficLightControllerBlockEntity extends SyncedBlockEntity {
             Map<PhaseKey, TrafficLightSchedule.PhaseState> phaseById = new HashMap<>();
             for (WorldLocation location : trafficLightLocations) {
                 if (!level.isLoaded(location.getLocationBlockPos())) continue;
-                if (level.getBlockEntity(location.getLocationBlockPos()) instanceof TrafficLightBlockEntity light
+                if (com.destan.trafficengine.util.SignalFaces.get(level,location) instanceof TrafficLightBlockEntity light
                     && light.getControlType() == TrafficLightControlType.REMOTE) {
                     int id = light.getPhaseId();
                     boolean crossing = light.getIcon() == TrafficLightIcon.PEDESTRIAN
@@ -192,14 +192,14 @@ public class TrafficLightControllerBlockEntity extends SyncedBlockEntity {
             if (getFirstOrMainSchedule().getTrigger() == TrafficLightTrigger.ON_REQUEST) applyRequestIdle(level);
             for (WorldLocation location : trafficLightLocations) {
                 if (level.isLoaded(location.getLocationBlockPos())
-                    && level.getBlockEntity(location.getLocationBlockPos()) instanceof TrafficLightBlockEntity light
+                    && com.destan.trafficengine.util.SignalFaces.get(level,location) instanceof TrafficLightBlockEntity light
                     && light.getControlType() == TrafficLightControlType.REMOTE) light.pauseTimedPhase();
             }
         } else {
             TrafficLightSchedule schedule = this.getFirstOrMainSchedule();
             for (WorldLocation location : trafficLightLocations) {
                 if (level.isLoaded(location.getLocationBlockPos())
-                    && level.getBlockEntity(location.getLocationBlockPos()) instanceof TrafficLightBlockEntity light
+                    && com.destan.trafficengine.util.SignalFaces.get(level,location) instanceof TrafficLightBlockEntity light
                     && light.getControlType() == TrafficLightControlType.REMOTE) light.clearScheduleTiming();
             }
             List<TrafficLightScheduleEntryData> stateData = schedule.shouldChange(ticks);
@@ -217,10 +217,10 @@ public class TrafficLightControllerBlockEntity extends SyncedBlockEntity {
                     int phaseId = entry.getPhaseId();
 
                     trafficLightLocations.stream().filter(x -> 
-                        level.getBlockEntity(x.getLocationBlockPos()) instanceof TrafficLightBlockEntity blockEntity &&
+                        com.destan.trafficengine.util.SignalFaces.get(level,x) instanceof TrafficLightBlockEntity blockEntity &&
                         blockEntity.getControlType() == TrafficLightControlType.REMOTE &&
                         blockEntity.getPhaseId() == phaseId).forEach(a -> {
-                        ((TrafficLightBlockEntity)level.getBlockEntity(a.getLocationBlockPos())).enableOnlyColors(colors);
+                        ((TrafficLightBlockEntity)com.destan.trafficengine.util.SignalFaces.get(level,a)).enableOnlyColors(colors);
                     });
                 }                    
             }
@@ -305,7 +305,7 @@ public class TrafficLightControllerBlockEntity extends SyncedBlockEntity {
         int throughId = schedule.getEntries().get(0).getPhaseId();
         for (WorldLocation location : trafficLightLocations) {
             if (!level.isLoaded(location.getLocationBlockPos())) continue;
-            if (level.getBlockEntity(location.getLocationBlockPos()) instanceof TrafficLightBlockEntity light
+            if (com.destan.trafficengine.util.SignalFaces.get(level,location) instanceof TrafficLightBlockEntity light
                     && light.getControlType() == TrafficLightControlType.REMOTE) {
                 boolean crossing = light.getIcon() == TrafficLightIcon.PEDESTRIAN || light.getIcon() == TrafficLightIcon.BIKE;
                 var colors = List.of(!crossing && light.getPhaseId() == throughId ? TrafficLightColor.GREEN : TrafficLightColor.RED);

@@ -1,0 +1,1 @@
+{"type":"minecraft:block","pools":[{"rolls":1,"entries":[{"type":"minecraft:item","name":"trafficengine:curved_traffic_pole"}],"conditions":[{"condition":"minecraft:survives_explosion"},{"condition":"minecraft:block_state_property","block":"trafficengine:curved_traffic_pole","properties":{"part":"0"}}]}]}

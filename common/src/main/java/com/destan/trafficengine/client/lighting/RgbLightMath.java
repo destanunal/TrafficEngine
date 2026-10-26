@@ -23,6 +23,12 @@ public final class RgbLightMath {
         int b = Math.round((color >>> 16 & 255) * blue);
         return (color & 0xFF000000) | (b << 16) | (g << 8) | r;
     }
+    public static int tintArgb(int color, float red, float green, float blue) {
+        int r = Math.round((color >>> 16 & 255) * red);
+        int g = Math.round((color >>> 8 & 255) * green);
+        int b = Math.round((color & 255) * blue);
+        return (color & 0xFF000000) | r << 16 | g << 8 | b;
+    }
     public static float factor(int channel, int rgb, int blockLight, int skyLight) {
         float colored=maximum(rgb), white=Math.max(0,blockLight-colored)+Math.max(0,skyLight);
         if (colored==0) return 1;

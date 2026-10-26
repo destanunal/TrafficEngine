@@ -113,6 +113,12 @@ subprojects {
             }.each { resource ->
                 // Compact build output only; preserve the readable source files.
                 def parsed = new groovy.json.JsonSlurper().parseText(resource.getText('UTF-8'))
+                if (resource.path.replace('\\', '/').contains('/assets/trafficengine/models/')
+                        && parsed instanceof Map && !parsed.containsKey('loader') && parsed.elements instanceof List) {
+                    parsed.elements.each { element ->
+                        if (element instanceof Map) element.remove('name')
+                    }
+                }
                 def compact = groovy.json.JsonOutput.toJson(parsed)
                 if (resource.path.replace('\\', '/').contains('/assets/trafficengine/blockstates/') && resource.name.contains('_pattern_')) {
                     compact = compact.replaceAll(/trafficengine:block\/(?:${sharedOverlayRoads})(\/(?:slope\/)?\d+(?:_\d+)?)/, 'trafficengine:block/asphalt$1')

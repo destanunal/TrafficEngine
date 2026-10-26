@@ -124,8 +124,8 @@ public class PaintBrushScreen extends TrafficEngineScreen {
         addCloseButton();
         Component optionsLabel = Component.translatable("gui.trafficengine.paint_brush.options");
         Component areaLabel = Component.translatable("gui.trafficengine.paint_brush.area.title");
-        int optionsWidth = Math.max(88, font.width(optionsLabel) + 16);
-        int areaWidth = Math.max(82, font.width(areaLabel) + 16);
+        int optionsWidth = Math.max(100, (int)Math.ceil(font.width(optionsLabel) / .9) + 18);
+        int areaWidth = Math.max(90, font.width(areaLabel) + 24);
         addRenderableWidget(new TEButton(left + 12, top + windowHeight - 30, optionsWidth, 20,
             optionsLabel, b -> minecraft.setScreen(new PaintBrushOptionsScreen(clearCustom()))));
         areaButton=addRenderableWidget(new TEButton(left + 20 + optionsWidth,top+windowHeight-30,areaWidth,20,
@@ -148,16 +148,18 @@ public class PaintBrushScreen extends TrafficEngineScreen {
         int favoriteY = previewHeight >= 125 ? gridY + previewHeight - 34 : top + windowHeight - 36;
         int favoriteX = previewHeight >= 125 ? previewX + 6 : left + 12;
         favoriteButton = addRenderableWidget(new TEButton(favoriteX, favoriteY, 100, 26, Component.empty(), b -> {
-            PatternFavorites.toggle(patternId);
+            if (customEnabled) PatternFavorites.toggle(customPattern); else PatternFavorites.toggle(patternId);
             updateFavoriteButton();
             if (category == Category.FAVORITES) filter();
         }) {
             @Override protected void renderLabel(GuiGraphics g, int color) {
-                int y = getY() + (getHeight() - favoriteLines.size() * font.lineHeight) / 2;
+                float scale = TEText.layoutScale(g);
+                int lineHeight = Math.round(font.lineHeight * scale);
+                float y = TEText.centeredLinesY(g,font,favoriteLines,getY(),getHeight());
                 for (FormattedCharSequence line : favoriteLines) {
-                    drawFavoriteLine(g, line, getX() + (getWidth() - Math.round(font.width(line) * TEText.layoutScale(g))) / 2, y,
+                    drawFavoriteLine(g, line, getX() + (getWidth() - TEText.width(font,line) * scale) / 2F, y,
                         active ? favoriteCaptionColor : TEColors.MUTED);
-                    y += font.lineHeight;
+                    y += lineHeight;
                 }
             }
         });
@@ -165,7 +167,7 @@ public class PaintBrushScreen extends TrafficEngineScreen {
         filter();
     }
 
-    private void drawFavoriteLine(GuiGraphics graphics, FormattedCharSequence line, int x, int y, int color) {
+    private void drawFavoriteLine(GuiGraphics graphics, FormattedCharSequence line, float x, float y, int color) {
         TEText.drawString(graphics, font, line, x, y, color, false);
         // A small extra stroke keeps this action emphasized, just below the old 0.8 weight.
         var pose = graphics.pose().last().pose();
@@ -177,22 +179,29 @@ public class PaintBrushScreen extends TrafficEngineScreen {
 
     private void updateFavoriteButton() {
         if (favoriteButton == null) return;
-        boolean favorite = PatternFavorites.contains(patternId);
+        boolean favorite = customEnabled ? PatternFavorites.contains(customPattern) : PatternFavorites.contains(patternId);
         favoriteButton.setMessage(Component.translatable(favorite
             ? "gui.trafficengine.patterns.remove_favorite" : "gui.trafficengine.patterns.add_favorite").withStyle(ChatFormatting.BOLD));
         // Cache whole regular lines when the selection changes, not glyph Components every frame.
         favoriteLines = font.split(favoriteButton.getMessage().copy().withStyle(style -> style.withBold(false)), favoriteButton.getWidth() - 8);
         favoriteCaptionColor = favorite ? 0xFFFF7777 : 0xFF8DEA9D;
         favoriteButton.setSelected(favorite);
-        favoriteButton.active = !customEnabled && areaStyle==0 && lineStyle < 0 && patternId >= 0 && patternId < 318;
-        favoriteButton.visible = favoriteButton.active;
+        favoriteButton.active = customEnabled ? !customPattern.isEmpty() && (favorite || PatternFavorites.canAddCustom())
+            : areaStyle==0 && lineStyle < 0 && patternId >= 0 && patternId < 318;
+        favoriteButton.visible = customEnabled || favoriteButton.active;
+        favoriteButton.setTooltip(!favoriteButton.active && customEnabled ? Tooltip.create(Component.translatable("gui.trafficengine.patterns.custom_limit")) : null);
         if (!favoriteButton.visible && getFocused()==favoriteButton) setFocused(search);
     }
     private void filter() {
+        List<Pattern> choices = new ArrayList<>(patterns);
+        if (category == Category.ALL || category == Category.FAVORITES) {
+            var custom = PatternFavorites.customPatterns();
+            for (int i = 0; i < custom.size(); i++) choices.add(PatternCatalog.custom(i, custom.get(i)));
+        }
         if (category == Category.FAVORITES) {
-            filtered = patterns.stream().filter(p -> PatternFavorites.contains(p.id()) && p.matches(query)).toList();
+            filtered = choices.stream().filter(p -> (!p.custom().isEmpty() || PatternFavorites.contains(p.id())) && p.matches(query)).toList();
         } else {
-            filtered = patterns.stream().filter(p -> (category == Category.ALL || p.category() == category)
+            filtered = choices.stream().filter(p -> (category == Category.ALL || p.category() == category)
                 && p.matches(query)).toList();
         }
         emptyLabel = Component.translatable(category == Category.FAVORITES
@@ -229,7 +238,7 @@ public class PaintBrushScreen extends TrafficEngineScreen {
             :lineStyle >= 0 ? font.plainSubstrByWidth(Component.translatable("gui.trafficengine.paint_brush.connection." + (lineStyle + 1)).getString(), 96) : "#" + RoadPatternNumbers.displayNumber(id);
         updateFavoriteButton();
         if(areaButton!=null)areaButton.setSelected(areaStyle>0);
-        patternButtons.forEach(b -> b.setSelected(!customEnabled && areaStyle==0 && b.pattern.id() == RoadPatternNumbers.canonicalId(patternId)));
+        patternButtons.forEach(b -> b.setSelected(isChosen(b.pattern)));
     }
 
     @Override public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
@@ -339,26 +348,42 @@ public class PaintBrushScreen extends TrafficEngineScreen {
         private Pattern pattern;
         private ResourceLocation texture;
         PatternButton(int x, int y, Pattern pattern) {
-            super(x, y, CELL - 2, CELL - 2, Component.empty(), b -> { clearCustom(); areaStyle=0;pathShape=0;lineStyle = -1; select(((PatternButton)b).pattern.id()); });
+            super(x, y, CELL - 2, CELL - 2, Component.empty(), b -> selectPattern(((PatternButton)b).pattern));
             setPattern(pattern);
         }
         private void setPattern(Pattern pattern) {
             if (this.pattern != pattern) {
                 this.pattern = pattern;
-                texture = pattern.texture();
-                setTooltip(Tooltip.create(pattern.name().copy().append(" (#" + pattern.displayNumber() + ")")));
+                texture = pattern.custom().isEmpty() ? pattern.texture() : null;
+                setTooltip(Tooltip.create(pattern.custom().isEmpty() ? pattern.name().copy().append(" (#" + pattern.displayNumber() + ")") : pattern.name()));
             }
-            setSelected(!customEnabled && areaStyle==0 && pattern.id() == RoadPatternNumbers.canonicalId(patternId));
+            setSelected(isChosen(pattern));
         }
         @Override protected void renderLabel(GuiGraphics g, int color) {
             // Keep road marking contrast even on the amber selection border.
             g.fill(getX() + 2, getY() + 2, getX() + width - 2, getY() + height - 2, TEColors.FIELD);
-            drawPattern(g, texture, getX() + 4, getY() + 4, CELL - 10);
+            if (texture != null) drawPattern(g, texture, getX() + 4, getY() + 4, CELL - 10);
+            else for (var r : pattern.custom().rectangles()) {
+                int size = CELL - 10;
+                g.fill(getX() + 4 + r.x() * size / 16, getY() + 4 + r.y() * size / 16,
+                    getX() + 4 + (r.x() + r.width()) * size / 16, getY() + 4 + (r.y() + r.height()) * size / 16, tint);
+            }
         }
         @Override public void updateWidgetNarration(NarrationElementOutput output) {
-            output.add(NarratedElementType.TITLE, pattern.name().copy().append(" #" + pattern.displayNumber()));
+            output.add(NarratedElementType.TITLE, pattern.custom().isEmpty() ? pattern.name().copy().append(" #" + pattern.displayNumber()) : pattern.name());
             output.add(NarratedElementType.USAGE, Component.translatable("narration.button.usage.focused"));
         }
+    }
+    private boolean isChosen(Pattern pattern) {
+        return customEnabled ? !pattern.custom().isEmpty() && pattern.custom().equals(customPattern)
+            : areaStyle == 0 && pattern.custom().isEmpty() && pattern.id() == RoadPatternNumbers.canonicalId(patternId);
+    }
+    private void selectPattern(Pattern pattern) {
+        customEnabled = !pattern.custom().isEmpty();
+        if (customEnabled) { customPattern = pattern.custom(); patternId = 0; }
+        else patternId = pattern.id();
+        areaStyle = 0; pathShape = 0; lineStyle = -1; batchPainting = false;
+        select(patternId);
     }
     private PaintBrushScreen clearCustom() { customEnabled = false; return this; }
 }

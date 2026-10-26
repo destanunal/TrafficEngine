@@ -22,6 +22,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 /** Client-owned RGB volumes; only changed sources are propagated. Published maps are immutable. */
 public final class ClientColoredLighting {
     private static final boolean ENABLED = !Boolean.getBoolean("trafficengine.disableColoredLighting");
+    private static final int MAX_SOURCES = 2048;
     private static final Direction[] DIRECTIONS = Direction.values();
     private static final class Source {
         final BlockEntity entity;
@@ -37,23 +38,38 @@ public final class ClientColoredLighting {
 
     public static void register(BlockEntity entity) {
         if (!ENABLED) return;
+        if (entity instanceof TrafficLightBlockEntity signal && signal.getSignalFace()!=0) return;
         if (!(entity.getLevel() instanceof ClientLevel level)) return;
         if (!(entity instanceof StreetLampBlockEntity || entity instanceof TrafficLightBlockEntity
                 || entity instanceof LedDeviceBlockEntity || entity instanceof IColorBlockEntity && entity.getBlockState().getLightEmission()>0)) return;
         if (world!=level) { SOURCES.clear(); COLORS.clear(); world=level; skyDarken=-1; }
-        SOURCES.computeIfAbsent(entity,Source::new);
+        if (SOURCES.size() < MAX_SOURCES || SOURCES.containsKey(entity)) SOURCES.computeIfAbsent(entity,Source::new);
     }
     public static void blockChanged(BlockPos pos) {
         if (!ENABLED) return;
         for (Source source:SOURCES.values()) if (source.entity.getBlockPos().distManhattan(pos)<=16) source.dirty=true;
     }
     private static int emission(BlockEntity entity) {
+        int rgb=singleEmission(entity);
+        return entity instanceof com.destan.trafficengine.block.entity.DoubleTrafficLightBlockEntity light
+            ?RgbLightMath.merge(rgb,singleEmission(light.face(1))):rgb;
+    }
+    private static int singleEmission(BlockEntity entity) {
         if (entity instanceof TrafficLightBlockEntity light) {
+            if (entity.getBlockState().getBlock() instanceof com.destan.trafficengine.block.WarningLightBlock) {
+                if (!light.isWarningActive() || entity.getLevel() == null) return 0;
+                int mask = light.getFlashSequence().mask(entity.getLevel().getGameTime());
+                int count = entity.getBlockState().getValue(com.destan.trafficengine.block.TrafficLightBlock.MODEL).getLightsCount();
+                int rgb = 0;
+                for (int slot = 0; slot < Math.min(2, count); slot++) if ((mask & 1 << slot) != 0)
+                    rgb = RgbLightMath.merge(rgb, RgbLightMath.emission(light.getWarningColor(slot), 4));
+                return rgb;
+            }
             if (light.isScheduleBlinkOff()) return 0;
             int color=0;
             for (TrafficLightColor active:light.getEnabledColors()) {
                 int rgb=active.isSimilar(TrafficLightColor.RED)?0xFF283A:active.isSimilar(TrafficLightColor.YELLOW)?0xFFD830:active.isSimilar(TrafficLightColor.GREEN)?0x32EB62:0;
-                color=RgbLightMath.merge(color,RgbLightMath.emission(rgb,4));
+                color=RgbLightMath.merge(color,RgbLightMath.emission(rgb,3));
             }
             return color;
         }
@@ -83,6 +99,7 @@ public final class ClientColoredLighting {
             int x=BlockPos.getX(current),y=BlockPos.getY(current),z=BlockPos.getZ(current);
             for(Direction side:DIRECTIONS) {
                 pos.set(x+side.getStepX(),y+side.getStepY(),z+side.getStepZ());
+                if (level instanceof ClientLevel client && !client.hasChunk(pos.getX() >> 4, pos.getZ() >> 4)) continue;
                 long key=pos.asLong();
                 // Breadth-first traversal reaches each cell at its strongest level first.
                 if(result.containsKey(key))continue;
@@ -99,12 +116,14 @@ public final class ClientColoredLighting {
         if (!ENABLED) return;
         if(mc.level!=world) { SOURCES.clear();COLORS.clear();world=mc.level;skyDarken=-1;return; }
         if(world==null)return;
-        boolean publish=false;int rebuilt=0;Map<BlockPos,Integer> dirty=new HashMap<>();
+        if(SOURCES.isEmpty()){skyDarken=world.getSkyDarken();return;}
+        boolean publish=false;int rebuilt=0;Map<BlockPos,Integer> dirty=null;
         for(Iterator<Source> it=SOURCES.values().iterator();it.hasNext();) {
             Source source=it.next();BlockPos pos=source.entity.getBlockPos();
-            if(source.entity.isRemoved() || source.entity.getLevel()!=world || !world.isLoaded(pos)) { it.remove();COLORS.remove(source);dirty.merge(pos,RgbLightMath.maximum(Math.max(0,source.rgb))+1,Math::max);publish=true;continue; }
+            if(source.entity.isRemoved() || source.entity.getLevel()!=world || !world.isLoaded(pos)) { it.remove();COLORS.remove(source);if(dirty==null)dirty=new HashMap<>();dirty.merge(pos,RgbLightMath.maximum(Math.max(0,source.rgb))+1,Math::max);publish=true;continue; }
             int rgb=emission(source.entity);
             if((source.dirty || source.rgb!=rgb) && rebuilt<8) {
+                if(dirty==null)dirty=new HashMap<>();
                 dirty.merge(pos,Math.max(RgbLightMath.maximum(Math.max(0,source.rgb)),RgbLightMath.maximum(rgb))+1,Math::max);
                 COLORS.replace(source,propagate(world,pos,rgb));source.rgb=rgb;source.dirty=false;rebuilt++;publish=true;
             }

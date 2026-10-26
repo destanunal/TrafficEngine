@@ -24,6 +24,8 @@ public final class PixelPatternScreen extends Screen {
     private int lastX = -1, lastY = -1;
     private boolean erasing, painting;
     private TEPaintToolButton pencilButton, eraserButton;
+    private final com.destan.trafficengine.data.PixelBrush brush = new com.destan.trafficengine.data.PixelBrush(8);
+    private com.destan.trafficengine.client.gui.components.TEIntegerSlider sizeSlider;
     private String error;
     public PixelPatternScreen(Screen parent, PixelPattern pattern, Consumer<PixelPattern> save) {
         super(text("title")); this.parent = parent; this.bits = pattern.bits(); this.save = save;
@@ -35,9 +37,11 @@ public final class PixelPatternScreen extends Screen {
         frameWidth = Math.min(340, width - 12); frameHeight = cell * 16 + 132;
         frameX = (width - frameWidth) / 2; frameY = (height - frameHeight) / 2;
         left = width / 2 - cell * 8; top = frameY + 76;
-        int toolWidth = (frameWidth - 30) / 2;
-        pencilButton = addRenderableWidget(new TEPaintToolButton(frameX + 12, frameY + 42, toolWidth, false, b -> selectTool(false)));
-        eraserButton = addRenderableWidget(new TEPaintToolButton(frameX + 18 + toolWidth, frameY + 42, toolWidth, true, b -> selectTool(true)));
+        pencilButton = addRenderableWidget(new TEPaintToolButton(left - 32, top, 22, false, b -> selectTool(false)));
+        eraserButton = addRenderableWidget(new TEPaintToolButton(left - 32, top + 28, 22, true, b -> selectTool(true)));
+        sizeSlider = addRenderableWidget(new com.destan.trafficengine.client.gui.components.TEIntegerSlider(
+            width / 2 - 60, frameY + 42, 120, 1, 8, 1, brush.size(),
+            n -> Component.translatable("gui.trafficengine.drawing.size", n), brush::setSize));
         selectTool(erasing);
         int y = top + cell * 16 + 12, buttonWidth = (frameWidth - 42) / 4, x = frameX + 12;
         addRenderableWidget(new TEButton(x, y, buttonWidth, 20, text("import"), b -> importPng()));
@@ -84,21 +88,23 @@ public final class PixelPatternScreen extends Screen {
         }
         int nextX = (int)(x - left) / cell, nextY = (int)(y - top) / cell;
         int px = lastX < 0 ? nextX : lastX, py = lastY < 0 ? nextY : lastY;
-        int dx = Math.abs(nextX - px), dy = -Math.abs(nextY - py), sx = px < nextX ? 1 : -1, sy = py < nextY ? 1 : -1, error = dx + dy;
-        while (true) {
-            int index = py * 16 + px;
-            if (erasing) bits[index >>> 6] &= ~(1L << (index & 63)); else bits[index >>> 6] |= 1L << (index & 63);
-            if (px == nextX && py == nextY) break;
-            int twice = error * 2;
-            if (twice >= dy) { error += dy; px += sx; }
-            if (twice <= dx) { error += dx; py += sy; }
-        }
+        brush.stroke(px, py, nextX, nextY, 16, index -> {
+            if (erasing) bits[index >>> 6] &= ~(1L << (index & 63));
+            else bits[index >>> 6] |= 1L << (index & 63);
+        });
         lastX = nextX; lastY = nextY; return true;
     }
     private void endStroke() { painting = false; lastX = lastY = -1; }
     private void selectTool(boolean erase) {
         erasing = erase; endStroke();
         pencilButton.setSelected(!erase); eraserButton.setSelected(erase);
+    }
+    @Override public boolean mouseScrolled(double x, double y, double delta) {
+        if (x >= left - 34 && x < left + cell * 16 && y >= frameY + 40 && y < top + cell * 16) {
+            sizeSlider.setIntValue(brush.size() + (int)Math.signum(delta));
+            endStroke(); return true;
+        }
+        return super.mouseScrolled(x, y, delta);
     }
     @Override public boolean mouseClicked(double x, double y, int button) {
         endStroke();
@@ -130,6 +136,13 @@ public final class PixelPatternScreen extends Screen {
             int index = py * 16 + px;
             int color = (bits[index >>> 6] & 1L << (index & 63)) != 0 ? 0xFFF5D771 : ((px + py) & 1) == 0 ? 0xFF333943 : 0xFF242A33;
             g.fill(left + px * cell, top + py * cell, left + (px + 1) * cell - 1, top + (py + 1) * cell - 1, color);
+        }
+        if (x >= left && y >= top && x < left + cell * 16 && y < top + cell * 16) {
+            int bx = brush.start((x - left) / cell), by = brush.start((y - top) / cell);
+            int x0 = Math.max(0, bx), y0 = Math.max(0, by);
+            com.destan.trafficengine.client.gui.components.TEPanel.outline(g, left + x0 * cell, top + y0 * cell,
+                (Math.min(16, bx + brush.size()) - x0) * cell,
+                (Math.min(16, by + brush.size()) - y0) * cell, 0xFFF2C45C);
         }
         g.flush(); g.pose().popPose();
         if (error != null) TEText.drawCenteredString(g, font, error, width / 2, top + cell * 16 + 35, 0xFFFF7777);

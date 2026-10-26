@@ -70,7 +70,7 @@ public class TrafficLightLinkerItem extends Item implements ILinkerItem, IScroll
                 // Link
                 if (!level.isClientSide) {
                     CompoundTag compound = pContext.getItemInHand().getOrCreateTag();
-                    compound.put(NBT_LINK_TARGET, new WorldLocation(clickedPos.getX(), clickedPos.getY(), clickedPos.getZ(), level.dimension().location()).toNbt());
+                    compound.put(NBT_LINK_TARGET, new WorldLocation(clickedPos.getX(), clickedPos.getY(), clickedPos.getZ(), level.dimension().location()).withSignalFace(com.destan.trafficengine.util.SignalFaces.hit(level.getBlockState(clickedPos),clickedPos,pContext.getClickLocation())).toNbt());
                     compound.putString(NBT_BLOCK, ModBlocks.BLOCKS.getRegistrar().getId(clickedBlock).toString());
                     player.displayClientMessage(Component.translatable(clickedBlock instanceof TrafficLightBlock ? keySetLight : keySet).withStyle(ChatFormatting.AQUA), true);
                 }
@@ -83,8 +83,9 @@ public class TrafficLightLinkerItem extends Item implements ILinkerItem, IScroll
                 WorldLocation linkLoc = WorldLocation.loadFromNbt(nbt.getCompound(NBT_LINK_TARGET));
                 LinkerMode mode = LinkerMode.getByIndex(nbt.getInt(NBT_MODE));
                 
-                if (!pContext.getLevel().dimension().location().toString().equals(linkLoc.dimension)) {
+                if (!pContext.getLevel().dimension().location().toString().equals(linkLoc.dimension.toString())) {
                     player.displayClientMessage(Component.translatable(keyWrongDim).withStyle(ChatFormatting.RED), true);
+                    return InteractionResult.FAIL;
                 }
 
                 if (clickedBlock instanceof TrafficLightRequestButtonBlock && pContext.getLevel().getBlockEntity(clickedPos) instanceof TrafficLightRequestButtonBlockEntity blockEntity) {
@@ -107,7 +108,7 @@ public class TrafficLightLinkerItem extends Item implements ILinkerItem, IScroll
 
                             switch (mode) {
                                 case UNLINK:                                
-                                    blockEntity.removeTrafficLightLocation(new WorldLocation(pos.getX(), pos.getY(), pos.getZ(), dim));
+                                    blockEntity.removeTrafficLightLocation(new WorldLocation(pos.getX(), pos.getY(), pos.getZ(), dim).withSignalFace(com.destan.trafficengine.util.SignalFaces.hit(level.getBlockState(pos),pos,pContext.getClickLocation())));
                                     if (pContext.getLevel().getBlockEntity(pos) instanceof LedDeviceBlockEntity led) {
                                         led.setControllerEnabled(false);
                                         led.setManualEnabled(true);
@@ -116,7 +117,7 @@ public class TrafficLightLinkerItem extends Item implements ILinkerItem, IScroll
                                     break;
                                 case LINK:
                                 default:
-                                    blockEntity.addTrafficLightLocation(new WorldLocation(pos.getX(), pos.getY(), pos.getZ(), dim));
+                                    blockEntity.addTrafficLightLocation(new WorldLocation(pos.getX(), pos.getY(), pos.getZ(), dim).withSignalFace(com.destan.trafficengine.util.SignalFaces.hit(level.getBlockState(pos),pos,pContext.getClickLocation())));
                                     if (pContext.getLevel().getBlockEntity(pos) instanceof LedDeviceBlockEntity led) led.setManualEnabled(false);
                                     player.displayClientMessage(Component.translatable(clickedBlock instanceof TrafficLightBlock ? keySetLink : keySetOtherLink).withStyle(ChatFormatting.GREEN), true);
                                     break;

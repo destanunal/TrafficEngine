@@ -1,112 +1,72 @@
 package com.destan.trafficengine.block;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.destan.trafficengine.block.data.TrafficLightModel;
-import com.destan.trafficengine.block.entity.TrafficLightBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class HorizontalTrafficLightBlock extends TrafficLightBlock {
-
-    public static final VoxelShape POLE_X = Block.box(0, 7, 7, 16, 9, 9);
-    public static final VoxelShape POLE_Z = Block.box(7, 7, 0, 9, 9, 16);
-
-    private static final Map<TrafficLightModel, Map<Direction, VoxelShape>> SHAPES = new HashMap<>();
-
-    private static VoxelShape createSafeBox(double x1, double y1, double z1, double x2, double y2, double z2) {
-        return Shapes.box(x1 / 16.0, y1 / 16.0, z1 / 16.0, x2 / 16.0, y2 / 16.0, z2 / 16.0);
-    }
-
+    public static final BooleanProperty VERTICAL_MOUNT=BooleanProperty.create("vertical_mount");
+    public static final BooleanProperty BOTTOM_SUPPORT=BooleanProperty.create("bottom_support");
+    public static final VoxelShape POLE_X=Block.box(0,7,7,16,9,9);
+    public static final VoxelShape POLE_Z=Block.box(7,7,0,9,9,16);
+    private static final VoxelShape VERTICAL_CARRIER=Block.box(7,6.72,7,9,16,9);
+    private static final VoxelShape BOTTOM_CARRIER=Block.box(7,0,7,9,9.28,9);
+    private static final VoxelShape[][][] SHAPES=new VoxelShape[3][TrafficLightModel.values().length][4];
     static {
-        for (TrafficLightModel model : TrafficLightModel.values()) {
-            Map<Direction, VoxelShape> dirShapes = new HashMap<>();
-
-            int lights = model.getLightsCount();
-            double minX = 0.0;
-            double maxX = 16.0;
-
-            if (lights == 1) {
-                minX = 5.0;
-                maxX = 11.0;
-            } else if (lights == 2) {
-                minX = 2.5;
-                maxX = 13.5;
-            } else if (lights == 3) {
-                minX = 0.0;
-                maxX = 16.0;
-            } else if (lights >= 4) {
-                minX = -2.5;
-                maxX = 18.5;
+        for(TrafficLightModel model:TrafficLightModel.values()) {
+            double half=2.5*(model.getLightsCount()-1);
+            VoxelShape housing=Block.box(4.5-half,4.5,.5,11.5+half,11.5,7);
+            for(int vertical=0;vertical<3;vertical++) {
+                VoxelShape north=Shapes.or(housing,vertical==2?BOTTOM_CARRIER:vertical==1?VERTICAL_CARRIER:POLE_X).optimize();
+                for(Direction facing:Direction.Plane.HORIZONTAL)
+                    SHAPES[vertical][model.ordinal()][facing.get2DDataValue()]=RailingGeometry.rotate(north,facing);
             }
-
-            dirShapes.put(Direction.NORTH, Shapes.or(POLE_X, createSafeBox(minX, 4.0, 0.5, maxX, 12.0, 7.0)));
-            dirShapes.put(Direction.SOUTH, Shapes.or(POLE_X, createSafeBox(16.0 - maxX, 4.0, 9.0, 16.0 - minX, 12.0, 15.5)));
-            dirShapes.put(Direction.WEST,  Shapes.or(POLE_Z, createSafeBox(0.5, 4.0, minX, 7.0, 12.0, maxX)));
-            dirShapes.put(Direction.EAST,  Shapes.or(POLE_Z, createSafeBox(9.0, 4.0, 16.0 - maxX, 15.5, 12.0, 16.0 - minX)));
-
-            SHAPES.put(model, dirShapes);
         }
     }
-
-    public HorizontalTrafficLightBlock() {
-        super();
+    public HorizontalTrafficLightBlock(){
+        super();registerDefaultState(defaultBlockState().setValue(VERTICAL_MOUNT,false).setValue(BOTTOM_SUPPORT,false));
     }
-
-    @Override
-    public BlockState getStateForPlacement(BlockPlaceContext context) {
-        FluidState fluidState = context.getLevel().getFluidState(context.getClickedPos());
-        return defaultBlockState()
-            .setValue(WATERLOGGED, fluidState.getType() == Fluids.WATER)
-            .setValue(FACING, context.getHorizontalDirection().getOpposite())
-            .setValue(DIAGONAL, false);
+    @Override protected void createBlockStateDefinition(StateDefinition.Builder<Block,BlockState> builder){
+        super.createBlockStateDefinition(builder);builder.add(VERTICAL_MOUNT,BOTTOM_SUPPORT);
     }
-
-    @Override
-    public VoxelShape getShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext) {
-        TrafficLightModel model = pState.getValue(MODEL);
-        Direction facing = pState.getValue(FACING);
-        Map<Direction, VoxelShape> dirMap = SHAPES.get(model);
-        if (dirMap != null && dirMap.containsKey(facing)) {
-            return dirMap.get(facing);
-        }
-        return POLE_X;
+    /** Only placement and vertical neighbour edits inspect support; rendering/shape lookups never do. */
+    public static boolean isVerticalSupport(BlockState support,Direction side){
+        if(support.getBlock() instanceof CurvedTrafficPoleBlock pole)return pole.canConnect(support,side);
+        return support.getBlock() instanceof TrafficSignPostBlock
+            &&support.getValue(TrafficSignPostBlock.AXIS)==Direction.Axis.Y;
     }
-
-    @Override
-    public VoxelShape getCollisionShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext) {
-        return getShape(pState, pLevel, pPos, pContext);
+    public static BlockState mountedState(BlockState state,BlockGetter world,BlockPos pos){
+        boolean above=isVerticalSupport(world.getBlockState(pos.above()),Direction.DOWN);
+        boolean below=isVerticalSupport(world.getBlockState(pos.below()),Direction.UP);
+        return state.setValue(VERTICAL_MOUNT,above||below).setValue(BOTTOM_SUPPORT,!above&&below);
     }
-
-    @Override
-    public VoxelShape getOcclusionShape(BlockState pState, BlockGetter pLevel, BlockPos pPos) {
-        Direction facing = pState.getValue(FACING);
-        return (facing.getAxis() == Direction.Axis.X) ? POLE_Z : POLE_X;
+    @Override public BlockState getStateForPlacement(BlockPlaceContext context){
+        return mountedState(defaultBlockState().setValue(WATERLOGGED,context.getLevel().getFluidState(context.getClickedPos()).getType()==Fluids.WATER)
+            .setValue(FACING,context.getHorizontalDirection().getOpposite()).setValue(DIAGONAL,false),
+            context.getLevel(),context.getClickedPos());
     }
-
-    @Override
-    public boolean canConnect(BlockState pState, Direction pDirection) {
-        Direction facing = pState.getValue(FACING);
-
-        // The built-in support bar always runs horizontally and perpendicular
-        // to the direction in which the traffic-light lenses face.
-        return pDirection.getAxis().isHorizontal()
-            && pDirection.getAxis() != facing.getAxis();
+    @Override public BlockState updateShape(BlockState state,Direction side,BlockState neighbour,LevelAccessor world,BlockPos pos,BlockPos other){
+        BlockState updated=super.updateShape(state,side,neighbour,world,pos,other);
+        return side.getAxis()==Direction.Axis.Y?mountedState(updated,world,pos):updated;
     }
-
-    @Override
-    public BlockEntity newBlockEntity(BlockPos pPos, BlockState pState) {
-        return new TrafficLightBlockEntity(pPos, pState);
+    @Override public VoxelShape getShape(BlockState state,BlockGetter world,BlockPos pos,CollisionContext context){
+        return SHAPES[state.getValue(VERTICAL_MOUNT)?(state.getValue(BOTTOM_SUPPORT)?2:1):0][state.getValue(MODEL).ordinal()][state.getValue(FACING).get2DDataValue()];
+    }
+    @Override public VoxelShape getCollisionShape(BlockState state,BlockGetter world,BlockPos pos,CollisionContext context){return getShape(state,world,pos,context);}
+    @Override public VoxelShape getOcclusionShape(BlockState state,BlockGetter world,BlockPos pos){return Shapes.empty();}
+    @Override public boolean canConnect(BlockState state,Direction side){
+        return state.getValue(VERTICAL_MOUNT)?side==(state.getValue(BOTTOM_SUPPORT)?Direction.DOWN:Direction.UP):
+            side.getAxis().isHorizontal()&&side.getAxis()!=state.getValue(FACING).getAxis();
     }
 }

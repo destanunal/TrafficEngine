@@ -15,3 +15,7 @@
 - For code changes, run the affected Gradle `compileJava` tasks by default, plus targeted regression/performance checks where appropriate.
 - Run full packaging/build tasks or create JARs only when the user explicitly requests those artifacts.
 - Do not claim zero FPS impact without measurements.
+
+## Interface text
+
+- Center all current and future menu/control captions horizontally and vertically using the displayed glyph bounds in every supported language. Check localized text for clipping; keep measurements cached and clear them when fonts or language resources reload. Apply the same rule to new interfaces.

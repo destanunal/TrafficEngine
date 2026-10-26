@@ -27,7 +27,7 @@ public class Utils {
                 outputStream.write(buffer, 0, compressedDataLength);
             }
             return outputStream.toByteArray();
-        }
+        } finally { deflater.end(); }
     }
 
     public static byte[] decompress(byte[] data) throws Exception {
@@ -36,12 +36,16 @@ public class Utils {
 
         byte[] buffer = new byte[1024];
         int decompressedDataLength;
-        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream(data.length)) {
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream(Math.min(data.length, 8192))) {
             while (!inflater.finished()) {
                 decompressedDataLength = inflater.inflate(buffer);
+                if (decompressedDataLength == 0 && !inflater.finished())
+                    throw new java.util.zip.DataFormatException("Incomplete or stalled compressed data");
+                if (outputStream.size() + decompressedDataLength > 1024 * 1024)
+                    throw new java.util.zip.DataFormatException("Decompressed data exceeds 1 MiB");
                 outputStream.write(buffer, 0, decompressedDataLength);
             }
             return outputStream.toByteArray();
-        }
+        } finally { inflater.end(); }
     }
 }

@@ -2,7 +2,6 @@ package com.destan.trafficengine.block.entity;
 
 import java.util.UUID;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
 import com.destan.trafficengine.block.entity.SyncedBlockEntity;
 import com.destan.trafficengine.network.NetworkDirection;
@@ -28,6 +27,9 @@ public class TrafficSignBlockEntity extends SyncedBlockEntity {
     // Only used by DoubleSidedTrafficSignBlock. Normal signs never write this key.
     private static final String NBT_TEXTURE_BACK = "SignTextureBack";
 
+    private String pendingLegacyTexture;
+    private boolean legacyAttempted;
+
     private String textureId;
     private TrafficSignClientTexture texture;
 
@@ -47,11 +49,16 @@ public class TrafficSignBlockEntity extends SyncedBlockEntity {
     public void load(CompoundTag compound) {
         super.load(compound);
         String newTextureId = null;
-        if (compound.contains(NBT_LEGACY_TEXTURE)) {
-            migrate(compound.getString(NBT_LEGACY_TEXTURE));
+        boolean hasLegacyTexture = compound.contains(NBT_LEGACY_TEXTURE);
+        if (hasLegacyTexture) {
+            String legacy = compound.getString(NBT_LEGACY_TEXTURE);
+            pendingLegacyTexture = legacy.length() <= 65536 ? legacy : null;
+            legacyAttempted = false;
         } else if (compound.contains(NBT_TEXTURE)) {
             newTextureId = compound.getString(NBT_TEXTURE);
         }
+        migratePendingLegacy();
+        if (hasLegacyTexture && newTextureId == null && textureId != null && pendingLegacyTexture == null) newTextureId = textureId;
         String newBackTextureId = compound.contains(NBT_TEXTURE_BACK) ? compound.getString(NBT_TEXTURE_BACK) : null;
         if (!Objects.equals(textureId, newTextureId) || !Objects.equals(backTextureId, newBackTextureId)) {
             textureId = newTextureId;
@@ -60,24 +67,33 @@ public class TrafficSignBlockEntity extends SyncedBlockEntity {
         }
     }
 
-    private void migrate(String base64) {
-        new Thread(() -> {
-            while (getLevel() == null) {
-                try { TimeUnit.SECONDS.sleep(1); } catch (InterruptedException e) { }
-            }
-            if (getLevel().isClientSide) return;
+    @Override public void setLevel(net.minecraft.world.level.Level level) {
+        super.setLevel(level);
+        migratePendingLegacy();
+    }
 
-            GameInstance.getServer().execute(() -> {
-                BlockState state = getLevel().getBlockState(getBlockPos());
-                TrafficSignTextureData data = new TrafficSignTextureData(state.getValue(TrafficSignBlock.SHAPE), java.util.Base64.getDecoder().decode(base64), (short)32, (short)32, System.currentTimeMillis(), new UUID(0, 0));
-                data.save();
-                setTextureId(data.getHash().toString());
-            });
-        }, "Traffic Sign Migration").start();
+    /** One bounded conversion on the loading thread; never poll or load another chunk. */
+    private void migratePendingLegacy() {
+        if (pendingLegacyTexture == null || level == null || legacyAttempted) return;
+        legacyAttempted = true;
+        if (level.isClientSide || !getBlockState().hasProperty(TrafficSignBlock.SHAPE)) return;
+        try {
+            byte[] png = java.util.Base64.getDecoder().decode(pendingLegacyTexture);
+            if (!com.destan.trafficengine.util.SignTextureLimits.validPng(png, 32, 32)) return;
+            TrafficSignTextureData data = new TrafficSignTextureData(getBlockState().getValue(TrafficSignBlock.SHAPE),
+                png, (short)32, (short)32, System.currentTimeMillis(), new UUID(0, 0));
+            data.save();
+            textureId = data.getHash().toString();
+            pendingLegacyTexture = null;
+            setChanged();
+        } catch (IllegalArgumentException ex) {
+            com.destan.trafficengine.TrafficEngine.LOGGER.warn("Invalid legacy sign texture at {}", worldPosition);
+        }
     }
 
     @Override
     protected void saveAdditional(CompoundTag tag) {
+        if (pendingLegacyTexture != null) tag.putString(NBT_LEGACY_TEXTURE, pendingLegacyTexture);
         if (textureId != null) {
             tag.putString(NBT_TEXTURE, getTextureId());
         }

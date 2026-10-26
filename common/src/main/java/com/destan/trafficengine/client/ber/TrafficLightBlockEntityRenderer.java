@@ -18,15 +18,14 @@ import net.minecraft.client.renderer.RenderType;
 import org.joml.Matrix4f;
 import com.mojang.math.Axis;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class TrafficLightBlockEntityRenderer extends RotatableBlockEntityRenderer<TrafficLightBlockEntity> {
 
-    private static final Map<String, Long> startTimes = new HashMap<>();
-    private static final Map<String, Long> knownDurations = new HashMap<>();
-    private static final Map<String, Integer> lastColorMap = new HashMap<>();
-    private static final Map<String, Long> lastLitTimes = new HashMap<>();
+    private static final Map<String, Long> startTimes = BufferedTimerProperties.boundedMap(BufferedTimerProperties.PHASE_LIMIT);
+    private static final Map<String, Long> knownDurations = BufferedTimerProperties.boundedMap(BufferedTimerProperties.PHASE_LIMIT);
+    private static final Map<String, Integer> lastColorMap = BufferedTimerProperties.boundedMap(BufferedTimerProperties.LIGHT_LIMIT);
+    private static final Map<String, Long> lastLitTimes = BufferedTimerProperties.boundedMap(BufferedTimerProperties.LIGHT_LIMIT);
     private static final long BLINK_HOLD_TICKS = 40L;
 
     private static boolean cacheLoaded = false;
@@ -102,14 +101,13 @@ public class TrafficLightBlockEntityRenderer extends RotatableBlockEntityRendere
 
             if (be.getLevel() != null && rawColorCode != 0) {
                 long currentTime = be.getLevel().getGameTime();
-                String dim = be.getLevel().dimension().location().toString();
-                String lightKey = dim + "_" + be.getBlockPos().asLong();
-                String phaseKey = lightKey + "_" + rawColorCode;
+                String lightKey = be.getTimingKey();
+                String phaseKey = be.getTimingPhaseKey(rawColorCode);
 
                 Integer lastCol = lastColorMap.get(lightKey);
                 if (lastCol == null || lastCol != rawColorCode) {
                     if (lastCol != null) {
-                        String lastPhaseKey = lightKey + "_" + lastCol;
+                        String lastPhaseKey = be.getTimingPhaseKey(lastCol);
                         long startTime = startTimes.getOrDefault(lastPhaseKey, currentTime);
                         long duration = currentTime - startTime;
                         if (duration > 10) {
@@ -121,10 +119,10 @@ public class TrafficLightBlockEntityRenderer extends RotatableBlockEntityRendere
                     lastColorMap.put(lightKey, rawColorCode);
                 }
 
-                if (knownDurations.containsKey(phaseKey)) {
+                Long totalTicks = knownDurations.get(phaseKey);
+                if (totalTicks != null) {
                     long startTime = startTimes.getOrDefault(phaseKey, currentTime);
                     long passedTicks = Math.max(0L, currentTime - startTime);
-                    long totalTicks = knownDurations.get(phaseKey);
                     if (totalTicks <= 0L) return -1;
                     long remainingTicks = totalTicks - (passedTicks % totalTicks);
                     return (int) ((remainingTicks + 19) / 20);
@@ -153,7 +151,13 @@ public class TrafficLightBlockEntityRenderer extends RotatableBlockEntityRendere
         }
 
         try {
-            renderOriented(graphics, pPartialTick);
+            renderOriented(graphics, graphics.blockEntity(), pPartialTick);
+            if(graphics.blockEntity() instanceof com.destan.trafficengine.block.entity.DoubleTrafficLightBlockEntity light) {
+                graphics.poseStack().pushPose();
+                graphics.poseStack().translate(8,8,8);graphics.poseStack().mulPose(Axis.YP.rotationDegrees(180));graphics.poseStack().translate(-8,-8,-8);
+                renderOriented(graphics,light.face(1),pPartialTick);
+                graphics.poseStack().popPose();
+            }
         } finally {
             if (diagonal) {
                 graphics.poseStack().popPose();
@@ -161,21 +165,21 @@ public class TrafficLightBlockEntityRenderer extends RotatableBlockEntityRendere
         }
     }
 
-    private void renderOriented(RenderContext<TrafficLightBlockEntity> graphics, float pPartialTick) {
-        if (graphics.blockEntity().getBlockState().getBlock() instanceof com.destan.trafficengine.block.WarningLightBlock) {
+    private void renderOriented(RenderContext<TrafficLightBlockEntity> graphics, TrafficLightBlockEntity be, float pPartialTick) {
+        if (be.getBlockState().getBlock() instanceof com.destan.trafficengine.block.WarningLightBlock) {
             WarningLightRenderer.render(graphics); return;
         }
-        if (graphics.blockEntity().getBlockState().getBlock() instanceof HorizontalTrafficLightBlock) {
+        if (be.getBlockState().getBlock() instanceof HorizontalTrafficLightBlock) {
             this.horizontalRenderer.renderBlock(graphics, pPartialTick);
             return;
         }
 
-        BlockState blockstate = graphics.blockEntity().getBlockState();
-        boolean isCountdown = graphics.blockEntity().getTLType() == TrafficLightType.COUNTDOWN;
+        BlockState blockstate = be.getBlockState();
+        boolean isCountdown = be.getTLType() == TrafficLightType.COUNTDOWN;
 
-        boolean isRed = graphics.blockEntity().isColorEnabled(TrafficLightColor.RED, true);
-        boolean isYellow = graphics.blockEntity().isColorEnabled(TrafficLightColor.YELLOW, true);
-        boolean isGreen = graphics.blockEntity().isColorEnabled(TrafficLightColor.GREEN, true);
+        boolean isRed = be.isColorEnabled(TrafficLightColor.RED, true);
+        boolean isYellow = be.isColorEnabled(TrafficLightColor.YELLOW, true);
+        boolean isGreen = be.isColorEnabled(TrafficLightColor.GREEN, true);
 
         int rawColorCode = 0;
         if (isRed && isYellow) rawColorCode = 4;
@@ -183,12 +187,12 @@ public class TrafficLightBlockEntityRenderer extends RotatableBlockEntityRendere
         else if (isYellow) rawColorCode = 2;
         else if (isGreen) rawColorCode = 3;
 
-        if (isCountdown && !graphics.blockEntity().hasScheduleTiming() && graphics.blockEntity().getLevel() != null) {
-            String lightKey = graphics.blockEntity().getLevel().dimension().location() + "_"
-                + graphics.blockEntity().getBlockPos().asLong();
-            long gameTime = graphics.blockEntity().getLevel().getGameTime();
+        if (isCountdown && !be.hasScheduleTiming() && be.getLevel() != null) {
+            String lightKey = be.getTimingKey();
+            long gameTime = be.getLevel().getGameTime();
             if (rawColorCode != 0) {
-                lastLitTimes.put(lightKey, gameTime);
+                Long previousLit = lastLitTimes.get(lightKey);
+                if (previousLit == null || previousLit.longValue() != gameTime) lastLitTimes.put(lightKey, gameTime);
             } else {
                 Integer heldColor = lastColorMap.get(lightKey);
                 Long lastLit = lastLitTimes.get(lightKey);
@@ -198,9 +202,8 @@ public class TrafficLightBlockEntityRenderer extends RotatableBlockEntityRendere
             }
         }
 
-        if (isCountdown && graphics.blockEntity().getLevel() != null && rawColorCode != 0) {
-            getRealRemainingSeconds(graphics.blockEntity(), rawColorCode);
-        }
+        int remainingSeconds = isCountdown && be.getLevel() != null && rawColorCode != 0
+            ? getRealRemainingSeconds(be, rawColorCode) : -1;
 
         int activeColorHex = 0xFFFFFFFF;
         boolean isAnyLightOn = false;
@@ -222,14 +225,16 @@ public class TrafficLightBlockEntityRenderer extends RotatableBlockEntityRendere
         }
 
         graphics.poseStack().pushPose();
-        graphics.poseStack().translate(6f, 5.5f, 13);
-        TrafficLightIcon currentIcon = graphics.blockEntity().getIcon();
+        // New vertical lenses sit against the bezel, not on the legacy floating plane.
+        float lensOffset=TrafficLightTextureManager.usesRoundLenses(blockstate.getBlock())?-0.5F:0F;
+        graphics.poseStack().translate(6f, 5.5f, 13+lensOffset);
+        TrafficLightIcon currentIcon = be.getIcon();
 
-        int slotCount = Math.min(graphics.blockEntity().getColorSlotCount(), blockstate.getValue(TrafficLightBlock.MODEL).getLightsCount());
+        int slotCount = Math.min(be.getColorSlotCount(), blockstate.getValue(TrafficLightBlock.MODEL).getLightsCount());
 
         // 1. İKONLARI ÇİZME MANTIĞI
         for (int i = 0; i < slotCount; i++) {
-            TrafficLightColor slotColor = graphics.blockEntity().getColorOfSlot(i);
+            TrafficLightColor slotColor = be.getColorOfSlot(i);
 
             boolean renderIcon = true;
 
@@ -256,10 +261,10 @@ public class TrafficLightBlockEntityRenderer extends RotatableBlockEntityRendere
                 }
             }
 
-            if (renderIcon && slotColor != null && graphics.blockEntity().isColorEnabled(slotColor, true) && !graphics.blockEntity().isScheduleBlinkOff()) {
-                TrafficLightTextureManager.render(graphics, graphics.blockEntity(), currentIcon, slotColor, graphics.packedLight());
+            if (renderIcon && slotColor != null && be.isColorEnabled(slotColor, true) && !be.isScheduleBlinkOff()) {
+                TrafficLightTextureManager.renderSlot(graphics, be, i, currentIcon, slotColor, graphics.packedLight());
             } else {
-                TrafficLightTextureManager.render(graphics, graphics.blockEntity(), currentIcon, TrafficLightColor.NONE, graphics.packedLight());
+                TrafficLightTextureManager.renderSlot(graphics, be, i, currentIcon, TrafficLightColor.NONE, graphics.packedLight());
             }
             graphics.poseStack().translate(0, 5, 0); // Bir sonraki slota (aşağı) in
         }
@@ -267,7 +272,6 @@ public class TrafficLightBlockEntityRenderer extends RotatableBlockEntityRendere
 
         // 2. SAYACI ÇİZME MANTIĞI
         if (showTimer && isAnyLightOn) {
-            int remainingSeconds = getRealRemainingSeconds(graphics.blockEntity(), rawColorCode);
 
             if (remainingSeconds > 0) {
                 graphics.poseStack().pushPose();
@@ -294,7 +298,7 @@ public class TrafficLightBlockEntityRenderer extends RotatableBlockEntityRendere
                     timerYPosition = 3.5f; // Tekli lambada direkt ana slota yerleşir
                 }
 
-                graphics.poseStack().translate(8.0f, timerYPosition, 14.05f);
+                graphics.poseStack().translate(8.0f, timerYPosition, 14.05f+lensOffset);
 
                 float digitWidth = 1.6f;
                 float digitHeight = 3.2f;

@@ -63,6 +63,9 @@ public class ClientWrapper {
         Minecraft.getInstance().setScreen(new StreetLampScheduleScreen(turnOnTime, turnOfftime, format));
     }
 
+    public static void showTrafficLightConfigScreen(Level level,BlockPos pos,int face) {
+        Minecraft.getInstance().setScreen(new TrafficLightConfigScreen(level,pos,face));
+    }
     public static void showTrafficLightConfigScreen(Level level, BlockPos pos) {
         Minecraft.getInstance().setScreen(new TrafficLightConfigScreen(level, pos));
     }

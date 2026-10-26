@@ -18,16 +18,6 @@ public final class TEPaintToolButton extends TEButton {
     }
 
     @Override protected void renderLabel(GuiGraphics g, int color) {
-        var font = Minecraft.getInstance().font;
-        float scale = TEText.layoutScale(g);
-        int textWidth = Math.round(font.width(getMessage()) * scale);
-        if (width < textWidth + 34) {
-            TEWorkbenchIcons.draw(g, icon, getX() + (width - 16) / 2, getY() + (height - 16) / 2, color);
-            return;
-        }
-        int x = getX() + (width - 22 - textWidth) / 2;
-        TEWorkbenchIcons.draw(g, icon, x, getY() + (height - 16) / 2, color);
-        TEText.drawString(g, font, getMessage(), x + 22,
-            getY() + (height - Math.round(font.lineHeight * scale)) / 2, color, false);
+        TEWorkbenchIcons.draw(g, icon, getX() + (width - 16) / 2, getY() + (height - 16) / 2, color);
     }
 }

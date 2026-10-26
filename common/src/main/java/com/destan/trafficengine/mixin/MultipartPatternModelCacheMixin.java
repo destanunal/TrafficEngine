@@ -22,7 +22,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  * A multipart model is state-aware: getQuads receives the block state and
  * tests the selectors then. Baking an identical selector list for every road
  * pattern state only duplicates large lists of predicates and model pairs.
- * Keep one baked model per pattern block, without changing any saved states.
+ * Keep one baked model per Traffic Engine multipart definition, without changing saved states.
  */
 @Mixin(MultiPart.class)
 public abstract class MultipartPatternModelCacheMixin {
@@ -55,7 +55,6 @@ public abstract class MultipartPatternModelCacheMixin {
     private static boolean trafficengine$isPatternBlock(ResourceLocation modelLocation, ModelState modelState) {
         return modelState == BlockModelRotation.X0_Y0
             && modelLocation instanceof ModelResourceLocation stateModel
-            && "trafficengine".equals(stateModel.getNamespace())
-            && stateModel.getPath().contains("_pattern_");
+            && "trafficengine".equals(stateModel.getNamespace());
     }
 }

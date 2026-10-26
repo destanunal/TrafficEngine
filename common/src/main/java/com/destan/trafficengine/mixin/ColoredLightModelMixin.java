@@ -14,6 +14,10 @@ import org.spongepowered.asm.mixin.injection.At;
 public class ColoredLightModelMixin {
     @WrapOperation(method="putQuadData",at=@At(value="INVOKE",target="Lcom/mojang/blaze3d/vertex/VertexConsumer;putBulkData(Lcom/mojang/blaze3d/vertex/PoseStack$Pose;Lnet/minecraft/client/renderer/block/model/BakedQuad;[FFFF[IIZ)V"))
     private void trafficengine$coloredSurface(VertexConsumer consumer,PoseStack.Pose pose,BakedQuad quad,float[] ao,float r,float g,float b,int[] light,int overlay,boolean useColor,Operation<Void> original,@Local(argsOnly=true) BlockPos pos) {
+        if (quad instanceof com.destan.trafficengine.client.model.EmissiveQuad) {
+            ao = com.destan.trafficengine.client.model.EmissiveQuad.BRIGHTNESS;
+            light = com.destan.trafficengine.client.model.EmissiveQuad.LIGHT;
+        }
         var tint=quad instanceof com.destan.trafficengine.client.model.EmissiveQuad ? null : ClientColoredLighting.tint(pos,quad.getDirection(),light);
         if(tint!=null) {
             r*=tint.red();g*=tint.green();b*=tint.blue();light=ClientColoredLighting.promoteLight(light,tint.brightness());

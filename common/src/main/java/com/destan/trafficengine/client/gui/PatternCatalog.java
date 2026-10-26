@@ -15,9 +15,12 @@ public final class PatternCatalog {
         public Component title() { return Component.translatable("gui.trafficengine.patterns.category." + name().toLowerCase(Locale.ROOT)); }
     }
     public static final class Pattern {
+        private final com.destan.trafficengine.data.PixelPattern custom;
         private final int id;
         private final Category category;
-        Pattern(int id, Category category) { this.id = id; this.category = category; }
+        Pattern(int id, Category category) { this(id, category, com.destan.trafficengine.data.PixelPattern.EMPTY); }
+        Pattern(int id, Category category, com.destan.trafficengine.data.PixelPattern custom) { this.id = id; this.category = category; this.custom = custom; }
+        public com.destan.trafficengine.data.PixelPattern custom() { return custom; }
         public int id() { return id; }
         public int displayNumber() { return RoadPatternNumbers.displayNumber(id); }
         public Category category() { return category; }
@@ -26,6 +29,7 @@ public final class PatternCatalog {
                 id == 0 ? "textures/block/sign_blank.png" : "textures/block/patterns/" + id + ".png");
         }
         public Component name() {
+            if (!custom.isEmpty()) return Component.translatable("gui.trafficengine.patterns.custom", -id);
             if (id == 0 || id == 1 || id == 246 || id >= 297) {
                 return Component.translatable("gui.trafficengine.patterns.name." + id);
             }
@@ -40,6 +44,9 @@ public final class PatternCatalog {
             return Integer.toString(displayNumber()).equals(needle) || name().getString().toLowerCase(Locale.ROOT).contains(needle)
                 || category.title().getString().toLowerCase(Locale.ROOT).contains(needle);
         }
+    }
+    public static Pattern custom(int index, com.destan.trafficengine.data.PixelPattern pattern) {
+        return new Pattern(-index - 1, Category.FAVORITES, pattern);
     }
     public static List<Pattern> all() { return create(); }
     private PatternCatalog() {}

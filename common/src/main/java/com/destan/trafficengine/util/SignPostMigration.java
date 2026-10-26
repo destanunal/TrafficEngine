@@ -16,8 +16,16 @@ public final class SignPostMigration {
         };
     }
 
+    private static String legacyBlock(String id) {
+        if (!id.startsWith("trafficcraft:")) return id;
+        String replacement = "trafficengine:" + id.substring("trafficcraft:".length());
+        var key = net.minecraft.resources.ResourceLocation.tryParse(replacement);
+        return key != null && net.minecraft.core.registries.BuiltInRegistries.BLOCK.containsKey(key) ? replacement : id;
+    }
+
     public static void blockState(CompoundTag tag) {
-        String id=tag.getString("Name");
+        String original=tag.getString("Name"), id=legacyBlock(original);
+        if (!id.equals(original)) tag.putString("Name", id);
         if (id.equals("trafficengine:road_reflector")) {
             tag.putString("Name", "trafficengine:reflector");
             return;
@@ -35,6 +43,8 @@ public final class SignPostMigration {
     }
 
     public static void item(CompoundTag tag) {
+        String original=tag.getString("id"), mapped=legacyBlock(original);
+        if (!mapped.equals(original)) tag.putString("id", mapped);
         if (tag.getString("id").equals("trafficengine:road_reflector")) tag.putString("id", "trafficengine:reflector");
         else if (isRemoved(tag.getString("id"))) tag.putString("id", REPLACEMENT);
     }

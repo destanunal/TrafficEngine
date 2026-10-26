@@ -1,1 +1,1 @@
-{"parent":"trafficengine:block/traffic_light_request_button"}
+{"parent":"trafficengine:block/traffic_light_request_button","display":{"gui":{"rotation":[25,225,0],"translation":[0,0,0],"scale":[0.65,0.65,0.65]},"ground":{"translation":[0,3,0],"scale":[0.3,0.3,0.3]},"firstperson_righthand":{"rotation":[0,45,0],"scale":[0.4,0.4,0.4]}}}

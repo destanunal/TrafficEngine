@@ -48,6 +48,7 @@ public class TrafficLightSchedule implements NbtSerializable {
     private boolean manualController = false;
     private int redYellowTicks = 40;
     private boolean redYellowBeforeGreen = true;
+    private boolean incomingTransitionEnabled = true;
 
     public enum TransitionLight { RED_YELLOW, YELLOW, NONE }
 
@@ -65,6 +66,7 @@ public class TrafficLightSchedule implements NbtSerializable {
         schedule.manualController = manualController;
         schedule.redYellowTicks = redYellowTicks;
         schedule.redYellowBeforeGreen = redYellowBeforeGreen;
+        schedule.incomingTransitionEnabled = incomingTransitionEnabled;
         return schedule;
     }
     
@@ -113,7 +115,7 @@ public class TrafficLightSchedule implements NbtSerializable {
             int cycle = getSequentialCycleTicks();
             for (TrafficLightScheduleEntryData entry : entries) {
                 if (entry.getDurationTicks() > 0 && entry.getManualRedTicks() == 0) {
-                    entry.setManualRedTicks(Math.max(0, cycle - entry.getDurationTicks() - redYellowTicks * 2));
+                    entry.setManualRedTicks(Math.max(0, cycle - entry.getDurationTicks() - (redYellowTicks + getIncomingTransitionTicks())));
                 }
             }
         }
@@ -129,23 +131,21 @@ public class TrafficLightSchedule implements NbtSerializable {
     }
 
     public void setRedYellowSeconds(int seconds) {
-        redYellowTicks = Math.max(0, Math.min(MAX_RED_YELLOW_SECONDS, seconds)) * 20;
+        redYellowTicks = Math.max(1, Math.min(MAX_RED_YELLOW_SECONDS, seconds)) * 20;
     }
 
-    /** Zero duration also represents None in existing world saves and packets. */
+    /** None skips only the transition before green; outgoing yellow always remains. */
     public TransitionLight getTransitionLight() {
-        if (redYellowTicks == 0) return TransitionLight.NONE;
+        if (!incomingTransitionEnabled) return TransitionLight.NONE;
         return redYellowBeforeGreen ? TransitionLight.RED_YELLOW : TransitionLight.YELLOW;
     }
 
     public void setTransitionLight(TransitionLight light) {
-        if (light == TransitionLight.NONE) {
-            redYellowTicks = 0;
-        } else {
-            if (redYellowTicks == 0) setRedYellowSeconds(2);
-            redYellowBeforeGreen = light == TransitionLight.RED_YELLOW;
-        }
+        incomingTransitionEnabled = light != TransitionLight.NONE;
+        if (light != TransitionLight.NONE) redYellowBeforeGreen = light == TransitionLight.RED_YELLOW;
     }
+
+    public int getIncomingTransitionTicks() { return incomingTransitionEnabled ? redYellowTicks : 0; }
 
     public boolean isRedYellowBeforeGreen() {
         return redYellowBeforeGreen;
@@ -165,17 +165,17 @@ public class TrafficLightSchedule implements NbtSerializable {
             if (duration > 0) {
                 if (first == null) first = entry;
                 directions++;
-                minimumCycle += duration + SAFETY_INTERVAL_TICKS + redYellowTicks * 2;
+                minimumCycle += duration + SAFETY_INTERVAL_TICKS + (redYellowTicks + getIncomingTransitionTicks());
             }
         }
         if (!manualController && trigger == TrafficLightTrigger.ON_REQUEST && directions == 1) {
             // With no other vehicle direction, reserve a complete requested crossing interval.
-            minimumCycle = first.getDurationTicks() * 2 + redYellowTicks * 2
+            minimumCycle = first.getDurationTicks() * 2 + (redYellowTicks + getIncomingTransitionTicks())
                 + CROSSING_INTERVAL_TICKS + PEDESTRIAN_RED_BEFORE_VEHICLE_TRANSITION_TICKS;
         }
         if (manualController && first != null) {
             // Keep all directions on one cycle. Invalid external data cannot create overlapping greens.
-            return Math.max(minimumCycle, first.getDurationTicks() + first.getManualRedTicks() + redYellowTicks * 2);
+            return Math.max(minimumCycle, first.getDurationTicks() + first.getManualRedTicks() + (redYellowTicks + getIncomingTransitionTicks()));
         }
         return minimumCycle;
     }
@@ -185,14 +185,14 @@ public class TrafficLightSchedule implements NbtSerializable {
         if (trigger == TrafficLightTrigger.ON_REQUEST)
             for (TrafficLightScheduleEntryData entry : entries)
                 if (entry.getDurationTicks() > 0)
-                    return SAFETY_INTERVAL_TICKS + redYellowTicks + entry.getDurationTicks();
+                    return SAFETY_INTERVAL_TICKS + getIncomingTransitionTicks() + entry.getDurationTicks();
         return 0;
     }
 
     public int getSequentialEndTick() {
         int cycle = getSequentialCycleTicks();
         return cycle > 0 && trigger == TrafficLightTrigger.ON_REQUEST
-            ? cycle + SAFETY_INTERVAL_TICKS + redYellowTicks : cycle;
+            ? cycle + SAFETY_INTERVAL_TICKS + getIncomingTransitionTicks() : cycle;
     }
 
     /** Converts an existing controller plan into one green interval per ID for the simple editor. */
@@ -229,13 +229,13 @@ public class TrafficLightSchedule implements NbtSerializable {
                 ownGreen = duration;
             }
             // Green, outgoing yellow, all-red safety, then incoming yellow.
-            cursor += duration + SAFETY_INTERVAL_TICKS + redYellowTicks * 2;
+            cursor += duration + SAFETY_INTERVAL_TICKS + (redYellowTicks + getIncomingTransitionTicks());
         }
         if (ownStart < 0 || cycle == 0) return null;
         // Start at the all-red safety interval before the first direction.
-        int sinceGreenStarted = Math.floorMod(elapsedTicks - SAFETY_INTERVAL_TICKS - redYellowTicks - ownStart, cycle);
+        int sinceGreenStarted = Math.floorMod(elapsedTicks - SAFETY_INTERVAL_TICKS - getIncomingTransitionTicks() - ownStart, cycle);
         int yellowEnd = ownGreen + redYellowTicks;
-        int incomingYellowStart = cycle - redYellowTicks;
+        int incomingYellowStart = cycle - getIncomingTransitionTicks();
 
         if (!pedestrianOrBike) {
             if (sinceGreenStarted < ownGreen) {
@@ -250,7 +250,7 @@ public class TrafficLightSchedule implements NbtSerializable {
             }
             return new PhaseState(redYellowBeforeGreen
                 ? List.of(TrafficLightColor.RED, TrafficLightColor.YELLOW) : List.of(TrafficLightColor.YELLOW),
-                redYellowTicks, cycle - sinceGreenStarted);
+                getIncomingTransitionTicks(), cycle - sinceGreenStarted);
         }
 
         // Wait two seconds after vehicle yellow before opening the crossing.
@@ -434,6 +434,7 @@ public class TrafficLightSchedule implements NbtSerializable {
         tag.putBoolean(NBT_MANUAL_CONTROLLER, manualController);
         tag.putInt(NBT_RED_YELLOW_TICKS, redYellowTicks);
         tag.putBoolean(NBT_RED_YELLOW_BEFORE_GREEN, redYellowBeforeGreen);
+        tag.putBoolean("incomingTransitionEnabled", incomingTransitionEnabled);
         tag.putByte(NBT_TRIGGER, trigger.getIndex());
         tag.put(NBT_ENTRIES, listTag);
         return tag;
@@ -445,7 +446,9 @@ public class TrafficLightSchedule implements NbtSerializable {
         phaseTimings = tag.getBoolean(NBT_PHASE_TIMINGS);
         sequentialGreens = tag.getBoolean(NBT_SEQUENTIAL_GREENS);
         manualController = tag.getBoolean(NBT_MANUAL_CONTROLLER);
-        redYellowTicks = tag.contains(NBT_RED_YELLOW_TICKS) ? Math.max(0, Math.min(MAX_RED_YELLOW_SECONDS * 20, tag.getInt(NBT_RED_YELLOW_TICKS))) : 40;
+        int savedYellowTicks = tag.contains(NBT_RED_YELLOW_TICKS) ? tag.getInt(NBT_RED_YELLOW_TICKS) : 40;
+        incomingTransitionEnabled = tag.contains("incomingTransitionEnabled") ? tag.getBoolean("incomingTransitionEnabled") : savedYellowTicks > 0;
+        redYellowTicks = Math.max(20, Math.min(MAX_RED_YELLOW_SECONDS * 20, savedYellowTicks > 0 ? savedYellowTicks : 40));
         redYellowBeforeGreen = !tag.contains(NBT_RED_YELLOW_BEFORE_GREEN) || tag.getBoolean(NBT_RED_YELLOW_BEFORE_GREEN);
         trigger = TrafficLightTrigger.getTriggerByIndex(tag.getTagType(NBT_TRIGGER) == Tag.TAG_INT ? (byte)tag.getInt(NBT_TRIGGER) : tag.getByte(NBT_TRIGGER));
         ListTag listTag = tag.getList(NBT_ENTRIES, Tag.TAG_COMPOUND);
@@ -489,7 +492,7 @@ public class TrafficLightSchedule implements NbtSerializable {
         buf.writeBoolean(blinkAtEnd);
         buf.writeBoolean(sequentialGreens);
         buf.writeBoolean(manualController);
-        buf.writeInt(redYellowTicks);
+        buf.writeInt(incomingTransitionEnabled ? redYellowTicks : -redYellowTicks);
         buf.writeBoolean(redYellowBeforeGreen);
         buf.writeByte(trigger.getIndex());
         buf.writeInt(entries.size());
@@ -505,7 +508,9 @@ public class TrafficLightSchedule implements NbtSerializable {
         schedule.blinkAtEnd = buf.readBoolean();
         schedule.sequentialGreens = buf.readBoolean();
         schedule.manualController = buf.readBoolean();
-        schedule.redYellowTicks = Math.max(0, Math.min(MAX_RED_YELLOW_SECONDS * 20, buf.readInt()));
+        int encodedYellow = buf.readInt();
+        schedule.incomingTransitionEnabled = encodedYellow > 0;
+        schedule.redYellowTicks = Math.max(20, Math.min(MAX_RED_YELLOW_SECONDS * 20, encodedYellow == 0 ? 40 : (int)Math.min(Integer.MAX_VALUE, Math.abs((long)encodedYellow))));
         schedule.redYellowBeforeGreen = buf.readBoolean();
         schedule.setTrigger(TrafficLightTrigger.getTriggerByIndex(buf.readByte()));
         int size = buf.readInt();

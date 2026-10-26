@@ -1,0 +1,1 @@
+{"textures":{"metal":"trafficengine:block/sign"},"elements":[{"name":"single_right_cap","from":[4,6.25,6.875],"to":[4.25,13.75,6.95],"faces":{"north":{"texture":"#metal","uv":[0,0,16,16],"trafficengine_data":{"match_straight_shade":true}}},"rotation":{"origin":[8,8,8],"axis":"y","angle":-45,"rescale":false}}]}

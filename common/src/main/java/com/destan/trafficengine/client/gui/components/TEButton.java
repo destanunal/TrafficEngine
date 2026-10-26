@@ -36,11 +36,11 @@ public class TEButton extends Button {
     protected void renderLabel(GuiGraphics g, int color) {
         var font = Minecraft.getInstance().font;
         float textScale = TEText.layoutScale(g);
-        int textWidth = Math.round(font.width(getMessage()) * textScale);
+        int textWidth = Math.round(TEText.width(font,getMessage()) * textScale);
         int available = Math.max(1, width - 8);
-        int y = getY() + (height - Math.round(font.lineHeight * textScale)) / 2;
+        float y = TEText.centeredY(g, font, getMessage(), getY(), height);
         if (textWidth <= available) {
-            drawCaption(g, getX() + (width - textWidth) / 2, y, color);
+            drawCaption(g, getX() + (width - TEText.width(font,getMessage()) * textScale) / 2F, y, color);
         } else {
             // Match vanilla's smooth scrolling, with a crisp shadow-free caption.
             double seconds = Util.getMillis() / 1000.0;
@@ -57,7 +57,7 @@ public class TEButton extends Button {
             g.disableScissor();
         }
     }
-    private void drawCaption(GuiGraphics g, int x, int y, int color) {
+    private void drawCaption(GuiGraphics g, float x, float y, int color) {
         var font = Minecraft.getInstance().font;
         TEText.drawString(g, font, getMessage(), x, y, color, false);
     }

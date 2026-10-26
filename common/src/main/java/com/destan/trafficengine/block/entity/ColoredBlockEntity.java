@@ -43,14 +43,14 @@ public class ColoredBlockEntity extends SyncedBlockEntity implements IColorBlock
         }
     }
     private void refreshRoadMeshes() {
-        if (level == null || !level.isClientSide) return;
+        if (level == null || !level.isClientSide || isRemoved()) return;
         com.destan.trafficengine.client.model.RoadStrokeModels.refresh(this);
         if (!com.destan.trafficengine.item.RoadMarkingMesh.connectedRoad(getBlockState())) return;
         // Changes to a lane's position can change its neighbours even if their block
         // states stay identical. Include one-level slope/asphalt transitions too.
         for (var side : net.minecraft.core.Direction.Plane.HORIZONTAL) for (int dy=-1;dy<=1;dy++) {
             BlockPos pos=getBlockPos().relative(side).offset(0,dy,0);
-            if (level.getBlockEntity(pos) instanceof ColoredBlockEntity neighbour
+            if (com.destan.trafficengine.util.LoadedRoadData.blockEntity(level,pos) instanceof ColoredBlockEntity neighbour
                     && com.destan.trafficengine.item.RoadMarkingMesh.connectedRoad(neighbour.getBlockState())) {
                 com.destan.trafficengine.client.model.RoadStrokeModels.refresh(neighbour);
                 level.sendBlockUpdated(pos,neighbour.getBlockState(),neighbour.getBlockState(),3);
@@ -58,8 +58,9 @@ public class ColoredBlockEntity extends SyncedBlockEntity implements IColorBlock
         }
     }
     @Override public void setRemoved() {
+        // Chunk packet replacement iterates its entity map while calling this.
+        // Looking up neighbours here could insert entities into that same map.
         super.setRemoved();
-        refreshRoadMeshes();
     }
 
     protected ColoredBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {

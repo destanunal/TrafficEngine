@@ -70,6 +70,7 @@ public class TrafficLightBlockEntity extends ColoredBlockEntity {
     private boolean powered = false;
 
     private TrafficLightSchedule schedule = new TrafficLightSchedule();
+    private com.destan.trafficengine.data.SignalSymbols signalSymbols = com.destan.trafficengine.data.SignalSymbols.DEFAULT;
     private int ticker = 0;
     private long totalTicks = 0;
     private boolean running = true;
@@ -85,6 +86,12 @@ public class TrafficLightBlockEntity extends ColoredBlockEntity {
 
     protected TrafficLightBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
+    }
+
+    /** The type factory is also used on chunk reload, where Block.newBlockEntity is not called. */
+    public static TrafficLightBlockEntity create(BlockPos pos,BlockState state) {
+        return state.getBlock() instanceof com.destan.trafficengine.block.DoubleTrafficLightBlock
+            ? new DoubleTrafficLightBlockEntity(pos,state) : new TrafficLightBlockEntity(pos,state);
     }
 
     public TrafficLightBlockEntity(BlockPos pos, BlockState state) {
@@ -114,6 +121,7 @@ public class TrafficLightBlockEntity extends ColoredBlockEntity {
         this.colorPhaseStart = compound.contains(NBT_COLOR_PHASE_START) ? compound.getLong(NBT_COLOR_PHASE_START) : -1;
         this.schedule = new TrafficLightSchedule();
         this.schedule.fromNbt(compound.getCompound(NBT_SCHEDULE));
+        signalSymbols = com.destan.trafficengine.data.SignalSymbols.read(compound);
         this.icon = TrafficLightIcon.getIconByIndex(compound.getByte(NBT_ICON));
         customMask = com.destan.trafficengine.data.PixelPattern.of(compound.getLongArray("custom_mask"));
         if (getBlockState().getBlock() instanceof com.destan.trafficengine.block.WarningLightBlock) {
@@ -160,6 +168,7 @@ public class TrafficLightBlockEntity extends ColoredBlockEntity {
         tag.putBoolean(NBT_TIMED_PHASE_RUNNING, timedPhaseRunning);
         tag.putLong(NBT_COLOR_PHASE_START, colorPhaseStart);
         tag.put(NBT_SCHEDULE, schedule.toNbt());
+        signalSymbols.write(tag);
         tag.putIntArray(NBT_COLOR_SLOTS, Arrays.stream(colorSlots).mapToInt(x -> x.getIndex()).toArray());
         tag.putByte(NBT_ICON, icon.getIndex());
         if (!customMask.isEmpty()) tag.putLongArray("custom_mask", customMask.bits());
@@ -451,6 +460,25 @@ public class TrafficLightBlockEntity extends ColoredBlockEntity {
     public TrafficLightColor[] getColorSlots() {
         return this.colorSlots;
     }
+
+    public com.destan.trafficengine.data.SignalSymbols getSignalSymbols() { return signalSymbols; }
+    public void setSignalSymbols(com.destan.trafficengine.data.SignalSymbols value) {
+        if(!signalSymbols.equals(value)) { signalSymbols=value;notifyUpdate(); }
+    }
+
+    private com.destan.trafficengine.util.SignalTimingKeys timingKeys;
+    private Level timingLevel;
+    private com.destan.trafficengine.util.SignalTimingKeys timingKeys() {
+        if(timingKeys==null || timingLevel!=level){
+            timingLevel=level;
+            timingKeys=new com.destan.trafficengine.util.SignalTimingKeys(level==null?"":level.dimension().location().toString(),
+                getBlockPos().asLong(),getSignalFace(),getBlockState().getBlock() instanceof com.destan.trafficengine.block.HorizontalTrafficLightBlock);
+        }
+        return timingKeys;
+    }
+    public String getTimingKey(){return timingKeys().light();}
+    public String getTimingPhaseKey(int color){return timingKeys().phase(color);}
+    public int getSignalFace() { return 0; }
 
     public TrafficLightIcon getIcon() {
         return this.icon;
