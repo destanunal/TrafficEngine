@@ -68,10 +68,7 @@ Join **CityWorks Community**, the shared community hub for **Traffic Engine, Cra
 
 Connect with fellow Minecraft city builders, showcase your creations, get support, report bugs, suggest new features, and stay updated on the latest mod releases and development news.
 
-Whether you're designing custom signs, decorating detailed interiors or building realistic roads, there's a place for you in our community!
-
-🎮 **Join our Discord server:**
-
+Whether you're designing custom signs, decorating detailed interiors or building realistic roads, there's a place for you in our community!  
 [![](https://media.forgecdn.net/attachments/description/1654475/description_8d3d7bb9-be40-45ef-ba7a-b5c2bbeb3934.png)](https://discord.gg/vN5GnA6xrG)
 
 ***
