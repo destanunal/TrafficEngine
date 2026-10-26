@@ -42,19 +42,19 @@ public final class RailingGateSlopeCheck {
             check(s.getCollisionShape(world,pos).isEmpty()==s.getValue(PedestrianRailingGateBlock.OPEN),"Open gate permits passage; closed gate blocks");
             check(!s.hasBlockEntity(),"Gate has no block entity");
         }
-        check(gates.size()==8,"Gate has exactly eight shared outlines");
+        check(gates.size()==16,"Gate has exactly sixteen shared outlines for stacked gates");
         long start=System.nanoTime();
         for(BlockState s:slope.getStateDefinition().getPossibleStates()){
             var shape=s.getShape(world,pos);ramps.add(shape);
             check(shape==s.getShape(world,pos),"Ramp shape identity cached");
             check(!s.getCollisionShape(world,pos).isEmpty(),"Every ramp grade retains a barrier");
             check(!s.hasBlockEntity(),"Ramp has no block entity");
-            check(shape.bounds().minY>=-.875-1e-7&&shape.bounds().maxY<=2+1e-7,"Anchored ramp bounds stay within authored range");
+            check(shape.bounds().minY>=-1-1e-7&&shape.bounds().maxY<=2+1e-7,"Anchored ramp bounds stay within authored range");
             var colored=s.cycle(SlopedPedestrianRailingBlock.GRAY).cycle(SlopedPedestrianRailingBlock.WATERLOGGED);
             check(shape==colored.getShape(world,pos),"Color/water do not allocate another ramp shape");
         }
         long cold=System.nanoTime()-start;
-        check(ramps.size()==512,"Eight grades/heights/four directions/two back states bound ramp outlines");
+        check(ramps.size()==864,"Ascending/descending and level profiles have bounded shared outlines");
         world.reads=0;start=System.nanoTime();
         for(int n=0;n<5;n++)for(BlockState s:slope.getStateDefinition().getPossibleStates())s.getShape(world,pos);
         long warm=System.nanoTime()-start;
@@ -73,6 +73,26 @@ public final class RailingGateSlopeCheck {
             world.blocks.put(pos.north().below(),layerBlock.defaultBlockState().setValue(SidewalkSlopeBlock.LAYERS,Math.min(8,layer+1)));
             if(layer<8)check((int)grade.invoke(null,world,pos,Direction.NORTH,sink)==1,"Adjacent road layers automatically select the 1/8 grade");
         }
+        for(Direction dir:Direction.Plane.HORIZONTAL)for(int from=1;from<=8;from++)for(int to=1;to<=8;to++){
+            world.blocks.clear();
+            world.blocks.put(pos.below(),layerBlock.defaultBlockState().setValue(SidewalkSlopeBlock.LAYERS,from));
+            world.blocks.put(pos.relative(dir).below(),layerBlock.defaultBlockState().setValue(SidewalkSlopeBlock.LAYERS,to));
+            var initial=slope.defaultBlockState().setValue(SlopedPedestrianRailingBlock.FACING,dir);
+            var actual=SlopedPedestrianRailingBlock.terrainProfile(initial,world,pos);
+            check(actual.getValue(SlopedPedestrianRailingBlock.RISE)==Math.abs(to-from),"All ascending/descending layer pairs select correct grade");
+            check(actual.getValue(SlopedPedestrianRailingBlock.DESCENDING)==(to<from),"Slope direction follows terrain");
+            check(actual.getValue(SlopedPedestrianRailingBlock.SINK)==8-from,"Anchor sits on lower surface");
+            check(SlopedPedestrianRailingBlock.terrainProfile(actual,world,pos)==actual,"Terrain profile is stable without further updates");
+            // Changing the distant support layer is reflected by the next one-shot terrain event.
+            world.blocks.put(pos.relative(dir).below(),layerBlock.defaultBlockState().setValue(SidewalkSlopeBlock.LAYERS,from));
+            check(SlopedPedestrianRailingBlock.terrainProfile(actual,world,pos).getValue(SlopedPedestrianRailingBlock.RISE)==0,"Layer edit changes incline to level");
+        }
+        for(Direction dir:Direction.Plane.HORIZONTAL)for(int from=1;from<=8;from++){
+            world.blocks.clear();world.blocks.put(pos.below(),layerBlock.defaultBlockState().setValue(SidewalkSlopeBlock.LAYERS,from));
+            world.blocks.put(pos.relative(dir).below(2),Blocks.STONE.defaultBlockState());
+            var actual=SlopedPedestrianRailingBlock.terrainProfile(slope.defaultBlockState().setValue(SlopedPedestrianRailingBlock.FACING,dir),world,pos);
+            check(actual.getValue(SlopedPedestrianRailingBlock.RISE)==from&&actual.getValue(SlopedPedestrianRailingBlock.DESCENDING),"Slab edge descends to lower full-block ground");
+        }
         world.blocks.clear();world.blocks.put(pos.north(),Blocks.STONE.defaultBlockState());
         check((int)grade.invoke(null,world,pos,Direction.NORTH,0)==8,"Full-block stair selects the 8/8 grade");
         for(Direction d:Direction.Plane.HORIZONTAL){
@@ -82,6 +102,6 @@ public final class RailingGateSlopeCheck {
             var rotated=slope.rotate(state,Rotation.CLOCKWISE_90);
             check(rotated.getValue(SlopedPedestrianRailingBlock.FACING)==d.getClockWise(),"Structure rotation preserves ascent direction");
         }
-        System.out.printf("PASS: %,d checks; gate states=%d; ramp states=%d; cached outlines=%d/%d; cold shape sweep=%.1f ms; 10,240 warm lookups=%.1f ms, zero world reads. Not an FPS benchmark.%n",count,gate.getStateDefinition().getPossibleStates().size(),slope.getStateDefinition().getPossibleStates().size(),gates.size(),ramps.size(),cold/1e6,warm/1e6);
+        System.out.printf("PASS: %,d checks; gate states=%d; ramp states=%d; cached outlines=%d/%d; cold shape sweep=%.1f ms; 23,040 warm lookups=%.1f ms, zero world reads. Not an FPS benchmark.%n",count,gate.getStateDefinition().getPossibleStates().size(),slope.getStateDefinition().getPossibleStates().size(),gates.size(),ramps.size(),cold/1e6,warm/1e6);
     }
 }
