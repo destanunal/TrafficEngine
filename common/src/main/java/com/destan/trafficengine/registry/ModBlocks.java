@@ -91,6 +91,7 @@ public class ModBlocks {
     public static final RegistrySupplier<Block> CHEVRON_PANEL = registerBlock("chevron_panel", ChevronPanelBlock::new, ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> TEMPORARY_PEDESTRIAN_FENCE = registerBlock("temporary_pedestrian_fence", TemporaryPedestrianFenceBlock::new, ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> HIGHWAY_DIRECTION_SIGN = registerBlock("highway_direction_sign", () -> new RoadInformationSignBlock(RoadInformationSignBlock.Kind.HIGHWAY), ModCreativeModeTab.MOD_TAB, false);
+    public static final RegistrySupplier<Block> LARGE_ROAD_DIRECTION_SIGN = registerBlock("large_road_direction_sign", () -> new RoadInformationSignBlock(RoadInformationSignBlock.Kind.LARGE), ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> ROAD_DIRECTION_SIGN = registerBlock("road_direction_sign", () -> new RoadInformationSignBlock(RoadInformationSignBlock.Kind.DIRECTION), ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> VARIABLE_SPEED_SIGN = registerBlock("variable_speed_sign", () -> new RoadInformationSignBlock(RoadInformationSignBlock.Kind.VARIABLE_SPEED), ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> TRAFFIC_POLE_BASE = registerBlock("traffic_pole_base", com.destan.trafficengine.block.TrafficPoleBaseBlock::new, ModCreativeModeTab.MOD_TAB, false);

@@ -159,13 +159,13 @@ public class ClientInit {
                 if(index!=110)return 0xFFFFFFFF;
                 int theme=level!=null && pos!=null && level.getBlockEntity(pos) instanceof RoadInformationSignBlockEntity sign?sign.theme():0;
                 return RoadSignGraphics.backgroundColor(((RoadInformationSignBlock)state.getBlock()).kind(),theme);
-            },ModBlocks.HIGHWAY_DIRECTION_SIGN,ModBlocks.ROAD_DIRECTION_SIGN);
+            },ModBlocks.LARGE_ROAD_DIRECTION_SIGN,ModBlocks.HIGHWAY_DIRECTION_SIGN,ModBlocks.ROAD_DIRECTION_SIGN);
             ColorHandlerRegistry.registerItemColors((stack,index) -> {
                 if(index!=110)return 0xFFFFFFFF;
                 var component=stack.get(net.minecraft.core.component.DataComponents.BLOCK_ENTITY_DATA);
                 CompoundTag data=component==null?null:component.copyTag();
                 return RoadSignGraphics.backgroundColor(RoadInformationSignBlock.Kind.HIGHWAY,data==null?0:data.getInt("theme"));
-            },ModBlocks.HIGHWAY_DIRECTION_SIGN,ModBlocks.ROAD_DIRECTION_SIGN);
+            },ModBlocks.LARGE_ROAD_DIRECTION_SIGN,ModBlocks.HIGHWAY_DIRECTION_SIGN,ModBlocks.ROAD_DIRECTION_SIGN);
             ColorHandlerRegistry.registerItemColors(new TintedTextures.TintedItem(), 
                 ModBlocks.GUARDRAIL,
                 ModBlocks.BIKE_LANE_SEPARATOR,

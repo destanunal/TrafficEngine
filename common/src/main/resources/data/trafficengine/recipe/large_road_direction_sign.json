@@ -1,0 +1,1 @@
+{"type":"minecraft:crafting_shaped","pattern":["III","SSS","III"],"key":{"I":{"item":"minecraft:iron_ingot"},"S":{"item":"trafficengine:highway_direction_sign"}},"result":{"id":"trafficengine:large_road_direction_sign","count":1}}

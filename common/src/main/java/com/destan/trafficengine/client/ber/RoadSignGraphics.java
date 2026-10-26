@@ -21,7 +21,7 @@ public final class RoadSignGraphics {
     private boolean modernLettering;
     private final Layout layout;
     public static final class Layout {
-        private final Row[] rows = {new Row(), new Row(), new Row()};
+        private final Row[] rows = {new Row(), new Row(), new Row(), new Row()};
     }
     private static final class Row {
         int panel, group, captionWidth;
@@ -55,18 +55,18 @@ public final class RoadSignGraphics {
     private static final double[][] ARROW_CENTERS = new double[7][2];
     private static final float[] ARROW_HEIGHTS = new float[7];
     private static final int[] ICON_VERTICES = {0, 1, 2, 6, 5, 3, 4, 4};
-    // Two sizes, three frame styles and four connection masks; built once, reused every frame.
-    private static final double[][][][][][] SIGN_FRAMES = new double[2][3][4][][][];
+    // Three sizes, three frame styles and four connection masks; built once, reused every frame.
+    private static final double[][][][][][] SIGN_FRAMES = new double[3][3][4][][][];
     static {
         for (int i=0;i<=96;i++) { double angle=i*Math.PI/48;CIRCLE_COS[i]=Math.cos(angle);CIRCLE_SIN[i]=Math.sin(angle); }
         for (int c=0;c<4;c++) for(int s=0;s<=4;s++) { double angle=Math.toRadians(-90+c*90+s*22.5);CORNER_COS[c*5+s]=Math.cos(angle);CORNER_SIN[c*5+s]=Math.sin(angle); }
-        for (int size = 0; size < 2; size++) for (int frame = 0; frame < 3; frame++) for (int joins = 0; joins < 4; joins++) {
+        for (int size = 0; size < 3; size++) for (int frame = 0; frame < 3; frame++) for (int joins = 0; joins < 4; joins++) {
             double[][][] layers = new double[frame + 1][][];
             for (int layer = 0; layer <= frame; layer++) {
                 double inset = layer == 0 ? 0 : frame == 1 ? 1.3 : layer == 1 ? 0.8 : 2.8;
                 boolean left = (joins & 1) != 0, right = (joins & 2) != 0;
-                layers[layer] = roundedPerimeter(left ? 0 : inset, inset, right ? 192 : 192 - inset,
-                        (size == 0 ? 72 : 144) - inset, left ? 0 : 4 - inset, right ? 0 : 4 - inset);
+                layers[layer] = roundedPerimeter(left ? 0 : inset, inset, right ? (size==2?384:192) : (size==2?384:192) - inset,
+                        (size == 0 ? 72 : size==2?288:144) - inset, left ? 0 : 4 - inset, right ? 0 : 4 - inset);
             }
             SIGN_FRAMES[size][frame][joins] = layers;
         }
@@ -110,15 +110,15 @@ public final class RoadSignGraphics {
             consumer.addVertex(pose.last().pose(), px, py, 0).setColor(color);
         }
     }
-    public static int width(Kind kind) { return kind == Kind.VARIABLE_SPEED ? 96 : 192; }
-    public static int height(Kind kind) { return switch (kind) { case HIGHWAY -> 144; case DIRECTION -> 72; case VARIABLE_SPEED -> 96; }; }
+    public static int width(Kind kind) { return kind == Kind.VARIABLE_SPEED ? 96 : kind==Kind.LARGE?384:192; }
+    public static int height(Kind kind) { return switch (kind) { case LARGE -> 288; case HIGHWAY -> 144; case DIRECTION -> 72; case VARIABLE_SPEED -> 96; }; }
     public static int backgroundColor(Kind kind, int theme) {
         return kind==Kind.VARIABLE_SPEED?0xFF070B10
-            :theme==1?0xFF174C9B:theme==2?0xFF784A2D:theme==3?0xFFDEE2DC:0xFF176B48;
+            :theme==1?0xFF174C9B:theme==2?0xFF784A2D:theme==3?0xFFCDD1CB:0xFF176B48;
     }
     public static int panelColor(int panel) {
         return switch (panel) {
-            case RoadSignDesign.WHITE_PANEL -> 0xFFE7EAE4;
+            case RoadSignDesign.WHITE_PANEL -> 0xFFD6D9D3;
             case RoadSignDesign.BLUE_PANEL -> 0xFF174C9B;
             case RoadSignDesign.BROWN_PANEL -> 0xFF784A2D;
             case RoadSignDesign.GREEN_PANEL -> 0xFF176B48;
@@ -144,7 +144,7 @@ public final class RoadSignGraphics {
             roundedBorder(0.8, 0.8, w - 0.8, h - 0.8, 3.2, 2, 0xFFA8B4BC);
             roundedRect(2.8, 2.8, w - 2.8, h - 2.8, 1.2, color);
         } else {
-            double[][][] layers = SIGN_FRAMES[kind == Kind.DIRECTION ? 0 : 1][frame][joins & 3];
+            double[][][] layers = SIGN_FRAMES[kind == Kind.DIRECTION ? 0 : kind==Kind.LARGE?2:1][frame][joins & 3];
             if (frame > 0) borderBetween(layers[0], layers[1], frame == 1 ? 0xFFFFFFFF : 0xFF53616B);
             if (frame == 2) borderBetween(layers[1], layers[2], 0xFFA8B4BC);
             fillPerimeter(layers[frame], color);
@@ -164,10 +164,11 @@ public final class RoadSignGraphics {
                     48 - (font.lineHeight - 2) * numberScale / 2, 57, numberScale, 0xFFFFFFEE, false);
             return;
         }
-        int count = design.visibleRows(kind == Kind.HIGHWAY);
+        int count = design.visibleRows(com.destan.trafficengine.block.RoadInformationSignBlock.rowCapacity(kind));
         float rowHeight = (h - 12F) / count;
         boolean compactDouble = kind == Kind.DIRECTION && count == 2;
         float glyphHeight = font.lineHeight + 2F, paddingY = compactDouble ? 1.5F : 2, arrowGap = 2;
+        float sizeScale = kind==Kind.LARGE?1.4F:1F;
         float requestedScale = 1.8F * design.textSize() / 100;
         int arrowCount = 0;
         float arrowSpan = 0;
@@ -181,7 +182,7 @@ public final class RoadSignGraphics {
         boolean compactSingle = kind == Kind.DIRECTION && count == 1 && design.centeredArrows();
         float inset = compactSingle ? 9 : compactDouble ? 4 : 6;
         float availableHeight = h - inset * 2 - (count - 1) * rowGap;
-        float arrowScale = compactSingle ? 21.6F / 23 : Math.min(1F, (rowHeight - 8) / 28) * 1.35F;
+        float arrowScale = compactSingle ? 21.6F / 23 : Math.min(sizeScale, (rowHeight - 8) / 28) * 1.35F;
         if (compactDouble && arrowCount > 0) {
             // Fit text and actual arrow bounds together. Size changes must not hit a fixed text ceiling.
             float fixedSpacing = count * paddingY * 2 + arrowCount * arrowGap;
@@ -216,14 +217,14 @@ public final class RoadSignGraphics {
             row.minimumPanelHeight = minimumPanelHeight;
             row.arrowScale = arrowScale;
             double[] offset = ARROW_CENTERS[direction];
-            row.arrowX = design.centeredArrows() ? w / 2F - (float) offset[0] * arrowScale : design.leftArrows() ? 25 : 167;
+            row.arrowX = design.centeredArrows() ? w / 2F - (float) offset[0] * arrowScale : design.leftArrows() ? 25*sizeScale : w-25*sizeScale;
             row.arrowY = row.center - (float) offset[1] * arrowScale;
             if (row.centerArrow && (!lines[i].isEmpty() || !distances[i].isEmpty()))
                 row.arrowY = rowTop + textHeight + arrowGap + rowArrowHeight / 2 - (float) offset[1] * arrowScale;
             rowTop += cellHeight + rowGap;
             boolean sideArrow = arrows[i] != 0 && !design.centeredArrows();
-            row.left = sideArrow && design.leftArrows() ? 48 : 12;
-            row.right = sideArrow && !design.leftArrows() ? 144 : w - 12;
+            row.left = sideArrow && design.leftArrows() ? 48*sizeScale : 12;
+            row.right = sideArrow && !design.leftArrows() ? w-48*sizeScale : w - 12;
             row.distanceRight = row.right;
             int distanceLength = distances[i].isEmpty() ? 0 : font.width(row.distance);
             row.distanceScale = distanceLength == 0 ? 0 : Math.min(sharedScale, Math.min(64, (row.right - row.left) * 0.4F) / distanceLength);

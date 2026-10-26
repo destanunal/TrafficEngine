@@ -250,10 +250,10 @@ public class LedDeviceBlock extends BaseEntityBlock implements IPaintableBlock, 
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         Direction clickedFace = context.getClickedFace();
         BlockState support = context.getLevel().getBlockState(context.getClickedPos().relative(clickedFace.getOpposite()));
-        boolean sideOfPost = clickedFace.getAxis().isHorizontal() && support.getBlock() instanceof TrafficSignPostBlock;
+        boolean sideOfPost = clickedFace.getAxis().isHorizontal() && CurvedTrafficPoleBlock.isMountingPost(support, clickedFace);
         boolean wallMounted = clickedFace.getAxis().isHorizontal() && !sideOfPost;
-        boolean postBelow = context.getLevel().getBlockState(context.getClickedPos().below()).getBlock() instanceof TrafficSignPostBlock;
-        boolean postAbove = context.getLevel().getBlockState(context.getClickedPos().above()).getBlock() instanceof TrafficSignPostBlock;
+        boolean postBelow = CurvedTrafficPoleBlock.isMountingPost(context.getLevel().getBlockState(context.getClickedPos().below()), Direction.UP);
+        boolean postAbove = CurvedTrafficPoleBlock.isMountingPost(context.getLevel().getBlockState(context.getClickedPos().above()), Direction.DOWN);
         boolean postMounted = !wallMounted && (sideOfPost || postBelow || postAbove);
         BlockState result = defaultBlockState()
             .setValue(FACING, clickedFace.getAxis().isHorizontal() ? clickedFace : context.getHorizontalDirection().getOpposite())
@@ -296,9 +296,9 @@ public class LedDeviceBlock extends BaseEntityBlock implements IPaintableBlock, 
     @SuppressWarnings("deprecation")
     public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
         if (!state.getValue(WALL_MOUNTED)) {
-            boolean postBelow = level.getBlockState(pos.below()).getBlock() instanceof TrafficSignPostBlock;
-            boolean postAbove = level.getBlockState(pos.above()).getBlock() instanceof TrafficSignPostBlock;
-            boolean postBehind = level.getBlockState(pos.relative(state.getValue(FACING).getOpposite())).getBlock() instanceof TrafficSignPostBlock;
+            boolean postBelow = CurvedTrafficPoleBlock.isMountingPost(level.getBlockState(pos.below()), Direction.UP);
+            boolean postAbove = CurvedTrafficPoleBlock.isMountingPost(level.getBlockState(pos.above()), Direction.DOWN);
+            boolean postBehind = CurvedTrafficPoleBlock.isMountingPost(level.getBlockState(pos.relative(state.getValue(FACING).getOpposite())), state.getValue(FACING));
             state = state.setValue(POST_MOUNTED, postBelow || postAbove || postBehind)
                 .setValue(POST_ABOVE, postAbove)
                 .setValue(POST_SIDE, postBehind && !postAbove && !postBelow);

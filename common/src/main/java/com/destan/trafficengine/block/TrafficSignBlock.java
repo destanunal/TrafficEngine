@@ -286,7 +286,7 @@ public class TrafficSignBlock extends BaseEntityBlock implements SimpleWaterlogg
             directMounted = directSupport(supportState, clickedFace)
                 && (!(supportState.getBlock() instanceof TrafficSignPostBlock) || pContext.getPlayer() != null && pContext.getPlayer().isShiftKeyDown());
             directMount = directMounted ? directMountKind(supportState, clickedFace) : 0;
-            postMounted = !directMounted && supportState.getBlock() instanceof TrafficSignPostBlock;
+            postMounted = !directMounted && CurvedTrafficPoleBlock.isMountingPost(supportState, clickedFace);
             wallMounted = directMounted || postMounted
                 || supportState.isFaceSturdy(pContext.getLevel(), supportPos, clickedFace);
             if (postMounted) {
@@ -356,7 +356,7 @@ public class TrafficSignBlock extends BaseEntityBlock implements SimpleWaterlogg
         }
         if (pState.getValue(POST_MOUNTED)) {
             BlockPos supportPos = pPos.relative(pState.getValue(FACING).getOpposite());
-            return pLevel.getBlockState(supportPos).getBlock() instanceof TrafficSignPostBlock;
+            return CurvedTrafficPoleBlock.isMountingPost(pLevel.getBlockState(supportPos), pState.getValue(FACING));
         }
         if (!pState.getValue(WALL_MOUNTED)) {
             return super.canSurvive(pState, pLevel, pPos);

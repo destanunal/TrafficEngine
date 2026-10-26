@@ -7,17 +7,19 @@ public record RoadSignDesign(int rows, int alignment, int textSize, int ink, int
         boolean bold, int arrowPosition, boolean dividers, int panelColors) {
     public static final int ARROWS_LEFT = 0, ARROWS_CENTER = 1, ARROWS_RIGHT = 2;
     public static final int NO_PANEL = 0, WHITE_PANEL = 1, BLUE_PANEL = 2, BROWN_PANEL = 3, GREEN_PANEL = 4;
+    public static final int MAX_TEXT_SIZE = 400;
+    public static final RoadSignDesign LARGE_DEFAULT = new RoadSignDesign(4, 0, 200, 0, 2, false, false, false);
     public static final RoadSignDesign DEFAULT = new RoadSignDesign(3, 0, 100, 0, 2, false, false, false);
 
     public RoadSignDesign {
         arrowPosition = Math.max(ARROWS_LEFT, Math.min(ARROWS_RIGHT, arrowPosition));
-        rows = Math.max(1, Math.min(3, rows));
+        rows = Math.max(1, Math.min(4, rows));
         alignment = Math.max(0, Math.min(2, alignment));
-        textSize = Math.max(70, Math.min(160, textSize));
+        textSize = Math.max(70, Math.min(MAX_TEXT_SIZE, textSize));
         ink = Math.max(0, Math.min(3, ink));
         frame = Math.max(0, Math.min(2, frame));
         int validPanels = 0;
-        for (int row = 0; row < 3; row++) {
+        for (int row = 0; row < 4; row++) {
             int color = (panelColors >>> (row * 3)) & 7;
             if (color <= GREEN_PANEL) validPanels |= color << (row * 3);
         }
@@ -37,18 +39,27 @@ public record RoadSignDesign(int rows, int alignment, int textSize, int ink, int
     public boolean leftArrows() { return arrowPosition == ARROWS_LEFT; }
     public boolean centeredArrows() { return arrowPosition == ARROWS_CENTER; }
 
-    public int visibleRows(boolean large) { return large ? rows : Math.min(2, rows); }
+    public int visibleRows(boolean large) { return Math.min(large ? 3 : 2, rows); }
+    public int visibleRows(int capacity) { return Math.min(capacity, rows); }
 
     public RoadSignDesign withRows(int count) {
         return new RoadSignDesign(count, alignment, textSize, ink, frame, bold, arrowPosition, dividers, panelColors);
     }
 
+    /** Apply the target sign limits on load, network configuration and editor changes. */
+    public RoadSignDesign constrainedTo(int capacity, int maxTextSize) {
+        int limitedRows = Math.min(rows, capacity);
+        int limitedSize = Math.min(textSize, maxTextSize);
+        return limitedRows == rows && limitedSize == textSize ? this
+                : new RoadSignDesign(limitedRows, alignment, limitedSize, ink, frame, bold, arrowPosition, dividers, panelColors);
+    }
+
     public int panelColor(int row) {
-        return row >= 0 && row < 3 ? (panelColors >>> (row * 3)) & 7 : NO_PANEL;
+        return row >= 0 && row < 4 ? (panelColors >>> (row * 3)) & 7 : NO_PANEL;
     }
 
     public RoadSignDesign withPanelColor(int row, int color) {
-        if (row < 0 || row > 2) return this;
+        if (row < 0 || row > 3) return this;
         color = Math.max(NO_PANEL, Math.min(GREEN_PANEL, color));
         return new RoadSignDesign(rows, alignment, textSize, ink, frame, bold, arrowPosition, dividers,
                 (panelColors & ~(7 << (row * 3))) | (color << (row * 3)));

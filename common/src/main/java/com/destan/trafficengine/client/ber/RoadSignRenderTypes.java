@@ -9,9 +9,9 @@ import net.minecraft.resources.ResourceLocation;
 /** Keeps sign artwork in front of the casing at distant depth-buffer precision. */
 final class RoadSignRenderTypes extends RenderType {
     private static final ResourceLocation WHITE = ResourceLocation.fromNamespaceAndPath("trafficengine", "textures/block/road_sign_white.png");
-    private static final RenderType BACKGROUND = layer("road_sign_background", -2);
-    private static final RenderType FOREGROUND = layer("road_sign_foreground", -5);
-    private static final RenderType LED = layer("road_sign_led", -8);
+    private static final RenderType BACKGROUND = layer("road_sign_background", -4);
+    private static final RenderType FOREGROUND = layer("road_sign_foreground", -7);
+    private static final RenderType LED = layer("road_sign_led", -10);
 
     private RoadSignRenderTypes() {
         super("road_sign", DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP,
@@ -35,7 +35,7 @@ final class RoadSignRenderTypes extends RenderType {
                         original.setupRenderState();
                         // Bold glyphs overlap. Test against the sign, without writing over each other.
                         RenderSystem.depthMask(false);
-                        RenderSystem.polygonOffset(-1, -12);
+                        RenderSystem.polygonOffset(-1, -14);
                         RenderSystem.enablePolygonOffset();
                     }, () -> {
                         original.clearRenderState();
@@ -54,7 +54,7 @@ final class RoadSignRenderTypes extends RenderType {
             RenderSystem.polygonOffset(0, 0);
             RenderSystem.disablePolygonOffset();
         });
-        // Glyphs use Minecraft's -10 bias, ahead of these background and LED layers.
+        // Lettering uses -14 units, ahead of these background, panel and LED layers.
         return create(name, DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP, VertexFormat.Mode.QUADS,
                 256, false, true, CompositeState.builder()
                         .setShaderState(RENDERTYPE_TEXT_SHADER)
