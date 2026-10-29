@@ -60,6 +60,8 @@ public enum PaintColor implements TranslatableEnum {
 		return name;
 	}
 
+	public int getTextureARGB() { return 0xFF000000 | textureColor; }
+
 	public ColorValue getTextureColor() {
 		// Dye RGB values have no alpha; item tints in 1.21 also use alpha.
 		return ColorValue.fromInt(0xFF000000 | textureColor);

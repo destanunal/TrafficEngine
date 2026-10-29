@@ -154,6 +154,16 @@ public class ClientInit {
         /* BLOCK COLORS */
 
         ClientLifecycleEvent.CLIENT_STARTED.register(mc -> {
+            ColorHandlerRegistry.registerBlockColors((state,world,pos,index) -> {
+                if (world == null || pos == null || index != 0) return 0xFFFFFFFF;
+                if (state.getValue(com.destan.trafficengine.block.PedestrianRailingBlock.GRAY)) return 0xFFFFFFFF;
+                if (com.destan.trafficengine.util.LoadedRoadData.blockEntity(world,pos)
+                        instanceof com.destan.trafficengine.block.entity.RailingPaintBlockEntity paint) {
+                    var color = paint.getColor();
+                    return com.destan.trafficengine.block.entity.RailingPaintBlockEntity.tint(false,color);
+                }
+                return com.destan.trafficengine.block.entity.RailingPaintBlockEntity.tint(false,com.destan.trafficengine.data.PaintColor.NONE);
+            }, ModBlocks.PEDESTRIAN_RAILING, ModBlocks.PEDESTRIAN_RAILING_GATE, ModBlocks.SLOPED_PEDESTRIAN_RAILING);
             ColorHandlerRegistry.registerBlockColors(new TintedTextures.TintedBlock(), ModBlocks.COLORED_BLOCKS.toArray(RegistrySupplier[]::new));
             ColorHandlerRegistry.registerBlockColors((state,level,pos,index) -> {
                 if(index!=110)return 0xFFFFFFFF;

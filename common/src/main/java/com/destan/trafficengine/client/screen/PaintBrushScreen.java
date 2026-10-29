@@ -48,7 +48,7 @@ public class PaintBrushScreen extends TrafficEngineScreen {
     int lineStyle, paintWidth, dashGap, linePosition, areaStyle, areaShape, pathShape;
     private RoadAreaGeometry.Result areaPreview;
     private final net.minecraft.world.InteractionHand brushHand;
-    private Category category = PatternFavorites.getLastCategory();
+    private Category category = Category.ALL;
     private String query = "";
     private int rowOffset, columns, rows, gridX, gridY, gridWidth, gridHeight, previewX, previewHeight;
     private static final int CELL = 29;
@@ -71,6 +71,8 @@ public class PaintBrushScreen extends TrafficEngineScreen {
         this.patternId = patternId;
         if (net.minecraft.client.Minecraft.getInstance().player != null) {
             var brushTag = com.destan.trafficengine.util.ItemData.getOrCreate(net.minecraft.client.Minecraft.getInstance().player.getItemInHand(hand));
+            try { category = Category.valueOf(brushTag.getString(com.destan.trafficengine.item.BrushItem.NBT_CATEGORY)); }
+            catch (IllegalArgumentException ignored) { category = Category.ALL; }
             customEnabled = brushTag.getBoolean("custom_road_enabled");
             customPattern = com.destan.trafficengine.data.PixelPattern.of(brushTag.getLongArray("custom_road_pattern"));
             customEnabled = customEnabled && !customPattern.isEmpty();
@@ -289,11 +291,10 @@ public class PaintBrushScreen extends TrafficEngineScreen {
 
 
     @Override public void onClose() {
-        PatternFavorites.setLastCategory(category);
         // Match the old screen: closing with Escape or Done applies the selection.
         if (!saved) {
             saved = true;
-            ModNetworkManager.UPDATE_PAINT_BRUSH.send(NetworkDirection.toServer(), new PaintBrushPacket(patternId, lineStyle, batchPainting, paintWidth, dashGap, linePosition, areaStyle, areaShape, pathShape, brushHand).withPattern(customPattern, customEnabled));
+            ModNetworkManager.UPDATE_PAINT_BRUSH.send(NetworkDirection.toServer(), new PaintBrushPacket(patternId, lineStyle, batchPainting, paintWidth, dashGap, linePosition, areaStyle, areaShape, pathShape, brushHand).withPattern(customPattern, customEnabled).withCategory(category.name()));
         }
         super.onClose();
     }

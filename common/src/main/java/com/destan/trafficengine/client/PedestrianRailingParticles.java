@@ -4,7 +4,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.state.BlockState;
 public final class PedestrianRailingParticles {
     private static final ResourceLocation GRAY=ResourceLocation.fromNamespaceAndPath("trafficengine","block/sign");
-    private static final ResourceLocation CHARCOAL=ResourceLocation.fromNamespaceAndPath("trafficengine","block/pedestrian_railing_charcoal");
+    private static final ResourceLocation CHARCOAL=ResourceLocation.fromNamespaceAndPath("trafficengine","block/road_sign_white");
     public static boolean supports(BlockState state){return state.getBlock() instanceof PedestrianRailingBlock||state.getBlock() instanceof com.destan.trafficengine.block.PedestrianRailingGateBlock||state.getBlock() instanceof com.destan.trafficengine.block.SlopedPedestrianRailingBlock;}
     private PedestrianRailingParticles(){}
     /** Reuse the normal straight railing's state and cached outline, including its current colour/sink. */

@@ -16,7 +16,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.*;
 
 /** Static steel gate. Only edits and Redstone events inspect its loaded column. */
-public final class PedestrianRailingGateBlock extends FenceGateBlock {
+public final class PedestrianRailingGateBlock extends FenceGateBlock implements com.destan.trafficengine.block.data.PaintableRailing {
     public static final BooleanProperty GRAY=PedestrianRailingBlock.GRAY;
     public static final BooleanProperty UP=BlockStateProperties.UP,DOWN=BlockStateProperties.DOWN;
     private static final int MAX_STACK_HEIGHT=1024;
@@ -33,6 +33,12 @@ public final class PedestrianRailingGateBlock extends FenceGateBlock {
     public PedestrianRailingGateBlock() {
         super(WoodType.OAK,Properties.of().mapColor(MapColor.METAL).strength(2F).requiresCorrectToolForDrops().sound(SoundType.METAL).noOcclusion());
         registerDefaultState(defaultBlockState().setValue(GRAY,true).setValue(UP,false).setValue(DOWN,false));
+    }
+    @Override public void attack(BlockState state, net.minecraft.world.level.Level world, BlockPos pos, net.minecraft.world.entity.player.Player player) {
+        onRemoveColor(state,world,pos,player);
+    }
+    @Override public void tick(BlockState state, net.minecraft.server.level.ServerLevel world, BlockPos pos, net.minecraft.util.RandomSource random) {
+        com.destan.trafficengine.block.data.PaintableRailing.normalizePaintVariant(world,pos,state);
     }
     @Override protected void createBlockStateDefinition(StateDefinition.Builder<Block,BlockState> builder){super.createBlockStateDefinition(builder);builder.add(GRAY,UP,DOWN);}
     @Override public VoxelShape getShape(BlockState state,BlockGetter world,BlockPos pos,CollisionContext context){return OUTLINES[state.getValue(DOWN)?1:0][state.getValue(OPEN)?1:0][state.getValue(FACING).get2DDataValue()];}
@@ -84,14 +90,15 @@ public final class PedestrianRailingGateBlock extends FenceGateBlock {
         }finally{UPDATING.remove();}
     }
     public InteractionResult use(BlockState state,Level world,BlockPos pos,Player player,InteractionHand hand,BlockHitResult hit) {
+        if(player.getItemInHand(hand).getItem() instanceof com.destan.trafficengine.item.BrushItem
+                || player.getItemInHand(hand).is(ModItemTags.WRENCHES))return InteractionResult.PASS;
         if(!player.mayBuild()||!world.mayInteract(player,pos))return InteractionResult.FAIL;
         if(!world.isClientSide&&!UPDATING.get()){
             long bounds=stackBounds(world,pos,state);
             // Respect protected cells when operating a tall gate from any segment.
             BlockPos.MutableBlockPos cursor=pos.mutable();
             for(int y=(int)(bounds>>32);y<=(int)bounds;y++){cursor.setY(y);if(!world.mayInteract(player,cursor))return InteractionResult.FAIL;}
-            if(player.getItemInHand(hand).is(ModItemTags.WRENCHES))applyColumn(world,pos,bounds,GRAY,!state.getValue(GRAY),false);
-            else {
+            {
                 boolean open=!state.getValue(OPEN);applyColumn(world,pos,bounds,OPEN,open,false);
                 play(world,pos,open);world.gameEvent(player,open?GameEvent.BLOCK_OPEN:GameEvent.BLOCK_CLOSE,pos);
             }
@@ -106,7 +113,11 @@ public final class PedestrianRailingGateBlock extends FenceGateBlock {
         if(state.getValue(OPEN)!=power){play(world,pos,power);world.gameEvent(null,power?GameEvent.BLOCK_OPEN:GameEvent.BLOCK_CLOSE,pos);}
     }
     private static void play(Level world,BlockPos pos,boolean open){world.playSound(null,pos,open?SoundEvents.IRON_TRAPDOOR_OPEN:SoundEvents.IRON_TRAPDOOR_CLOSE,SoundSource.BLOCKS,.35F,1.15F);}
-    @Override protected net.minecraft.world.ItemInteractionResult useItemOn(net.minecraft.world.item.ItemStack stack,BlockState state,Level world,BlockPos pos,Player player,InteractionHand hand,BlockHitResult hit){return com.destan.trafficengine.util.PortingInteractions.forItem(use(state,world,pos,player,hand,hit));}
+    @Override protected net.minecraft.world.ItemInteractionResult useItemOn(net.minecraft.world.item.ItemStack stack,BlockState state,Level world,BlockPos pos,Player player,InteractionHand hand,BlockHitResult hit){
+        if(stack.getItem() instanceof com.destan.trafficengine.item.BrushItem)
+            return net.minecraft.world.ItemInteractionResult.SKIP_DEFAULT_BLOCK_INTERACTION;
+        return com.destan.trafficengine.util.PortingInteractions.forItem(use(state,world,pos,player,hand,hit));
+    }
     @Override protected InteractionResult useWithoutItem(BlockState state,Level world,BlockPos pos,Player player,BlockHitResult hit){return use(state,world,pos,player,InteractionHand.MAIN_HAND,hit);}
     @Override public com.mojang.serialization.MapCodec<net.minecraft.world.level.block.FenceGateBlock> codec(){return com.mojang.serialization.MapCodec.unit(this);}
 

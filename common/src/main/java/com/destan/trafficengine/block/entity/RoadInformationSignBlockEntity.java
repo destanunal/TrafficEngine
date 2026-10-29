@@ -54,7 +54,7 @@ public class RoadInformationSignBlockEntity extends SyncedBlockEntity {
         return Math.max(0, horizontalConnections);
     }
     int findHorizontalConnections(BlockGetter world) {
-        if (kind() == Kind.VARIABLE_SPEED) return 0;
+        if (kind() == Kind.VARIABLE_SPEED || getBlockState().getValue(RoadInformationSignBlock.DIAGONAL)) return 0;
         Direction facing = getBlockState().getValue(RoadInformationSignBlock.FACING);
         int result = 0;
         if (joins(world, worldPosition.relative(facing.getClockWise(), RoadInformationSignBlock.widthInBlocks(kind())))) result |= JOIN_LEFT;
@@ -64,6 +64,8 @@ public class RoadInformationSignBlockEntity extends SyncedBlockEntity {
     private boolean joins(BlockGetter world, BlockPos pos) {
         BlockState state = getBlockState(), other = world.getBlockState(pos);
         return other.getBlock() == state.getBlock()
+            && !other.getValue(RoadInformationSignBlock.DIAGONAL)
+            && other.getValue(RoadInformationSignBlock.HANGING).equals(state.getValue(RoadInformationSignBlock.HANGING))
             && other.getValue(RoadInformationSignBlock.FACING) == state.getValue(RoadInformationSignBlock.FACING)
             && other.getValue(RoadInformationSignBlock.POST_MOUNTED).equals(state.getValue(RoadInformationSignBlock.POST_MOUNTED))
             && other.getValue(RoadInformationSignBlock.WALL_MOUNTED).equals(state.getValue(RoadInformationSignBlock.WALL_MOUNTED))

@@ -43,6 +43,6 @@ public class PlacementShadingMixin {
         if (!(quad instanceof PlacementShadeQuad matched)) return brightness;
         float actual = level.getShade(quad.getDirection(), quad.isShade());
         if (actual <= 0) return brightness;
-        return brightness * level.getShade(matched.getShadeDirection(), quad.isShade()) / actual;
+        return brightness * matched.shade(level) / actual;
     }
 }

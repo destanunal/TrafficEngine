@@ -60,7 +60,9 @@ public abstract class EmissiveFaceBakeryMixin {
                     Direction.getNearest(normal.x(), normal.y(), normal.z()), sprite, shade);
             cir.setReturnValue(quad);
         }
-        if (metadata.trafficengine$matchesStraightShade() && !metadata.trafficengine$isEmissive()) {
+        if(metadata.trafficengine$smoothShade() && !metadata.trafficengine$isEmissive()) {
+            quad=PlacementShadeQuad.smooth(quad);cir.setReturnValue(quad);
+        } else if (metadata.trafficengine$matchesStraightShade() && !metadata.trafficengine$isEmissive()) {
             // Keep the real normal/geometry. Only the terrain renderer's shade lookup
             // uses the facing this face would have without the extra diagonal turn.
             Vector3f reference = new Vector3f(direction.getStepX(), direction.getStepY(), direction.getStepZ());

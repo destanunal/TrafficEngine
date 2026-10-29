@@ -76,7 +76,18 @@ public enum TrafficSignShape implements StringRepresentable {
 		return ResourceLocation.fromNamespaceAndPath(TrafficEngine.MOD_ID, String.format("textures/block/sign/icons/%s.png", this.getShape()));
 	}
 
-	public VoxelShape getVoxelShape(Direction direction) {
+    private static final VoxelShape[][] VOXEL_SHAPES = createVoxelShapes();
+    private static VoxelShape[][] createVoxelShapes() {
+        TrafficSignShape[] kinds=values();
+        VoxelShape[][] result=new VoxelShape[kinds.length][4];
+        for(TrafficSignShape kind:kinds) for(Direction facing:Direction.Plane.HORIZONTAL)
+            result[kind.ordinal()][facing.get2DDataValue()]=kind.createVoxelShape(facing);
+        return result;
+    }
+    public VoxelShape getVoxelShape(Direction direction) {
+        return VOXEL_SHAPES[ordinal()][direction.get2DDataValue()];
+    }
+    private VoxelShape createVoxelShape(Direction direction) {
 		final VoxelShape SHAPE_COMMON = Block.box(7, 0, 7, 9, 16, 9);
 		// S, W, N, E
 		VoxelShape[] shapes;

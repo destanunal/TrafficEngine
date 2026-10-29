@@ -10,6 +10,7 @@ import com.destan.trafficengine.network.packets.cts.LinkerModePacket;
 import com.destan.trafficengine.network.packets.cts.LedDevicePacket;
 import com.destan.trafficengine.network.packets.cts.PaintBrushPacket;
 import com.destan.trafficengine.network.packets.cts.PaintBrushUndoPacket;
+import com.destan.trafficengine.network.packets.cts.RailingPaintErasePacket;
 import com.destan.trafficengine.network.packets.cts.PatternCatalogueDeletePacket;
 import com.destan.trafficengine.network.packets.cts.PatternCatalogueIndexPacket;
 import com.destan.trafficengine.network.packets.cts.PatternCatalogueIndexPacketGui;
@@ -60,6 +61,9 @@ public class ModNetworkManager {
 
     
 
+    public static final NetworkPacketType.Send<NetworkDirection.C2S, RailingPaintErasePacket> ERASE_RAILING_PAINT = NETWORK.registerSendOnlyPacket(
+        "erase_railing_paint", NetworkDirection.C2S, RailingPaintErasePacket::handle,
+        RailingPaintErasePacket::new);
     public static final NetworkPacketType.Send<NetworkDirection.C2S, PaintBrushUndoPacket> UNDO_PAINT_BRUSH = NETWORK.registerSendOnlyPacket(
         "undo_paint_brush", NetworkDirection.C2S, PaintBrushUndoPacket::handle, PaintBrushUndoPacket::new);
 

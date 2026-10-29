@@ -12,7 +12,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 public class RoadInformationSignRenderer extends BaseBlockEntityRenderer<RoadInformationSignBlockEntity> {
     // A fixed physical clearance keeps the thin border ahead of the baked casing
     // at shallow angles; cached render layers provide the remaining depth bias.
-    private static final double ARTWORK_CLEARANCE = 1.0 / 256;
+    private static final double ARTWORK_CLEARANCE = 1.0 / 32;
     private final Font font;
     private final RoadSignGraphics.Layout layout = new RoadSignGraphics.Layout();
     public RoadInformationSignRenderer(BlockEntityRendererProvider.Context context) { super(context); font = context.getFont(); }
@@ -24,8 +24,9 @@ public class RoadInformationSignRenderer extends BaseBlockEntityRenderer<RoadInf
         float rotation = switch (sign.getBlockState().getValue(WritableTrafficSign.FACING)) {
             case EAST -> 90; case SOUTH -> 0; case WEST -> -90; default -> 180;
         };
+        if (sign.getBlockState().getValue(RoadInformationSignBlock.DIAGONAL)) rotation -= 45;
         var pose = graphics.poseStack(); pose.pushPose();
-        pose.translate(0.5, RoadInformationSignBlock.topHeight(kind,mounted)/16, 0.5);
+        pose.translate(0.5, RoadInformationSignBlock.topHeight(kind,mounted,sign.getBlockState().getValue(RoadInformationSignBlock.HANGING))/16, 0.5);
         pose.mulPose(Axis.YP.rotationDegrees(rotation));
         pose.translate(0, 0, 0.5-RoadInformationSignBlock.frontDepth(mounted,wallMounted)/16+ARTWORK_CLEARANCE);
         pose.scale(1F/96, -1F/96, 1F/96); pose.translate(-RoadSignGraphics.width(kind)/2F, 0, 0);

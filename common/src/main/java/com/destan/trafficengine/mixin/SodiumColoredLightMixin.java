@@ -21,8 +21,8 @@ public abstract class SodiumColoredLightMixin {
     private void trafficengine$rgb(@Coerce Object object, @Coerce Object lightMode, boolean emissive,
             @Coerce Object shadeMode, CallbackInfo callback) {
         if (emissive || !(object instanceof MutableQuadView quad) || quad.lightFace() == null) return;
-        if (quad.lightmap(0) == 0xF000F0 && quad.lightmap(1) == 0xF000F0
-                && quad.lightmap(2) == 0xF000F0 && quad.lightmap(3) == 0xF000F0) return;
+        // Dynamic lighting can make ordinary terrain full-bright. Only the material's
+        // emissive flag identifies self-lit quads; brightness alone must not skip RGB.
         var tint = ClientColoredLighting.tint(pos, quad.lightFace(), quad.lightmap(0), quad.lightmap(1), quad.lightmap(2), quad.lightmap(3));
         if (tint == null) return;
         int minimum = tint.brightness() << 4;

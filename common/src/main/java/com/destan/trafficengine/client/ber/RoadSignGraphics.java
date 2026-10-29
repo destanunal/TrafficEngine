@@ -168,7 +168,7 @@ public final class RoadSignGraphics {
         float rowHeight = (h - 12F) / count;
         boolean compactDouble = kind == Kind.DIRECTION && count == 2;
         float glyphHeight = font.lineHeight + 2F, paddingY = compactDouble ? 1.5F : 2, arrowGap = 2;
-        float sizeScale = kind==Kind.LARGE?1.4F:1F;
+        float sizeScale = kind==Kind.LARGE?(count<=2?2.4F:count==3?1.65F:1.4F):1F;
         float requestedScale = 1.8F * design.textSize() / 100;
         int arrowCount = 0;
         float arrowSpan = 0;
@@ -299,16 +299,20 @@ public final class RoadSignGraphics {
         }
     }
 
+    private void perimeterQuad(double[][] points, int a, int b, int c, int d, int color) {
+        quad(points[a][0],points[a][1],points[b][0],points[b][1],
+            points[c][0],points[c][1],points[d][0],points[d][1],color);
+    }
     private void roundedRect(double x1, double y1, double x2, double y2, double radius, int color) {
         if (radius <= 0) { rect(x1, y1, x2, y2, color); return; }
         fillPerimeter(roundedPerimeter(x1, y1, x2, y2, radius), color);
     }
     private void fillPerimeter(double[][] perimeter, int color) {
-        double cx=(perimeter[0][0]+perimeter[10][0])/2,cy=(perimeter[0][1]+perimeter[10][1])/2;
-        for (int i=0;i<perimeter.length;i++) {
-            double[] a=perimeter[i],b=perimeter[(i+1)%perimeter.length];
-            quad(cx,cy,a[0],a[1],b[0],b[1],b[0],b[1],color);
-        }
+        // Real quad strips survive quad sorting and OptiFine's alternate triangulation.
+        // Nine strips replace twenty degenerate triangle-fan quads; no scratch arrays.
+        for (int i=0;i<4;i++) perimeterQuad(perimeter,19-i,i,i+1,18-i,color);
+        perimeterQuad(perimeter,15,4,5,14,color);
+        for (int i=0;i<4;i++) perimeterQuad(perimeter,14-i,5+i,6+i,13-i,color);
     }
     private void roundedBorder(double x1, double y1, double x2, double y2, double radius, double inset, int color) {
         double[][] outer = roundedPerimeter(x1, y1, x2, y2, radius);

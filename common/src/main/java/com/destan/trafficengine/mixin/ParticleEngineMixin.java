@@ -39,6 +39,7 @@ public class ParticleEngineMixin {
 
     @WrapMethod(method = "destroy")
     private void trafficengine$reduceDestruction(BlockPos pos, BlockState state, Operation<Void> original) {
+        state=com.destan.trafficengine.block.data.PlacementParticles.straight(state);
         var previousSprite=trafficengine$railingSprite;
         trafficengine$railingSprite=com.destan.trafficengine.client.PedestrianRailingParticles.supports(state)
             ?net.minecraft.client.Minecraft.getInstance().getTextureAtlas(net.minecraft.world.inventory.InventoryMenu.BLOCK_ATLAS)
@@ -66,6 +67,7 @@ public class ParticleEngineMixin {
             trafficengine$breakParticleNumerator = 3;
             trafficengine$breakParticleDenominator = 5;
         }
+        if(state.getBlock() instanceof com.destan.trafficengine.block.DoubleSidedTrafficSignBlock)trafficengine$breakParticleDenominator*=2;
         trafficengine$breakParticleIndex = 0;
         try {
             original.call(pos, state);
@@ -88,6 +90,11 @@ public class ParticleEngineMixin {
                 >= trafficengine$breakParticleNumerator) ci.cancel();
     }
 
+    @ModifyVariable(method="crack",at=@At("STORE"),ordinal=0)
+    private BlockState trafficengine$straightHitParticles(BlockState state) {
+        return com.destan.trafficengine.block.data.PlacementParticles.straight(state);
+    }
+
     /** Use the straight variant for break particles without changing selection or collision. */
     @ModifyVariable(method = "destroy", at = @At("STORE"), ordinal = 0)
     private VoxelShape trafficengine$useStraightDestructionShape(VoxelShape shape, BlockPos pos, BlockState state) {
@@ -101,6 +108,10 @@ public class ParticleEngineMixin {
         if (state.getBlock() instanceof TrafficLightBlock && state.hasProperty(TrafficLightBlock.DIAGONAL)
                 && state.getValue(TrafficLightBlock.DIAGONAL)) {
             return state.setValue(TrafficLightBlock.DIAGONAL, false).getShape(level, pos);
+        }
+        if (state.getBlock() instanceof com.destan.trafficengine.block.RoadInformationSignBlock
+                && state.getValue(com.destan.trafficengine.block.RoadInformationSignBlock.DIAGONAL)) {
+            return state.setValue(com.destan.trafficengine.block.RoadInformationSignBlock.DIAGONAL,false).getShape(level,pos);
         }
         if (state.getBlock() instanceof TrafficSignBlock
                 && (state.getValue(TrafficSignBlock.DIAGONAL) || state.getValue(TrafficSignBlock.POST_MOUNTED))) {
