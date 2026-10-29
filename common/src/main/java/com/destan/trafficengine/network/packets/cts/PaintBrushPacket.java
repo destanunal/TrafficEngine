@@ -14,6 +14,15 @@ public class PaintBrushPacket extends NetworkPacketData {
     private int pattern, lineStyle, width, dashGap, linePosition, areaStyle, areaShape, pathShape;
     private boolean batch, offhand;
     private boolean customEnabled;
+    private String category;
+    private static String validCategory(String value) {
+        if (value == null) return null;
+        return switch (value) {
+            case "ALL", "LINES", "ARROWS", "LETTERS", "NUMBERS", "SYMBOLS", "FAVORITES" -> value;
+            default -> null;
+        };
+    }
+    public PaintBrushPacket withCategory(String value) { category = validCategory(value); return this; }
     private com.destan.trafficengine.data.PixelPattern custom = com.destan.trafficengine.data.PixelPattern.EMPTY;
     public PaintBrushPacket withPattern(com.destan.trafficengine.data.PixelPattern pattern, boolean enabled) { custom = pattern; customEnabled = enabled && !pattern.isEmpty(); return this; }
     public PaintBrushPacket(PacketStatus status) { super(status); }
@@ -29,6 +38,7 @@ public class PaintBrushPacket extends NetworkPacketData {
         this.areaStyle=Math.max(0,Math.min(3,areaStyle));this.areaShape=Math.max(0,Math.min(2,areaShape));
     }
     @Override protected void write(CompoundTag nbt) {
+        if (category != null) nbt.putString(BrushItem.NBT_CATEGORY, category);
         nbt.putBoolean("custom_road_enabled", customEnabled);
         if (!custom.isEmpty()) nbt.putLongArray("custom_road_pattern", custom.bits());
         nbt.putInt("Data",pattern);nbt.putInt("line_style",lineStyle);nbt.putBoolean("batch",batch);
@@ -38,6 +48,7 @@ public class PaintBrushPacket extends NetworkPacketData {
         nbt.putInt("area_style",areaStyle);nbt.putInt("area_shape",areaShape);
     }
     @Override protected void read(CompoundTag nbt) {
+        category = validCategory(nbt.getString(BrushItem.NBT_CATEGORY));
         custom = com.destan.trafficengine.data.PixelPattern.of(nbt.getLongArray("custom_road_pattern"));
         customEnabled = nbt.getBoolean("custom_road_enabled") && !custom.isEmpty();
         pattern=nbt.getInt("Data");lineStyle=nbt.contains("line_style")?nbt.getInt("line_style"):-1;
@@ -52,6 +63,7 @@ public class PaintBrushPacket extends NetworkPacketData {
         var stack=sender.getItemInHand(packet.offhand?InteractionHand.OFF_HAND:InteractionHand.MAIN_HAND);
         if (!(stack.getItem() instanceof BrushItem)) return;
         CompoundTag tag=stack.getOrCreateTag();tag.putInt(BrushItem.NBT_PATTERN,packet.pattern);
+        if (packet.category != null) tag.putString(BrushItem.NBT_CATEGORY, packet.category);
         tag.putInt(RoadPainting.STYLE,Math.max(-1,Math.min(3,packet.lineStyle)));
         tag.putBoolean(RoadPainting.BATCH,packet.batch);tag.putInt(RoadPainting.WIDTH,com.destan.trafficengine.item.RoadPaintPlan.normalizeWidth(packet.width));
         tag.putInt(RoadPainting.DASH_GAP,packet.dashGap==4?4:2);

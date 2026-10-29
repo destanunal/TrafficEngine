@@ -24,6 +24,7 @@ public class EmissiveFaceDeserializerMixin {
             }
             ((EmissiveFace) cir.getReturnValue()).trafficengine$setVertices(vertices);
         }
+        if(data!=null && data.has("smooth_shade")) ((EmissiveFace)(Object)cir.getReturnValue()).trafficengine$setSmoothShade(data.get("smooth_shade").getAsBoolean());
         if (data != null && data.has("match_straight_shade")) {
             ((EmissiveFace) cir.getReturnValue()).trafficengine$setMatchesStraightShade(
                 data.get("match_straight_shade").getAsBoolean());

@@ -35,7 +35,7 @@ final class RoadSignRenderTypes extends RenderType {
                         original.setupRenderState();
                         // Bold glyphs overlap. Test against the sign, without writing over each other.
                         RenderSystem.depthMask(false);
-                        RenderSystem.polygonOffset(-1, -14);
+                        RenderSystem.polygonOffset(0, -14);
                         RenderSystem.enablePolygonOffset();
                     }, () -> {
                         original.clearRenderState();
@@ -48,7 +48,7 @@ final class RoadSignRenderTypes extends RenderType {
 
     private static RenderType layer(String name, float units) {
         LayeringStateShard bias = new LayeringStateShard(name, () -> {
-            RenderSystem.polygonOffset(-1, units);
+            RenderSystem.polygonOffset(0, units);
             RenderSystem.enablePolygonOffset();
         }, () -> {
             RenderSystem.polygonOffset(0, 0);
@@ -56,10 +56,10 @@ final class RoadSignRenderTypes extends RenderType {
         });
         // Lettering uses -14 units, ahead of these background, panel and LED layers.
         return create(name, DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP, VertexFormat.Mode.QUADS,
-                256, false, true, CompositeState.builder()
+                256, false, false, CompositeState.builder()
                         .setShaderState(RENDERTYPE_TEXT_SHADER)
                         .setTextureState(new TextureStateShard(WHITE, false, false))
-                        .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+                        .setTransparencyState(NO_TRANSPARENCY)
                         .setLightmapState(LIGHTMAP)
                         .setCullState(CULL)
                         .setDepthTestState(LEQUAL_DEPTH_TEST)

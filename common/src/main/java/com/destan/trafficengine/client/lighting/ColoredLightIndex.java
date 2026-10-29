@@ -32,7 +32,7 @@ public final class ColoredLightIndex {
         }
         volumes.put(source, sections);
         for (long section : sections.keySet()) {
-            contributors.computeIfAbsent(section, key -> Collections.newSetFromMap(new IdentityHashMap<>())).add(source);
+            contributors.computeIfAbsent(section, key -> Collections.newSetFromMap(new IdentityHashMap<>(2))).add(source);
             dirtySections.add(section);
         }
     }
@@ -55,6 +55,13 @@ public final class ColoredLightIndex {
             var sources = contributors.get(section);
             if (sources == null) {
                 updated.remove(section);
+                continue;
+            }
+            // A source's section maps are immutable after replace(). Publishing
+            // the sole contributor directly avoids a second retained hash table.
+            if (sources.size()==1) {
+                Object only=sources.iterator().next();
+                updated.put(section,volumes.get(only).get(section));
                 continue;
             }
             var merged = new Short2ShortOpenHashMap();

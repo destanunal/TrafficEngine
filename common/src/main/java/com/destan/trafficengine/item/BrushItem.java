@@ -33,6 +33,7 @@ import net.minecraft.world.level.block.state.BlockState;
 public class BrushItem extends Item {
 
     public static final String NBT_PATTERN = "pattern";
+    public static final String NBT_CATEGORY = "pattern_category";
     public static final String NBT_PAINT = "paint";
     public static final String NBT_COLOR = "color";
 
@@ -46,6 +47,10 @@ public class BrushItem extends Item {
 
     @Override
     public boolean canAttackBlock(BlockState state, Level worldIn, BlockPos pos, Player player) {
+        if (state.getBlock() instanceof com.destan.trafficengine.block.data.PaintableRailing railing) {
+            railing.onRemoveColor(state,worldIn,pos,player);
+            return false;
+        }
         if (player.isCreative()) {
             if (state.getBlock() instanceof IPaintableBlock block) {
                 block.onRemoveColor(state, worldIn, pos, player);
@@ -226,8 +231,8 @@ public class BrushItem extends Item {
         }
 
         if (nbt.getBoolean(RoadPainting.BATCH) && RoadPainting.pathShape(stack)>0 && RoadPainting.areaStyle(stack)==0
-                && !(state.getBlock() instanceof PaintBucketBlock)) return RoadPainting.use(pContext);
-        if (RoadPainting.areaStyle(stack)>0 && !(state.getBlock() instanceof PaintBucketBlock)) {
+                && !(state.getBlock() instanceof PaintBucketBlock) && !(state.getBlock() instanceof com.destan.trafficengine.block.data.PaintableRailing)) return RoadPainting.use(pContext);
+        if (RoadPainting.areaStyle(stack)>0 && !(state.getBlock() instanceof PaintBucketBlock) && !(state.getBlock() instanceof com.destan.trafficengine.block.data.PaintableRailing)) {
             return RoadPainting.use(pContext);
         }
         if (RoadPainting.isRoad(state) && (nbt.getBoolean(RoadPainting.BATCH) || RoadPainting.style(stack) >= 0)) {

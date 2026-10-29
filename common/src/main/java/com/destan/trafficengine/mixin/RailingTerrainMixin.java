@@ -14,8 +14,8 @@ public abstract class RailingTerrainMixin {
     @ModifyExpressionValue(method="setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;II)Z",
         at=@At(value="INVOKE",target="Lnet/minecraft/world/level/chunk/LevelChunk;setBlockState(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Z)Lnet/minecraft/world/level/block/state/BlockState;"))
     private BlockState trafficengine$rampChanged(BlockState previous,BlockPos pos,BlockState updated,int flags,int limit){
-        if(previous!=null&&previous!=updated&&(trafficengine$isLayered(previous)||trafficengine$isLayered(updated)))SlopedPedestrianRailingBlock.terrainChanged((Level)(Object)this,pos);
+        if(previous!=null&&previous!=updated&&RailingGeometry.layerHeightChanged(previous,updated))SlopedPedestrianRailingBlock.terrainChanged((Level)(Object)this,pos);
         return previous;
     }
-    private static boolean trafficengine$isLayered(BlockState state){return state.getBlock() instanceof AsphaltSlope||state.getBlock() instanceof AsphaltCurbSlope||state.getBlock() instanceof SidewalkSlopeBlock;}
+
 }

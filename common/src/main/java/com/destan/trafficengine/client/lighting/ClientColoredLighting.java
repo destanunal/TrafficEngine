@@ -89,6 +89,9 @@ public final class ClientColoredLighting {
         return 0;
     }
     public static Long2IntOpenHashMap propagate(BlockAndTintGetter level,BlockPos start,int rgb) {
+        return propagate(level,start,rgb,null);
+    }
+    public static Long2IntOpenHashMap propagate(BlockAndTintGetter level,BlockPos start,int rgb,Direction front) {
         Long2IntOpenHashMap result=new Long2IntOpenHashMap();
         if(rgb==0)return result;
         LongArrayFIFOQueue queue=new LongArrayFIFOQueue();
@@ -99,10 +102,13 @@ public final class ClientColoredLighting {
             int x=BlockPos.getX(current),y=BlockPos.getY(current),z=BlockPos.getZ(current);
             for(Direction side:DIRECTIONS) {
                 pos.set(x+side.getStepX(),y+side.getStepY(),z+side.getStepZ());
-                if (level instanceof ClientLevel client && !client.hasChunk(pos.getX() >> 4, pos.getZ() >> 4)) continue;
+                // Do not let flood-fill walk around a panel back into its rear half-space.
+                if (front != null && (pos.getX()-start.getX())*front.getStepX()
+                        +(pos.getZ()-start.getZ())*front.getStepZ() < 0) continue;
                 long key=pos.asLong();
                 // Breadth-first traversal reaches each cell at its strongest level first.
                 if(result.containsKey(key))continue;
+                if (level instanceof ClientLevel client && !client.hasChunk(pos.getX() >> 4, pos.getZ() >> 4)) continue;
                 result.put(key,next);
                 if(!level.getBlockState(pos).isSolidRender(level,pos))queue.enqueue(key);
             }
@@ -125,7 +131,9 @@ public final class ClientColoredLighting {
             if((source.dirty || source.rgb!=rgb) && rebuilt<8) {
                 if(dirty==null)dirty=new HashMap<>();
                 dirty.merge(pos,Math.max(RgbLightMath.maximum(Math.max(0,source.rgb)),RgbLightMath.maximum(rgb))+1,Math::max);
-                COLORS.replace(source,propagate(world,pos,rgb));source.rgb=rgb;source.dirty=false;rebuilt++;publish=true;
+                Direction front=source.entity instanceof LedDeviceBlockEntity
+                    ?source.entity.getBlockState().getValue(com.destan.trafficengine.block.LedDeviceBlock.FACING):null;
+                COLORS.replace(source,propagate(world,pos,rgb,front));source.rgb=rgb;source.dirty=false;rebuilt++;publish=true;
             }
         }
         if(publish) {

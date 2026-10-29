@@ -8,9 +8,17 @@ import net.minecraft.world.phys.shapes.*;
 /** Small immutable geometry tables; only placement/neighbor events inspect terrain. */
 public final class RailingGeometry {
     private RailingGeometry(){}
+    public static boolean isLayeredSupport(BlockState state){
+        return state.getBlock() instanceof AsphaltSlope || state.getBlock() instanceof PaintedAsphaltSlope
+            || state.getBlock() instanceof AsphaltCurbSlope || state.getBlock() instanceof SidewalkSlopeBlock;
+    }
+    public static boolean layerHeightChanged(BlockState before,BlockState after){
+        boolean a=isLayeredSupport(before),b=isLayeredSupport(after);
+        return (a||b)&&(a!=b||before.getValue(BlockStateProperties.LAYERS)!=after.getValue(BlockStateProperties.LAYERS));
+    }
     public static int sinkFor(BlockState below){
         if(below.getBlock() instanceof PedestrianRailingBlock)return below.getValue(PedestrianRailingBlock.SINK);
-        return (below.getBlock() instanceof AsphaltSlope||below.getBlock() instanceof AsphaltCurbSlope||below.getBlock() instanceof SidewalkSlopeBlock)
+        return isLayeredSupport(below)
             &&below.hasProperty(BlockStateProperties.LAYERS)?8-below.getValue(BlockStateProperties.LAYERS):0;
     }
     public static VoxelShape rotate(VoxelShape north,Direction facing){

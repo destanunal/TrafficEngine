@@ -19,3 +19,11 @@
 ## Interface text
 
 - Center all current and future menu/control captions horizontally and vertically using the displayed glyph bounds in every supported language. Check localized text for clipping; keep measurements cached and clear them when fonts or language resources reload. Apply the same rule to new interfaces.
+
+## Placement selection outlines
+
+- For new diagonal, inclined or rotated equipment, use the existing cached oriented selection-outline system. Match the rendered model with a simple outer frame, hide internal seams/carrier spans, and retain accurate picking and collision volumes. Do not replace it with a dense staircase of visible voxel edges.
+- Keep outline geometry bounded and cached, reuse the existing selection buffer, and invalidate mesh-derived caches on model/resource reload rather than adding per-frame geometry construction or rendering passes.
+
+- Diagonal/inclined variants must reuse the normal variant for breaking and hit particles, preserving its texture, shape, density reductions and count. Add each new placement type to PlacementParticles and its regression coverage; never emit particles from a dense diagonal voxel staircase.
+- Historical item IDs are not the displayed Turkish names: highway_direction_sign = Büyük Yol Tabelası; large_road_direction_sign = Otoban Tabelası. Check localization before adjusting their inventory sizes.

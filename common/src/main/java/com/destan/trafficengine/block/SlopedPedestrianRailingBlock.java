@@ -14,7 +14,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.*;
 
 /** Terrain-aligned panel spanning toward FACING. Geometry is cached; terrain is read only on edits. */
-public final class SlopedPedestrianRailingBlock extends HorizontalDirectionalBlock implements SimpleWaterloggedBlock {
+public final class SlopedPedestrianRailingBlock extends HorizontalDirectionalBlock implements SimpleWaterloggedBlock, com.destan.trafficengine.block.data.PaintableRailing {
     public static final IntegerProperty RISE=IntegerProperty.create("rise",0,8);
     public static final IntegerProperty SINK=PedestrianRailingBlock.SINK;
     public static final BooleanProperty GRAY=PedestrianRailingBlock.GRAY;
@@ -26,10 +26,13 @@ public final class SlopedPedestrianRailingBlock extends HorizontalDirectionalBlo
         super(Properties.of().mapColor(MapColor.METAL).strength(2F).requiresCorrectToolForDrops().sound(SoundType.METAL).noOcclusion());
         registerDefaultState(defaultBlockState().setValue(FACING,Direction.NORTH).setValue(RISE,1).setValue(DESCENDING,false).setValue(SINK,0).setValue(GRAY,true).setValue(BACK,false).setValue(WATERLOGGED,false));
     }
+    @Override public void attack(BlockState state, net.minecraft.world.level.Level world, BlockPos pos, net.minecraft.world.entity.player.Player player) {
+        onRemoveColor(state,world,pos,player);
+    }
     @Override protected void createBlockStateDefinition(StateDefinition.Builder<Block,BlockState> builder){builder.add(FACING,RISE,SINK,GRAY,BACK,WATERLOGGED,DESCENDING);}
     private static int supportHeight(BlockGetter world,BlockPos pos){
         BlockState below=world.getBlockState(pos.below());
-        if(below.getBlock() instanceof AsphaltSlope||below.getBlock() instanceof AsphaltCurbSlope||below.getBlock() instanceof SidewalkSlopeBlock)return -RailingGeometry.sinkFor(below);
+        if(RailingGeometry.isLayeredSupport(below))return -RailingGeometry.sinkFor(below);
         return below.isCollisionShapeFullBlock(world,pos.below())?0:Integer.MIN_VALUE;
     }
     private static int grade(BlockGetter world,BlockPos pos,Direction facing,int sink){
@@ -83,12 +86,17 @@ public final class SlopedPedestrianRailingBlock extends HorizontalDirectionalBlo
     }
     @Override public void tick(BlockState state,net.minecraft.server.level.ServerLevel world,BlockPos pos,net.minecraft.util.RandomSource random){
         BlockState updated=terrainProfile(state,world,pos);
+        // Merge legacy paint normalization with terrain adjustment into one state update.
+        if(updated.getValue(GRAY)
+                && world.getBlockEntity(pos) instanceof com.destan.trafficengine.block.entity.RailingPaintBlockEntity paint
+                && paint.getColor()!=com.destan.trafficengine.data.PaintColor.NONE)
+            updated=updated.setValue(GRAY,false);
         if(updated!=state)world.setBlockAndUpdate(pos,updated);
     }
     public InteractionResult use(BlockState state,Level world,BlockPos pos,Player player,InteractionHand hand,BlockHitResult hit){
-        if(!player.getItemInHand(hand).is(ModItemTags.WRENCHES))return InteractionResult.PASS;
+        if(!player.getItemInHand(hand).is(ModItemTags.WRENCHES)||!player.isShiftKeyDown())return InteractionResult.PASS;
         if(!player.mayBuild()||!world.mayInteract(player,pos))return InteractionResult.FAIL;
-        if(!world.isClientSide)world.setBlockAndUpdate(pos,player.isShiftKeyDown()?state.cycle(RISE):state.cycle(GRAY));
+        if(!world.isClientSide)world.setBlockAndUpdate(pos,state.cycle(RISE));
         return InteractionResult.sidedSuccess(world.isClientSide);
     }
     /** Keep the lower rail above both halves of the stepped support, including a full-block grade. */

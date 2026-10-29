@@ -19,6 +19,15 @@ import org.spongepowered.asm.mixin.injection.At;
 public abstract class PlatformColoredLightMixin {
     @Shadow(remap=false) private BlockPos pos;
 
+    @Shadow(remap=false) private net.minecraft.world.level.BlockAndTintGetter level;
+    // Capture original method arguments directly. No array-local reconstruction:
+    // Forge 47.2.1's Mixin verifier cannot analyze the primitive normal-array merge.
+    @com.llamalad7.mixinextras.injector.ModifyExpressionValue(method="process",remap=false,
+        at=@At(value="INVOKE",target="Lnet/minecraft/world/level/BlockAndTintGetter;getShade(FFFZ)F",remap=false))
+    private float trafficengine$placementShade(float shade,VertexConsumer consumer,PoseStack.Pose pose,BakedQuad quad,int overlay) {
+        return quad instanceof com.destan.trafficengine.client.model.PlacementShadeQuad matched?matched.shade(level):shade;
+    }
+
     @WrapOperation(method="process", remap=false, at=@At(value="INVOKE", remap=true,
         target="Lcom/mojang/blaze3d/vertex/VertexConsumer;putBulkData(Lcom/mojang/blaze3d/vertex/PoseStack$Pose;Lnet/minecraft/client/renderer/block/model/BakedQuad;[FFFF[IIZ)V"))
     private void trafficengine$coloredSurface(VertexConsumer consumer, PoseStack.Pose pose, BakedQuad quad,

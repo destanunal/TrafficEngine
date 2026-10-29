@@ -1,0 +1,55 @@
+gradle.projectsEvaluated {
+    def common = rootProject.project(':common')
+    def testDir = new File(rootProject.projectDir, 'docs/checks')
+    def compiler = common.tasks.register('compile211Regression', JavaCompile) {
+        dependsOn common.tasks.named('compileJava'), common.tasks.named('processResources')
+        source new File(testDir, 'Mixin22Smoke.java')
+        source new File(testDir, 'DoubleRail22Check.java')
+        source new File(testDir, 'Update22Check.java'), new File(testDir, 'Platform22LightingCheck.java'), new File(testDir, 'Polish211Check.java'), new File(testDir, 'Update211Check.java'), new File(common.projectDir, '../docs/checks/LightVolume191Check.java')
+        if (new File(common.projectDir, 'src/main/java/com/destan/trafficengine/mixin/SodiumColoredLightMixin.java').exists()) source new File(testDir, 'Sodium211Check.java')
+        classpath = common.sourceSets.main.compileClasspath + common.sourceSets.main.output
+        destinationDirectory = common.layout.buildDirectory.dir('checks211')
+        sourceCompatibility = '21'; targetCompatibility = '21'
+    }
+    ['Update211Check','LightVolume191Check','Sodium211Check','Polish211Check','Update22Check','DoubleRail22Check'].each { main ->
+        common.tasks.register('check211' + main, JavaExec) {
+            dependsOn compiler
+            classpath = common.files(compiler.flatMap { it.destinationDirectory }) + common.sourceSets.main.compileClasspath + common.sourceSets.main.output
+            mainClass = main
+        }
+    }
+}
+
+gradle.projectsEvaluated {
+    def common=rootProject.project(':common')
+    def platform=rootProject.findProject(':forge')?:rootProject.project(':neoforge')
+    common.tasks.register('check22PlatformLighting',JavaExec) {
+        dependsOn common.tasks.named('compile211Regression')
+        // Prefer freshly compiled common classes; never let an older common JAR
+        // on the platform dependency path shadow the implementation under test.
+        classpath=common.sourceSets.main.output + common.files(common.layout.buildDirectory.dir('checks211')) + platform.sourceSets.main.compileClasspath.filter {
+            !it.toPath().startsWith(common.layout.buildDirectory.dir('libs').get().asFile.toPath())
+        }
+        mainClass='Platform22LightingCheck'
+        args platform.name
+    }
+}
+
+gradle.projectsEvaluated {
+    def common=rootProject.project(':common')
+    def platform=rootProject.project(':forge')
+    common.tasks.register('check22MixinSmoke',JavaExec) {
+        dependsOn common.tasks.named('compile211Regression')
+        classpath=common.sourceSets.main.output + common.files(common.layout.buildDirectory.dir('checks211')) + platform.sourceSets.main.compileClasspath.filter {
+            !it.toPath().startsWith(common.layout.buildDirectory.dir('libs').get().asFile.toPath())
+        }
+        mainClass='Mixin22Smoke'
+        doFirst {
+            def output=common.layout.buildDirectory.dir('checks211').get().asFile
+            def services=new File(output,'META-INF/services');services.mkdirs()
+            new File(services,'org.spongepowered.asm.service.IMixinService').setText('Mixin22Smoke$Service\n','UTF-8')
+            new File(services,'org.spongepowered.asm.service.IGlobalPropertyService').setText('Mixin22Smoke$Properties\n','UTF-8')
+            new File(output,'trafficengine-smoke22.mixins.json').setText('{"required":true,"minVersion":"0.8","package":"com.destan.trafficengine.mixin","compatibilityLevel":"JAVA_17","client":["PlatformColoredLightMixin"],"injectors":{"defaultRequire":1}}','UTF-8')
+        }
+    }
+}

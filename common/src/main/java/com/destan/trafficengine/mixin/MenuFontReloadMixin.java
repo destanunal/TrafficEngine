@@ -8,5 +8,5 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(FontSet.class)
 public abstract class MenuFontReloadMixin {
     @Inject(method="reload",at=@At("HEAD"))
-    private void trafficengine$fontReload(CallbackInfo callback){MenuTextBounds.invalidate();com.destan.trafficengine.client.gui.components.TESignalIcons.invalidate();}
+    private void trafficengine$fontReload(CallbackInfo callback){MenuTextBounds.invalidate();com.destan.trafficengine.client.gui.components.TESignalIcons.invalidate();com.destan.trafficengine.client.GroundFeatureOutline.invalidate();}
 }

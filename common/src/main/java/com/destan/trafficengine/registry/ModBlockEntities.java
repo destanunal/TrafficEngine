@@ -23,6 +23,10 @@ public class ModBlockEntities {
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES =
             DeferredRegister.create(TrafficEngine.MOD_ID, Registries.BLOCK_ENTITY_TYPE);
 
+    public static final RegistrySupplier<BlockEntityType<com.destan.trafficengine.block.entity.RailingPaintBlockEntity>> RAILING_PAINT_BLOCK_ENTITY = BLOCK_ENTITIES.register(
+        "railing_paint", () -> BlockEntityType.Builder.of(com.destan.trafficengine.block.entity.RailingPaintBlockEntity::new,
+            ModBlocks.PEDESTRIAN_RAILING.get(), ModBlocks.PEDESTRIAN_RAILING_GATE.get(), ModBlocks.SLOPED_PEDESTRIAN_RAILING.get()).build(null));
+
     public static final RegistrySupplier<BlockEntityType<com.destan.trafficengine.block.entity.BoomBarrierBlockEntity>> BOOM_BARRIER_BLOCK_ENTITY = BLOCK_ENTITIES.register(
         "boom_barrier", () -> BlockEntityType.Builder.of(com.destan.trafficengine.block.entity.BoomBarrierBlockEntity::new, ModBlocks.BOOM_BARRIER.get()).build(null));
 

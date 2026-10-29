@@ -168,7 +168,8 @@ public final class CurvedTrafficPoleBlock extends Block implements SimpleWaterlo
         if(!(support.getBlock() instanceof CurvedTrafficPoleBlock))return false;
         int part=support.getValue(PART);
         return face==Direction.DOWN&&(part==0||part==5)
-            ||part==5&&face.getAxis()==support.getValue(FACING).getAxis();
+            ||part==0&&face.getAxis().isHorizontal()
+            ||(part==4||part==5)&&face.getAxis().isHorizontal();
     }
     private static boolean needsLowerSocket(BlockState attached) {
         if(attached.getBlock() instanceof TrafficLightBlock || attached.getBlock() instanceof TrafficSignPostBlock)return true;
@@ -182,8 +183,9 @@ public final class CurvedTrafficPoleBlock extends Block implements SimpleWaterlo
     @Override public boolean canConnect(BlockState state,Direction direction) {
         int part=state.getValue(PART);
         return direction==Direction.DOWN&&(part==0||part==5)
-            ||part==5&&direction.getAxis()==state.getValue(FACING).getAxis();
+            ||part==0&&direction.getAxis().isHorizontal()
+            ||(part==4||part==5)&&direction.getAxis().isHorizontal();
     }
-    @Override public boolean canAttach(BlockState state,BlockPos pos,Direction direction){return direction==Direction.DOWN&&(state.getValue(PART)==0||state.getValue(PART)==5);}
+    @Override public boolean canAttach(BlockState state,BlockPos pos,Direction direction){return canConnect(state,direction);}
     
 }

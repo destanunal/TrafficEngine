@@ -16,7 +16,7 @@ import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.BlockHitResult;
 
 /** Vanilla's cached fence connectivity and collision, with slim steel rail models. */
-public final class PedestrianRailingBlock extends FenceBlock {
+public final class PedestrianRailingBlock extends FenceBlock implements com.destan.trafficengine.block.data.PaintableRailing {
     public static final BooleanProperty UP = net.minecraft.world.level.block.state.properties.BlockStateProperties.UP;
     public static final BooleanProperty DOWN = net.minecraft.world.level.block.state.properties.BlockStateProperties.DOWN;
     public static final net.minecraft.world.level.block.state.properties.IntegerProperty SINK=net.minecraft.world.level.block.state.properties.IntegerProperty.create("sink",0,7);
@@ -26,6 +26,12 @@ public final class PedestrianRailingBlock extends FenceBlock {
         super(Properties.of().mapColor(MapColor.METAL).strength(2F).requiresCorrectToolForDrops()
             .sound(SoundType.METAL).noOcclusion());
         registerDefaultState(defaultBlockState().setValue(SINK,0).setValue(GRAY, true).setValue(UP,false).setValue(DOWN,false));
+    }
+    @Override public void attack(BlockState state, net.minecraft.world.level.Level world, BlockPos pos, net.minecraft.world.entity.player.Player player) {
+        onRemoveColor(state,world,pos,player);
+    }
+    @Override public void tick(BlockState state, net.minecraft.server.level.ServerLevel world, BlockPos pos, net.minecraft.util.RandomSource random) {
+        com.destan.trafficengine.block.data.PaintableRailing.normalizePaintVariant(world,pos,state);
     }
     @Override protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder); builder.add(GRAY,UP,DOWN,SINK);
@@ -59,9 +65,7 @@ public final class PedestrianRailingBlock extends FenceBlock {
         var found=COLLISIONS[sink][index];if(found==null)COLLISIONS[sink][index]=found=super.getCollisionShape(state,world,pos,context).move(0,-sink/8D,0);return found;
     }
     @Override public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
-        if (!player.getItemInHand(hand).is(ModItemTags.WRENCHES)) return InteractionResult.PASS;
-        if (!level.isClientSide) level.setBlockAndUpdate(pos, verticalConnections(state.cycle(GRAY),level,pos));
-        return InteractionResult.sidedSuccess(level.isClientSide);
+        return InteractionResult.PASS;
     }
     
     
