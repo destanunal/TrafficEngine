@@ -5,7 +5,6 @@
 ![Fabric](https://img.shields.io/badge/Fabric-Supported-238636?style=flat-square&logo=fabricmc&logoColor=black)
 
 [![CurseForge Downloads](https://img.shields.io/curseforge/dt/1654475?style=for-the-badge&logo=curseforge&color=orange)](https://www.curseforge.com/minecraft/mc-mods/trafficengine) &nbsp;&nbsp;
-[![Modrinth Downloads](https://img.shields.io/modrinth/dt/traffic-engine?style=for-the-badge&logo=modrinth&color=00AF5C)](https://modrinth.com/mod/traffic-engine)
 
 **Traffic Engine** brings customizable roads, working traffic lights, signs and modern street equipment to Minecraft.
 
@@ -76,4 +75,4 @@ Whether you're designing custom signs, decorating detailed interiors or building
 ## Credits
 
 * **Traffic Engine development and maintenance:** Destan.
-* **Original project:** [TrafficCraft](https://www.curseforge.com/minecraft/mc-mods/trafficcraft) by [MrJulsen](https://github.com/MisterJulsen), whose work forms the basis of Traffic Engine.
+* **Original project:** [TrafficCraft](https://www.curseforge.com/minecraft/mc-mods/trafficcraft) by MrJulsen, whose work forms the basis of Traffic Engine.
