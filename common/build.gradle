@@ -18,3 +18,8 @@ dependencies {
     compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:${rootProject.mixin_extras_version}"))
     implementation("io.github.llamalad7:mixinextras-forge:${rootProject.mixin_extras_version}")
 }
+// Preserve the license and explicit upstream attribution in distributed common resources.
+processResources {
+    from(rootProject.file('LICENSE'))
+    from(rootProject.file('README.md'))
+}

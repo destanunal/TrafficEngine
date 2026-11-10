@@ -134,7 +134,7 @@ public class RoadInformationSignBlock extends WritableTrafficSign implements ITr
     private static BlockState connections(BlockState state, BlockState above) {
         boolean upright=!state.getValue(POST_MOUNTED) && !state.getValue(WALL_MOUNTED);
         boolean hanging=upright && above.getBlock() instanceof CurvedTrafficPoleBlock
-            && above.getValue(CurvedTrafficPoleBlock.PART)==5;
+            && (above.getValue(CurvedTrafficPoleBlock.PART)==4||above.getValue(CurvedTrafficPoleBlock.PART)==5);
         return state.setValue(HANGING,hanging).setValue(UP,upright && !hanging && upperConnection(above));
     }
     private static BlockState withSector(BlockState state,int sector) {

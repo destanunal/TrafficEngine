@@ -25,7 +25,7 @@ public final class GroundFeatureOutline {
         if(!supports(state))return false;
         if(state.getBlock() instanceof CurvedTrafficPoleBlock) {
             state=state.setValue(CurvedTrafficPoleBlock.WATERLOGGED,false);
-            if(state.getValue(CurvedTrafficPoleBlock.PART)!=5)state=state.setValue(CurvedTrafficPoleBlock.LAMP_SUPPORT,false);
+            if(state.getValue(CurvedTrafficPoleBlock.PART)!=4&&state.getValue(CurvedTrafficPoleBlock.PART)!=5)state=state.setValue(CurvedTrafficPoleBlock.LAMP_SUPPORT,false).setValue(CurvedTrafficPoleBlock.TOP_SUPPORT,false);
         }
         BlockState meshState=state;float offsetX=0,offsetY=0,offsetZ=0;
         if(state.getBlock() instanceof CurvedTrafficPoleBlock) {

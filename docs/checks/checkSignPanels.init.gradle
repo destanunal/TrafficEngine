@@ -1,0 +1,45 @@
+gradle.projectsEvaluated {
+ def common=rootProject.project(':common')
+ def compiler=common.tasks.register('compileSignPanelCheck',JavaCompile) {
+  dependsOn common.tasks.named('compileJava')
+  source new File(rootProject.projectDir,'docs/checks/SignPanelCheck.java')
+  classpath=common.sourceSets.main.compileClasspath+common.sourceSets.main.output
+  destinationDirectory=common.layout.buildDirectory.dir('checksSignPanel')
+ }
+ common.tasks.register('checkSignPanels',JavaExec) {
+  dependsOn compiler
+  classpath=common.files(compiler.flatMap {it.destinationDirectory})+common.sourceSets.main.compileClasspath+common.sourceSets.main.output
+  mainClass='com.destan.trafficengine.client.ber.SignPanelCheck'
+ }
+ def gpuCompiler=common.tasks.register('compileSignSurfaceGpuCheck',JavaCompile) {
+  dependsOn common.tasks.named('compileJava')
+  source new File(rootProject.projectDir,'docs/checks/SignSurfaceGpuCheck.java')
+  classpath=common.sourceSets.main.compileClasspath+common.sourceSets.main.output
+  destinationDirectory=common.layout.buildDirectory.dir('checksSignSurfaceGpu')
+ }
+ common.tasks.register('checkSignSurfaceGpu',JavaExec) {
+  dependsOn gpuCompiler
+  def natives=common.files(common.sourceSets.main.compileClasspath.files.findAll {it.name.startsWith('lwjgl')}.collectMany {jar ->
+   def versionDir=jar.parentFile.parentFile
+   common.fileTree(versionDir).matching {include '**/*-natives-windows.jar'}.files
+  })
+  def gpuLibraries=common.sourceSets.main.compileClasspath
+  if(natives.isEmpty()) {
+   // Standalone harness only: use an installed matching LWJGL runtime if this MC cache lacks natives.
+   def lwjglCache=new File(gradle.gradleUserHomeDir,'caches/modules-2/files-2.1/org.lwjgl')
+   def installed=common.fileTree(lwjglCache).matching {include '**/*-natives-windows.jar'}.files
+   def fallback=installed.findAll {it.name.startsWith('lwjgl-3.')}.collect {it.parentFile.parentFile.name}.sort().last()
+   def runtime=common.fileTree(lwjglCache).matching {
+    ['lwjgl','lwjgl-glfw','lwjgl-opengl'].each {module ->
+     include "${module}/${fallback}/**/${module}-${fallback}.jar"
+     include "${module}/${fallback}/**/${module}-${fallback}-natives-windows.jar"
+    }
+   }
+   gpuLibraries=common.files(gpuLibraries.files.findAll {!it.name.startsWith('lwjgl')})+runtime
+  }
+  classpath=common.files(gpuCompiler.flatMap {it.destinationDirectory})+gpuLibraries+common.sourceSets.main.output+natives
+  mainClass='com.destan.trafficengine.client.ber.SignSurfaceGpuCheck'
+  args rootProject.findProperty('signGpuOutput') ?: new File(rootProject.projectDir,'build/sign-surface-gpu.png').absolutePath
+ }
+
+}

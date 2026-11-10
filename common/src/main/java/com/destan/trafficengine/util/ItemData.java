@@ -9,6 +9,8 @@ import net.minecraft.world.item.component.CustomData;
 /** Accesses the former ItemStack tag through the 1.21 custom_data component. */
 public final class ItemData {
     private ItemData() {}
+    /** Identity token avoids copying custom_data in idle client ticks. */
+    public static Object identity(ItemStack stack) { return stack.get(DataComponents.CUSTOM_DATA); }
 
     public static boolean has(ItemStack stack) {
         return stack.has(DataComponents.CUSTOM_DATA);

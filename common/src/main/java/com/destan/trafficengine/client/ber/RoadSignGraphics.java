@@ -31,6 +31,7 @@ public final class RoadSignGraphics {
         float center, dividerY, textCenter, textHeight, minimumPanelHeight, left, right, x, scale;
         float distanceRight, distanceScale, distanceWidth, arrowX, arrowY, arrowScale;
         float panelLeft, panelRight, panelTop, panelBottom;
+        final PanelMesh panelMesh = new PanelMesh();
         void updateLabels(String value, String km, boolean bold) {
             if (!value.equals(captionValue) || bold != cachedBold) {
                 captionValue = value; cachedBold = bold;
@@ -40,6 +41,32 @@ public final class RoadSignGraphics {
                 distanceValue = km; distance = Component.literal(km).setStyle(ROAD_STYLE);
             }
         }
+    }
+    private static final float PANEL_STROKE = .6F;
+    static final class PanelMesh {
+        double[][] outer,inner;
+        float left,top,right,bottom,stroke;
+        void update(float x1,float y1,float x2,float y2,float width){
+            float inset=Math.min(width,Math.max(.1F,(Math.min(x2-x1,y2-y1)-1)/2));
+            boolean boundsChanged=outer==null||left!=x1||top!=y1||right!=x2||bottom!=y2;
+            if(!boundsChanged&&stroke==inset)return;
+            left=x1;top=y1;right=x2;bottom=y2;stroke=inset;
+            if(boundsChanged)outer=roundedPerimeter(x1,y1,x2,y2,.8);
+            inner=roundedPerimeter(x1+inset,y1+inset,x2-inset,y2-inset,Math.max(0,.8-inset));
+        }
+    }
+    /** Primitive position keys, bounded LRU and no retained block entities or worlds. */
+    static final class LayoutCache {
+        static final int LIMIT=256;
+        private final it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap<Layout> values=new it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap<>();
+        private java.lang.ref.WeakReference<Object> world=new java.lang.ref.WeakReference<>(null);
+        Layout get(Object level,long pos){
+            if(world.get()!=level){values.clear();world=new java.lang.ref.WeakReference<>(level);}
+            Layout layout=values.getAndMoveToLast(pos);
+            if(layout==null){if(values.size()==LIMIT)values.removeFirst();layout=new Layout();values.put(pos,layout);}
+            return layout;
+        }
+        int size(){return values.size();}
     }
     private final PoseStack pose;
     private final MultiBufferSource buffers;
@@ -143,11 +170,13 @@ public final class RoadSignGraphics {
             roundedBorder(0, 0, w, h, 4, 0.8, 0xFF53616B);
             roundedBorder(0.8, 0.8, w - 0.8, h - 0.8, 3.2, 2, 0xFFA8B4BC);
             roundedRect(2.8, 2.8, w - 2.8, h - 2.8, 1.2, color);
+        } else if (world) {
+            surface(RoadSignSurface.frame(theme,frame),0,0,w,h,joins);
         } else {
-            double[][][] layers = SIGN_FRAMES[kind == Kind.DIRECTION ? 0 : kind==Kind.LARGE?2:1][frame][joins & 3];
-            if (frame > 0) borderBetween(layers[0], layers[1], frame == 1 ? 0xFFFFFFFF : 0xFF53616B);
-            if (frame == 2) borderBetween(layers[1], layers[2], 0xFFA8B4BC);
-            fillPerimeter(layers[frame], color);
+            double[][][] layers=SIGN_FRAMES[kind==Kind.DIRECTION?0:kind==Kind.LARGE?2:1][frame][joins&3];
+            if(frame>0)borderBetween(layers[0],layers[1],frame==1?0xFFFFFFFF:0xFF53616B);
+            if(frame==2)borderBetween(layers[1],layers[2],0xFFA8B4BC);
+            fillPerimeter(layers[frame],color);
         }
         depth = 0.2F;
         if (kind == Kind.VARIABLE_SPEED) {
@@ -271,9 +300,14 @@ public final class RoadSignGraphics {
             if (first.panel != RoadSignDesign.NO_PANEL && !lines[start].isEmpty()) {
                 depth = 0.25F;
                 int border = first.panel == RoadSignDesign.WHITE_PANEL ? 0xFF17252E : 0xFFFFFFFF;
-                roundedBorder(first.panelLeft, first.panelTop, first.panelRight, rows[end].panelBottom, 0.8, 0.6, border);
-                roundedRect(first.panelLeft + 0.6, first.panelTop + 0.6, first.panelRight - 0.6,
-                        rows[end].panelBottom - 0.6, 0.2, panelColor(first.panel));
+                if(world) {
+                    surface(RoadSignSurface.panel(first.panel),first.panelLeft,first.panelTop,first.panelRight,rows[end].panelBottom,0);
+                }else{
+                    PanelMesh panel=first.panelMesh;
+                    panel.update(first.panelLeft,first.panelTop,first.panelRight,rows[end].panelBottom,PANEL_STROKE);
+                    borderBetween(panel.outer,panel.inner,border);
+                    fillPerimeter(panel.inner,panelColor(first.panel));
+                }
             }
             start = end + 1;
         }
@@ -299,6 +333,31 @@ public final class RoadSignGraphics {
         }
     }
 
+    /** Nine fixed patches, no distance-dependent mesh, temporary arrays or extra outline pass. */
+    private void surface(int tile,double left,double top,double right,double bottom,int joins) {
+        if(geometryBuffer==null || geometryDepth!=depth) {
+            geometryBuffer=buffers.getBuffer(RoadSignRenderTypes.atDepth(depth,true));
+            geometryDepth=depth;
+        }
+        boolean joinedLeft=(joins&1)!=0,joinedRight=(joins&2)!=0;
+        for(int row=0;row<3;row++) {
+            double y1=RoadSignSurface.position(row,top,bottom,false,false);
+            double y2=RoadSignSurface.position(row+1,top,bottom,false,false);
+            float v1=RoadSignSurface.v(tile,RoadSignSurface.texel(row,false,false));
+            float v2=RoadSignSurface.v(tile,RoadSignSurface.texel(row+1,false,false));
+            for(int col=0;col<3;col++) {
+                double x1=RoadSignSurface.position(col,left,right,joinedLeft,joinedRight);
+                double x2=RoadSignSurface.position(col+1,left,right,joinedLeft,joinedRight);
+                if(x2<=x1 || y2<=y1)continue;
+                float u1=RoadSignSurface.u(tile,RoadSignSurface.texel(col,joinedLeft,joinedRight));
+                float u2=RoadSignSurface.u(tile,RoadSignSurface.texel(col+1,joinedLeft,joinedRight));
+                vertex(geometryBuffer,x1,y1,0xFFFFFFFF,u1,v1);
+                vertex(geometryBuffer,x1,y2,0xFFFFFFFF,u1,v2);
+                vertex(geometryBuffer,x2,y2,0xFFFFFFFF,u2,v2);
+                vertex(geometryBuffer,x2,y1,0xFFFFFFFF,u2,v1);
+            }
+        }
+    }
     private void perimeterQuad(double[][] points, int a, int b, int c, int d, int color) {
         quad(points[a][0],points[a][1],points[b][0],points[b][1],
             points[c][0],points[c][1],points[d][0],points[d][1],color);
@@ -387,10 +446,17 @@ public final class RoadSignGraphics {
         double area=x1*y2-x2*y1+x2*y3-x3*y2+x3*y4-x4*y3+x4*y1-x1*y4;
         if (Math.abs(area) < 1.0e-8) return;
         if (geometryBuffer == null || geometryDepth != depth) {
-            geometryBuffer = buffers.getBuffer(world ? RoadSignRenderTypes.atDepth(depth) : RenderType.text(WHITE));
+            geometryBuffer = buffers.getBuffer(world ? RoadSignRenderTypes.atDepth(depth,modernLettering) : RenderType.text(WHITE));
             geometryDepth = depth;
         }
         VertexConsumer consumer = geometryBuffer;
+        if(world && modernLettering) {
+            float u=RoadSignSurface.u(RoadSignSurface.WHITE,32),v=RoadSignSurface.v(RoadSignSurface.WHITE,32);
+            vertex(consumer,x1,y1,color,u,v);
+            if(area>0){vertex(consumer,x4,y4,color,u,v);vertex(consumer,x3,y3,color,u,v);vertex(consumer,x2,y2,color,u,v);}
+            else{vertex(consumer,x2,y2,color,u,v);vertex(consumer,x3,y3,color,u,v);vertex(consumer,x4,y4,color,u,v);}
+            return;
+        }
         vertex(consumer,x1,y1,color,0,0);
         if(area>0) {
             vertex(consumer,x4,y4,color,0,1); vertex(consumer,x3,y3,color,1,1); vertex(consumer,x2,y2,color,1,0);

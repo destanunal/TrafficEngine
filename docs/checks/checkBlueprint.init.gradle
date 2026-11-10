@@ -1,0 +1,14 @@
+gradle.projectsEvaluated {
+ def common=rootProject.project(':common')
+ def compiler=common.tasks.register('compileBlueprintCheck',JavaCompile) {
+  dependsOn common.tasks.named('compileJava'),common.tasks.named('processResources')
+  source new File(rootProject.projectDir,'docs/checks/BlueprintCheck.java')
+  classpath=common.sourceSets.main.compileClasspath+common.sourceSets.main.output
+  destinationDirectory=common.layout.buildDirectory.dir('checksBlueprint')
+ }
+ common.tasks.register('checkBlueprint',JavaExec) {
+  dependsOn compiler
+  classpath=common.files(compiler.flatMap {it.destinationDirectory})+common.sourceSets.main.compileClasspath+common.sourceSets.main.output
+  mainClass='BlueprintCheck'
+ }
+}

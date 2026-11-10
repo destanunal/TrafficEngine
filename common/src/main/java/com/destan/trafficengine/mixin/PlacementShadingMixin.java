@@ -17,32 +17,32 @@ public class PlacementShadingMixin {
     @ModifyVariable(method = "putQuadData", at = @At("HEAD"), argsOnly = true, ordinal = 0)
     private float trafficengine$shade0(float brightness, @Local(argsOnly = true) BlockAndTintGetter level,
             @Local(argsOnly = true) BakedQuad quad) {
-        return trafficengine$matchShade(brightness, level, quad);
+        return trafficengine$matchShade(brightness, level, quad, 0);
     }
 
     @ModifyVariable(method = "putQuadData", at = @At("HEAD"), argsOnly = true, ordinal = 1)
     private float trafficengine$shade1(float brightness, @Local(argsOnly = true) BlockAndTintGetter level,
             @Local(argsOnly = true) BakedQuad quad) {
-        return trafficengine$matchShade(brightness, level, quad);
+        return trafficengine$matchShade(brightness, level, quad, 1);
     }
 
     @ModifyVariable(method = "putQuadData", at = @At("HEAD"), argsOnly = true, ordinal = 2)
     private float trafficengine$shade2(float brightness, @Local(argsOnly = true) BlockAndTintGetter level,
             @Local(argsOnly = true) BakedQuad quad) {
-        return trafficengine$matchShade(brightness, level, quad);
+        return trafficengine$matchShade(brightness, level, quad, 2);
     }
 
     @ModifyVariable(method = "putQuadData", at = @At("HEAD"), argsOnly = true, ordinal = 3)
     private float trafficengine$shade3(float brightness, @Local(argsOnly = true) BlockAndTintGetter level,
             @Local(argsOnly = true) BakedQuad quad) {
-        return trafficengine$matchShade(brightness, level, quad);
+        return trafficengine$matchShade(brightness, level, quad, 3);
     }
 
     @Unique
-    private static float trafficengine$matchShade(float brightness, BlockAndTintGetter level, BakedQuad quad) {
+    private static float trafficengine$matchShade(float brightness, BlockAndTintGetter level, BakedQuad quad, int vertex) {
         if (!(quad instanceof PlacementShadeQuad matched)) return brightness;
         float actual = level.getShade(quad.getDirection(), quad.isShade());
         if (actual <= 0) return brightness;
-        return brightness * matched.shade(level) / actual;
+        return brightness * matched.shade(level, vertex) / actual;
     }
 }

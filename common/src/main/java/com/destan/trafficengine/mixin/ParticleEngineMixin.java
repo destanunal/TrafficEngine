@@ -49,7 +49,10 @@ public class ParticleEngineMixin {
         int previousIndex = trafficengine$breakParticleIndex;
         trafficengine$breakParticleNumerator = 1;
         trafficengine$breakParticleDenominator = 1;
-        if (state.getBlock() instanceof com.destan.trafficengine.block.CurvedTrafficPoleBlock) {
+        if (state.getBlock() instanceof com.destan.trafficengine.block.TrafficLightRequestButtonBlock
+                || state.getBlock() instanceof com.destan.trafficengine.block.WarningLightBlock) {
+            trafficengine$breakParticleDenominator = 4;
+        } else if (state.getBlock() instanceof com.destan.trafficengine.block.CurvedTrafficPoleBlock) {
             trafficengine$breakParticleDenominator = 2;
         } else if (state.getBlock() instanceof RetractableBarrierBlock
                 || state.getBlock() instanceof RoadBarrierFenceBlock
@@ -68,6 +71,11 @@ public class ParticleEngineMixin {
             trafficengine$breakParticleDenominator = 5;
         }
         if(state.getBlock() instanceof com.destan.trafficengine.block.DoubleSidedTrafficSignBlock)trafficengine$breakParticleDenominator*=2;
+        // Retain 65% of the existing sign budget, including the double-sided half-rate.
+        if(state.getBlock() instanceof TrafficSignBlock) {
+            trafficengine$breakParticleNumerator*=13;
+            trafficengine$breakParticleDenominator*=20;
+        }
         trafficengine$breakParticleIndex = 0;
         try {
             original.call(pos, state);

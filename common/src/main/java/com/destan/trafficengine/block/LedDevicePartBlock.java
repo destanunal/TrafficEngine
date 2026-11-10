@@ -50,7 +50,7 @@ public class LedDevicePartBlock extends Block {
         return facing.getAxis() == Direction.Axis.Z ? Direction.EAST : Direction.SOUTH;
     }
 
-    private static BlockPos masterPos(BlockPos pos, BlockState state) {
+    public static BlockPos masterPos(BlockPos pos, BlockState state) {
         int row = state.getValue(ROW);
         int verticalOffset;
         if (row > 0 || (state.getValue(UPPER) && state.getValue(VERTICAL_OFFSET) == 1)) {

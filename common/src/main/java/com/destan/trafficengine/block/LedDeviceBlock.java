@@ -131,7 +131,16 @@ public class LedDeviceBlock extends BaseEntityBlock implements IPaintableBlock, 
         }
     }
 
+    /** Full footprint for bounded blueprint validation; helper cells never cost extra items. */
+    public java.util.List<BlockPos> blueprintParts(BlockPos origin,BlockState state) {
+        if(!needsDisplayParts(state))return java.util.List.of();
+        java.util.List<BlockPos> parts=new java.util.ArrayList<>();
+        Direction width=displayWidthDirection(state.getValue(FACING));
+        for(int y:displayVerticalOffsets(state))for(int x:displayOffsets(state))if(x!=0||y!=0)parts.add(displayPartPos(origin,width,y,x));
+        return parts;
+    }
     public static void ensureDisplayParts(Level level, BlockPos origin, BlockState state) {
+        if(com.destan.trafficengine.blueprint.BlueprintPlacement.writing())return;
         if (!(state.getBlock() instanceof LedDeviceBlock ledDevice)
             || !ledDevice.needsDisplayParts(state)) return;
 
@@ -165,6 +174,7 @@ public class LedDeviceBlock extends BaseEntityBlock implements IPaintableBlock, 
     }
 
     private void removeDisplayParts(LevelAccessor level, BlockPos origin, BlockState state) {
+        if(com.destan.trafficengine.blueprint.BlueprintPlacement.writing())return;
         if (deviceType == LedDeviceType.LARGE_TRAFFIC_DISPLAY) {
             removeLargeLegacyParts(level, origin, state);
         }

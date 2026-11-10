@@ -1,1 +1,1 @@
-{"parent":"trafficengine:block/pedestrian_railing_gate/gray_open","textures":{"metal":"trafficengine:block/road_sign_white","particle":"#metal","hardware":"trafficengine:block/sign"}}
+{"parent":"trafficengine:block/pedestrian_railing_gate/gray_open","textures":{"metal":"trafficengine:block/railing_paint","particle":"#metal","hardware":"trafficengine:block/sign"}}

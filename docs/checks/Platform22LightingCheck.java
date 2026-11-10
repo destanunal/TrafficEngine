@@ -47,6 +47,19 @@ public final class Platform22LightingCheck {
                     return switch(dir){case UP->constant?.9F:1F;case DOWN->constant?.9F:.5F;case NORTH,SOUTH->.8F;default->.6F;};
                 }throw new AssertionError("Unexpected world read: "+m);
             });
+            float[] normals={0,0,1, 0,.6f,.8f, 0,.8f,.6f, 0,1,0};
+            PlacementShadeQuad curved=PlacementShadeQuad.smooth(quad(127<<16),normals);
+            check(curved.hasVertexShade(),"Actual curved quads retain four baked shade references");
+            float[] brightness={.4f,.5f,.6f,.7f},beforeShader=brightness.clone();
+            curved.applyVertexShade(level,brightness);
+            for(int vertex=0;vertex<4;vertex++) {
+                float expected=(float)shader.invoke(null,normals[vertex*3],normals[vertex*3+1],normals[vertex*3+2],constant);
+                check(Math.abs(curved.shade(level,vertex)-expected)<1e-6,"Vertex shade matches the real loader shader");
+                check(Math.abs(brightness[vertex]-beforeShader[vertex]*expected/curved.shade(level))<1e-6,"Retain existing AO/brightness in the reused output buffer");
+            }
+            PlacementShadeQuad rigid=new PlacementShadeQuad(quad(127<<16),Direction.NORTH);
+            rigid.applyVertexShade(level,beforeShader);
+            check(Arrays.equals(beforeShader,new float[]{.4f,.5f,.6f,.7f}),"Ordinary/rigid placement brightness is unchanged");
             for(Direction side:Direction.values()){
                 int normal=(side.getStepX()*127&255)|((side.getStepY()*127&255)<<8)|((side.getStepZ()*127&255)<<16);
                 float actual=PlacementShadeQuad.smooth(quad(normal)).shade(level);

@@ -26,6 +26,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
 public class ClientWrapper {
+    public static void showBlueprintScreen(ItemStack stack) { Minecraft.getInstance().setScreen(new com.destan.trafficengine.client.screen.BlueprintScreen(stack)); }
     public static void showChevronPanelSettings(Level level, BlockPos pos) {
         Minecraft.getInstance().setScreen(new com.destan.trafficengine.client.screen.ChevronPanelScreen(level, pos));
     }

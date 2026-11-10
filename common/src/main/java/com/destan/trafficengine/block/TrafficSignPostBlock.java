@@ -55,6 +55,7 @@ public class TrafficSignPostBlock extends Block implements SimpleWaterloggedBloc
     public static final BooleanProperty EXTEND_BOTTOM = BooleanProperty.create("bottom_extension");
     public static final BooleanProperty DIAGONAL = BooleanProperty.create("diagonal");
     public static final BooleanProperty BASE_SUPPORT = BooleanProperty.create("base_support");
+    public static final BooleanProperty CEILING_SUPPORT = BooleanProperty.create("ceiling_support");
 
     protected static final Map<Direction, BooleanProperty> PROPERTY_BY_DIRECTION = PipeBlock.PROPERTY_BY_DIRECTION.entrySet().stream().collect(Util.toMap());
     
@@ -71,7 +72,11 @@ public class TrafficSignPostBlock extends Block implements SimpleWaterloggedBloc
         Block.box(5.75, 0, 5.75, 10.25, 1.5, 10.25),
         Block.box(6.5, 1.5, 6.5, 9.5, 3, 9.5)).optimize();
 
-    private static final Map<BlockState, VoxelShape> shapes = new HashMap<>();
+    private static final VoxelShape CEILING_SHAPE = Shapes.or(
+        Block.box(5.75, 14.5, 5.75, 10.25, 16, 10.25),
+        Block.box(6.5, 13, 6.5, 9.5, 14.5, 9.5)).optimize();
+
+    private static final Map<BlockState, VoxelShape> shapes = new java.util.concurrent.ConcurrentHashMap<>();
     private static VoxelShape createShape(BlockState state) {
         // A diagonal device turns its plate around the same square carrier.
         // Use the normal connection arms; a full-height diagonal carrier would
@@ -109,6 +114,8 @@ public class TrafficSignPostBlock extends Block implements SimpleWaterloggedBloc
         }
         if (state.getValue(BASE_SUPPORT) && state.getValue(AXIS) == Axis.Y)
             shape = Shapes.or(shape, SUPPORT_SHAPE).optimize();
+        if (state.getValue(CEILING_SUPPORT) && state.getValue(AXIS) == Axis.Y)
+            shape = Shapes.or(shape, CEILING_SHAPE).optimize();
         return shape;
     }
 
@@ -132,6 +139,7 @@ public class TrafficSignPostBlock extends Block implements SimpleWaterloggedBloc
             .setValue(EXTEND_BOTTOM, false)
             .setValue(DIAGONAL, false)
             .setValue(BASE_SUPPORT, false)
+            .setValue(CEILING_SUPPORT, false)
         ); 
     }
 
@@ -139,7 +147,7 @@ public class TrafficSignPostBlock extends Block implements SimpleWaterloggedBloc
     public VoxelShape getShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext) {
         // Water and diagonal attachment metadata do not change this carrier's geometry.
         BlockState geometry = pState.setValue(WATERLOGGED, false).setValue(DIAGONAL, false);
-        if (geometry.getValue(AXIS) != Axis.Y) geometry = geometry.setValue(BASE_SUPPORT, false);
+        if (geometry.getValue(AXIS) != Axis.Y) geometry = geometry.setValue(BASE_SUPPORT, false).setValue(CEILING_SUPPORT, false);
         return shapes.computeIfAbsent(geometry, TrafficSignPostBlock::createShape);
     } 
 
@@ -164,11 +172,15 @@ public class TrafficSignPostBlock extends Block implements SimpleWaterloggedBloc
     }
 
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
-        if (!player.getItemInHand(hand).is(ModItemTags.WRENCHES)
-                || !isLowestPole(state, level.getBlockState(pos.below()))) return InteractionResult.PASS;
+        if (!player.getItemInHand(hand).is(ModItemTags.WRENCHES)) return InteractionResult.PASS;
+        boolean floor = isLowestPole(state, level.getBlockState(pos.below()));
+        boolean ceiling = canMountCeiling(state, level, pos);
+        // On a short post touching both surfaces, click its upper half for the ceiling plate.
+        boolean upper = ceiling && (!floor || hit.getLocation().y - pos.getY() >= .5);
+        if (!floor && !ceiling) return InteractionResult.PASS;
         if (!player.mayBuild() || !level.mayInteract(player, pos)) return InteractionResult.FAIL;
         if (!level.isClientSide) {
-            level.setBlockAndUpdate(pos, state.cycle(BASE_SUPPORT));
+            level.setBlockAndUpdate(pos, state.cycle(upper ? CEILING_SUPPORT : BASE_SUPPORT));
             level.playSound(null, pos, SoundEvents.COMPARATOR_CLICK, SoundSource.BLOCKS, 0.3F, 0.8F);
         }
         return InteractionResult.sidedSuccess(level.isClientSide);
@@ -176,12 +188,16 @@ public class TrafficSignPostBlock extends Block implements SimpleWaterloggedBloc
     @Override protected net.minecraft.world.ItemInteractionResult useItemOn(net.minecraft.world.item.ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         return com.destan.trafficengine.util.PortingInteractions.forItem(use(state, level, pos, player, hand, hit));
     }
+    private static boolean canMountCeiling(BlockState state, BlockGetter world, BlockPos pos) {
+        return state.getValue(AXIS) == Axis.Y
+            && world.getBlockState(pos.above()).isFaceSturdy(world, pos.above(), Direction.DOWN);
+    }
     private static boolean isLowestPole(BlockState state, BlockState below) {
         return state.getValue(AXIS) == Axis.Y && !(below.getBlock() instanceof TrafficPoleBaseBlock)
             && !(below.getBlock() instanceof TrafficSignPostBlock && below.getValue(AXIS) == Axis.Y);
     }
     private static boolean needsBottomExtension(BlockState pState, BlockState belowBlock) {
-        return pState.getValue(AXIS).test(Direction.UP) && (belowBlock.hasProperty(BlockStateProperties.LAYERS) || (belowBlock.getBlock() instanceof SlabBlock && belowBlock.getValue(BlockStateProperties.SLAB_TYPE) == SlabType.BOTTOM) || belowBlock.is(ModBlockTags.POST_EXTENSION));
+        return pState.getValue(AXIS).test(Direction.UP) && (belowBlock.getBlock() instanceof PedestrianRailingBlock || belowBlock.getBlock() instanceof SlopedPedestrianRailingBlock || belowBlock.hasProperty(BlockStateProperties.LAYERS) || (belowBlock.getBlock() instanceof SlabBlock && belowBlock.getValue(BlockStateProperties.SLAB_TYPE) == SlabType.BOTTOM) || belowBlock.is(ModBlockTags.POST_EXTENSION));
     }
 
     @Override
@@ -195,7 +211,8 @@ public class TrafficSignPostBlock extends Block implements SimpleWaterloggedBloc
         BlockState updated = pState
             .setValue(PROPERTY_BY_DIRECTION.get(pFacing), this.connectsTo(pLevel, pCurrentPos, pState, pFacingState, pFacingState.isFaceSturdy(pLevel, pFacingPos, pFacing.getOpposite()), pFacing.getOpposite()))
             .setValue(EXTEND_BOTTOM, needsBottomExtension(pState, belowBlock))
-            .setValue(BASE_SUPPORT, pState.getValue(BASE_SUPPORT) && isLowestPole(pState, belowBlock));
+            .setValue(BASE_SUPPORT, pState.getValue(BASE_SUPPORT) && isLowestPole(pState, belowBlock))
+            .setValue(CEILING_SUPPORT, pState.getValue(CEILING_SUPPORT) && canMountCeiling(pState, pLevel, pCurrentPos));
         return updated.setValue(DIAGONAL,
             updated.getValue(AXIS) == Axis.Y && hasDiagonalAttachment(pLevel, pCurrentPos));
     }
@@ -275,6 +292,10 @@ public class TrafficSignPostBlock extends Block implements SimpleWaterloggedBloc
     }
 
     public boolean connectsTo(LevelAccessor level, BlockPos pos, BlockState pState, BlockState pTargetState, boolean pIsSideSolid, Direction pDirection) {
+        // The warning head owns its short connector inside this cell. Do not add
+        // a second half-block arm through it; vertical traffic-post columns stay unchanged.
+        if (pState.getValue(AXIS) != Axis.Y && pDirection.getAxis().isVertical()
+                && pTargetState.getBlock() instanceof WarningLightBlock && pTargetState.getValue(WarningLightBlock.COMPACT)) return false;
         boolean flag = this.isSameBlock(pTargetState);
         boolean canConnect = false;
 
@@ -288,7 +309,7 @@ public class TrafficSignPostBlock extends Block implements SimpleWaterloggedBloc
     @Override
     protected void createBlockStateDefinition(Builder<Block, BlockState> pBuilder) {
         super.createBlockStateDefinition(pBuilder);
-        pBuilder.add(WATERLOGGED, AXIS, NORTH, SOUTH, WEST, EAST, UP, DOWN, EXTEND_BOTTOM, DIAGONAL, BASE_SUPPORT);
+        pBuilder.add(WATERLOGGED, AXIS, NORTH, SOUTH, WEST, EAST, UP, DOWN, EXTEND_BOTTOM, DIAGONAL, BASE_SUPPORT, CEILING_SUPPORT);
     }
     
     @Override

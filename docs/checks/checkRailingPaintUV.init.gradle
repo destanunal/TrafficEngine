@@ -1,0 +1,15 @@
+gradle.projectsEvaluated {
+ def common=rootProject.project(':common')
+ def compiler=common.tasks.register('compileRailingPaintUVCheck',JavaCompile) {
+  dependsOn common.tasks.named('compileJava')
+  source new File(rootProject.projectDir,'docs/checks/RailingPaintUVCheck.java')
+  classpath=common.sourceSets.main.compileClasspath+common.sourceSets.main.output
+  destinationDirectory=common.layout.buildDirectory.dir('checksRailingPaintUV')
+ }
+ common.tasks.register('checkRailingPaintUV',JavaExec) {
+  dependsOn compiler
+  classpath=common.files(compiler.flatMap {it.destinationDirectory})+common.sourceSets.main.compileClasspath+common.sourceSets.main.output
+  mainClass='com.destan.trafficengine.client.model.RailingPaintUVCheck'
+  args rootProject.projectDir.absolutePath,rootProject.findProperty('sodiumUVJar')
+ }
+}

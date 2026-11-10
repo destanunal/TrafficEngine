@@ -17,6 +17,7 @@ public abstract class ColoredLightWorldMixin {
     private BlockState trafficengine$occlusionChanged(BlockState previous, BlockPos pos, BlockState updated, int flags, int limit) {
         if (previous != null && (Object)this instanceof ClientLevel world
                 && previous.isSolidRender(world,pos) != updated.isSolidRender(world,pos)) ClientColoredLighting.blockChanged(pos);
+        if(previous!=null&&previous!=updated&&(Object)this instanceof ClientLevel)com.destan.trafficengine.client.BlueprintPreview.invalidate(pos);
         return previous;
     }
 }

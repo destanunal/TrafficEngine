@@ -522,5 +522,16 @@
   "block.trafficengine.large_road_direction_sign": "Autobahntafel",
   "gui.trafficengine.road_sign.title": "Kleine Wegweisertafel",
   "gui.trafficengine.road_sign.large_title": "Wegweisertafel",
-  "gui.trafficengine.road_sign.extra_large_title": "Große Wegweisertafel"
+  "gui.trafficengine.road_sign.extra_large_title": "Große Wegweisertafel",
+  "gui.trafficengine.blueprint.usage": "Zum Zurücksetzen der Auswahl: Umschalt + Rechtsklick.",
+  "gui.trafficengine.blueprint.ready": "Auswahl bereit (%s Blöcke).",
+  "gui.trafficengine.blueprint.selection_cleared": "Auswahl zurückgesetzt.",
+  "gui.trafficengine.blueprint.spacing": "Abstand: %s Blöcke",
+  "gui.trafficengine.blueprint.mode.0": "Platzieren: Nur freie Fläche",
+  "gui.trafficengine.blueprint.mode.1": "Platzieren: Belegte Blöcke überspringen",
+  "gui.trafficengine.blueprint.mode.2": "Platzieren: Blöcke ersetzen",
+  "gui.trafficengine.blueprint.mode_hint": "Überspringen füllt freie Stellen. Ersetzen überschreibt angeklickte Blöcke ohne Drops; Rückgängig stellt sie wieder her. Behälter und unvollständige Strukturen sind geschützt.",
+  "gui.trafficengine.blueprint.direction.up": "Oben",
+  "gui.trafficengine.blueprint.direction.down": "Unten",
+  "gui.trafficengine.blueprint.materials_max": "Maximaler Materialbedarf; übersprungene oder identische Blöcke kosten kein Material."
 }

@@ -1,0 +1,1 @@
+{"ambientocclusion":false,"render_type":"cutout","textures":{"metal":"trafficengine:block/sign","particle":"#metal"},"elements":[{"name":"lower_post_connection","from":[7,-4,7],"to":[9,0,9],"faces":{"north":{"texture":"#metal","uv":[0,0,2,4]},"south":{"texture":"#metal","uv":[0,0,2,4]},"east":{"texture":"#metal","uv":[0,0,2,4]},"west":{"texture":"#metal","uv":[0,0,2,4]}}}]}

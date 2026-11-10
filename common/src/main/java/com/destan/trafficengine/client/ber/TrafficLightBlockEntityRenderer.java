@@ -139,7 +139,6 @@ public class TrafficLightBlockEntityRenderer extends RotatableBlockEntityRendere
         BlockState state = graphics.blockEntity() == null ? null : graphics.blockEntity().getBlockState();
         boolean diagonal = state != null
             && !(state.getBlock() instanceof HorizontalTrafficLightBlock)
-            && !(state.getBlock() instanceof com.destan.trafficengine.block.WarningLightBlock)
             && state.hasProperty(TrafficLightBlock.DIAGONAL)
             && state.getValue(TrafficLightBlock.DIAGONAL);
 

@@ -47,7 +47,7 @@ public class TrafficPoleBaseBlock extends Block implements SimpleWaterloggedBloc
         }
     }
     public static int sinkFor(BlockState below) {
-        if((below.getBlock() instanceof AsphaltSlope || below.getBlock() instanceof AsphaltCurbSlope || below.getBlock() instanceof SidewalkSlopeBlock)
+        if(RailingGeometry.isLayeredSupport(below)
                 && below.hasProperty(BlockStateProperties.LAYERS)) return 9-below.getValue(BlockStateProperties.LAYERS);
         return 0;
     }

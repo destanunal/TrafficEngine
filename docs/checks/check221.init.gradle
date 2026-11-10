@@ -1,0 +1,14 @@
+gradle.projectsEvaluated {
+ def common=rootProject.project(':common')
+ def compiler=common.tasks.register('compile221Check',JavaCompile) {
+  dependsOn common.tasks.named('compileJava'),common.tasks.named('processResources')
+  source new File(rootProject.projectDir,'docs/checks/Update221Check.java')
+  classpath=common.sourceSets.main.compileClasspath+common.sourceSets.main.output
+  destinationDirectory=common.layout.buildDirectory.dir('checks221')
+ }
+ common.tasks.register('check221',JavaExec) {
+  dependsOn compiler
+  classpath=common.files(compiler.flatMap {it.destinationDirectory})+common.sourceSets.main.compileClasspath+common.sourceSets.main.output
+  mainClass='Update221Check'
+ }
+}

@@ -25,6 +25,7 @@ public class ModCreativeModeTab {
     /** Explicit tab contents keep the same order on Forge and Fabric. */
     private static void displayItems(CreativeModeTab.ItemDisplayParameters parameters, CreativeModeTab.Output output) {
         output.accept(ModItems.WRENCH.get());
+        output.accept(ModItems.BLUEPRINT_TOOL.get());
         output.accept(ModItems.TRAFFIC_LIGHT_LINKER.get());
         output.accept(ModItems.NETHERITE_ROAD_CONSTRUCTION_TOOL.get());
         output.accept(ModItems.HAMMER.get());
