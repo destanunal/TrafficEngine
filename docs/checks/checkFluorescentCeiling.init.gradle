@@ -1,0 +1,14 @@
+gradle.projectsEvaluated {
+ def common=rootProject.project(':common')
+ def compiler=common.tasks.register('compileFluorescentCeilingCheck',JavaCompile) {
+  dependsOn common.tasks.named('compileJava')
+  source new File(rootProject.projectDir,'docs/checks/FluorescentCeilingCheck.java')
+  classpath=common.sourceSets.main.compileClasspath+common.sourceSets.main.output
+  destinationDirectory=common.layout.buildDirectory.dir('checksFluorescentCeiling')
+ }
+ common.tasks.register('checkFluorescentCeiling',JavaExec) {
+  dependsOn compiler
+  classpath=common.files(compiler.flatMap {it.destinationDirectory})+common.sourceSets.main.compileClasspath+common.sourceSets.main.output
+  mainClass='FluorescentCeilingCheck'
+ }
+}

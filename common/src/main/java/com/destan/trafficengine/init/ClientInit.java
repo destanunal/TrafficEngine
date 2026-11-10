@@ -76,6 +76,7 @@ public class ClientInit {
 
     @SuppressWarnings("unchecked")
     public static void init() {
+        ClientTickEvent.CLIENT_POST.register(com.destan.trafficengine.client.BlueprintPreview::tick);
         ClientTickEvent.CLIENT_POST.register(com.destan.trafficengine.client.lighting.ClientColoredLighting::tick);
         ClientTickEvent.CLIENT_POST.register(mc -> {
             TrafficLightBlockEntityRenderer.flushTimerCache();
@@ -147,9 +148,9 @@ public class ClientInit {
             });
         });
 
-        /* BLOCK COLORS */
+        /* Register during client initialization, before Sodium/Embeddium snapshot colors. */
 
-        ClientLifecycleEvent.CLIENT_STARTED.register(mc -> {
+        {
             ColorHandlerRegistry.registerBlockColors((state,world,pos,index) -> {
                 if (world == null || pos == null || index != 0) return 0xFFFFFFFF;
                 if (state.getValue(com.destan.trafficengine.block.PedestrianRailingBlock.GRAY)) return 0xFFFFFFFF;
@@ -194,7 +195,7 @@ public class ClientInit {
             }, ModBlocks.VARIABLE_SPEED_SIGN);
 
 
-        });
+        }
 
         ClientTickEvent.CLIENT_LEVEL_POST.register(level -> {            
             RoadConstructionTool.clientTick();

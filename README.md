@@ -11,7 +11,7 @@
 
 From neighborhood streets to busy intersections and highway networks—build your city, your way.
 
-Inspired by [TrafficCraft](https://www.curseforge.com/minecraft/mc-mods/trafficcraft), with expanded customization and new infrastructure.
+Based on [TrafficCraft](https://www.curseforge.com/minecraft/mc-mods/trafficcraft), with expanded customization and new infrastructure.
 
 ***
 
@@ -73,4 +73,7 @@ Whether you're designing custom signs, decorating detailed interiors or building
 
 ***
 
-_Created by Destan_
+## Credits
+
+* **Traffic Engine development and maintenance:** Destan.
+* **Original project:** [TrafficCraft](https://www.curseforge.com/minecraft/mc-mods/trafficcraft) by [MrJulsen](https://github.com/MisterJulsen), whose work forms the basis of Traffic Engine.

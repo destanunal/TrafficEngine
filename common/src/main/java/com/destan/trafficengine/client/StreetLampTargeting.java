@@ -50,7 +50,9 @@ public final class StreetLampTargeting {
                 // Never load a chunk for a mouse-over query.
                 if (!(level.getChunk(x, z, ChunkStatus.FULL, false) instanceof LevelChunk chunk)) continue;
                 for (var entity : chunk.getBlockEntities().values()) {
-                    if (!(entity instanceof StreetLampBlockEntity)) continue;
+                    if (!(entity instanceof StreetLampBlockEntity)
+                            && !(entity.getBlockState().getBlock() instanceof com.destan.trafficengine.block.WarningLightBlock
+                                && entity.getBlockState().getValue(com.destan.trafficengine.block.WarningLightBlock.COMPACT))) continue;
                     BlockPos pos = entity.getBlockPos();
                     if (pos.getX() >= minX && pos.getX() <= maxX && pos.getZ() >= minZ && pos.getZ() <= maxZ
                             && Math.abs(pos.getY() - eyeBlock.getY()) <= radius) found.add(pos);
@@ -71,7 +73,7 @@ public final class StreetLampTargeting {
         double distance = from.distanceToSqr(vanilla.getLocation());
         for (BlockPos pos : positions) {
             var state = level.getBlockState(pos);
-            if (!(state.getBlock() instanceof StreetLampBaseBlock)) continue;
+            if (!extended(state)) continue;
             var shape = state.getShape(level, pos, context);
             BlockHitResult hit = shape.clip(from, to, pos);
             if (hit == null) continue;
@@ -85,8 +87,12 @@ public final class StreetLampTargeting {
         return closest;
     }
 
+    private static boolean extended(net.minecraft.world.level.block.state.BlockState state) {
+        return state.getBlock() instanceof StreetLampBaseBlock
+            || state.getBlock() instanceof com.destan.trafficengine.block.WarningLightBlock && state.getValue(com.destan.trafficengine.block.WarningLightBlock.COMPACT);
+    }
     public static BlockHitResult interactionHit(BlockGetter level, BlockHitResult hit) {
-        if (!(level.getBlockState(hit.getBlockPos()).getBlock() instanceof StreetLampBaseBlock)) return hit;
+        if (!extended(level.getBlockState(hit.getBlockPos()))) return hit;
         BlockPos pos = hit.getBlockPos();
         Vec3 location = hit.getLocation();
         Vec3 insideBlock = new Vec3(

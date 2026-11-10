@@ -43,17 +43,16 @@ public final class ChevronPanelBlock extends HorizontalDirectionalBlock implemen
     private static final VoxelShape[][] DIAGONAL_SHAPES = new VoxelShape[2][4];
     private static final VoxelShape[][] SHAPES = new VoxelShape[2][4];
     static {
-        for (int size = 0; size < 2; size++) for (Direction facing : Direction.Plane.HORIZONTAL) {
+        for (int size = 0; size < 2; size++) {
             double min = size == 1 ? 4 : 0, max = 16 - min;
-            VoxelShape plate = switch (facing) {
-                case SOUTH -> box(min, 6, 8, max, 14, 9.125);
-                case EAST -> box(8, 6, min, 9.125, 14, max);
-                case WEST -> box(6.875, 6, min, 8, 14, max);
-                default -> box(min, 6, 6.875, max, 14, 8);
-            };
-            // The rear support reaches the centre of the board, matching the baked model.
-            SHAPES[size][facing.get2DDataValue()] = Shapes.or(plate, box(7, 0, 7, 9, 10, 9)).optimize();
-            DIAGONAL_SHAPES[size][facing.get2DDataValue()] = com.destan.trafficengine.block.data.DiagonalVoxelShapes.rotateClockwise45(SHAPES[size][facing.get2DDataValue()]);
+            VoxelShape head = Shapes.or(box(min, 6, 6.875, max, 14, 8), box(7, 6, 8, 9, 10, 9));
+            VoxelShape stem = box(7, 0, 7, 9, 6, 9);
+            VoxelShape straight = Shapes.or(head, stem).optimize();
+            VoxelShape diagonal = Shapes.or(com.destan.trafficengine.block.data.DiagonalVoxelShapes.rotateClockwise45(head), stem).optimize();
+            for (Direction facing : Direction.Plane.HORIZONTAL) {
+                SHAPES[size][facing.get2DDataValue()] = RailingGeometry.rotate(straight, facing);
+                DIAGONAL_SHAPES[size][facing.get2DDataValue()] = RailingGeometry.rotate(diagonal, facing);
+            }
         }
     }
     public ChevronPanelBlock() {

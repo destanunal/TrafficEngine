@@ -21,7 +21,7 @@ public final class SlopedPedestrianRailingBlock extends HorizontalDirectionalBlo
     public static final BooleanProperty DESCENDING=BooleanProperty.create("descending");
     public static final BooleanProperty BACK=BooleanProperty.create("back_connection");
     public static final BooleanProperty WATERLOGGED=BlockStateProperties.WATERLOGGED;
-    private static final VoxelShape[][][][][][] SHAPES=new VoxelShape[2][9][8][4][2][2];
+    private static final java.util.concurrent.atomic.AtomicReferenceArray<VoxelShape> SHAPES=new java.util.concurrent.atomic.AtomicReferenceArray<>(2*9*8*4*2*2);
     public SlopedPedestrianRailingBlock(){
         super(Properties.of().mapColor(MapColor.METAL).strength(2F).requiresCorrectToolForDrops().sound(SoundType.METAL).noOcclusion());
         registerDefaultState(defaultBlockState().setValue(FACING,Direction.NORTH).setValue(RISE,1).setValue(DESCENDING,false).setValue(SINK,0).setValue(GRAY,true).setValue(BACK,false).setValue(WATERLOGGED,false));
@@ -106,7 +106,8 @@ public final class SlopedPedestrianRailingBlock extends HorizontalDirectionalBlo
         boolean descending=state.getValue(DESCENDING);int r=state.getValue(RISE);
         if(descending)r=Math.min(r,8-s);
         int fall=descending&&r>0?1:0;
-        VoxelShape found=SHAPES[c][r][s][d][b][fall];if(found!=null)return found;
+        int index=(((((c*9+r)*8+s)*4+d)*2+b)*2+fall);
+        VoxelShape found=SHAPES.get(index);if(found!=null)return found;
         double drop=s*2,rise=r*(fall==1?-2:2),top=collision?24:16;
         VoxelShape north=Shapes.or(box(7,-drop,7,9,top-drop,9),box(7.1,rise-drop,-8.9,8.9,top+rise-drop-.25,-7.1));
         for(int i=0;i<8;i++){
@@ -114,7 +115,7 @@ public final class SlopedPedestrianRailingBlock extends HorizontalDirectionalBlo
             north=Shapes.or(north,box(7.35,lowerRailHeight(r)+Math.min(y0,y1),z0,8.65,top+Math.max(y0,y1),z1));
         }
         if(b==1)north=Shapes.or(north,box(7.35,2.5-drop,8,8.65,top-drop,16));
-        found=RailingGeometry.rotate(north.optimize(),state.getValue(FACING));SHAPES[c][r][s][d][b][fall]=found;return found;
+        found=RailingGeometry.rotate(north.optimize(),state.getValue(FACING));SHAPES.compareAndSet(index,null,found);return SHAPES.get(index);
     }
     @Override public VoxelShape getShape(BlockState state,BlockGetter world,BlockPos pos,CollisionContext context){return cached(state,false);}
     @Override public VoxelShape getCollisionShape(BlockState state,BlockGetter world,BlockPos pos,CollisionContext context){return cached(state,true);}

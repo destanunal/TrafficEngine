@@ -7,6 +7,9 @@ import com.destan.trafficengine.client.model.EmissiveFace;
 public class EmissiveFaceMixin implements EmissiveFace {
     @Unique private boolean trafficengine$emissive;
     @Unique private float[] trafficengine$vertices;
+    @Unique private float[] trafficengine$shadeNormals;
+    public float[] trafficengine$getShadeNormals(){return trafficengine$shadeNormals;}
+    public void trafficengine$setShadeNormals(float[] normals){trafficengine$shadeNormals=normals;}
     @Unique private boolean trafficengine$smoothShade;
     public boolean trafficengine$smoothShade(){return trafficengine$smoothShade;}
     public void trafficengine$setSmoothShade(boolean value){trafficengine$smoothShade=value;}

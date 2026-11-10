@@ -49,7 +49,26 @@ public class TrafficLightRequestButtonBlock extends BaseEntityBlock implements S
     public static final BooleanProperty POWERED = BooleanProperty.create("powered");
     public static final BooleanProperty ACTIVATED = BooleanProperty.create("activated");
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
+    public static final BooleanProperty LOWER_POLE = BooleanProperty.create("lower_pole");
 
+    public static final net.minecraft.world.level.block.state.properties.IntegerProperty SINK = TrafficPoleBaseBlock.SINK;
+    private static int supportSink(BlockState below, BlockGetter world, BlockPos pos) {
+        if (below.getBlock() instanceof TrafficPoleBaseBlock) return below.getValue(TrafficPoleBaseBlock.SINK);
+        if (below.getBlock() instanceof TrafficSignPostBlock && below.getValue(TrafficSignPostBlock.AXIS) == Direction.Axis.Y)
+            return RailingGeometry.sinkFor(world.getBlockState(pos.below(2)));
+        return RailingGeometry.sinkFor(below);
+    }
+    /** Full-height carriers already own the centre stem below the button's block. */
+    public static boolean hasLowerPole(BlockState below) {
+        return below.getBlock() instanceof TrafficSignPostBlock && below.getValue(TrafficSignPostBlock.AXIS) == Direction.Axis.Y
+                || below.getBlock() instanceof TrafficPoleBaseBlock
+                || below.getBlock() instanceof TrafficLightRequestButtonBlock;
+    }
+    public static BlockState supportedState(BlockState state, BlockGetter world, BlockPos pos) {
+        BlockState below = world.getBlockState(pos.below());
+        return state.setValue(SINK, supportSink(below, world, pos)).setValue(LOWER_POLE, hasLowerPole(below));
+    }
+    private static final VoxelShape[][][] SUNK_SHAPES = new VoxelShape[9][4][2];
     private static final int PRESS_DURATION = 30;
 
     public static final VoxelShape SHAPE_COMMON = Block.box(7, 0, 7, 9, 16, 9);
@@ -59,6 +78,23 @@ public class TrafficLightRequestButtonBlock extends BaseEntityBlock implements S
     public static final VoxelShape SHAPE_EAST = Shapes.or(Block.box(6.78, 1, 5.5, 12.5, 15, 10.5), SHAPE_COMMON);
     public static final VoxelShape SHAPE_WEST = Shapes.or(Block.box(3.5, 1, 5.5, 9.22, 15, 10.5), SHAPE_COMMON);
     
+    static {
+        for (Direction facing : Direction.Plane.HORIZONTAL) {
+            VoxelShape shape=switch(facing) { case NORTH -> SHAPE_NORTH; case SOUTH -> SHAPE_SOUTH; case EAST -> SHAPE_EAST; default -> SHAPE_WEST; };
+            // Keep the button housing lowered, but never duplicate a lower carrier's stem.
+            VoxelShape housing=switch(facing) {
+                case NORTH -> Block.box(5.5,1,3.5,10.5,15,9.22);
+                case SOUTH -> Block.box(5.5,1,6.78,10.5,15,12.5);
+                case EAST -> Block.box(6.78,1,5.5,12.5,15,10.5);
+                default -> Block.box(3.5,1,5.5,9.22,15,10.5);
+            };
+            for(int sink=0;sink<=8;sink++) {
+                SUNK_SHAPES[sink][facing.get2DDataValue()][0]=Shapes.or(shape.move(0,-sink/8D,0),SHAPE_COMMON);
+                SUNK_SHAPES[sink][facing.get2DDataValue()][1]=Shapes.or(housing.move(0,-sink/8D,0),SHAPE_COMMON);
+            }
+        }
+    }
+
     public TrafficLightRequestButtonBlock() {
         super(BlockBehaviour.Properties.of()
             .mapColor(MapColor.METAL)
@@ -67,6 +103,8 @@ public class TrafficLightRequestButtonBlock extends BaseEntityBlock implements S
             .sound(SoundType.METAL)            
         );
         this.registerDefaultState(this.stateDefinition.any()
+            .setValue(SINK, 0)
+            .setValue(LOWER_POLE, false)
             .setValue(FACING, Direction.NORTH)       
             .setValue(POWERED, false)
             .setValue(ACTIVATED, false)              
@@ -76,26 +114,19 @@ public class TrafficLightRequestButtonBlock extends BaseEntityBlock implements S
 
     @Override
     public VoxelShape getShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext) {
-        switch((Direction)pState.getValue(FACING)) {
-            case NORTH:
-               return SHAPE_NORTH;
-            case SOUTH:
-                return SHAPE_SOUTH;
-            case EAST:
-                return SHAPE_EAST;
-            case WEST:
-                return SHAPE_WEST;
-            default:
-               return SHAPE_COMMON;
-        }
+        int sink=pState.getValue(SINK), facing=pState.getValue(FACING).get2DDataValue();
+        return SUNK_SHAPES[sink][facing][pState.getValue(LOWER_POLE) ? 1 : 0];
     }
 
     @Override
     public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pResult) {
+        // Allow BlockItem placement to reach the upper pole face without pressing the button.
+        if (pPlayer.getItemInHand(pHand).getItem() instanceof net.minecraft.world.item.BlockItem)
+            return InteractionResult.PASS;
         if (!pState.getValue(POWERED) && !pState.getValue(ACTIVATED)) {
             Direction direction = pResult.getDirection();
             BlockPos blockpos = pResult.getBlockPos();
-            boolean flag = this.isProperHit(pState, direction, pResult.getLocation().y - (double)blockpos.getY());
+            boolean flag = this.isProperHit(pState, direction, pResult.getLocation().y - (double)blockpos.getY() + pState.getValue(SINK)/8D);
             if (flag) {
                 this.press(pState, pLevel, pPos);
                 pLevel.gameEvent(pPlayer, GameEvent.BLOCK_ACTIVATE, pPos);
@@ -146,7 +177,7 @@ public class TrafficLightRequestButtonBlock extends BaseEntityBlock implements S
            pLevel.scheduleTick(pCurrentPos, Fluids.WATER, Fluids.WATER.getTickDelay(pLevel));
         }
   
-        return super.updateShape(pState, pFacing, pFacingState, pLevel, pCurrentPos, pFacingPos);
+        return pFacing == Direction.DOWN ? supportedState(pState,pLevel,pCurrentPos) : pState;
     }
 
     @Override
@@ -170,13 +201,13 @@ public class TrafficLightRequestButtonBlock extends BaseEntityBlock implements S
         FluidState fluidstate = pContext.getLevel().getFluidState(pContext.getClickedPos());
         boolean flag = fluidstate.getType() == Fluids.WATER;
 
-        return this.defaultBlockState().setValue(FACING, pContext.getHorizontalDirection().getOpposite()).setValue(WATERLOGGED, Boolean.valueOf(flag));
+        return supportedState(this.defaultBlockState(),pContext.getLevel(),pContext.getClickedPos()).setValue(FACING, pContext.getHorizontalDirection().getOpposite()).setValue(WATERLOGGED, Boolean.valueOf(flag));
     }
 
     @Override
     protected void createBlockStateDefinition(Builder<Block, BlockState> pBuilder) {
         super.createBlockStateDefinition(pBuilder);
-        pBuilder.add(FACING, POWERED, ACTIVATED, WATERLOGGED);
+        pBuilder.add(FACING, POWERED, ACTIVATED, WATERLOGGED, SINK, LOWER_POLE);
     }
 
     public boolean isPathfindable(BlockState pState, BlockGetter pLevel, BlockPos pPos, PathComputationType pType) {
@@ -198,6 +229,7 @@ public class TrafficLightRequestButtonBlock extends BaseEntityBlock implements S
 
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level pLevel, BlockState pState, BlockEntityType<T> pBlockEntityType) {
+        if (pLevel.isClientSide) return null;
         return createTickerHelper(pBlockEntityType, ModBlockEntities.TRAFFIC_LIGHT_REQUEST_BUTTON_BLOCK_ENTITY.get(), TrafficLightRequestButtonBlockEntity::tick);
     }
 

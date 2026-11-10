@@ -24,6 +24,17 @@ public class EmissiveFaceDeserializerMixin {
             }
             ((EmissiveFace) cir.getReturnValue()).trafficengine$setVertices(vertices);
         }
+        if(data!=null && data.has("shade_normals")) {
+            var array=data.getAsJsonArray("shade_normals");
+            if(array.size()!=12)throw new com.google.gson.JsonParseException("A curved face needs four shade normals");
+            float[] normals=new float[12];
+            for(int i=0;i<12;i++) {
+                normals[i]=array.get(i).getAsFloat();
+                if(!Float.isFinite(normals[i]) || Math.abs(normals[i])>1.001f)
+                    throw new com.google.gson.JsonParseException("Invalid curved shade normal");
+            }
+            ((EmissiveFace)cir.getReturnValue()).trafficengine$setShadeNormals(normals);
+        }
         if(data!=null && data.has("smooth_shade")) ((EmissiveFace)(Object)cir.getReturnValue()).trafficengine$setSmoothShade(data.get("smooth_shade").getAsBoolean());
         if (data != null && data.has("match_straight_shade")) {
             ((EmissiveFace) cir.getReturnValue()).trafficengine$setMatchesStraightShade(

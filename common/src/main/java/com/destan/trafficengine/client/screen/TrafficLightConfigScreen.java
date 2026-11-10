@@ -90,7 +90,7 @@ public class TrafficLightConfigScreen extends TrafficEngineScreen {
     private static Component text(String name) { return Component.translatable("gui.trafficengine.trafficlight." + name); }
     @Override protected void init() {
         rememberIdEdits();
-        layoutWindow(470, 330);
+        layoutWindow(440, 310);
         chrome.clear();
         form.clear();
         numbers.clear();

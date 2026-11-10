@@ -13,6 +13,10 @@ final class RoadSignRenderTypes extends RenderType {
     private static final RenderType FOREGROUND = layer("road_sign_foreground", -7);
     private static final RenderType LED = layer("road_sign_led", -10);
 
+    private static final RenderType SURFACE_BACKGROUND = layer("road_sign_surface_background", -4, true);
+    private static final RenderType SURFACE_FOREGROUND = layer("road_sign_surface_foreground", -7, true);
+    private static final RenderType SURFACE_LED = layer("road_sign_surface_detail", -10, true);
+
     private RoadSignRenderTypes() {
         super("road_sign", DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP,
                 VertexFormat.Mode.QUADS, 256, false, true, () -> {}, () -> {});
@@ -20,6 +24,12 @@ final class RoadSignRenderTypes extends RenderType {
 
     static RenderType atDepth(float depth) {
         return depth < 0.2F ? BACKGROUND : depth < 0.3F ? FOREGROUND : LED;
+    }
+
+    static RenderType atDepth(float depth, boolean filtered) {
+        if (!filtered) return atDepth(depth);
+        RoadSignSurfaceTexture.ensureRegistered();
+        return depth < .2F ? SURFACE_BACKGROUND : depth < .3F ? SURFACE_FOREGROUND : SURFACE_LED;
     }
 
     private static final java.util.Map<RenderType, RenderType> LETTERING = new java.util.IdentityHashMap<>();
@@ -46,7 +56,8 @@ final class RoadSignRenderTypes extends RenderType {
         }
     }
 
-    private static RenderType layer(String name, float units) {
+    private static RenderType layer(String name, float units) { return layer(name, units, false); }
+    private static RenderType layer(String name, float units, boolean filtered) {
         LayeringStateShard bias = new LayeringStateShard(name, () -> {
             RenderSystem.polygonOffset(0, units);
             RenderSystem.enablePolygonOffset();
@@ -58,8 +69,8 @@ final class RoadSignRenderTypes extends RenderType {
         return create(name, DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP, VertexFormat.Mode.QUADS,
                 256, false, false, CompositeState.builder()
                         .setShaderState(RENDERTYPE_TEXT_SHADER)
-                        .setTextureState(new TextureStateShard(WHITE, false, false))
-                        .setTransparencyState(NO_TRANSPARENCY)
+                        .setTextureState(new TextureStateShard(filtered ? RoadSignSurfaceTexture.LOCATION : WHITE, filtered, filtered))
+                        .setTransparencyState(filtered ? TRANSLUCENT_TRANSPARENCY : NO_TRANSPARENCY)
                         .setLightmapState(LIGHTMAP)
                         .setCullState(CULL)
                         .setDepthTestState(LEQUAL_DEPTH_TEST)

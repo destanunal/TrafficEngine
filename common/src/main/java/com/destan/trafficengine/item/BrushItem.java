@@ -107,7 +107,7 @@ public class BrushItem extends Item {
                 if (RoadPainting.style(stack) >= 0) list.add(Component.translatable("gui.trafficengine.paint_brush.connection." + (RoadPainting.style(stack) + 1)).withStyle(ChatFormatting.AQUA));
             }
         }
-        list.add(Component.translatable("item.trafficengine.paint_brush.tooltip.copy").withStyle(ChatFormatting.DARK_GRAY));
+        list.add(Component.translatable("item.trafficengine.paint_brush.tooltip.copy").withStyle(ChatFormatting.GRAY));
 
     }
 

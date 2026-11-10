@@ -20,6 +20,13 @@ public class TrafficLightRequestButtonBlockEntity extends SyncedBlockEntity {
     // Properties
     private WorldLocation linkLocation;
     private boolean listening;
+    // Reconcile legacy/copied states once using the existing server ticker, not a world scan.
+    private boolean checkSupportOnFirstTick = true;
+    @Override public void setLevel(Level world) {
+        super.setLevel(world);
+        checkSupportOnFirstTick = true;
+    }
+
 
     protected TrafficLightRequestButtonBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -49,6 +56,15 @@ public class TrafficLightRequestButtonBlockEntity extends SyncedBlockEntity {
     }
 
     private void tick(Level level, BlockPos pos, BlockState state) {
+        if (checkSupportOnFirstTick) {
+            checkSupportOnFirstTick = false;
+            BlockState supported = TrafficLightRequestButtonBlock.supportedState(state, level, pos);
+            if (supported != state) {
+                level.setBlockAndUpdate(pos, supported);
+                state = supported;
+            }
+        }
+
         if (this.listening) {
             if (!level.isClientSide) {
                 boolean isRunning = false;

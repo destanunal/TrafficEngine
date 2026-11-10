@@ -10,7 +10,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 /** One persisted dye value, no ticker, renderer, mesh cache or neighbour scans. */
 public final class RailingPaintBlockEntity extends SyncedBlockEntity implements IColorBlockEntity {
-    private PaintColor color = PaintColor.NONE;
+    private volatile PaintColor color = PaintColor.NONE;
     public RailingPaintBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.RAILING_PAINT_BLOCK_ENTITY.get(), pos, state);
     }
@@ -52,7 +52,10 @@ public final class RailingPaintBlockEntity extends SyncedBlockEntity implements 
             // texture variant together with the tint, independent of packet order.
             if (tag.contains(NBT_COLOR) && state.getValue(PedestrianRailingBlock.GRAY) != (color == PaintColor.NONE))
                 level.setBlock(worldPosition, state.setValue(PedestrianRailingBlock.GRAY, color == PaintColor.NONE), 2 | 16);
-            else if (before != color) level.sendBlockUpdated(worldPosition, state, state, 3);
+            if (before != color) {
+                level.sendBlockUpdated(worldPosition, state, state, 3);
+                level.setBlocksDirty(worldPosition, state, state);
+            }
         }
     }
     @Override protected void saveAdditional(CompoundTag tag) {

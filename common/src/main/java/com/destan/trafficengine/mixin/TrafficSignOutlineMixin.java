@@ -16,6 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class TrafficSignOutlineMixin {
     @Inject(method="renderHitOutline",at=@At("HEAD"),cancellable=true)
     private void trafficengine$cleanSignOutline(PoseStack pose,VertexConsumer lines,Entity camera,double x,double y,double z,BlockPos pos,BlockState state,CallbackInfo ci) {
+        com.destan.trafficengine.client.BlueprintPreview.render(pose,lines,x,y,z);
         if(TrafficSignOutline.render(pose,lines,state,pos,x,y,z))ci.cancel();
     }
 }

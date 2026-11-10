@@ -39,7 +39,7 @@ public final class WarningLightPacket extends NetworkPacketData {
         var state = level.getBlockState(packet.pos);
         if (!(state.getBlock() instanceof WarningLightBlock)) return;
         var updated = state.setValue(TrafficLightBlock.MODEL, packet.lamps == 1 ? TrafficLightModel.ONE_LIGHT : TrafficLightModel.TWO_LIGHTS)
-            .setValue(WarningLightBlock.HORIZONTAL, packet.horizontal).setValue(TrafficLightBlock.DIAGONAL, false);
+            .setValue(WarningLightBlock.HORIZONTAL, packet.horizontal);
         if (!updated.equals(state)) level.setBlockAndUpdate(packet.pos, updated);
         if (level.getBlockEntity(packet.pos) instanceof TrafficLightBlockEntity lamp) {
             var settings = packet.settings;

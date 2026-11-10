@@ -37,6 +37,8 @@ public abstract class PlatformColoredLightMixin {
             brightness = EmissiveQuad.BRIGHTNESS;
             light = EmissiveQuad.LIGHT;
         }
+        if (quad instanceof com.destan.trafficengine.client.model.PlacementShadeQuad matched)
+            matched.applyVertexShade(level,brightness);
         var tint = quad instanceof EmissiveQuad ? null : ClientColoredLighting.tint(pos, quad.getDirection(), light);
         if (tint != null) {
             red *= tint.red(); green *= tint.green(); blue *= tint.blue();

@@ -19,19 +19,21 @@ public final class TrafficEngine {
 
     public static void init() {
         ServerInit.init();
-        if (Platform.getEnv() == EnvType.CLIENT) {
-            ClientInitWrapper.init();
-            AgingManager.init();
-        }
 
         ModBlocks.register();
         ModItems.register();
         ModBlockEntities.register();
         ModMenuTypes.register();
         ModNetworkManager.init();
+        com.destan.trafficengine.blueprint.BlueprintPlacement.init();
         ModCreativeModeTab.init();
         ModItemTags.init();
         ModBlockTags.init();
+
+        if (Platform.getEnv() == EnvType.CLIENT) {
+            ClientInitWrapper.init();
+            AgingManager.init();
+        }
             
         //ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ModCommonConfig.SPEC, MOD_ID + "-common.toml");
         CrossPlatform.registerConfig();

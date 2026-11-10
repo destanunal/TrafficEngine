@@ -20,12 +20,13 @@ public final class CurvedTrafficPoleBlock extends Block implements SimpleWaterlo
     public static final DirectionProperty FACING=BlockStateProperties.HORIZONTAL_FACING;
     public static final IntegerProperty PART=IntegerProperty.create("part",0,5);
     public static final BooleanProperty LAMP_SUPPORT=BooleanProperty.create("lamp_support");
+    public static final BooleanProperty TOP_SUPPORT=BooleanProperty.create("top_support");
     public static final BooleanProperty WATERLOGGED=BlockStateProperties.WATERLOGGED;
     private static final int[][] OFFSETS={{0,0},{1,0},{0,-1},{1,-1},{1,-2},{1,-3}}; // {height, northward Z}
     private static final double[][][] BOXES={{{7,0.0,6.4286096,9,4.9341457,9.0},{7,4.4301897,4.7294774,9,9.6610565,8.3640755},{7,8.7077482,1.952676,9,13.992044,6.4876592},{7,12.6753271,0,9,16,3.4580852},{7,15.239602,0,9,16,0.6494574}},{{7,0,0,9,0.760398,3.4580852},{7,0,0,9,1.7652172,0.6494574}},{{7,12.6753271,15.3505426,9,16,16},{7,15.239602,14.1912852,9,16,16}},{{7,0,15.3505426,9,0.760398,16},{7,0,14.1912852,9,1.7652172,16},{7,0.1759083,9.582974,9,4.8459464,15.4054092},{7,3.064595,4.3044434,9,7.1265156,10.4922524},{7,5.2197019,0,9,8.5274977,4.9078184}},{{7,5.2197019,14.5623983,9,8.5274977,16},{7,6.5501958,8.5835921,9,9.0,14.8628602},{7,7.0,0,9,9.0,8.5835921}},{{7,7,9,9,9,16},{7,7,7,9,9,9},{7,7,0,9,9,7},{7,0,7,9,7,9}}};
     private static final VoxelShape BREAK_SHAPE=box(7,7,7,9,9,9);
     public static VoxelShape destructionShape(){return BREAK_SHAPE;}
-    private static final VoxelShape[] MOUNTED_SHAPES=new VoxelShape[4];
+    private static final VoxelShape[][][] MOUNTED_SHAPES=new VoxelShape[OFFSETS.length][4][4];
     private static final VoxelShape[][] SHAPES=new VoxelShape[OFFSETS.length][4];
     // Only synchronous placement/removal needs this guard; never used by rendering/shape queries.
     private static final ThreadLocal<Boolean> EDITING=ThreadLocal.withInitial(()->false);
@@ -39,16 +40,21 @@ public final class CurvedTrafficPoleBlock extends Block implements SimpleWaterlo
             }
             north=north.optimize();
             for(Direction facing:Direction.Plane.HORIZONTAL)SHAPES[part][facing.get2DDataValue()]=RailingGeometry.rotate(north,facing);
-            if(part==5) {
-                VoxelShape mounted=Shapes.or(north,box(7,0,7,9,7,9)).optimize();
-                for(Direction facing:Direction.Plane.HORIZONTAL)MOUNTED_SHAPES[facing.get2DDataValue()]=RailingGeometry.rotate(mounted,facing);
+            if(part==4||part==5) {
+                for(int sockets=0;sockets<4;sockets++) {
+                    VoxelShape mounted=north;
+                    if((sockets&1)!=0)mounted=Shapes.or(mounted,box(7,0,7,9,7,9));
+                    if((sockets&2)!=0)mounted=Shapes.or(mounted,box(7,8.96,7,9,16,9));
+                    mounted=mounted.optimize();
+                    for(Direction facing:Direction.Plane.HORIZONTAL)MOUNTED_SHAPES[part][sockets][facing.get2DDataValue()]=RailingGeometry.rotate(mounted,facing);
+                }
             }
         }
     }
     public CurvedTrafficPoleBlock() {
         super(Properties.of().mapColor(MapColor.METAL).strength(2.5F).requiresCorrectToolForDrops()
             .sound(SoundType.METAL).noOcclusion().pushReaction(PushReaction.BLOCK));
-        registerDefaultState(stateDefinition.any().setValue(FACING,Direction.NORTH).setValue(PART,0).setValue(WATERLOGGED,false).setValue(LAMP_SUPPORT,false));
+        registerDefaultState(stateDefinition.any().setValue(FACING,Direction.NORTH).setValue(PART,0).setValue(WATERLOGGED,false).setValue(LAMP_SUPPORT,false).setValue(TOP_SUPPORT,false));
     }
     public static int partCount(){return OFFSETS.length;}
     public static BlockPos partPos(BlockPos origin,Direction facing,int part) {
@@ -60,11 +66,11 @@ public final class CurvedTrafficPoleBlock extends Block implements SimpleWaterlo
     }
     @Override public VoxelShape getShape(BlockState state,BlockGetter world,BlockPos pos,CollisionContext context) {
         int part=state.getValue(PART), facing=state.getValue(FACING).get2DDataValue();
-        return part==5&&state.getValue(LAMP_SUPPORT)?MOUNTED_SHAPES[facing]:SHAPES[part][facing];
+        return (part==4||part==5)?MOUNTED_SHAPES[part][(state.getValue(LAMP_SUPPORT)?1:0)|(state.getValue(TOP_SUPPORT)?2:0)][facing]:SHAPES[part][facing];
     }
     @Override public VoxelShape getOcclusionShape(BlockState state,BlockGetter world,BlockPos pos){return Shapes.empty();}
     @Override public FluidState getFluidState(BlockState state){return state.getValue(WATERLOGGED)?Fluids.WATER.getSource(false):super.getFluidState(state);}
-    @Override protected void createBlockStateDefinition(StateDefinition.Builder<Block,BlockState> builder){builder.add(FACING,PART,WATERLOGGED,LAMP_SUPPORT);}
+    @Override protected void createBlockStateDefinition(StateDefinition.Builder<Block,BlockState> builder){builder.add(FACING,PART,WATERLOGGED,LAMP_SUPPORT,TOP_SUPPORT);}
     @Override public BlockState getStateForPlacement(BlockPlaceContext context) {
         Direction facing=context.getHorizontalDirection();
         return canPlaceAssembly(context,facing)?defaultBlockState().setValue(FACING,facing):null;
@@ -85,7 +91,8 @@ public final class CurvedTrafficPoleBlock extends Block implements SimpleWaterlo
     private BlockState stateFor(Level world,BlockPos pos,Direction facing,int part) {
         return defaultBlockState().setValue(FACING,facing).setValue(PART,part)
             .setValue(WATERLOGGED,world.getFluidState(pos).getType()==Fluids.WATER)
-            .setValue(LAMP_SUPPORT,part==5&&needsLowerSocket(world.getBlockState(pos.below())));
+            .setValue(LAMP_SUPPORT,(part==4||part==5)&&needsLowerSocket(world.getBlockState(pos.below())))
+            .setValue(TOP_SUPPORT,(part==4||part==5)&&needsUpperSocket(world.getBlockState(pos.above())));
     }
     /** Preflight all cells before writing; restore their exact old states on rejection. */
     public boolean placeAssembly(BlockPlaceContext context,BlockState root) {
@@ -118,7 +125,7 @@ public final class CurvedTrafficPoleBlock extends Block implements SimpleWaterlo
     }
     @Override public void onRemove(BlockState state,Level world,BlockPos pos,BlockState next,boolean moved) {
         super.onRemove(state,world,pos,next,moved);
-        if(world.isClientSide||next.is(this)||EDITING.get())return;
+        if(world.isClientSide||next.is(this)||EDITING.get()||com.destan.trafficengine.blueprint.BlueprintPlacement.writing())return;
         BlockPos master=masterPos(pos,state);Direction facing=state.getValue(FACING);
         if(state.getValue(PART)!=0) {
             if(world.isLoaded(master)&&matches(world.getBlockState(master),facing,0))world.destroyBlock(master,true);
@@ -145,8 +152,11 @@ public final class CurvedTrafficPoleBlock extends Block implements SimpleWaterlo
         if(state.getValue(WATERLOGGED))world.scheduleTick(pos,Fluids.WATER,Fluids.WATER.getTickDelay(world));
         // One coalesced integrity check after neighbour/chunk-edge updates, never every tick.
         if(!world.isClientSide()&&!EDITING.get())world.scheduleTick(pos,this,1);
-        return state.getValue(PART)==5&&direction==Direction.DOWN
-            ?state.setValue(LAMP_SUPPORT,needsLowerSocket(neighbor)):state;
+        if(state.getValue(PART)==4||state.getValue(PART)==5) {
+            if(direction==Direction.DOWN)return state.setValue(LAMP_SUPPORT,needsLowerSocket(neighbor));
+            if(direction==Direction.UP)return state.setValue(TOP_SUPPORT,needsUpperSocket(neighbor));
+        }
+        return state;
     }
     @Override public void tick(BlockState state,ServerLevel world,BlockPos pos,RandomSource random) {
         BlockPos master=masterPos(pos,state);Direction facing=state.getValue(FACING);
@@ -167,11 +177,19 @@ public final class CurvedTrafficPoleBlock extends Block implements SimpleWaterlo
         if(support.getBlock() instanceof TrafficSignPostBlock)return true;
         if(!(support.getBlock() instanceof CurvedTrafficPoleBlock))return false;
         int part=support.getValue(PART);
-        return face==Direction.DOWN&&(part==0||part==5)
+        return face==Direction.UP&&(part==4||part==5)
+            ||face==Direction.DOWN&&(part==0||part==4||part==5)
             ||part==0&&face.getAxis().isHorizontal()
             ||(part==4||part==5)&&face.getAxis().isHorizontal();
     }
+    private static boolean needsUpperSocket(BlockState attached) {
+        if(attached.getBlock() instanceof WarningLightBlock && attached.getValue(WarningLightBlock.COMPACT))return false;
+        if(attached.getBlock() instanceof ChevronPanelBlock)return true;
+        if(attached.getBlock() instanceof LedDeviceBlock)return !attached.getValue(LedDeviceBlock.WALL_MOUNTED)&&!attached.getValue(LedDeviceBlock.POST_ABOVE);
+        return needsLowerSocket(attached);
+    }
     private static boolean needsLowerSocket(BlockState attached) {
+        if(attached.getBlock() instanceof WarningLightBlock && attached.getValue(WarningLightBlock.COMPACT))return false;
         if(attached.getBlock() instanceof TrafficLightBlock || attached.getBlock() instanceof TrafficSignPostBlock)return true;
         if(attached.getBlock() instanceof RoadInformationSignBlock)
             return !attached.getValue(RoadInformationSignBlock.POST_MOUNTED)&&!attached.getValue(RoadInformationSignBlock.WALL_MOUNTED);
@@ -182,7 +200,8 @@ public final class CurvedTrafficPoleBlock extends Block implements SimpleWaterlo
     }
     @Override public boolean canConnect(BlockState state,Direction direction) {
         int part=state.getValue(PART);
-        return direction==Direction.DOWN&&(part==0||part==5)
+        return direction==Direction.UP&&(part==4||part==5)
+            ||direction==Direction.DOWN&&(part==0||part==4||part==5)
             ||part==0&&direction.getAxis().isHorizontal()
             ||(part==4||part==5)&&direction.getAxis().isHorizontal();
     }

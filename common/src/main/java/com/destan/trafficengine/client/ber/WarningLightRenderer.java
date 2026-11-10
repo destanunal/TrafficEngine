@@ -14,7 +14,7 @@ public final class WarningLightRenderer {
         int mask = lamp.isWarningActive() ? lamp.getFlashSequence().mask(lamp.getLevel().getGameTime()) : 0;
         if ((mask & ((1 << count) - 1)) == 0) return;
         graphics.poseStack().pushPose();
-        graphics.poseStack().translate(count == 2 && horizontal ? 3 : 6, count == 2 && !horizontal ? 7 : 10, 8.6);
+        graphics.poseStack().translate(count == 2 && horizontal ? 3 : 6, (count == 2 && !horizontal ? 7 : 10) - WarningLightBlock.housingOffset(state), 8.6);
         for (int slot = 0; slot < count; slot++) {
             if ((mask & 1 << slot) != 0)
                 TrafficLightTextureManager.renderWarningLens(graphics, lamp.getWarningColor(slot));

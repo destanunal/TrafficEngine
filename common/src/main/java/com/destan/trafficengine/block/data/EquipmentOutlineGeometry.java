@@ -28,6 +28,10 @@ public final class EquipmentOutlineGeometry {
             state=state.setValue(SlopedPedestrianRailingBlock.RISE,rise);
             if(rise==0)state=state.setValue(SlopedPedestrianRailingBlock.DESCENDING,false);
         }
+        if(state.getBlock() instanceof WarningLightBlock) {
+            state=state.setValue(TrafficLightBlock.MODEL,state.getValue(TrafficLightBlock.MODEL).getLightsCount()==1?TrafficLightModel.ONE_LIGHT:TrafficLightModel.TWO_LIGHTS);
+            if(state.getValue(TrafficLightBlock.MODEL)==TrafficLightModel.ONE_LIGHT)state=state.setValue(WarningLightBlock.HORIZONTAL,false);
+        }
         float[] edges=CACHE.get(state);
         if(edges!=null)return edges;
         List<float[]> parts=new ArrayList<>();
@@ -55,11 +59,22 @@ public final class EquipmentOutlineGeometry {
         boolean diagonal=state.getValue(ChevronPanelBlock.DIAGONAL),single=state.getValue(ChevronPanelBlock.SINGLE);
         // Include the thin reflective face/end caps. Do not outline the hidden rear stem.
         box(parts,facing,diagonal,single?4:0,6,6.875,single?12:16,14,8);
-        box(parts,facing,diagonal,7,0,7,9,6,9);
+        box(parts,facing,false,7,0,7,9,6,9);
     }
     private static void light(BlockState state,List<float[]> parts) {
         Direction facing=state.getValue(TrafficLightBlock.FACING);
         TrafficLightModel model=state.getValue(TrafficLightBlock.MODEL);
+        if(state.getBlock() instanceof WarningLightBlock) {
+            boolean horizontal=state.getValue(WarningLightBlock.HORIZONTAL),diagonal=state.getValue(TrafficLightBlock.DIAGONAL);
+            boolean pair=model.getLightsCount()!=1;
+            double x=pair&&horizontal?2.5:5.5,y=pair&&!horizontal?2.5:5.5;
+            double shift=WarningLightBlock.housingOffset(state);
+            boolean hanging=state.getValue(WarningLightBlock.HANGING);
+            box(parts,facing,diagonal,x,y+shift,6.4,16-x,16-y+shift,9.5);
+            double mount=WarningLightBlock.mountingOffset(state);
+            box(parts,facing,false,7,(hanging?14:0)+mount,7,9,(hanging?16:2)+mount,9);
+            return;
+        }
         if(state.getBlock() instanceof HorizontalTrafficLightBlock) {
             double half=2.5*(model.getLightsCount()-1),left=4.5-half,right=11.5+half;
             box(parts,facing,false,left,4.5,.5,right,11.5,7);

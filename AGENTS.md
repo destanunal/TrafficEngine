@@ -27,3 +27,7 @@
 
 - Diagonal/inclined variants must reuse the normal variant for breaking and hit particles, preserving its texture, shape, density reductions and count. Add each new placement type to PlacementParticles and its regression coverage; never emit particles from a dense diagonal voxel staircase.
 - Historical item IDs are not the displayed Turkish names: highway_direction_sign = Büyük Yol Tabelası; large_road_direction_sign = Otoban Tabelası. Check localization before adjusting their inventory sizes.
+
+## Pole geometry and materials
+
+- Every new or modified pole, including footing stems, mounting brackets and extensions, must use the normal traffic sign pole texture with matching UV orientation and scale. Avoid coincident visible faces at all joins (including railing/post, slope/post and button/post); trim or omit covered geometry instead of layering coplanar surfaces. Check flat and sloped supports, both railing types, with and without attachments.

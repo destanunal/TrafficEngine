@@ -88,6 +88,12 @@ public class TrafficLightBlockEntity extends ColoredBlockEntity {
         super(type, pos, state);
     }
 
+    @Override public void setLevel(Level level) {
+        super.setLevel(level);
+        if (!level.isClientSide && getBlockState().getBlock() instanceof com.destan.trafficengine.block.WarningLightBlock warning)
+            level.scheduleTick(worldPosition, warning, 1);
+    }
+
     /** The type factory is also used on chunk reload, where Block.newBlockEntity is not called. */
     public static TrafficLightBlockEntity create(BlockPos pos,BlockState state) {
         return state.getBlock() instanceof com.destan.trafficengine.block.DoubleTrafficLightBlock

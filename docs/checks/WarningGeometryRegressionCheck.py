@@ -17,7 +17,7 @@ pole_texture = read('models/block/traffic_sign_post.json')['textures']['0']
 states = read('blockstates/warning_light.json')['variants']
 checks = 0
 for facing, model, horizontal in itertools.product(('north', 'east', 'south', 'west'), ('single', 'double', 'tripple', 'quadruple'), (False, True)):
-    key = f'facing={facing},model={model},horizontal={str(horizontal).lower()}'
+    key = f'facing={facing},model={model},horizontal={str(horizontal).lower()},diagonal=false,hanging=false,compact=false'
     definition = read('models/' + states[key]['model'].split(':')[1] + '.json')
     body = [e for e in definition['elements'] if e['name'].startswith('slim_case_')]
     assert len(body) == 14, 'Chamfered shell uses bounded baked geometry'
@@ -25,7 +25,7 @@ for facing, model, horizontal in itertools.product(('north', 'east', 'south', 'w
             'to': [max(e['to'][a] for e in body) for a in range(3)]}
     face = next(e for e in definition['elements'] if e['name'] == 'thin_face')
     pole = next(e for e in definition['elements'] if e['name'] == 'sign_post_stem')
-    assert case['to'][2] - case['from'][2] == 2.75, 'Head must be thinner than the old 5-pixel case'
+    assert case['to'][2] - case['from'][2] == 3, 'Head must be thinner than the old 5-pixel case'
     assert pole['from'] == [7, 0, 7] and pole['to'] == [9, case['from'][1], 9], 'Use standard post width and touch the housing'
     assert definition['textures']['pole'] == pole_texture, 'Match traffic sign-post material'
     assert face['from'][0] - case['from'][0] == .25, 'Thin metal edge'
@@ -47,7 +47,7 @@ for facing, model, horizontal in itertools.product(('north', 'east', 'south', 'w
     assert len(lenses) == count, 'The off-state lenses are baked into the model'
     for slot in range(count):
         x = 3 + 6 * slot if count == 2 and horizontal else 6
-        y = 3 + 6 * slot if count == 2 and not horizontal else 6
+        y = (3 + 6 * slot if count == 2 and not horizontal else 6) + (2 - (2.5 if count == 2 and not horizontal else 5.5))
         assert case['from'][0] < x < x + 4 < case['to'][0]
         assert case['from'][1] < y < y + 4 < case['to'][1]
         assert lenses[slot]['from'] == [x, y, 6.42] and lenses[slot]['to'] == [x+4, y+4, 6.42]

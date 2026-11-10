@@ -53,6 +53,7 @@ public final class PedestrianRailingBlock extends FenceBlock implements com.dest
     }
     @Override public boolean connectsTo(BlockState other,boolean sturdy,net.minecraft.core.Direction side){
         if(other.getBlock() instanceof SlopedPedestrianRailingBlock)return side==other.getValue(SlopedPedestrianRailingBlock.FACING).getOpposite();
+        if(other.getBlock() instanceof TrafficSignPostBlock)return other.getValue(TrafficSignPostBlock.AXIS)==net.minecraft.core.Direction.Axis.Y;
         return super.connectsTo(other,sturdy,side);
     }
     private static int connectionIndex(BlockState state){return (state.getValue(NORTH)?1:0)|(state.getValue(EAST)?2:0)|(state.getValue(SOUTH)?4:0)|(state.getValue(WEST)?8:0);}

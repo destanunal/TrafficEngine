@@ -1,0 +1,16 @@
+gradle.projectsEvaluated {
+ def common=rootProject.project(':common')
+ def platform=rootProject.project(':forge')
+ def compiler=common.tasks.register('compileCurvedShade231Check',JavaCompile) {
+  dependsOn common.tasks.named('compileJava'),common.tasks.named('processResources')
+  source new File(rootProject.projectDir,'docs/checks/Platform22LightingCheck.java')
+  classpath=common.sourceSets.main.compileClasspath+common.sourceSets.main.output+platform.sourceSets.main.compileClasspath
+  destinationDirectory=common.layout.buildDirectory.dir('checksCurvedShade231')
+ }
+ common.tasks.register('checkCurvedShade231',JavaExec) {
+  dependsOn compiler
+  classpath=common.files(compiler.flatMap {it.destinationDirectory})+common.sourceSets.main.output+platform.sourceSets.main.compileClasspath
+  mainClass='Platform22LightingCheck'
+  args 'forge'
+ }
+}

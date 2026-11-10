@@ -27,7 +27,10 @@ public class TrafficSignPatternSelectionScreen extends TrafficEngineScreen {
     private TrafficSignShape category;
     private List<SignLibrary.Entry> entries = List.of();
     private int firstRow, columns, rows, cellSize, gridY, gridWidth;
-    private boolean sent;
+    private boolean sent, draggingScrollbar;
+    private int maxFirstRow, scrollbarX, trackY, trackHeight, thumbHeight;
+    private double scrollbarGrab;
+    private final Component previewLabel = Component.translatable("gui.trafficengine.patterns.preview");
     public TrafficSignPatternSelectionScreen(ItemStack stack) {
         super(Component.translatable("gui.trafficengine.patternselection.title"));
         this.stack = stack;
@@ -39,6 +42,7 @@ public class TrafficSignPatternSelectionScreen extends TrafficEngineScreen {
     }
     @Override protected void init() {
         cells.clear();
+        draggingScrollbar = false;
         layoutWindow(400, 288);
         addCloseButton();
         int x = left + 12;
@@ -61,7 +65,7 @@ public class TrafficSignPatternSelectionScreen extends TrafficEngineScreen {
         gridY = top + (creative ? 76 : 45);
         gridWidth = windowWidth - 124;
         cellSize = 29;
-        columns = Math.max(1, (gridWidth - 4) / cellSize);
+        columns = Math.max(1, (gridWidth - 14) / cellSize);
         rows = Math.max(1, (windowHeight - (gridY - top) - 42) / cellSize);
         addRenderableWidget(new TEButton(left + windowWidth - 104, top + windowHeight - 29, 92, 20, CommonComponents.GUI_DONE, b -> onClose()).primary());
         rebuild();
@@ -70,7 +74,13 @@ public class TrafficSignPatternSelectionScreen extends TrafficEngineScreen {
         cells.forEach(this::removeWidget); cells.clear();
         entries = category == null ? List.of() : library.category(category);
         int count = category == null ? PatternCatalogueItem.getStoredPatternCount(stack) : entries.size();
-        firstRow = Math.max(0, Math.min(firstRow, (count + columns - 1) / columns - rows));
+        int totalRows = (count + columns - 1) / columns;
+        maxFirstRow = Math.max(0, totalRows - rows);
+        firstRow = Math.max(0, Math.min(firstRow, maxFirstRow));
+        scrollbarX = left + 12 + gridWidth - 10;
+        trackY = gridY + 4;
+        trackHeight = rows * cellSize - 4;
+        thumbHeight = Math.min(trackHeight, Math.max(18, trackHeight * rows / Math.max(rows, totalRows)));
         Set<String> needed = new HashSet<>();
         var selected = ((PatternCatalogueItem)stack.getItem()).getSelectedImageData(stack);
         if (selected != null) needed.add(selected.getTextureId());
@@ -106,7 +116,45 @@ public class TrafficSignPatternSelectionScreen extends TrafficEngineScreen {
         int w = texture.getRawData().getWidth(), h = texture.getRawData().getHeight();
         if (w > 0 && h > 0) g.blit(texture.getTextureLocation(), x, y, size, size, 0, 0, w, h, w, h);
     }
-    @Override public boolean mouseScrolled(double x, double y, double delta) { firstRow += delta > 0 ? -1 : 1; rebuild(); return true; }
+    private int thumbY() {
+        return trackY + (maxFirstRow == 0 ? 0 : Math.round((trackHeight - thumbHeight) * firstRow / (float)maxFirstRow));
+    }
+    private void setFirstRow(int row) {
+        row = Math.max(0, Math.min(row, maxFirstRow));
+        if (row == firstRow) return;
+        firstRow = row;
+        rebuild();
+    }
+    private void scrollTo(double mouseY) {
+        setFirstRow((int)Math.round((mouseY - trackY - scrollbarGrab) * maxFirstRow / Math.max(1, trackHeight - thumbHeight)));
+    }
+    @Override public boolean mouseScrolled(double x, double y, double delta) {
+        if (delta != 0 && maxFirstRow > 0 && x >= left + 12 && x < left + 12 + gridWidth
+                && y >= gridY && y < gridY + rows * cellSize + 4) {
+            setFirstRow(firstRow - (int)Math.signum(delta));
+            return true;
+        }
+        return super.mouseScrolled(x, y, delta);
+    }
+    @Override public boolean mouseClicked(double x, double y, int button) {
+        if (button == 0 && maxFirstRow > 0 && x >= scrollbarX - 2 && x < scrollbarX + 8
+                && y >= trackY && y < trackY + trackHeight) {
+            int thumbY = thumbY();
+            scrollbarGrab = y >= thumbY && y < thumbY + thumbHeight ? y - thumbY : thumbHeight / 2D;
+            draggingScrollbar = true;
+            scrollTo(y);
+            return true;
+        }
+        return super.mouseClicked(x, y, button);
+    }
+    @Override public boolean mouseDragged(double x, double y, int button, double dx, double dy) {
+        if (button == 0 && draggingScrollbar) { scrollTo(y); return true; }
+        return super.mouseDragged(x, y, button, dx, dy);
+    }
+    @Override public boolean mouseReleased(double x, double y, int button) {
+        if (button == 0 && draggingScrollbar) { draggingScrollbar = false; return true; }
+        return super.mouseReleased(x, y, button);
+    }
     @Override public void onClose() {
         if (!sent) {
             sent = true;
@@ -119,9 +167,19 @@ public class TrafficSignPatternSelectionScreen extends TrafficEngineScreen {
     @Override public void render(GuiGraphics g, int mx, int my, float tick) {
         renderWindow(g);
         TEPanel.draw(g, left + 12, gridY, gridWidth, rows * cellSize + 4);
+        if (maxFirstRow > 0) {
+            int thumbY = thumbY();
+            // Thin rail and a three-pixel thumb; retain the generous existing drag target.
+            g.fill(scrollbarX + 3, trackY, scrollbarX + 4, trackY + trackHeight, TEColors.SUBTLE_BORDER);
+            boolean hover = mx >= scrollbarX - 2 && mx < scrollbarX + 8 && my >= thumbY && my < thumbY + thumbHeight;
+            int thumbColor = draggingScrollbar || hover ? TEColors.ACCENT : TEColors.MUTED;
+            g.fill(scrollbarX + 2, thumbY + 1, scrollbarX + 5, thumbY + thumbHeight - 1, thumbColor);
+            g.fill(scrollbarX + 3, thumbY, scrollbarX + 4, thumbY + thumbHeight, thumbColor);
+        }
         int px = left + windowWidth - 105;
         TEPanel.draw(g, px - 6, gridY, 99, rows * cellSize + 4);
-        TEText.drawString(g, font, Component.translatable("gui.trafficengine.patterns.preview"), px, gridY + 8, TEColors.MUTED, false);
+        TEText.drawCenteredString(g, font, previewLabel, px + 43.5F,
+                TEText.centeredY(g, font, previewLabel, gridY + 4, 16), TEColors.MUTED);
         var ref = ((PatternCatalogueItem)stack.getItem()).getSelectedImageData(stack);
         if (ref != null) { drawTexture(g, ref, px + 9, gridY + 30, 64); TEText.drawString(g, font, font.plainSubstrByWidth(ref.getName(), 88), px, gridY + 113, TEColors.TEXT, false); }
         super.render(g, mx, my, tick);

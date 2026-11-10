@@ -29,6 +29,7 @@ import com.destan.trafficengine.network.packets.stc.TrafficSignTextureResetPacke
 public class ModNetworkManager {
 
     public static final TrafficNetwork NETWORK = new TrafficNetwork();
+    public static final NetworkPacketType.Send<NetworkDirection.C2S, com.destan.trafficengine.blueprint.BlueprintPacket> BLUEPRINT = NETWORK.registerSendOnlyPacket("blueprint",NetworkDirection.C2S,com.destan.trafficengine.blueprint.BlueprintPacket::handle,com.destan.trafficengine.blueprint.BlueprintPacket::new);
     public static final NetworkPacketType.Send<NetworkDirection.C2S, com.destan.trafficengine.network.packets.cts.RoadInformationSignPacket> UPDATE_ROAD_INFORMATION_SIGN = NETWORK.registerSendOnlyPacket(
         "update_road_information_sign", NetworkDirection.C2S, com.destan.trafficengine.network.packets.cts.RoadInformationSignPacket::handle,
         com.destan.trafficengine.network.packets.cts.RoadInformationSignPacket::new);

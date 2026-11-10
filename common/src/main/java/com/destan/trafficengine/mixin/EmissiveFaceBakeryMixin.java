@@ -28,6 +28,7 @@ public abstract class EmissiveFaceBakeryMixin {
             CallbackInfoReturnable<BakedQuad> cir) {
         EmissiveFace metadata = (EmissiveFace) face;
         BakedQuad quad = cir.getReturnValue();
+        com.destan.trafficengine.client.model.RailingPaintUV.prepare(quad);
         float[] corners = metadata.trafficengine$getVertices();
         if (corners != null) {
             int[] packed = quad.getVertices().clone();
@@ -61,7 +62,17 @@ public abstract class EmissiveFaceBakeryMixin {
             cir.setReturnValue(quad);
         }
         if(metadata.trafficengine$smoothShade() && !metadata.trafficengine$isEmissive()) {
-            quad=PlacementShadeQuad.smooth(quad);cir.setReturnValue(quad);
+            float[] normals=metadata.trafficengine$getShadeNormals();
+            if(normals!=null) {
+                normals=normals.clone();
+                for(int i=0;i<4;i++) {
+                    Vector3f n=new Vector3f(normals[i*3],normals[i*3+1],normals[i*3+2]);
+                    // Normals are directions: rotate without translating around the model centre.
+                    state.getRotation().getMatrix().transformDirection(n);
+                    n.normalize();normals[i*3]=n.x;normals[i*3+1]=n.y;normals[i*3+2]=n.z;
+                }
+            }
+            quad=PlacementShadeQuad.smooth(quad,normals);cir.setReturnValue(quad);
         } else if (metadata.trafficengine$matchesStraightShade() && !metadata.trafficengine$isEmissive()) {
             // Keep the real normal/geometry. Only the terrain renderer's shade lookup
             // uses the facing this face would have without the extra diagonal turn.
