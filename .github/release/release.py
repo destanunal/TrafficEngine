@@ -13,6 +13,7 @@ import urllib.error
 import urllib.request
 import zipfile
 from pathlib import Path
+from changelog_format import tight_changelog
 
 REPOSITORY = "destanunal/TrafficEngine"
 PLATFORMS = {"1.20.1": ("fabric", "forge"), "1.21.1": ("fabric", "neoforge")}
@@ -179,6 +180,7 @@ def main():
         args.directory.mkdir(parents=True, exist_ok=True)
         (args.directory / "plan.json").write_text(json.dumps(release, indent=2) + "\n", encoding="utf-8")
         (args.directory / "changelog.md").write_text(notes + "\n", encoding="utf-8")
+        (args.directory / "changelog-curseforge.md").write_text(tight_changelog(notes), encoding="utf-8")
         output("version", release["version"])
         output("build_matrix", json.dumps({"include": release["builds"]}, separators=(",", ":")))
         destinations = list(dict.fromkeys(item["destination"] for item in release["uploads"]))

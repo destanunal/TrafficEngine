@@ -1,0 +1,40 @@
+name: Update existing Traffic Engine changelogs
+run-name: Traffic Engine ${{ inputs.version }} - changelog ${{ inputs.mode }}
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Existing release version
+        required: true
+        type: string
+      mode:
+        description: Inspect files, or update their changelog only
+        required: true
+        default: inspect
+        type: choice
+        options: [inspect, update]
+      changelog:
+        description: Release notes (required for update)
+        required: false
+        type: string
+permissions:
+  contents: read
+jobs:
+  update:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Check formatting rules
+        run: python3 -B -m unittest discover -s .github/release -p 'test_changelog_format.py'
+      - name: Inspect or update existing file metadata
+        env:
+          CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
+          RELEASE_VERSION: ${{ inputs.version }}
+          CHANGELOG_MODE: ${{ inputs.mode }}
+          RELEASE_CHANGELOG: ${{ inputs.changelog }}
+        run: |
+          python3 -c 'import os,pathlib; pathlib.Path("/tmp/trafficengine-changelog.md").write_text(os.environ["RELEASE_CHANGELOG"],encoding="utf-8")'
+          python3 -B .github/release/update_changelog.py "$CHANGELOG_MODE" --version "$RELEASE_VERSION" --changelog /tmp/trafficengine-changelog.md

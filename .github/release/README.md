@@ -40,3 +40,9 @@ Sitelerin inceleme/onay süreci yükleme tamamlandıktan sonra da sürebilir.
 Yayıncı ayrı bir Gradle projesidir; normal compileJava, oyun kodu ve çalışma zamanı bağımlılıkları değişmez.
 Akış yalnızca elle başlatılır. Push ve pull request olayları yayın tetiklemez.
 Changelog dosyası kaynak depoya eklenmez; formdaki metin geçici yayın planına yazılır.
+
+## Changelog madde düzeni
+
+CurseForge için ardışık maddeler arasındaki boş satırlar otomatik kaldırılır; başlık ve paragraf aralıkları korunur. Böylece madde işareti metinden ayrı satıra düşmez. Modrinth için özgün Markdown kullanılır.
+
+**Update existing Traffic Engine changelogs** akışı mevcut sürümün dört dosyasını `inspect` ile listeler; `update` yalnızca changelog alanlarını değiştirir. Oyun dosyalarını yeniden yüklemez.
