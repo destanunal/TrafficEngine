@@ -64,7 +64,7 @@ public final class RoadStrokeGeometry {
             new Point(x+tx*to+nx*(offset+width/2),z+tz*to+nz*(offset+width/2)),
             new Point(x+tx*to+nx*(offset-width/2),z+tz*to+nz*(offset-width/2)),
             new Point(x+tx*from+nx*(offset-width/2),z+tz*from+nz*(offset-width/2)));
-        return appendPolygon(output,y,polygon,false);
+        return appendPolygon(output,y,polygon,true);
     }
     static Map<RoadPaintPlan.Cell,float[]> pack(Map<RoadPaintPlan.Cell,List<Float>> pieces) {
         Map<RoadPaintPlan.Cell,float[]> result=new LinkedHashMap<>();

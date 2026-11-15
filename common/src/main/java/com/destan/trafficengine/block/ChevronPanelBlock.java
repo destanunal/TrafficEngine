@@ -33,6 +33,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 /** Static, joinable curve boards. Settings live in block states, never in ticking entities. */
 public final class ChevronPanelBlock extends HorizontalDirectionalBlock implements SimpleWaterloggedBlock, ITrafficPostLike {
+    public static final BooleanProperty UPPER_CONNECTION = BooleanProperty.create("upper_connection");
     public static final BooleanProperty DIAGONAL = BooleanProperty.create("diagonal");
     public static final BooleanProperty ARROW_RIGHT = BooleanProperty.create("arrow_right");
     public static final BooleanProperty RED_WHITE = BooleanProperty.create("red_white");
@@ -40,18 +41,24 @@ public final class ChevronPanelBlock extends HorizontalDirectionalBlock implemen
     public static final BooleanProperty LEFT = BooleanProperty.create("left_connection");
     public static final BooleanProperty RIGHT = BooleanProperty.create("right_connection");
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
-    private static final VoxelShape[][] DIAGONAL_SHAPES = new VoxelShape[2][4];
-    private static final VoxelShape[][] SHAPES = new VoxelShape[2][4];
+    private static final VoxelShape[][][] DIAGONAL_SHAPES = new VoxelShape[2][2][4];
+    private static final VoxelShape[][][] SHAPES = new VoxelShape[2][2][4];
     static {
-        for (int size = 0; size < 2; size++) {
-            double min = size == 1 ? 4 : 0, max = 16 - min;
-            VoxelShape head = Shapes.or(box(min, 6, 6.875, max, 14, 8), box(7, 6, 8, 9, 10, 9));
-            VoxelShape stem = box(7, 0, 7, 9, 6, 9);
-            VoxelShape straight = Shapes.or(head, stem).optimize();
-            VoxelShape diagonal = Shapes.or(com.destan.trafficengine.block.data.DiagonalVoxelShapes.rotateClockwise45(head), stem).optimize();
+        for (int size = 0; size < 2; size++) for (int upper = 0; upper < 2; upper++) {
+            double min = size == 1 ? 2 : 0, max = 16 - min;
+            double bottom=size==1?2:4,top=16-bottom;
+            VoxelShape panel = box(min, bottom, 4.875, max, top, 6);
+            double low=bottom+.75,high=top-2.25,stop=high+.85;
+            // The same two short arms and square clamp dimensions as traffic lights.
+            VoxelShape arms=Shapes.or(box(7.4,low+.1,6,8.6,low+.75,7.3),box(7.4,high+.1,6,8.6,high+.75,7.3));
+            VoxelShape head=Shapes.or(panel,arms);
+            VoxelShape stem=box(7,0,7,9,upper==1?16:stop,9);
+            VoxelShape clamps=Shapes.or(box(6.72,low,6.72,9.28,low+.85,9.28),box(6.72,high,6.72,9.28,high+.85,9.28));
+            VoxelShape straight=Shapes.or(head,stem,clamps).optimize();
+            VoxelShape diagonal=Shapes.or(com.destan.trafficengine.block.data.DiagonalVoxelShapes.rotateClockwise45(head),stem,clamps).optimize();
             for (Direction facing : Direction.Plane.HORIZONTAL) {
-                SHAPES[size][facing.get2DDataValue()] = RailingGeometry.rotate(straight, facing);
-                DIAGONAL_SHAPES[size][facing.get2DDataValue()] = RailingGeometry.rotate(diagonal, facing);
+                SHAPES[size][upper][facing.get2DDataValue()] = RailingGeometry.rotate(straight, facing);
+                DIAGONAL_SHAPES[size][upper][facing.get2DDataValue()] = RailingGeometry.rotate(diagonal, facing);
             }
         }
     }
@@ -59,7 +66,7 @@ public final class ChevronPanelBlock extends HorizontalDirectionalBlock implemen
         super(Properties.of().mapColor(MapColor.METAL).strength(1.5F).sound(SoundType.METAL).noOcclusion()
             // Constant vanilla block light needs no clock polling or periodic chunk updates.
             .lightLevel(state -> 7));
-        registerDefaultState(defaultBlockState().setValue(DIAGONAL, false).setValue(FACING, Direction.NORTH).setValue(ARROW_RIGHT, true)
+        registerDefaultState(defaultBlockState().setValue(UPPER_CONNECTION, false).setValue(DIAGONAL, false).setValue(FACING, Direction.NORTH).setValue(ARROW_RIGHT, true)
             .setValue(RED_WHITE, true).setValue(SINGLE, false).setValue(LEFT, false).setValue(RIGHT, false).setValue(WATERLOGGED, false));
     }
     public static boolean connects(BlockState neighbor, Direction facing) {
@@ -80,13 +87,17 @@ public final class ChevronPanelBlock extends HorizontalDirectionalBlock implemen
         Direction facing = switch (sector / 2) { case 0 -> Direction.NORTH; case 1 -> Direction.EAST; case 2 -> Direction.SOUTH; default -> Direction.WEST; };
         boolean diagonal = (sector & 1) != 0;
         BlockPos pos = context.getClickedPos();
-        return defaultBlockState().setValue(DIAGONAL, diagonal).setValue(FACING, facing)
+        return defaultBlockState().setValue(UPPER_CONNECTION, connectsAbove(context.getLevel().getBlockState(pos.above()))).setValue(DIAGONAL, diagonal).setValue(FACING, facing)
             .setValue(LEFT, !diagonal && connects(context.getLevel().getBlockState(pos.relative(facing.getClockWise())), facing))
             .setValue(RIGHT, !diagonal && connects(context.getLevel().getBlockState(pos.relative(facing.getCounterClockWise())), facing))
             .setValue(WATERLOGGED, context.getLevel().getFluidState(pos).getType() == Fluids.WATER);
     }
+    private static boolean connectsAbove(BlockState above) {
+        return above.getBlock() instanceof ITrafficPostLike post && post.canConnect(above, Direction.DOWN);
+    }
     @Override public BlockState updateShape(BlockState state, Direction side, BlockState neighbor, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
         if (state.getValue(WATERLOGGED)) level.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+        if (side == Direction.UP) state = state.setValue(UPPER_CONNECTION, connectsAbove(neighbor));
         if (state.getValue(DIAGONAL)) return state.setValue(LEFT, false).setValue(RIGHT, false);
         Direction facing = state.getValue(FACING);
         if (side == facing.getClockWise()) return state.setValue(LEFT, !state.getValue(SINGLE) && connects(neighbor, facing));
@@ -95,13 +106,13 @@ public final class ChevronPanelBlock extends HorizontalDirectionalBlock implemen
     }
     @Override public VoxelShape getOcclusionShape(BlockState state, BlockGetter level, BlockPos pos) { return Shapes.empty(); }
     @Override public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return (state.getValue(DIAGONAL) ? DIAGONAL_SHAPES : SHAPES)[state.getValue(SINGLE) ? 1 : 0][state.getValue(FACING).get2DDataValue()];
+        return (state.getValue(DIAGONAL) ? DIAGONAL_SHAPES : SHAPES)[state.getValue(SINGLE) ? 1 : 0][state.getValue(UPPER_CONNECTION) ? 1 : 0][state.getValue(FACING).get2DDataValue()];
     }
     @Override public FluidState getFluidState(BlockState state) {
         return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
     }
     @Override protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(DIAGONAL, FACING, ARROW_RIGHT, RED_WHITE, SINGLE, LEFT, RIGHT, WATERLOGGED);
+        builder.add(UPPER_CONNECTION, DIAGONAL, FACING, ARROW_RIGHT, RED_WHITE, SINGLE, LEFT, RIGHT, WATERLOGGED);
     }
     @Override public BlockState rotate(BlockState state, Rotation rotation) { return state.setValue(FACING, rotation.rotate(state.getValue(FACING))); }
     @Override public BlockState mirror(BlockState state, Mirror mirror) {

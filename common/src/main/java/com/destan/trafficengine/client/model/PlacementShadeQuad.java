@@ -13,7 +13,10 @@ public final class PlacementShadeQuad extends BakedQuad {
         this(original,shadeDirection,0,0,0,0);
     }
     private PlacementShadeQuad(BakedQuad original,Direction direction,float x,float y,float z,float vertical) {
-        super(original.getVertices(),original.getTintIndex(),original.getDirection(),original.getSprite(),original.isShade());
+        this(original,original.getVertices(),direction,x,y,z,vertical);
+    }
+    private PlacementShadeQuad(BakedQuad original,int[] vertices,Direction direction,float x,float y,float z,float vertical) {
+        super(vertices,original.getTintIndex(),original.getDirection(),original.getSprite(),original.isShade());
         shadeDirection=direction;xWeight=x;yWeight=y;zWeight=z;this.vertical=vertical;
     }
     public static PlacementShadeQuad smooth(BakedQuad original) {
@@ -35,6 +38,12 @@ public final class PlacementShadeQuad extends BakedQuad {
                 result.vertexWeights[i*4+2]=z*z;result.vertexWeights[i*4+3]=y;
             }
         }
+        return result;
+    }
+    /** Reuse immutable shade weights when connected casings only change vertex positions. */
+    public PlacementShadeQuad withVertices(int[] vertices) {
+        PlacementShadeQuad result=new PlacementShadeQuad(this,vertices,shadeDirection,xWeight,yWeight,zWeight,vertical);
+        result.vertexWeights=vertexWeights;
         return result;
     }
     public boolean hasVertexShade(){return vertexWeights!=null;}

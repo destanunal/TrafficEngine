@@ -4,7 +4,7 @@ gradle.projectsEvaluated {
     rootProject.subprojects.findAll { it.name != 'common' }.each { platform ->
         platform.tasks.named('compileJava').configure { task ->
             def original = task.classpath.filter { !it.toPath().startsWith(common.layout.buildDirectory.dir('libs').get().asFile.toPath()) }
-            task.classpath = original + common.sourceSets.main.output.classesDirs
+            task.classpath = common.sourceSets.main.output.classesDirs + original
             task.dependsOn(common.tasks.named('compileJava'))
         }
     }

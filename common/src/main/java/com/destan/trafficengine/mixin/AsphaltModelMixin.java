@@ -71,12 +71,22 @@ public abstract class AsphaltModelMixin {
         }
         // Rebuilt on resource reload; wrappers and tinted quads share the atlas lifetime.
         TextureAtlasSprite white=shaper.getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS)
-            .getSprite(new ResourceLocation("trafficengine","block/sign_blank"));
+            .getSprite(new ResourceLocation("trafficengine","block/patterns/1"));
         Map<BakedModel,BakedModel> strokes=new java.util.IdentityHashMap<>();
         for(var entry:result.entrySet()) {
             if(entry.getKey().getBlock() instanceof com.destan.trafficengine.block.ConnectedRoadSlopeBlock
                     || entry.getKey().getBlock() instanceof com.destan.trafficengine.block.ConnectedRoadBlock)
                 entry.setValue(strokes.computeIfAbsent(entry.getValue(),model->com.destan.trafficengine.client.model.RoadStrokeModels.wrap(model,white)));
+        }
+        // Native joined casings are baked into chunks, sharing the front's existing join rules.
+        Map<com.destan.trafficengine.client.model.RoadSignJoinedBakedModel.CacheKey,BakedModel> signs=new HashMap<>();
+        for(var entry:result.entrySet()) {
+            BlockState state=entry.getKey();
+            if(state.getBlock() instanceof com.destan.trafficengine.block.RoadInformationSignBlock sign
+                    &&sign.kind()!=com.destan.trafficengine.block.RoadInformationSignBlock.Kind.VARIABLE_SPEED) {
+                var key=com.destan.trafficengine.client.model.RoadSignJoinedBakedModel.key(entry.getValue(),state);
+                entry.setValue(signs.computeIfAbsent(key,ignored->com.destan.trafficengine.client.model.RoadSignModels.wrap(entry.getValue(),state)));
+            }
         }
         return result;
     }

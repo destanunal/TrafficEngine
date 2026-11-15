@@ -144,7 +144,6 @@ public class PaintBrushScreen extends TrafficEngineScreen {
                 onClose();
                 ModNetworkManager.UNDO_PAINT_BRUSH.send(NetworkDirection.C2S,new PaintBrushUndoPacket(brushHand));
             }));
-        undoButton.setTooltip(Tooltip.create(Component.translatable("gui.trafficengine.paint_brush.undo.tooltip")));
         addRenderableWidget(new TEButton(left + windowWidth - 112, top + windowHeight - 30, 100, 20,
             Component.translatable("gui.done"), b -> onClose()).primary());
         int favoriteY = previewHeight >= 125 ? gridY + previewHeight - 34 : top + windowHeight - 36;

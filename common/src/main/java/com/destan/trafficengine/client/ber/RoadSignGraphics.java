@@ -223,6 +223,9 @@ public final class RoadSignGraphics {
             float maximumArrowHeight = (availableHeight - count * minimumTextHeight - arrowCount * arrowGap) / arrowCount;
             arrowScale = Math.min(arrowScale, maximumArrowHeight / 23);
         }
+        // Separate arrows on the three-row medium board must remain subordinate to the captions.
+        if (kind == Kind.HIGHWAY && count == 3 && design.centeredArrows())
+            arrowScale = Math.min(arrowScale, .85F);
         float arrowHeight = arrowScale * 23;
         float textHeight = (availableHeight - (design.centeredArrows() ? arrowSpan * arrowScale + arrowCount * arrowGap : 0)) / count;
         float sharedScale = Math.min(requestedScale, (textHeight - paddingY * 2) / glyphHeight);

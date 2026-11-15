@@ -44,7 +44,7 @@ public class RoadInformationSignBlock extends WritableTrafficSign implements ITr
         var unique = new java.util.HashMap<Integer,VoxelShape[]>();
         for (Direction facing : Direction.Plane.HORIZONTAL) for (int mounted=0;mounted<2;mounted++)
                 for (int up=0;up<2;up++) for (int wall=0;wall<2;wall++) for (int hanging=0;hanging<2;hanging++) {
-            boolean w=kind==Kind.VARIABLE_SPEED && wall==1;
+            boolean w=wall==1;
             boolean m=!w && mounted==1;
             boolean h=!w && !m && kind!=Kind.VARIABLE_SPEED && hanging==1;
             boolean u=!w && !m && !h && kind!=Kind.VARIABLE_SPEED && up==1;
@@ -64,6 +64,9 @@ public class RoadInformationSignBlock extends WritableTrafficSign implements ITr
     public static double frontDepth(boolean mounted, boolean wallMounted) {
         return wallMounted ? 16-plateThickness(Kind.VARIABLE_SPEED) : frontDepth(mounted);
     }
+    public static double frontDepth(Kind kind, boolean mounted, boolean wallMounted) {
+        return wallMounted ? 16-plateThickness(kind) : frontDepth(mounted);
+    }
     public static double topHeight(Kind kind, boolean mounted) {
         return kind==Kind.LARGE?(mounted?32:48):kind==Kind.HIGHWAY?(mounted?20:24):kind==Kind.DIRECTION?14:16;
     }
@@ -71,8 +74,11 @@ public class RoadInformationSignBlock extends WritableTrafficSign implements ITr
         return hanging && !mounted ? 16 : topHeight(kind,mounted);
     }
     private static VoxelShape createShape(Kind kind, Direction facing, boolean mounted, boolean upper, boolean wallMounted, boolean hanging) {
-        if (kind==Kind.VARIABLE_SPEED && wallMounted) {
-            return box(facing,0,0,frontDepth(mounted,true),16,16,16);
+        if (wallMounted) {
+            double left=kind==Kind.LARGE?-24:kind==Kind.VARIABLE_SPEED?0:-8;
+            double right=kind==Kind.LARGE?40:kind==Kind.VARIABLE_SPEED?16:24;
+            return box(facing,left,kind==Kind.DIRECTION?2:0,frontDepth(kind,false,true),
+                right,topHeight(kind,false),16);
         }
         return createShape(kind,facing,mounted,upper,hanging && !mounted);
     }
@@ -121,8 +127,11 @@ public class RoadInformationSignBlock extends WritableTrafficSign implements ITr
                     context.getClickedPos().relative(face.getOpposite())),face);
             if (sideOfPost) {
                 state=state.setValue(FACING,face).setValue(POST_MOUNTED,true).setValue(DIAGONAL,false);
-            } else if (kind==Kind.VARIABLE_SPEED) {
-                state=state.setValue(FACING,face).setValue(WALL_MOUNTED,true);
+            } else if (kind==Kind.VARIABLE_SPEED || context.getLevel().getBlockState(
+                    context.getClickedPos().relative(face.getOpposite())).isFaceSturdy(
+                    context.getLevel(),context.getClickedPos().relative(face.getOpposite()),face)) {
+                state=state.setValue(FACING,face).setValue(WALL_MOUNTED,true)
+                    .setValue(POST_MOUNTED,false).setValue(DIAGONAL,false);
             }
         }
         return connections(state,context.getLevel().getBlockState(context.getClickedPos().above()));
