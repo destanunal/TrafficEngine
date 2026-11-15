@@ -45,4 +45,4 @@ Changelog dosyası kaynak depoya eklenmez; formdaki metin geçici yayın planın
 
 CurseForge için ardışık maddeler arasındaki boş satırlar otomatik kaldırılır; başlık ve paragraf aralıkları korunur. Böylece madde işareti metinden ayrı satıra düşmez. Modrinth için özgün Markdown kullanılır.
 
-**Update existing Traffic Engine changelogs** akışı mevcut sürümün dört dosyasını `inspect` ile listeler; `update` yalnızca changelog alanlarını değiştirir. Oyun dosyalarını yeniden yüklemez.
+**Update existing Traffic Engine changelogs** akışı girilen dört dosya kimliğini `inspect` ile doğrular; `update` yalnızca changelog alanlarını değiştirir. Oyun dosyalarını yeniden yüklemez.
