@@ -31,3 +31,8 @@
 ## Pole geometry and materials
 
 - Every new or modified pole, including footing stems, mounting brackets and extensions, must use the normal traffic sign pole texture with matching UV orientation and scale. Avoid coincident visible faces at all joins (including railing/post, slope/post and button/post); trim or omit covered geometry instead of layering coplanar surfaces. Check flat and sloped supports, both railing types, with and without attachments.
+
+## Release-note formatting
+
+- CurseForge changelogs must use tight lists: no blank lines between consecutive bullet items. Keep each bullet and its text on the same rendered line; preserve spacing around headings and paragraphs.
+- Normalize and validate CurseForge notes before publishing or updating file metadata. Check the rendered HTML for unwanted paragraph wrappers inside list items. Treat this as a persistent release preference.
