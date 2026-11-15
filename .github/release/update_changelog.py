@@ -17,24 +17,21 @@ def main():
     parser.add_argument("mode", choices=("inspect", "update"))
     parser.add_argument("--version", required=True)
     parser.add_argument("--changelog", type=Path)
+    parser.add_argument("--file-ids", required=True)
     args = parser.parse_args()
-    token = os.environ["CURSEFORGE_TOKEN"]
-    headers = {"X-Api-Token": token, "User-Agent": "TrafficEngine-changelog-maintenance/1.0"}
-    with urllib.request.urlopen(urllib.request.Request(BASE + "/files", headers=headers), timeout=40) as response:
-        inventory = json.load(response)
-    files = inventory.get("data", inventory.get("files", [])) if isinstance(inventory, dict) else inventory
-    selected = []
-    for item in files:
-        name = item.get("displayName", item.get("fileName", item.get("name", "")))
-        if f"-{args.version}+" in name or f"-{args.version}-" in name:
-            selected.append((item, name))
-    print("Matching files:", json.dumps([{"id": f.get("id"), "name": n} for f, n in selected], ensure_ascii=False))
-    if args.mode == "inspect":
+    raw_ids=args.file_ids.split(",")
+    if len(raw_ids)!=4 or any(not value.strip().isdigit() for value in raw_ids):
+        raise ValueError("Supply the four exact file IDs in Fabric 1.20.1, Forge 1.20.1, Fabric 1.21.1, NeoForge 1.21.1 order.")
+    file_ids=[int(value.strip()) for value in raw_ids]
+    if len(set(file_ids))!=4 or any(value<=0 for value in file_ids):
+        raise ValueError("File IDs must be positive and unique.")
+    selected=[({"id":file_id},f"trafficengine-{loader}-{args.version}+{mc}.jar")
+        for file_id,(mc,loader) in zip(file_ids,(("1.20.1","fabric"),("1.20.1","forge"),("1.21.1","fabric"),("1.21.1","neoforge")))]
+    print("Target file metadata:",json.dumps([{"id":f["id"],"name":n} for f,n in selected]))
+    if args.mode=="inspect":
         return
-    expected = {f"trafficengine-{loader}-{args.version}+{mc}.jar" for mc, loader in
-                (("1.20.1", "fabric"), ("1.20.1", "forge"), ("1.21.1", "fabric"), ("1.21.1", "neoforge"))}
-    if len(selected) != 4 or {n for _, n in selected} != expected:
-        raise ValueError("Expected exactly the four matching distribution names; no file was changed.")
+    token=os.environ["CURSEFORGE_TOKEN"]
+    headers={"X-Api-Token":token,"User-Agent":"TrafficEngine-changelog-maintenance/1.0"}
     notes = tight_changelog(args.changelog.read_text(encoding="utf-8"))
     if not notes.startswith("# ") or args.version not in notes.splitlines()[0]:
         raise ValueError("The changelog heading must match the selected release.")
