@@ -28,10 +28,10 @@ public class RoadInformationSignRenderer extends BaseBlockEntityRenderer<RoadInf
         var pose = graphics.poseStack(); pose.pushPose();
         pose.translate(0.5, RoadInformationSignBlock.topHeight(kind,mounted,sign.getBlockState().getValue(RoadInformationSignBlock.HANGING))/16, 0.5);
         pose.mulPose(Axis.YP.rotationDegrees(rotation));
-        pose.translate(0, 0, 0.5-RoadInformationSignBlock.frontDepth(mounted,wallMounted)/16+ARTWORK_CLEARANCE);
+        pose.translate(0, 0, 0.5-RoadInformationSignBlock.frontDepth(kind,mounted,wallMounted)/16+ARTWORK_CLEARANCE);
         pose.scale(1F/96, -1F/96, 1F/96); pose.translate(-RoadSignGraphics.width(kind)/2F, 0, 0);
         new RoadSignGraphics(pose, graphics.multiBufferSource(), font,
-            kind == Kind.VARIABLE_SPEED ? LightTexture.FULL_BRIGHT : graphics.packedLight(), true, layouts.get(sign.getLevel(),sign.getBlockPos().asLong())).draw(kind,
+            kind == Kind.VARIABLE_SPEED ? LightTexture.FULL_BRIGHT : net.minecraft.client.renderer.LevelRenderer.getLightColor(sign.getLevel(),sign.frontLightPosition()), true, layouts.get(sign.getLevel(),sign.getBlockPos().asLong())).draw(kind,
                 sign.destinations(),
                 sign.arrows(),
                 sign.distances(),sign.route(),sign.theme(),sign.displayedSpeed(),sign.enabled(),sign.design(),sign.horizontalConnections());

@@ -134,7 +134,7 @@ public final class Update232Check {
    var state=chevron.defaultBlockState().setValue(ChevronPanelBlock.FACING,facing).setValue(ChevronPanelBlock.DIAGONAL,true).setValue(ChevronPanelBlock.SINGLE,single);
    var shape=state.getShape(EmptyBlockGetter.INSTANCE,BlockPos.ZERO);
    check(shape==state.getShape(EmptyBlockGetter.INSTANCE,BlockPos.ZERO),"Chevron shape is reused");
-   check(EquipmentOutlineGeometry.edges(state).length==216,"Chevron keeps the simple panel/stem outline");
+   check(EquipmentOutlineGeometry.edges(state).length==216,"Chevron outlines only the panel and exposed lower carrier");
    check(PlacementParticles.straight(state)==state.setValue(ChevronPanelBlock.DIAGONAL,false),"Chevron particles remain identical to the straight placement");
    var north=state.setValue(ChevronPanelBlock.FACING,Direction.NORTH).getShape(EmptyBlockGetter.INSTANCE,BlockPos.ZERO);
    check(!Shapes.joinIsNotEmpty(north,Shapes.box(7.01/16,.5/16,7.01/16,7.1/16,.6/16,7.1/16),BooleanOp.ONLY_SECOND),"Chevron's square lower carrier aligns with a normal post");

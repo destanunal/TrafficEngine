@@ -1,1 +1,1 @@
-{"textures":{"metal":"trafficengine:block/sign"},"elements":[{"name":"single_left_cap","from":[11.75,6.25,6.875],"to":[12,13.75,6.95],"faces":{"north":{"texture":"#metal","uv":[0,0,16,16]}}}]}
+{"textures":{"metal":"trafficengine:block/sign","panel":"trafficengine:block/sign"},"elements":[{"name":"single_left_cap","from":[13.625,2.375,4.875],"to":[14.0,13.625,4.95],"faces":{"north":{"texture":"#panel","uv":[0,0,0.375,11.25]}}}],"ambientocclusion":false}

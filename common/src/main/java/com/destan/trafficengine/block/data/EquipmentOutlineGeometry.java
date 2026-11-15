@@ -57,9 +57,11 @@ public final class EquipmentOutlineGeometry {
     private static void chevron(BlockState state,List<float[]> parts) {
         Direction facing=state.getValue(ChevronPanelBlock.FACING);
         boolean diagonal=state.getValue(ChevronPanelBlock.DIAGONAL),single=state.getValue(ChevronPanelBlock.SINGLE);
-        // Include the thin reflective face/end caps. Do not outline the hidden rear stem.
-        box(parts,facing,diagonal,single?4:0,6,6.875,single?12:16,14,8);
-        box(parts,facing,false,7,0,7,9,6,9);
+        // Keep the printed panel and only exposed carrier ends in the cached outline.
+        double bottom=single?2:4,top=16-bottom;
+        box(parts,facing,diagonal,single?2:0,bottom,4.875,single?14:16,top,6);
+        box(parts,facing,false,7,0,7,9,bottom,9);
+        if(state.getValue(ChevronPanelBlock.UPPER_CONNECTION))box(parts,facing,false,7,top,7,9,16,9);
     }
     private static void light(BlockState state,List<float[]> parts) {
         Direction facing=state.getValue(TrafficLightBlock.FACING);
@@ -108,7 +110,7 @@ public final class EquipmentOutlineGeometry {
         double bottom=(kind==RoadInformationSignBlock.Kind.LARGE&&mounted?-16:kind==RoadInformationSignBlock.Kind.DIRECTION?2:kind==RoadInformationSignBlock.Kind.HIGHWAY&&mounted?-4:0)+shift;
         double left=kind==RoadInformationSignBlock.Kind.LARGE?-24:kind==RoadInformationSignBlock.Kind.VARIABLE_SPEED?0:-8;
         double right=kind==RoadInformationSignBlock.Kind.LARGE?40:kind==RoadInformationSignBlock.Kind.VARIABLE_SPEED?16:24;
-        double front=RoadInformationSignBlock.frontDepth(mounted,wall);
+        double front=RoadInformationSignBlock.frontDepth(kind,mounted,wall);
         box(parts,facing,diagonal,left,bottom,front,right,baseTop+shift,front+RoadInformationSignBlock.plateThickness(kind));
         if(!mounted&&!wall)box(parts,facing,diagonal,7,shift,7,9,Math.max(shift,bottom),9);
     }

@@ -1,0 +1,15 @@
+gradle.projectsEvaluated {
+ def common=rootProject.project(':common')
+ def compiler=common.tasks.register('compile233Check',JavaCompile) {
+  dependsOn common.tasks.named('compileJava'),common.tasks.named('processResources')
+  source new File(rootProject.projectDir,'docs/checks/Update233Check.java'), new File(rootProject.projectDir,'docs/checks/Visual233Check.java')
+  classpath=common.sourceSets.main.compileClasspath+common.sourceSets.main.output
+  destinationDirectory=common.layout.buildDirectory.dir('checks233')
+ }
+ common.tasks.register('check233',JavaExec) {
+  dependsOn compiler
+  classpath=common.files(compiler.flatMap {it.destinationDirectory})+common.sourceSets.main.compileClasspath+common.sourceSets.main.output
+  mainClass='Update233Check'
+  args rootProject.projectDir.absolutePath
+ }
+}
