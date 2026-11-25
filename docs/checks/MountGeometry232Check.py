@@ -61,11 +61,12 @@ def matches(condition,state):
 directions=('north','south','east','west','up','down')
 for axis in ('x','y','z'):
  for flags in itertools.product((False,True),repeat=6):
-  state=dict(zip(directions,flags));state['axis']=axis;arms=[]
+  state=dict(zip(directions,flags));state.update(axis=axis,bottom_extension=False,ceiling_support=False);arms=[]
   for part in multipart:
    if not matches(part.get('when',{}),state):continue
    a=part['apply'];a=a[0] if isinstance(a,list) else a;model=a['model'].split('/')[-1]
    if model=='traffic_sign_post_double':arms+=['up','down'] if a.get('x')==90 else ['east','west'] if a.get('y')==90 else ['north','south']
+   elif model=='traffic_sign_post_short':arms+=['up','down']
    elif model=='traffic_sign_post_connection':arms.append('up' if a.get('x')==270 else 'down' if a.get('x')==90 else {0:'north',90:'east',180:'south',270:'west'}[a.get('y',0)] if a.get('x')!=180 else 'south')
   expected={side for side,flag in zip(directions,flags) if flag}
   pair={'x':{'east','west'},'y':{'up','down'},'z':{'north','south'}}[axis]

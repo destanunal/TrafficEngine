@@ -13,7 +13,7 @@
       "item": "trafficengine:traffic_sign_post"
     },
     "G": {
-      "item": "trafficengine:street_light"
+      "item": "minecraft:glowstone"
     }
   },
   "result": {

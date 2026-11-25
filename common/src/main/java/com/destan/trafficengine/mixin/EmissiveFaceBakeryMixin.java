@@ -5,6 +5,9 @@ import com.mojang.math.Transformation;
 import com.destan.trafficengine.client.model.EmissiveFace;
 import com.destan.trafficengine.client.model.EmissiveQuad;
 import com.destan.trafficengine.client.model.PlacementShadeQuad;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.client.renderer.block.model.*;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.ModelState;
@@ -20,6 +23,18 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class EmissiveFaceBakeryMixin {
     @Shadow private void applyElementRotation(Vector3f position, BlockElementRotation rotation) {}
     @Shadow public abstract void applyModelRotation(Vector3f position, Transformation rotation);
+
+    @WrapOperation(method = "bakeQuad", at = @At(value = "INVOKE", target =
+        "Lnet/minecraft/client/renderer/block/model/FaceBakery;recalculateWinding([ILnet/minecraft/core/Direction;)V"))
+    private void trafficengine$keepCurvedFaceUvOrder(FaceBakery bakery, int[] vertices, Direction direction,
+            Operation<Void> original, @Local(argsOnly = true) BlockElementFace face) {
+        EmissiveFace metadata = (EmissiveFace) (Object) face;
+        // The mast supplies its own corner order below. Sorting the temporary
+        // box first can rotate its UVs onto the thin edge of the final quad.
+        if (!metadata.trafficengine$smoothShade() || metadata.trafficengine$getVertices() == null) {
+            original.call(bakery, vertices, direction);
+        }
+    }
 
     @Inject(method="bakeQuad",at=@At("RETURN"),cancellable=true)
     private void trafficengine$bake(Vector3f from, Vector3f to, BlockElementFace face,

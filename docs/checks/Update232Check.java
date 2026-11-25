@@ -33,6 +33,62 @@ public final class Update232Check {
  public static void main(String[] args)throws Exception {
   net.minecraft.SharedConstants.tryDetectVersion();net.minecraft.server.Bootstrap.bootStrap();Block[] b=fixtures();
   var warning=(WarningLightBlock)b[0];var curved=(CurvedTrafficPoleBlock)b[1];
+  for(Direction facing:Direction.Plane.HORIZONTAL) {
+   var base=curved.defaultBlockState().setValue(CurvedTrafficPoleBlock.FACING,facing);
+   for(int part:new int[]{0,3}) {
+    var bare=base.setValue(CurvedTrafficPoleBlock.PART,part);
+    var mounted=bare.setValue(CurvedTrafficPoleBlock.SIGN_MOUNTS,2);
+    var shape=mounted.getShape(EmptyBlockGetter.INSTANCE,BlockPos.ZERO);
+    check(shape==mounted.getShape(EmptyBlockGetter.INSTANCE,BlockPos.ZERO),"Curve receiver uses cached geometry");
+    check(Shapes.joinIsNotEmpty(shape,bare.getShape(EmptyBlockGetter.INSTANCE,BlockPos.ZERO),BooleanOp.ONLY_FIRST),"Mounted receiver extends the corresponding curved part");
+    var eastJoin=RailingGeometry.rotate(Block.box(12.04,7.89,7.91,12.09,8.11,8.09),facing);
+    check(!Shapes.joinIsNotEmpty(shape,eastJoin,BooleanOp.ONLY_SECOND),"Brace reaches the sign foot from the mounted side");
+    var westJoin=RailingGeometry.rotate(Block.box(3.91,7.89,7.91,3.96,8.11,8.09),facing);
+    check(!Shapes.joinIsNotEmpty(shape,westJoin,BooleanOp.AND),"No brace on the unoccupied side");
+    var both=bare.setValue(CurvedTrafficPoleBlock.SIGN_MOUNTS,10).getShape(EmptyBlockGetter.INSTANCE,BlockPos.ZERO);
+    check(!Shapes.joinIsNotEmpty(both,westJoin,BooleanOp.ONLY_SECOND),"Both occupied sides retain their own brace");
+    check(mounted.mirror(Mirror.FRONT_BACK).getValue(CurvedTrafficPoleBlock.SIGN_MOUNTS)==8,"Mirroring reverses the brace side relative to the mast");
+    double strapY=part==0?8:4.78729, strapZ=part==0?6.07888:8;
+    for(double x:new double[]{6.85,9.08}) {
+     var strap=RailingGeometry.rotate(Block.box(x,strapY-.02,strapZ-.02,x+.05,strapY+.02,strapZ+.02),facing);
+     check(!Shapes.joinIsNotEmpty(shape,strap,BooleanOp.ONLY_SECOND),"Wraparound band is selectable on both sides of the curved pole");
+    }
+    for(Direction side:Direction.Plane.HORIZONTAL)
+     check(CurvedTrafficPoleBlock.isTrafficSignMount(bare,side)==(part==0||side.getAxis()!=facing.getAxis()),"Traffic sign mount follows actual curve faces");
+   }
+   check(!CurvedTrafficPoleBlock.isTrafficSignMount(base.setValue(CurvedTrafficPoleBlock.PART,1),facing),"Thin picking helper redirects instead of accepting an unsupported sign");
+  }
+  var updateHardware=TrafficSignBlock.class.getDeclaredMethod("withPostHardware",BlockState.class,BlockState.class);
+  updateHardware.setAccessible(true);
+  var oldSign=b[4].defaultBlockState().setValue(TrafficSignBlock.POST_MOUNTED,true);
+  var oldSupport=curved.defaultBlockState();
+  var curvedSign=(BlockState)updateHardware.invoke(null,oldSign,oldSupport);
+  check(curvedSign.getValue(TrafficSignBlock.CURVED_MOUNT),"Existing tilted signs select the curved stem on their next support reconciliation");
+  check(updateHardware.invoke(null,curvedSign,b[2].defaultBlockState())==oldSign,"A straight pole keeps its ordinary clamp");
+  check(!b[8].defaultBlockState().hasProperty(TrafficSignBlock.CURVED_MOUNT),"Double-sided sign states are not expanded");
+  var tip=Block.box(7.6,7.8,19.80,8.4,8.2,19.89);
+  var mountedShape=curvedSign.getShape(EmptyBlockGetter.INSTANCE,BlockPos.ZERO);
+  check(!Shapes.joinIsNotEmpty(mountedShape,tip,BooleanOp.ONLY_SECOND),"Mounted sign hits the new connecting stem");
+  var diagonalSign=b[4].defaultBlockState().setValue(TrafficSignBlock.DIAGONAL,true).setValue(TrafficSignBlock.SHAPE,TrafficSignShape.SQUARE);
+  for (Direction facing:Direction.Plane.HORIZONTAL) {
+   var variant=diagonalSign.setValue(TrafficSignBlock.FACING,facing);
+   var diagonalShape=variant.getShape(EmptyBlockGetter.INSTANCE,BlockPos.ZERO);
+   check(diagonalShape==variant.getShape(EmptyBlockGetter.INSTANCE,BlockPos.ZERO),"Offset diagonal shape remains cached");
+   var pole=RailingGeometry.rotate(Block.box(7.08,0.1,7.08,8.92,15.9,8.92),facing);
+   check(!Shapes.joinIsNotEmpty(diagonalShape,pole,BooleanOp.ONLY_SECOND),"Centered square pole still spans the cell");
+   var outside=RailingGeometry.rotate(Block.box(9.5,7.9,6.5,9.57,8.1,6.57),facing);
+   check(Shapes.joinIsNotEmpty(diagonalShape,outside,BooleanOp.AND),"Offset diagonal face is selectable in front of the square pole");
+   var outline=TrafficSignOutlineGeometry.plate(TrafficSignShape.SQUARE,facing,false,true,true);
+   var original=TrafficSignOutlineGeometry.plate(TrafficSignShape.SQUARE,facing,false,true);
+   check(outline==TrafficSignOutlineGeometry.plate(TrafficSignShape.SQUARE,facing,false,true,true),"Offset diagonal outline is cached");
+   for(int i=0;i<outline.length;i+=9) {
+    double moved=Math.hypot(outline[i]-original[i],outline[i+2]-original[i+2]);
+    check(Math.abs(moved-TrafficSignBlock.DIAGONAL_PLATE_OFFSET/16)<1e-6,"Outline follows the offset plate");
+   }
+  }
+  check(!TrafficSignBlock.hasSpacedDiagonalPlate(b[8].defaultBlockState().setValue(TrafficSignBlock.DIAGONAL,true)),"Double-sided sign retains its own geometry");
+  var wallDisplay=b[6].defaultBlockState().setValue(LedDeviceBlock.WALL_MOUNTED,true);
+  check(LedDeviceBlock.resolveMount(wallDisplay,null,BlockPos.ZERO)==wallDisplay,"Wall displays skip all support reads when already reconciled");
   for(var model:TrafficLightModel.values())for(Direction facing:Direction.Plane.HORIZONTAL)for(boolean horizontal:new boolean[]{false,true})for(boolean diagonal:new boolean[]{false,true})for(boolean hanging:new boolean[]{false,true})for(boolean compact:new boolean[]{false,true}) {
    var s=warning.defaultBlockState().setValue(TrafficLightBlock.MODEL,model).setValue(TrafficLightBlock.FACING,facing).setValue(WarningLightBlock.HORIZONTAL,horizontal).setValue(TrafficLightBlock.DIAGONAL,diagonal).setValue(WarningLightBlock.HANGING,hanging).setValue(WarningLightBlock.COMPACT,compact);
    var shape=warning.getShape(s,EmptyBlockGetter.INSTANCE,BlockPos.ZERO,CollisionContext.empty());

@@ -79,7 +79,7 @@ public final class BlueprintUndo {
         for(Copy copy:history.copies)if(!valid(player,tool,copy,false)){BlueprintToolItem.message(player,"undo_blocked");return;}
         forget(player.getUUID());PENDING.add(new Pending(player,tool,history,history.copies.size()));
     }
-    /** Shares the construction budget: at most one complete copy (512 cells) per tick. */
+    /** Shares the construction budget: at most one complete copy per tick. */
     public static boolean tick(){
         Pending pending=PENDING.poll();if(pending==null)return false;
         ServerPlayer player=pending.player;History history=pending.history;Copy copy=history.copies.get(pending.remaining-1);
@@ -93,8 +93,10 @@ public final class BlueprintUndo {
         BlueprintPlacement.beginWriting();
         try{
             for(int i=copy.cells.size()-1;i>=0;i--){
-                Cell c=copy.cells.get(i);world.removeBlockEntity(c.pos);
-                if(!world.setBlock(c.pos,Blocks.AIR.defaultBlockState(),2|16))throw new IllegalStateException("Removal rejected");
+                Cell c = copy.cells.get(i);
+                if (c.state.isAir()) continue; // A cleared plant half is already air.
+                world.removeBlockEntity(c.pos);
+                if (!world.setBlock(c.pos, Blocks.AIR.defaultBlockState(), 2 | 16)) throw new IllegalStateException("Removal rejected");
             }
             restore(world,copy.before);
             removed=true;

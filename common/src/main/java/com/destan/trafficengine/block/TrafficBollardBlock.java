@@ -13,7 +13,7 @@ public class TrafficBollardBlock extends TrafficConeBlock {
     private static final VoxelShape SHAPE = Shapes.or(
         Block.box(4, 0, 4, 12, 1, 12),
         Block.box(6, 1, 6, 10, 2, 10),
-        Block.box(7, 2, 7, 9, 16, 9)
+        Block.box(6.7, 2, 6.7, 9.3, 16, 9.3)
     );
 
     private static final VoxelShape COLLISION = Block.box(6, 0, 6, 10, 24, 10);

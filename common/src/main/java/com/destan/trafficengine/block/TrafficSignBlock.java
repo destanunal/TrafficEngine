@@ -46,6 +46,7 @@ import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
@@ -57,19 +58,28 @@ public class TrafficSignBlock extends BaseEntityBlock implements SimpleWaterlogg
     public static final BooleanProperty DIAGONAL = BooleanProperty.create("diagonal");
     public static final net.minecraft.world.level.block.state.properties.IntegerProperty DIRECT_MOUNTED = net.minecraft.world.level.block.state.properties.IntegerProperty.create("direct_mounted", 0, 3);
     public static final BooleanProperty POST_MOUNTED = BooleanProperty.create("post_mounted");
+    public static final double DIAGONAL_PLATE_OFFSET = 0.75D;
+    public static final BooleanProperty CURVED_MOUNT = BooleanProperty.create("curved_mount");
     public static final EnumProperty<TrafficSignShape> SHAPE = EnumProperty.create("shape", TrafficSignShape.class);
 
     private static final VoxelShape[][] WALL_SHAPES = new VoxelShape[TrafficSignShape.values().length][4];
     private static final VoxelShape[][][] DIRECT_SHAPES = new VoxelShape[3][TrafficSignShape.values().length][4];
+    private static final VoxelShape[][] SPACED_DIAGONAL_SHAPES = new VoxelShape[TrafficSignShape.values().length][4];
     private static final VoxelShape[][] DIAGONAL_SHAPES = new VoxelShape[TrafficSignShape.values().length][4];
     private static final VoxelShape[][] POST_MOUNTED_SHAPES =
         new VoxelShape[TrafficSignShape.values().length][4];
+    private static final VoxelShape[][] CURVED_MOUNTED_SHAPES = new VoxelShape[TrafficSignShape.values().length][4];
 
     static {
+        VoxelShape[] curvedStems = new VoxelShape[4];
+        VoxelShape stem = Block.box(7.3, 7.55, 18.70, 8.7, 8.45, 19.9);
+        for (Direction facing : Direction.Plane.HORIZONTAL) curvedStems[facing.get2DDataValue()] = RailingGeometry.rotate(stem, facing);
         for (TrafficSignShape shape : TrafficSignShape.values()) {
+            VoxelShape spaced = spacedDiagonalShape(shape);
             for (Direction direction : Direction.Plane.HORIZONTAL) {
                 DIAGONAL_SHAPES[shape.ordinal()][direction.get2DDataValue()] =
                     DiagonalVoxelShapes.rotateClockwise45(shape.getVoxelShape(direction));
+                SPACED_DIAGONAL_SHAPES[shape.ordinal()][direction.get2DDataValue()] = RailingGeometry.rotate(spaced, direction);
 
                 Direction supportDirection = direction.getOpposite();
                 VoxelShape wall = getWallMountedShape(shape, direction);
@@ -84,8 +94,31 @@ public class TrafficSignBlock extends BaseEntityBlock implements SimpleWaterlogg
                 );
                 POST_MOUNTED_SHAPES[shape.ordinal()][direction.get2DDataValue()] =
                     Shapes.or(plate, createPostMountedConnector(direction)).optimize();
+                CURVED_MOUNTED_SHAPES[shape.ordinal()][direction.get2DDataValue()] =
+                    Shapes.or(plate, curvedStems[direction.get2DDataValue()]).optimize();
             }
         }
+    }
+
+    private static VoxelShape spacedDiagonalShape(TrafficSignShape shape) {
+        VoxelShape pole = Block.box(7, 0, 7, 9, shape == TrafficSignShape.SMALL_LOWER ? 8 : 16, 9);
+        VoxelShape plate = Shapes.join(shape.getVoxelShape(Direction.NORTH), Block.box(0, 0, 0, 16, 16, 7), BooleanOp.AND)
+            .move(0, 0, -DIAGONAL_PLATE_OFFSET / 16);
+        double lowerMount = switch (shape) {
+            case SMALL_UPPER -> 10.5;
+            case RECTANGLE_HORIZONTAL -> 6.5;
+            default -> 2.5;
+        };
+        double upperMount = shape == TrafficSignShape.SMALL_LOWER ? 5.5 : 13.5;
+        VoxelShape mounted = Shapes.or(plate,
+            Block.box(7.32, lowerMount - .30, 6.25, 8.68, lowerMount + .30, 7.08),
+            Block.box(7.32, upperMount - .30, 6.25, 8.68, upperMount + .30, 7.08));
+        return Shapes.or(pole, DiagonalVoxelShapes.rotateClockwise45(mounted)).optimize();
+    }
+
+    public static boolean hasSpacedDiagonalPlate(BlockState state) {
+        return state.hasProperty(CURVED_MOUNT) && state.getValue(DIAGONAL)
+            && state.getValue(DIRECT_MOUNTED) == 0 && !state.getValue(POST_MOUNTED) && !state.getValue(WALL_MOUNTED);
     }
 
     private static VoxelShape createPostMountedConnector(Direction facing) {
@@ -142,15 +175,15 @@ public class TrafficSignBlock extends BaseEntityBlock implements SimpleWaterlogg
             .sound(SoundType.LANTERN)
         );
 
-        this.registerDefaultState(this.stateDefinition.any()
+        BlockState initial = this.stateDefinition.any()
             .setValue(FACING, Direction.NORTH)
             .setValue(WATERLOGGED, false)
             .setValue(WALL_MOUNTED, false)
             .setValue(DIAGONAL, false)
             .setValue(POST_MOUNTED, false)
             .setValue(DIRECT_MOUNTED, 0)
-            .setValue(SHAPE, TrafficSignShape.SQUARE)
-        );
+            .setValue(SHAPE, TrafficSignShape.SQUARE);
+        this.registerDefaultState(initial.hasProperty(CURVED_MOUNT) ? initial.setValue(CURVED_MOUNT, false) : initial);
     }
 
     @Override
@@ -159,11 +192,15 @@ public class TrafficSignBlock extends BaseEntityBlock implements SimpleWaterlogg
             return DIRECT_SHAPES[pState.getValue(DIRECT_MOUNTED) - 1][pState.getValue(SHAPE).ordinal()][pState.getValue(FACING).get2DDataValue()];
         }
         if (pState.getValue(POST_MOUNTED)) {
-            return POST_MOUNTED_SHAPES[pState.getValue(SHAPE).ordinal()]
-                [pState.getValue(FACING).get2DDataValue()];
+            VoxelShape[][] shapes = pState.hasProperty(CURVED_MOUNT) && pState.getValue(CURVED_MOUNT)
+                ? CURVED_MOUNTED_SHAPES : POST_MOUNTED_SHAPES;
+            return shapes[pState.getValue(SHAPE).ordinal()][pState.getValue(FACING).get2DDataValue()];
         }
         if (pState.getValue(WALL_MOUNTED)) {
             return WALL_SHAPES[pState.getValue(SHAPE).ordinal()][pState.getValue(FACING).get2DDataValue()];
+        }
+        if (hasSpacedDiagonalPlate(pState)) {
+            return SPACED_DIAGONAL_SHAPES[pState.getValue(SHAPE).ordinal()][pState.getValue(FACING).get2DDataValue()];
         }
         return getFreestandingShape(
             pState.getValue(SHAPE),
@@ -276,6 +313,7 @@ public class TrafficSignBlock extends BaseEntityBlock implements SimpleWaterlogg
         boolean wallMounted = false;
         boolean postMounted = false;
         boolean directMounted = false;
+        boolean curvedMount = false;
         int directMount = 0;
 
         // Only the regular traffic sign changes mode automatically. Subclasses
@@ -286,7 +324,8 @@ public class TrafficSignBlock extends BaseEntityBlock implements SimpleWaterlogg
             directMounted = directSupport(supportState, clickedFace)
                 && (!(supportState.getBlock() instanceof TrafficSignPostBlock) || pContext.getPlayer() != null && pContext.getPlayer().isShiftKeyDown());
             directMount = directMounted ? directMountKind(supportState, clickedFace) : 0;
-            postMounted = !directMounted && CurvedTrafficPoleBlock.isMountingPost(supportState, clickedFace);
+            postMounted = !directMounted && CurvedTrafficPoleBlock.isTrafficSignMount(supportState, clickedFace);
+            curvedMount = postMounted && CurvedTrafficPoleBlock.usesSignBand(supportState, clickedFace);
             wallMounted = directMounted || postMounted
                 || supportState.isFaceSturdy(pContext.getLevel(), supportPos, clickedFace);
             if (postMounted) {
@@ -303,13 +342,14 @@ public class TrafficSignBlock extends BaseEntityBlock implements SimpleWaterlogg
         // otherwise the plate misses the arm behind it.
         Direction facing = (wallMounted || postMounted) ? clickedFace : getEightWayFacing(sector);
         boolean diagonal = !wallMounted && !postMounted && (sector & 1) == 1;
-        return this.defaultBlockState()
+        BlockState placed = this.defaultBlockState()
             .setValue(FACING, facing)
             .setValue(WATERLOGGED, flag)
             .setValue(WALL_MOUNTED, wallMounted)
             .setValue(DIAGONAL, diagonal)
             .setValue(POST_MOUNTED, postMounted)
             .setValue(DIRECT_MOUNTED, directMount);
+        return placed.hasProperty(CURVED_MOUNT) ? placed.setValue(CURVED_MOUNT, curvedMount) : placed;
     }
 
     private static int getPlacementSector(float rotation) {
@@ -347,6 +387,12 @@ public class TrafficSignBlock extends BaseEntityBlock implements SimpleWaterlogg
     protected void createBlockStateDefinition(Builder<Block, BlockState> pBuilder) {
         super.createBlockStateDefinition(pBuilder);
         pBuilder.add(FACING, WATERLOGGED, WALL_MOUNTED, DIAGONAL, POST_MOUNTED, DIRECT_MOUNTED, SHAPE);
+        if (getClass() == TrafficSignBlock.class) pBuilder.add(CURVED_MOUNT);
+    }
+
+    static BlockState withPostHardware(BlockState sign, BlockState support) {
+        if (!sign.hasProperty(CURVED_MOUNT) || !sign.getValue(POST_MOUNTED)) return sign;
+        return sign.setValue(CURVED_MOUNT, CurvedTrafficPoleBlock.usesSignBand(support, sign.getValue(FACING)));
     }
 
     @Override
@@ -356,7 +402,7 @@ public class TrafficSignBlock extends BaseEntityBlock implements SimpleWaterlogg
         }
         if (pState.getValue(POST_MOUNTED)) {
             BlockPos supportPos = pPos.relative(pState.getValue(FACING).getOpposite());
-            return CurvedTrafficPoleBlock.isMountingPost(pLevel.getBlockState(supportPos), pState.getValue(FACING));
+            return CurvedTrafficPoleBlock.isTrafficSignMount(pLevel.getBlockState(supportPos), pState.getValue(FACING));
         }
         if (!pState.getValue(WALL_MOUNTED)) {
             return super.canSurvive(pState, pLevel, pPos);
@@ -384,6 +430,7 @@ public class TrafficSignBlock extends BaseEntityBlock implements SimpleWaterlogg
   
         if (supportChanged && pState.getValue(DIRECT_MOUNTED) > 0)
             pState = pState.setValue(DIRECT_MOUNTED, directMountKind(pFacingState, pState.getValue(FACING)));
+        if (supportChanged) pState = withPostHardware(pState, pFacingState);
         return super.updateShape(pState, pFacing, pFacingState, pLevel, pCurrentPos, pFacingPos);
     }
 

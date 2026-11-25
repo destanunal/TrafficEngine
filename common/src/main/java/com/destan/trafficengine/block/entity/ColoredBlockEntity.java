@@ -21,7 +21,8 @@ public class ColoredBlockEntity extends SyncedBlockEntity implements IColorBlock
     // separate lets a white/blue marking sit on an already painted road.
     private PaintColor markingColor = PaintColor.NONE;
     private static final String NBT_MARKING_COLOR = "marking_color";
-    private float[] strokeVertices=new float[0];
+    private static final float[] EMPTY_STROKE = new float[0];
+    private float[] strokeVertices = EMPTY_STROKE;
     private int roadDashGap=2;
     private int automaticLinePosition=-1;
     public int getAutomaticLinePosition() {return automaticLinePosition;}
@@ -37,7 +38,8 @@ public class ColoredBlockEntity extends SyncedBlockEntity implements IColorBlock
         customRoadPattern = com.destan.trafficengine.data.PixelPattern.EMPTY;
         roadDashGap=dashGap==4?4:2;
         automaticLinePosition=Math.max(-1,Math.min(2,automaticPosition));
-        strokeVertices=vertices.clone();notifyUpdate();
+        strokeVertices = vertices.length == 0 ? EMPTY_STROKE : vertices.clone();
+        notifyUpdate();
         if (level != null) {
             refreshRoadMeshes();
             level.sendBlockUpdated(getBlockPos(),getBlockState(),getBlockState(),3);
@@ -79,18 +81,13 @@ public class ColoredBlockEntity extends SyncedBlockEntity implements IColorBlock
         float[] previousStroke=strokeVertices;
         int previousAutomaticPosition=automaticLinePosition;
         super.loadAdditional(compound, provider);
-        customRoadPattern = com.destan.trafficengine.data.PixelPattern.of(compound.getLongArray(CUSTOM_ROAD_PATTERN));
+        customRoadPattern = compound.contains(CUSTOM_ROAD_PATTERN, net.minecraft.nbt.Tag.TAG_LONG_ARRAY)
+            ? com.destan.trafficengine.data.PixelPattern.of(compound.getLongArray(CUSTOM_ROAD_PATTERN))
+            : com.destan.trafficengine.data.PixelPattern.EMPTY;
         int savedPosition=compound.contains("road_auto_position")?compound.getInt("road_auto_position"):-2;
         automaticLinePosition=savedPosition>=-2 && savedPosition<=2?savedPosition:-1;
-        int[] packed=compound.getIntArray("road_stroke");
         roadDashGap=compound.getInt("road_dash_gap")==4?4:2;
-        strokeVertices=new float[packed.length<=384 && packed.length%12==0?packed.length:0];
-        for(int i=0;i<strokeVertices.length;i++) {
-            float value=Float.intBitsToFloat(packed[i]);
-            if(!Float.isFinite(value) || value<0 || value>1.01F) {strokeVertices=new float[0];break;}
-            strokeVertices[i]=value;
-        }
-        if (!customRoadPattern.isEmpty()) strokeVertices = patternVertices();
+        strokeVertices = customRoadPattern.isEmpty() ? readStroke(compound) : patternVertices();
         this.color = PaintColor.getByIndex(compound.getInt(NBT_COLOR));
         if (compound.contains(NBT_MARKING_COLOR)) {
             this.markingColor = PaintColor.getByIndex(compound.getInt(NBT_MARKING_COLOR));
@@ -129,6 +126,19 @@ public class ColoredBlockEntity extends SyncedBlockEntity implements IColorBlock
         }
     }
 
+    private static float[] readStroke(CompoundTag tag) {
+        if (!tag.contains("road_stroke", net.minecraft.nbt.Tag.TAG_INT_ARRAY)) return EMPTY_STROKE;
+        int[] packed = tag.getIntArray("road_stroke");
+        if (packed.length == 0 || packed.length > 384 || packed.length % 12 != 0) return EMPTY_STROKE;
+        float[] vertices = new float[packed.length];
+        for (int i = 0; i < vertices.length; i++) {
+            float value = Float.intBitsToFloat(packed[i]);
+            if (!Float.isFinite(value) || value < 0 || value > 1.01F) return EMPTY_STROKE;
+            vertices[i] = value;
+        }
+        return vertices;
+    }
+
     /* GETTERS AND SETTERS */
     @Override
     public void setColor(PaintColor color) {
@@ -162,7 +172,7 @@ public class ColoredBlockEntity extends SyncedBlockEntity implements IColorBlock
     }
     public void setCustomRoadPattern(com.destan.trafficengine.data.PixelPattern pattern) {
         customRoadPattern = pattern; automaticLinePosition = -1;
-        strokeVertices = pattern.isEmpty() ? new float[0] : patternVertices();
+        strokeVertices = pattern.isEmpty() ? EMPTY_STROKE : patternVertices();
         notifyUpdate(); refreshRoadMeshes();
         if (level != null) level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
     }

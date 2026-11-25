@@ -59,7 +59,24 @@ for e in socket:
    if Y==0:continue
    top=7 if Z<=8.5835921 else 7+(Z-8.5835921)*(6.5501958-7)/(14.5623983-8.5835921)
    check(abs(Y-top)<1e-7,'Socket top follows the actual underside, including the slight bend')
-variants=read(assets/'blockstates/curved_traffic_pole.json')['variants']
+parts=read(assets/'blockstates/curved_traffic_pole.json')['multipart']
+variants={','.join(f'{key}={value}' for key,value in part['when'].items()):part['apply']
+          for part in parts if 'sign_mounts' not in part['when']}
+relative_faces=('north','east','south','west')
+for rotation,facing in enumerate(relative_faces):
+ for part,allowed in ((0,15),(3,10)):
+  for mask in range(16):
+   matches=[p['apply'] for p in parts
+    if p['when'].get('facing')==facing and p['when'].get('part')==str(part)
+    and str(mask) in p['when'].get('sign_mounts','').split('|')]
+   selected=mask if mask&allowed==mask else 0
+   check(len(matches)==(1+selected.bit_count() if selected else 0),'One band plus one brace per occupied side')
+   if not matches:continue
+   check(all(m.get('y',0)==rotation*90 for m in matches),'Braces rotate with the pole')
+   check(sum(m['model'].endswith(f'part_{part}_sign_saddle') for m in matches)==1,'One continuous band')
+   for i,side in enumerate(relative_faces):
+    check(any(m['model'].endswith(f'part_{part}_sign_brace_{side}') for m in matches)==bool(selected&(1<<i)),
+          'No brace on an unoccupied side')
 for facing in ('north','east','south','west'):
  for active in ('false','true'):
   check(f'facing={facing},part=4,lamp_support={active},top_support=false' in variants,'First straight cell resolves both mounting states in every facing')

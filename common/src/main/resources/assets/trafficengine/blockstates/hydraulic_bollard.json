@@ -1,1 +1,14 @@
-{"variants":{"extension=0":{"model":"trafficengine:block/hydraulic_bollard/0"},"extension=1":{"model":"trafficengine:block/hydraulic_bollard/1"},"extension=2":{"model":"trafficengine:block/hydraulic_bollard/2"},"extension=3":{"model":"trafficengine:block/hydraulic_bollard/3"},"extension=4":{"model":"trafficengine:block/hydraulic_bollard/4"},"extension=5":{"model":"trafficengine:block/hydraulic_bollard/5"},"extension=6":{"model":"trafficengine:block/hydraulic_bollard/6"},"extension=7":{"model":"trafficengine:block/hydraulic_bollard/7"},"extension=8":{"model":"trafficengine:block/hydraulic_bollard/8"}}}
+{
+  "multipart": [
+    {"when":{"extension":"0"},"apply":{"model":"trafficengine:block/hydraulic_bollard/0"}},
+    {"when":{"extension":"1"},"apply":{"model":"trafficengine:block/hydraulic_bollard/1"}},
+    {"when":{"extension":"2"},"apply":{"model":"trafficengine:block/hydraulic_bollard/2"}},
+    {"when":{"extension":"3"},"apply":{"model":"trafficengine:block/hydraulic_bollard/3"}},
+    {"when":{"extension":"4"},"apply":{"model":"trafficengine:block/hydraulic_bollard/4"}},
+    {"when":{"extension":"5"},"apply":{"model":"trafficengine:block/hydraulic_bollard/5"}},
+    {"when":{"extension":"6"},"apply":{"model":"trafficengine:block/hydraulic_bollard/6"}},
+    {"when":{"extension":"7"},"apply":{"model":"trafficengine:block/hydraulic_bollard/7"}},
+    {"when":{"extension":"8"},"apply":{"model":"trafficengine:block/hydraulic_bollard/8"}},
+    {"when":{"OR":[{"raised":"true","extension":"0|1|2|3|4|5|6|7"},{"raised":"false","extension":"1|2|3|4|5|6|7|8"}]},"apply":{"model":"trafficengine:block/hydraulic_bollard/motion_ring"}}
+  ]
+}

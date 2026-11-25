@@ -97,6 +97,11 @@ public class ClientInit {
                 ModBlocks.RED_DELINEATOR.get(),
                 ModBlocks.REFLECTOR.get(),
                 ModBlocks.TRAFFIC_LIGHT_REQUEST_BUTTON.get(),
+                ModBlocks.HYDRAULIC_BOLLARD.get(),
+                ModBlocks.TRAFFIC_CONE.get(),
+                ModBlocks.TRAFFIC_BOLLARD.get(),
+                ModBlocks.TRAFFIC_BARREL.get(),
+                ModBlocks.ROAD_BARRIER_FENCE.get(),
                 ModBlocks.PAINT_BUCKET.get(),
                 ModBlocks.MANHOLE.get(),
                 ModBlocks.MANHOLE_COVER.get(),
@@ -166,6 +171,9 @@ public class ClientInit {
                 return com.destan.trafficengine.block.entity.RailingPaintBlockEntity.tint(false,com.destan.trafficengine.data.PaintColor.NONE);
             }, ModBlocks.PEDESTRIAN_RAILING, ModBlocks.PEDESTRIAN_RAILING_GATE, ModBlocks.SLOPED_PEDESTRIAN_RAILING);
             ColorHandlerRegistry.registerBlockColors(new TintedTextures.TintedBlock(), ModBlocks.COLORED_BLOCKS.toArray(RegistrySupplier[]::new));
+            ColorHandlerRegistry.registerBlockColors(
+                (state, world, pos, index) -> com.destan.trafficengine.block.DelineatorBlock.reflectorTint(state, index),
+                ModBlocks.WHITE_DELINEATOR, ModBlocks.SMALL_WHITE_DELINEATOR);
             ColorHandlerRegistry.registerBlockColors((state,level,pos,index) -> {
                 if(index!=110)return 0xFFFFFFFF;
                 int theme=level!=null && pos!=null && level.getBlockEntity(pos) instanceof RoadInformationSignBlockEntity sign?sign.theme():0;

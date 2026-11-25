@@ -105,15 +105,18 @@ public class LedDeviceBlock extends BaseEntityBlock implements IPaintableBlock, 
         return state.getValue(POST_MOUNTED) && !state.getValue(WALL_MOUNTED);
     }
 
+    private static final int[] CENTERED_OFFSETS = {-1, 0, 1};
+    private static final int[] POSITIVE_OFFSETS = {0, 1};
+    private static final int[] HANGING_OFFSETS = {0, -1};
+
     private int[] displayOffsets(BlockState state) {
-        if (deviceType == LedDeviceType.LARGE_TRAFFIC_DISPLAY) return new int[]{-1, 0, 1};
-        if (isCenteredDisplay(state)) return new int[]{-1, 0, 1};
-        return new int[]{0, 1};
+        return deviceType == LedDeviceType.LARGE_TRAFFIC_DISPLAY || isCenteredDisplay(state)
+            ? CENTERED_OFFSETS : POSITIVE_OFFSETS;
     }
 
     private int[] displayVerticalOffsets(BlockState state) {
-        if (deviceType == LedDeviceType.LARGE_TRAFFIC_DISPLAY) return new int[]{-1, 0, 1};
-        return state.getValue(POST_ABOVE) ? new int[]{0, -1} : new int[]{0, 1};
+        if (deviceType == LedDeviceType.LARGE_TRAFFIC_DISPLAY) return CENTERED_OFFSETS;
+        return state.getValue(POST_ABOVE) ? HANGING_OFFSETS : POSITIVE_OFFSETS;
     }
 
     private static void removeLargeLegacyParts(LevelAccessor level, BlockPos origin, BlockState state) {
@@ -151,22 +154,22 @@ public class LedDeviceBlock extends BaseEntityBlock implements IPaintableBlock, 
         if (ledDevice.deviceType == LedDeviceType.LARGE_TRAFFIC_DISPLAY) {
             removeLargeLegacyParts(level, origin, state);
         }
+        BlockState partBase = ModBlocks.LED_DEVICE_PART.get().defaultBlockState()
+            .setValue(LedDevicePartBlock.FACING, facing)
+            .setValue(LedDevicePartBlock.ROW, 0)
+            .setValue(LedDevicePartBlock.CENTERED, centered)
+            .setValue(LedDevicePartBlock.HANGING, hanging)
+            .setValue(LedDevicePartBlock.WALL_MOUNTED, state.getValue(WALL_MOUNTED));
         for (int verticalOffset : ledDevice.displayVerticalOffsets(state)) {
+            BlockState row = partBase.setValue(LedDevicePartBlock.UPPER, verticalOffset != 0)
+                .setValue(LedDevicePartBlock.VERTICAL_OFFSET, verticalOffset + 1);
             for (int offset : ledDevice.displayOffsets(state)) {
                 if (verticalOffset == 0 && offset == 0) continue;
                 BlockPos partPos = displayPartPos(origin, widthDirection, verticalOffset, offset);
-                BlockState partState = ModBlocks.LED_DEVICE_PART.get().defaultBlockState()
-                    .setValue(LedDevicePartBlock.FACING, facing)
-                    .setValue(LedDevicePartBlock.UPPER, verticalOffset != 0)
-                    .setValue(LedDevicePartBlock.ROW, 0)
-                    .setValue(LedDevicePartBlock.VERTICAL_OFFSET, verticalOffset + 1)
-                    .setValue(LedDevicePartBlock.SIDE, offset != 0)
-                    .setValue(LedDevicePartBlock.OFFSET, offset + 1)
-                    .setValue(LedDevicePartBlock.CENTERED, centered)
-                    .setValue(LedDevicePartBlock.HANGING, hanging)
-                    .setValue(LedDevicePartBlock.WALL_MOUNTED, state.getValue(WALL_MOUNTED));
                 BlockState existing = level.getBlockState(partPos);
                 if (existing.isAir() || existing.getBlock() instanceof LedDevicePartBlock) {
+                    BlockState partState = row.setValue(LedDevicePartBlock.SIDE, offset != 0)
+                        .setValue(LedDevicePartBlock.OFFSET, offset + 1);
                     if (existing != partState) level.setBlock(partPos, partState, Block.UPDATE_ALL);
                 }
             }
@@ -305,15 +308,20 @@ public class LedDeviceBlock extends BaseEntityBlock implements IPaintableBlock, 
     @Override
     @SuppressWarnings("deprecation")
     public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
-        if (!state.getValue(WALL_MOUNTED)) {
-            boolean postBelow = CurvedTrafficPoleBlock.isMountingPost(level.getBlockState(pos.below()), Direction.UP);
-            boolean postAbove = CurvedTrafficPoleBlock.isMountingPost(level.getBlockState(pos.above()), Direction.DOWN);
-            boolean postBehind = CurvedTrafficPoleBlock.isMountingPost(level.getBlockState(pos.relative(state.getValue(FACING).getOpposite())), state.getValue(FACING));
-            state = state.setValue(POST_MOUNTED, postBelow || postAbove || postBehind)
-                .setValue(POST_ABOVE, postAbove)
-                .setValue(POST_SIDE, postBehind && !postAbove && !postBelow);
-        }
+        if (!state.getValue(WALL_MOUNTED)) state = resolveMount(state, level, pos);
         return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
+    }
+
+    public static BlockState resolveMount(BlockState state, BlockGetter level, BlockPos pos) {
+        if (state.getValue(WALL_MOUNTED)) {
+            return state.setValue(POST_MOUNTED, false).setValue(POST_ABOVE, false).setValue(POST_SIDE, false);
+        }
+        Direction facing = state.getValue(FACING);
+        boolean postBelow = CurvedTrafficPoleBlock.isMountingPost(level.getBlockState(pos.below()), Direction.UP);
+        boolean postAbove = CurvedTrafficPoleBlock.isMountingPost(level.getBlockState(pos.above()), Direction.DOWN);
+        boolean postBehind = CurvedTrafficPoleBlock.isMountingPost(level.getBlockState(pos.relative(facing.getOpposite())), facing);
+        return state.setValue(POST_MOUNTED, postBelow || postAbove || postBehind)
+            .setValue(POST_ABOVE, postAbove).setValue(POST_SIDE, postBehind && !postAbove && !postBelow);
     }
     @Override public BlockState rotate(BlockState state, Rotation rotation) { return state.setValue(FACING, rotation.rotate(state.getValue(FACING))); }
     @Override public BlockState mirror(BlockState state, Mirror mirror) { return state.rotate(mirror.getRotation(state.getValue(FACING))); }
@@ -333,7 +341,7 @@ public class LedDeviceBlock extends BaseEntityBlock implements IPaintableBlock, 
     @Override public BlockEntity newBlockEntity(BlockPos pos, BlockState state) { return new LedDeviceBlockEntity(pos, state); }
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        return createTickerHelper(type, ModBlockEntities.LED_DEVICE_BLOCK_ENTITY.get(), LedDeviceBlockEntity::tick);
+        return level.isClientSide ? null : createTickerHelper(type, ModBlockEntities.LED_DEVICE_BLOCK_ENTITY.get(), LedDeviceBlockEntity::tick);
     }
     @Override
     protected com.mojang.serialization.MapCodec<? extends net.minecraft.world.level.block.BaseEntityBlock> codec() {

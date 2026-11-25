@@ -13,26 +13,23 @@ public final class StreetLampShapes {
     private StreetLampShapes() {
     }
 
-    // One box for the stem and one for the complete upper assembly.
-    // Keep curved arms inside a single box to avoid dense selection outlines.
+    // Tight convex envelopes for the head and carrier sections, baked once per facing.
+    private static final VoxelShape STEM = Block.box(7, 0, 7, 9, 6, 9);
+    private static final VoxelShape FRONT_HEAD = Block.box(4.55, 7.25, -11, 11.45, 10.3, 1.4);
     public static final Map<Direction, VoxelShape> NORMAL = oriented(Shapes.or(
-        Block.box(7, 0, 7, 9, 4, 9),
-        Block.box(4.64, 3.26, -11, 11.36, 10.3, 9.01)
+        STEM, Block.box(7, 3.22, -1, 9, 10.3, 9), FRONT_HEAD
     ));
 
     public static final Map<Direction, VoxelShape> DOUBLE = oriented(Shapes.or(
-        Block.box(7, 0, 7, 9, 4, 9),
-        Block.box(4.64, 3.26, -11, 11.36, 10.3, 27)
-    ));
-
-    public static final Map<Direction, VoxelShape> SMALL = oriented(Shapes.or(
-        Block.box(7, 0, 7, 9, 12.24, 9),
-        Block.box(4.64, 12.24, -5, 11.36, 15.3, 11.5)
+        STEM, Block.box(7, 3.22, -1, 9, 10.3, 17), FRONT_HEAD,
+        Block.box(4.55, 7.25, 14.6, 11.45, 10.3, 27)
     ));
 
     public static final Map<Direction, VoxelShape> SMALL_DOUBLE = oriented(Shapes.or(
-        Block.box(7, 0, 7, 9, 12.24, 9),
-        Block.box(4.64, 12.24, -5.5, 11.36, 15.3, 21.5)
+        Block.box(7, 0, 7, 9, 14, 9),
+        Block.box(6.5, 13.2, 4.5, 9.5, 15.15, 11.5),
+        Block.box(4.64, 12.24, -5.5, 11.36, 15.3, 6.75),
+        Block.box(4.64, 12.24, 9.25, 11.36, 15.3, 21.5)
     ));
 
     public static final Map<Direction, VoxelShape> STREET_LIGHT = oriented(

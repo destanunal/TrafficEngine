@@ -15,6 +15,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.*;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import java.util.*;
+import java.util.function.Function;
 
 /** Server-authored plans only. One complete copy per server tick; bounded global queue. */
 public final class BlueprintPlacement {
@@ -97,10 +98,20 @@ public final class BlueprintPlacement {
         if(!permitted(player,anchor,tool,10)){BlueprintToolItem.message(player,"blocked");return;}
         Job job=new Job(player,tool,plan,anchor,tag.getInt("Rotation")&3,copies,BlueprintToolItem.spacing(tag),BlueprintToolItem.direction(tag.getInt("Direction")),BlueprintToolItem.mode(tag));
         Set<BlockPos> seen=new HashSet<>();Map<Item,Integer> bill=new LinkedHashMap<>();
-        for(int copy=0;copy<copies;copy++){
-            var work=job.prepare(copy,false);if(work==null){BlueprintToolItem.message(player,"blocked");return;}
-            for(var cell:job.cells)if(!seen.add(cell.pos().offset(job.anchor(copy)))){BlueprintToolItem.message(player,"blocked");return;}
-            BlueprintPlan.materials(work.stream().map(Work::cell).toList(),1).forEach((item,count)->bill.merge(item,count,Integer::sum));
+        for (int copy = 0; copy < copies; copy++) {
+            var work = job.prepare(copy, false);
+            if (work == null) { BlueprintToolItem.message(player, "blocked"); return; }
+            BlockPos copyAnchor = job.anchor(copy);
+            for (var cell : job.cells) {
+                if (!seen.add(cell.pos().offset(copyAnchor))) { BlueprintToolItem.message(player, "blocked"); return; }
+            }
+            for (Work entry : work) {
+                if (!entry.cell.state().isAir()) continue;
+                BlockPos pos = entry.before.pos();
+                if (!seen.add(pos)) { BlueprintToolItem.message(player, "blocked"); return; }
+                job.plantRemovals.put(pos, copy);
+            }
+            BlueprintPlan.materials(work.stream().map(Work::cell).toList(), 1).forEach((item, count) -> bill.merge(item, count, Integer::sum));
         }
         if(!player.isCreative()&&!enough(player,bill)){BlueprintToolItem.message(player,"materials_missing");return;}
         JOBS.add(job);player.getCooldowns().addCooldown(tool.getItem(),20);BlueprintToolItem.message(player,"started",copies);
@@ -121,16 +132,50 @@ public final class BlueprintPlacement {
     private record Work(BlueprintPlan.Cell cell,BlueprintUndo.Cell before){}
     /** Pure policy: 0 stops at occupied cells, 1 skips them, 2 replaces them. */
     public static boolean skipped(int mode,BlockState existing,BlockState desired){return mode==1&&!existing.isAir()||existing==desired&&!existing.hasBlockEntity();}
+    private static boolean dryDoublePlant(BlockState state) {
+        return state.getBlock() instanceof DoublePlantBlock && state.hasProperty(BlockStateProperties.DOUBLE_BLOCK_HALF)
+            && !state.hasBlockEntity() && state.getFluidState().isEmpty();
+    }
+
+    /** Find only the other halves of dry plants outside this copy's footprint. */
+    static List<BlueprintPlan.Cell> plantCompanions(List<BlueprintPlan.Cell> replaced, Set<BlockPos> footprint,
+            Function<BlockPos, BlockState> permittedState) {
+        List<BlueprintPlan.Cell> companions = List.of();
+        for (var cell : replaced) {
+            BlockState state = cell.state();
+            if (!dryDoublePlant(state)) continue;
+            var half = state.getValue(BlockStateProperties.DOUBLE_BLOCK_HALF);
+            BlockPos pos = half == DoubleBlockHalf.LOWER ? cell.pos().above() : cell.pos().below();
+            if (footprint.contains(pos)) continue;
+            BlockState other = permittedState.apply(pos);
+            if (other == null || !other.is(state.getBlock()) || !dryDoublePlant(other)
+                    || other.getValue(BlockStateProperties.DOUBLE_BLOCK_HALF) == half) return null;
+            if (companions.isEmpty()) companions = new ArrayList<>();
+            companions.add(new BlueprintPlan.Cell(pos, other, null));
+        }
+        return companions;
+    }
+
     private static final class Job {
         final ServerPlayer player;final ServerLevel world;final ItemStack tool;final BlueprintPlan plan;final BlockPos origin;final int turns,copies,spacing,mode;final Direction direction;
         final List<BlueprintUndo.Copy> undoCopies=new ArrayList<>();boolean undoable=true;int undoBytes;
         final List<BlueprintPlan.Cell> cells;final Map<BlockPos,BlockPos> saved;int index;
+        final Map<BlockPos, Integer> plantRemovals = new HashMap<>();
+        private Set<BlockPos> footprint;
         Job(ServerPlayer player,ItemStack tool,BlueprintPlan plan,BlockPos anchor,int turns,int copies,int spacing,Direction direction,int mode){
             this.player=player;world=(ServerLevel)player.level();this.tool=tool;this.plan=plan;origin=anchor;this.turns=turns;this.copies=copies;this.direction=direction;this.mode=mode;
             var layout=plan.layout(turns);cells=layout.cells();this.spacing=BlueprintPlan.repeatStep(cells,direction,spacing);saved=layout.destinations();
         }
         void finish(){if(!undoCopies.isEmpty()&&undoable)BlueprintUndo.remember(player.getUUID(),world.dimension().location().toString(),undoCopies);}
         BlockPos anchor(int copy){return origin.relative(direction,spacing*copy);}
+        private Set<BlockPos> footprint() {
+            if (footprint == null) {
+                footprint = new HashSet<>();
+                for (var cell : cells) footprint.add(cell.pos());
+            }
+            return footprint;
+        }
+
         List<Work> prepare(int copy,boolean hooks){
             BlockPos anchor=anchor(copy);List<Work> work=new ArrayList<>();List<BlueprintPlan.Cell> previous=new ArrayList<>(),selected=new ArrayList<>();int bytes=0;
             for(var c:cells){
@@ -146,8 +191,30 @@ public final class BlueprintPlacement {
                 work.add(new Work(c,new BlueprintUndo.Cell(p,old,data)));selected.add(c);
                 if(!old.isAir())previous.add(new BlueprintPlan.Cell(c.pos(),old,data));
             }
-            // Never leave half a door, display or curved-pole assembly behind.
-            return complete(selected)&&complete(previous)?work:null;
+            if (!complete(selected)) return null;
+            if (complete(previous)) return work;
+            if (mode != 2) return null;
+
+            var companions = plantCompanions(previous, footprint(), relative -> {
+                BlockPos pos = anchor.offset(relative);
+                // A running copy can only clear extra cells that it reserved at preflight.
+                if (hooks && plantRemovals.getOrDefault(pos, -1) != copy || !permitted(player, pos, tool, 128)) return null;
+                return world.getBlockState(pos);
+            });
+            if (companions == null || companions.isEmpty()
+                    || bytes + companions.size() * 64 > BlueprintUndo.MAX_HISTORY_BYTES) return null;
+            previous.addAll(companions);
+            if (!complete(previous)) return null;
+
+            for (var companion : companions) {
+                BlockPos pos = anchor.offset(companion.pos());
+                BlockState old = companion.state();
+                if (old.getDestroySpeed(world, pos) < 0 || world.getBlockEntity(pos) != null
+                        || hooks && !BlueprintHooks.canRemove(player, pos, old)) return null;
+                var clear = new BlueprintPlan.Cell(companion.pos(), Blocks.AIR.defaultBlockState(), null);
+                work.add(new Work(clear, new BlueprintUndo.Cell(pos, old, null)));
+            }
+            return work;
         }
         boolean tick(){
             if(player.isRemoved()||!player.isAlive()||player.level()!=world||world.getServer().getPlayerList().getPlayer(player.getUUID())!=player||player.getMainHandItem()!=tool&&player.getOffhandItem()!=tool){BlueprintToolItem.message(player,"stopped",index);return false;}
@@ -161,7 +228,11 @@ public final class BlueprintPlacement {
                 for(var w:work){var c=w.cell();BlockPos p=w.before().pos();
                     if(!BlueprintUndo.unchanged(w.before(),world.getBlockState(p),BlueprintUndo.snapshot(world,p)))throw new IllegalStateException("Target changed");
                     written.add(p);
-                    if(world.getBlockState(p)!=c.state()&&!BlueprintHooks.place(player,p,c.state()))throw new IllegalStateException("Placement rejected");
+                    if (world.getBlockState(p) != c.state()) {
+                        // Plant cleanup uses the break permission checked in prepare.
+                        boolean changed = c.state().isAir() ? world.setBlock(p, c.state(), 2 | 16) : BlueprintHooks.place(player, p, c.state());
+                        if (!changed) throw new IllegalStateException("Placement rejected");
+                    }
                 }
                 for(var w:work){var c=w.cell();if(c.data()!=null){var entity=world.getBlockEntity(w.before().pos());if(entity==null)throw new IllegalStateException("Missing block entity");entity.loadWithComponents(BlueprintPlan.remap(c.data(),plan,saved,anchor,turns,world.dimension().location().toString()),world.registryAccess());entity.setChanged();}}
                 if(!player.isCreative()&&!enough(player,bill))throw new IllegalStateException("Inventory changed during placement");

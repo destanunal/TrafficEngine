@@ -15,14 +15,14 @@ public class TownSignBlockEntityRenderer extends WritableSignBlockEntityRenderer
     public void renderSafe(RenderContext<TownSignBlockEntity> graphics, float pPartialTick) {
         switch (graphics.blockEntity().getBlockState().getValue(TownSignBlock.VARIANT)) {
             case FRONT:
-                renderInternal(graphics.blockEntity().getRenderConfig(), graphics.blockEntity()::getText, pPartialTick, graphics, false);
+                renderInternal(graphics.blockEntity().getRenderConfig(), graphics, false, false);
                 break;
             case BACK:
-                renderInternal(graphics.blockEntity().getBackRenderConfig(), graphics.blockEntity()::getBackText, pPartialTick, graphics, false);
+                renderInternal(graphics.blockEntity().getBackRenderConfig(), graphics, true, false);
                 break;
             case BOTH:
-                renderInternal(graphics.blockEntity().getRenderConfig(), graphics.blockEntity()::getText, pPartialTick, graphics, false);
-                renderInternal(graphics.blockEntity().getBackRenderConfig(), graphics.blockEntity()::getBackText, pPartialTick, graphics, false);
+                renderInternal(graphics.blockEntity().getRenderConfig(), graphics, false, false);
+                renderInternal(graphics.blockEntity().getBackRenderConfig(), graphics, true, false);
                 break;
         }
     }

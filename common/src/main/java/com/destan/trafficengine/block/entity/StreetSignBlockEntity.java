@@ -1,24 +1,34 @@
 package com.destan.trafficengine.block.entity;
 
-import com.destan.trafficengine.block.entity.WritableTrafficSignBlockEntity;
+import com.destan.trafficengine.block.StreetSignBlock;
+import com.destan.trafficengine.data.SignTextConfig;
 import com.destan.trafficengine.data.SignTextConfig.ConfiguredLineData;
 import com.destan.trafficengine.data.SignTextConfig.WritableSignConfig;
 import com.destan.trafficengine.util.ColorValue;
-import com.destan.trafficengine.block.WritableTrafficSign;
 import com.destan.trafficengine.block.data.IColorBlockEntity;
 import com.destan.trafficengine.data.PaintColor;
 import com.destan.trafficengine.registry.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec2;
 
 public class StreetSignBlockEntity extends WritableTrafficSignBlockEntity implements IColorBlockEntity {
 
+    private static final WritableSignConfig POST_CONFIG = new WritableSignConfig(new ConfiguredLineData[]{
+        new ConfiguredLineData(0, -4F / 16, new Vec2(1, 1), new Vec2(2.5F, 2.5F), 22F / 16, 1, 0)
+    }, true, StreetSignBlock.POST_TEXT_CENTER, 120, WritableSignConfig.DEFAULT_SCALE, 90, StreetSignBlock.POST_TEXT_CENTER, 0, .034F,
+        state -> 90 + SignTextConfig.facingRotation(state), 0);
+    private static final WritableSignConfig WALL_CONFIG = new WritableSignConfig(new ConfiguredLineData[]{
+        new ConfiguredLineData(0, -4F / 16, new Vec2(1, 1), new Vec2(2.5F, 2.5F), 18F / 16, 1, 0)
+    }, false, 0, 120, WritableSignConfig.DEFAULT_SCALE, 0, 0, 0, -6.75F / 16, SignTextConfig::facingRotation, 0);
+
     private PaintColor color = PaintColor.NONE;
+    private WritableSignConfig renderConfig;
+    private boolean renderedOnWall;
 
     protected StreetSignBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -30,12 +40,17 @@ public class StreetSignBlockEntity extends WritableTrafficSignBlockEntity implem
 
     @Override
     public WritableSignConfig getRenderConfig() {
-        float y = 120;
-        return new WritableSignConfig(new ConfiguredLineData[] {
-            new ConfiguredLineData(0, -1.0F / 16.0F * 4.25f, new Vec2(1, 1.5f), new Vec2(1.5f, 1.5f), 1.0F / 16.0F * 15, 1, 0)
-        }, true, 1.0F / 16.0F * 6.5f, y, WritableSignConfig.DEFAULT_SCALE, 90, 0.4f, 0.0f, 0.02f, (blockState) -> {
-            return 90 + (blockState.getValue(WritableTrafficSign.FACING) == Direction.EAST || blockState.getValue(WritableTrafficSign.FACING) == Direction.WEST ? blockState.getValue(WritableTrafficSign.FACING).getOpposite().toYRot() : blockState.getValue(WritableTrafficSign.FACING).toYRot());
-        }, ColorValue.pickBasedOnBrightness(this.getColor().getTextureColor(), ColorValue.WHITE, ColorValue.BLACK, 0.5f).getAsARGB());
+        boolean onWall = getBlockState().getValue(StreetSignBlock.WALL_MOUNTED);
+        if (renderConfig == null || renderedOnWall != onWall) {
+            renderedOnWall = onWall;
+            renderConfig = (onWall ? WALL_CONFIG : POST_CONFIG).withColor(textColor(color));
+        }
+        return renderConfig;
+    }
+
+    public static int textColor(PaintColor color) {
+        ColorValue face = color == PaintColor.NONE ? StreetSignBlock.DEFAULT_PANEL_COLOR : color.getTextureColor();
+        return ColorValue.pickBasedOnBrightness(face, ColorValue.WHITE, ColorValue.BLACK, .5F).getAsARGB();
     }
 
     @Override
@@ -43,7 +58,8 @@ public class StreetSignBlockEntity extends WritableTrafficSignBlockEntity implem
     {
         PaintColor previousColor = this.color;
         super.loadAdditional(compound, provider);
-        this.color = PaintColor.getByIndex(compound.getInt(NBT_COLOR));
+        this.color = compound.contains(NBT_COLOR, Tag.TAG_ANY_NUMERIC) ? PaintColor.getByIndex(compound.getInt(NBT_COLOR)) : PaintColor.NONE;
+        if (previousColor != this.color) renderConfig = null;
         // The block-state packet can rebuild Embeddium's mesh before the paint
         // data arrives. Invalidate it after reading the new colour, once per change.
         if (previousColor != this.color && level != null && level.isClientSide) {
@@ -59,24 +75,20 @@ public class StreetSignBlockEntity extends WritableTrafficSignBlockEntity implem
 
     @Override
     public void setColor(PaintColor color) {
-        if (this.color == color) return;
-        this.color = color;
-        notifyUpdate();
-        if (level != null && level.isClientSide) {
-            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
+        setSignData(null, color);
+    }
+
+    public void setSignData(String[] messages, PaintColor paint) {
+        boolean textChanged = messages != null && updateTexts(messages);
+        boolean paintChanged = paint != null && color != paint;
+        if (paintChanged) {
+            color = paint;
+            renderConfig = null;
+            if (level != null && level.isClientSide) {
+                level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
+            }
         }
-    }
-
-    @Override
-    public void setText(String text, int line) {
-        super.setText(text, line);
-        getLevel().sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 512);
-    }
-
-    @Override
-    public void setTexts(String[] messages) {
-        super.setTexts(messages);
-        getLevel().sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 512);
+        if (textChanged || paintChanged) notifyUpdate();
     }
 
     @Override

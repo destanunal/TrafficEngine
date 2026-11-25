@@ -15,6 +15,7 @@ import com.destan.trafficengine.item.RoadConstructionTool;
 import com.destan.trafficengine.network.packets.cts.RoadBuilderBuildRoadPacket;
 import com.destan.trafficengine.network.packets.cts.RoadBuilderDataPacket;
 import com.destan.trafficengine.network.packets.cts.RoadBuilderResetPacket;
+import com.destan.trafficengine.network.packets.cts.RoadBuilderUndoPacket;
 import com.destan.trafficengine.registry.ModNetworkManager;
 import com.destan.trafficengine.data.WorldLocation;
 import com.destan.trafficengine.network.NetworkDirection;
@@ -88,10 +89,14 @@ public class RoadConstructionToolScreen extends TrafficEngineScreen {
             materials.add(addRenderableWidget(button));
         }
         int footer = top + windowHeight - 30;
-        addRenderableWidget(new TEButton(x, footer, 94, 20, text("reset"), b -> {
+        int buttonGap = 6, buttonWidth = (w - 3 * buttonGap) / 4;
+        addRenderableWidget(new TEButton(x, footer, buttonWidth, 20, text("reset"), b -> {
             ModNetworkManager.RESET_ROAD_BUILDER.send(NetworkDirection.toServer(), new RoadBuilderResetPacket()); onClose();
         })).setTooltip(Tooltip.create(text("tooltip.reset")));
-        build = addRenderableWidget(new TEButton(x + (w - 112) / 2, footer, 112, 20, text("build"), b -> {
+        addRenderableWidget(new TEButton(x + buttonWidth + buttonGap, footer, buttonWidth, 20, text("undo"), b ->
+            ModNetworkManager.ROAD_BUILDER_UNDO.send(NetworkDirection.toServer(), new RoadBuilderUndoPacket())
+        )).setTooltip(Tooltip.create(text("tooltip.undo")));
+        build = addRenderableWidget(new TEButton(x + 2 * (buttonWidth + buttonGap), footer, buttonWidth, 20, text("build"), b -> {
             updateStackData();
             ModNetworkManager.ROAD_BUILDER_BUILD_ROAD.send(NetworkDirection.toServer(), new RoadBuilderBuildRoadPacket(pos1, pos2, roadWidth, replaceExistingBlocks, roadType));
             RoadConstructionTool.reset(stack);
@@ -99,7 +104,7 @@ public class RoadConstructionToolScreen extends TrafficEngineScreen {
         }, true));
         build.active = pos1 != null && pos2 != null && roadWidth > 0;
         build.setTooltip(Tooltip.create(text(build.active ? "tooltip.build" : "tooltip.build_missing_pos")));
-        addRenderableWidget(new TEButton(left + windowWidth - 88, footer, 74, 20, CommonComponents.GUI_DONE, b -> { updateStackData(); onClose(); }).primary());
+        addRenderableWidget(new TEButton(x + w - buttonWidth, footer, buttonWidth, 20, CommonComponents.GUI_DONE, b -> { updateStackData(); onClose(); }).primary());
         addCloseButton();
     }
     private void updateStackData() {

@@ -97,7 +97,7 @@ public class ModBlocks {
     public static final RegistrySupplier<Block> TRAFFIC_POLE_BASE = registerBlock("traffic_pole_base", com.destan.trafficengine.block.TrafficPoleBaseBlock::new, ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> TRAFFIC_SIGN_POST = registerBlock("traffic_sign_post", () -> new TrafficSignPostBlock(), ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> CURVED_TRAFFIC_POLE = registerBlock("curved_traffic_pole", CurvedTrafficPoleBlock::new, ModCreativeModeTab.MOD_TAB, com.destan.trafficengine.item.CurvedTrafficPoleBlockItem.class);
-    public static final RegistrySupplier<Block> TRAFFIC_SIGN = registerBlock("traffic_sign", () -> new TrafficSignBlock(), ModCreativeModeTab.MOD_TAB, false);
+    public static final RegistrySupplier<Block> TRAFFIC_SIGN = registerBlock("traffic_sign", () -> new TrafficSignBlock(), ModCreativeModeTab.MOD_TAB, com.destan.trafficengine.item.TrafficSignBlockItem.class);
     public static final RegistrySupplier<Block> DOUBLE_TRAFFIC_SIGN = registerBlock("double_traffic_sign", () -> new DoubleSidedTrafficSignBlock(), ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> TOWN_SIGN = registerBlock("town_sign", () -> new TownSignBlock(), ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> STREET_SIGN = registerColoredBlock("street_sign", () -> new StreetSignBlock(), ModCreativeModeTab.MOD_TAB, false);
@@ -109,16 +109,14 @@ public class ModBlocks {
     public static final RegistrySupplier<Block> TRAFFIC_LIGHT_REQUEST_BUTTON = registerBlock("traffic_light_request_button", () -> new TrafficLightRequestButtonBlock(), ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> STREET_LAMP = registerColoredBlock("street_lamp", () -> new StreetLampBaseBlock(LampType.NORMAL), ModCreativeModeTab.MOD_TAB, true);
     public static final RegistrySupplier<Block> DOUBLE_STREET_LAMP = registerColoredBlock("double_street_lamp", () -> new StreetLampBaseBlock(LampType.DOUBLE), ModCreativeModeTab.MOD_TAB, true);
-    public static final RegistrySupplier<Block> SMALL_STREET_LAMP = registerColoredBlock("small_street_lamp", () -> new StreetLampBaseBlock(LampType.SMALL), ModCreativeModeTab.MOD_TAB, true);
     public static final RegistrySupplier<Block> SMALL_DOUBLE_STREET_LAMP = registerColoredBlock("small_double_street_lamp", () -> new StreetLampBaseBlock(LampType.SMALL_DOUBLE), ModCreativeModeTab.MOD_TAB, true);
-    public static final RegistrySupplier<Block> STREET_LIGHT = registerColoredBlock("street_light", () -> new StreetLightBlock(), ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> FLUORESCENT_TUBE_LAMP = registerColoredBlock("fluorescent_tube_lamp", () -> new FluorescentTubeLampBlock(), ModCreativeModeTab.MOD_TAB, false);
 
     public static final RegistrySupplier<Block> WHITE_DELINEATOR = registerBlock("white_delineator", () -> new DelineatorBlock(false), ModCreativeModeTab.MOD_TAB, false);
-    public static final RegistrySupplier<Block> YELLOW_DELINEATOR = registerBlock("yellow_delineator", () -> new DelineatorBlock(false), ModCreativeModeTab.MOD_TAB, false);
-    public static final RegistrySupplier<Block> RED_DELINEATOR = registerBlock("red_delineator", () -> new DelineatorBlock(false), ModCreativeModeTab.MOD_TAB, false);
+    public static final RegistrySupplier<Block> YELLOW_DELINEATOR = registerBlock("yellow_delineator", () -> new DelineatorBlock.Legacy(false), ModCreativeModeTab.MOD_TAB, false);
+    public static final RegistrySupplier<Block> RED_DELINEATOR = registerBlock("red_delineator", () -> new DelineatorBlock.Legacy(false), ModCreativeModeTab.MOD_TAB, false);
     public static final RegistrySupplier<Block> SMALL_WHITE_DELINEATOR = registerBlock("small_white_delineator", () -> new DelineatorBlock(true), ModCreativeModeTab.MOD_TAB, false);
-    public static final RegistrySupplier<Block> SMALL_YELLOW_DELINEATOR = registerBlock("small_yellow_delineator", () -> new DelineatorBlock(true), ModCreativeModeTab.MOD_TAB, false);
+    public static final RegistrySupplier<Block> SMALL_YELLOW_DELINEATOR = registerBlock("small_yellow_delineator", () -> new DelineatorBlock.Legacy(true), ModCreativeModeTab.MOD_TAB, false);
 
     public static final RegistrySupplier<Block> GUARDRAIL = registerColoredBlock("guardrail", () -> new GuardrailBlock(), ModCreativeModeTab.MOD_TAB, false);
 

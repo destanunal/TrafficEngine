@@ -1,0 +1,27 @@
+{
+  "credit": "Made with Blockbench",
+  "render_type": "cutout",
+  "textures": {"plate":"trafficengine:block/street_sign_enamel","metal":"trafficengine:block/sign","particle":"trafficengine:block/sign"},
+  "elements": [
+    {"from":[-3,7.5,14.9],"to":[19,16.5,15.8],"faces":{"north":{"uv":[0,0,16,8],"texture":"#plate"},"south":{"uv":[0,0,16,8],"texture":"#plate"}}},
+    {"from":[-3,7.5,14.898],"to":[19,16.5,15.802000000000001],"faces":{"north":{"uv":[0,8,16,16],"texture":"#plate","tintindex":0},"south":{"uv":[0,8,16,16],"texture":"#plate","tintindex":0}}},
+    {"from":[0,0,0],"to":[16,16,16],"faces":{"east":{"uv":[0,0,0.9,0.8972],"texture":"#metal","trafficengine_data":{"vertices":[19,14.75,14.9,18.8016,15.625,14.9,18.8016,15.625,15.8,19,14.75,15.8]}}}},
+    {"from":[0,0,0],"to":[16,16,16],"faces":{"east":{"uv":[0,0,0.9,0.8391],"texture":"#metal","trafficengine_data":{"vertices":[18.8016,15.625,14.9,18.2596,16.2655,14.9,18.2596,16.2655,15.8,18.8016,15.625,15.8]}}}},
+    {"from":[0,0,0],"to":[16,16,16],"faces":{"up":{"uv":[0,0,0.9,0.7766],"texture":"#metal","trafficengine_data":{"vertices":[18.2596,16.2655,14.9,17.5192,16.5,14.9,17.5192,16.5,15.8,18.2596,16.2655,15.8]}}}},
+    {"from":[0,0,0],"to":[16,16,16],"faces":{"up":{"uv":[0,0,0.9,16],"texture":"#metal","trafficengine_data":{"vertices":[17.5192,16.5,14.9,-1.5192,16.5,14.9,-1.5192,16.5,15.8,17.5192,16.5,15.8]}}}},
+    {"from":[0,0,0],"to":[16,16,16],"faces":{"up":{"uv":[0,0,0.9,0.7766],"texture":"#metal","trafficengine_data":{"vertices":[-1.5192,16.5,14.9,-2.2596,16.2655,14.9,-2.2596,16.2655,15.8,-1.5192,16.5,15.8]}}}},
+    {"from":[0,0,0],"to":[16,16,16],"faces":{"west":{"uv":[0,0,0.9,0.8391],"texture":"#metal","trafficengine_data":{"vertices":[-2.2596,16.2655,14.9,-2.8016,15.625,14.9,-2.8016,15.625,15.8,-2.2596,16.2655,15.8]}}}},
+    {"from":[0,0,0],"to":[16,16,16],"faces":{"west":{"uv":[0,0,0.9,0.8972],"texture":"#metal","trafficengine_data":{"vertices":[-2.8016,15.625,14.9,-3,14.75,14.9,-3,14.75,15.8,-2.8016,15.625,15.8]}}}},
+    {"from":[0,0,0],"to":[16,16,16],"faces":{"west":{"uv":[0,0,0.9,5.5],"texture":"#metal","trafficengine_data":{"vertices":[-3,14.75,14.9,-3,9.25,14.9,-3,9.25,15.8,-3,14.75,15.8]}}}},
+    {"from":[0,0,0],"to":[16,16,16],"faces":{"west":{"uv":[0,0,0.9,0.8972],"texture":"#metal","trafficengine_data":{"vertices":[-3,9.25,14.9,-2.8016,8.375,14.9,-2.8016,8.375,15.8,-3,9.25,15.8]}}}},
+    {"from":[0,0,0],"to":[16,16,16],"faces":{"west":{"uv":[0,0,0.9,0.8391],"texture":"#metal","trafficengine_data":{"vertices":[-2.8016,8.375,14.9,-2.2596,7.7345,14.9,-2.2596,7.7345,15.8,-2.8016,8.375,15.8]}}}},
+    {"from":[0,0,0],"to":[16,16,16],"faces":{"down":{"uv":[0,0,0.9,0.7766],"texture":"#metal","trafficengine_data":{"vertices":[-2.2596,7.7345,14.9,-1.5192,7.5,14.9,-1.5192,7.5,15.8,-2.2596,7.7345,15.8]}}}},
+    {"from":[0,0,0],"to":[16,16,16],"faces":{"down":{"uv":[0,0,0.9,16],"texture":"#metal","trafficengine_data":{"vertices":[-1.5192,7.5,14.9,17.5192,7.5,14.9,17.5192,7.5,15.8,-1.5192,7.5,15.8]}}}},
+    {"from":[0,0,0],"to":[16,16,16],"faces":{"down":{"uv":[0,0,0.9,0.7766],"texture":"#metal","trafficengine_data":{"vertices":[17.5192,7.5,14.9,18.2596,7.7345,14.9,18.2596,7.7345,15.8,17.5192,7.5,15.8]}}}},
+    {"from":[0,0,0],"to":[16,16,16],"faces":{"east":{"uv":[0,0,0.9,0.8391],"texture":"#metal","trafficengine_data":{"vertices":[18.2596,7.7345,14.9,18.8016,8.375,14.9,18.8016,8.375,15.8,18.2596,7.7345,15.8]}}}},
+    {"from":[0,0,0],"to":[16,16,16],"faces":{"east":{"uv":[0,0,0.9,0.8972],"texture":"#metal","trafficengine_data":{"vertices":[18.8016,8.375,14.9,19,9.25,14.9,19,9.25,15.8,18.8016,8.375,15.8]}}}},
+    {"from":[0,0,0],"to":[16,16,16],"faces":{"east":{"uv":[0,0,0.9,5.5],"texture":"#metal","trafficengine_data":{"vertices":[19,9.25,14.9,19,14.75,14.9,19,14.75,15.8,19,9.25,15.8]}}}},
+    {"from":[0.5,10.8,15.8],"to":[2,13.2,16],"faces":{"east":{"uv":[0,0,0.2,2.4],"texture":"#metal"},"west":{"uv":[0,0,0.2,2.4],"texture":"#metal"},"up":{"uv":[0,0,1.5,0.2],"texture":"#metal"},"down":{"uv":[0,0,1.5,0.2],"texture":"#metal"},"north":{"uv":[0,0,1.5,2.4],"texture":"#metal"}}},
+    {"from":[14,10.8,15.8],"to":[15.5,13.2,16],"faces":{"east":{"uv":[0,0,0.2,2.4],"texture":"#metal"},"west":{"uv":[0,0,0.2,2.4],"texture":"#metal"},"up":{"uv":[0,0,1.5,0.2],"texture":"#metal"},"down":{"uv":[0,0,1.5,0.2],"texture":"#metal"},"north":{"uv":[0,0,1.5,2.4],"texture":"#metal"}}}
+  ]
+}

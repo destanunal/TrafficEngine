@@ -28,10 +28,16 @@ public final class HydraulicBollardBlock extends Block {
     public static final BooleanProperty POWERED = BooleanProperty.create("powered");
     public static final IntegerProperty EXTENSION = IntegerProperty.create("extension", 0, 8);
     private static final VoxelShape BASE = box(3, 0, 3, 13, 0.5, 13);
-    private static final VoxelShape[] SHAPES = new VoxelShape[9];
+    private static final VoxelShape[] OUTLINES = new VoxelShape[9];
+    private static final VoxelShape[] COLLISIONS = new VoxelShape[9];
     static {
-        for (int i = 0; i <= 8; i++) SHAPES[i] = i == 0 ? Shapes.empty()
-            : box(5, 0, 5, 11, 0.5 + i * 1.75, 11);
+        OUTLINES[0] = BASE;
+        COLLISIONS[0] = Shapes.empty();
+        for (int i = 1; i <= 8; i++) {
+            VoxelShape shaft = box(5, 0, 5, 11, 0.5 + i * 1.75, 11);
+            COLLISIONS[i] = shaft;
+            OUTLINES[i] = Shapes.or(BASE, shaft).optimize();
+        }
     }
     public HydraulicBollardBlock() {
         super(Properties.of().mapColor(MapColor.METAL).strength(3F).requiresCorrectToolForDrops()
@@ -64,10 +70,10 @@ public final class HydraulicBollardBlock extends Block {
             level.scheduleTick(pos, this, 2);
     }
     @Override public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return state.getValue(EXTENSION) == 0 ? BASE : SHAPES[state.getValue(EXTENSION)];
+        return OUTLINES[state.getValue(EXTENSION)];
     }
     @Override public VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return SHAPES[state.getValue(EXTENSION)];
+        return COLLISIONS[state.getValue(EXTENSION)];
     }
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         if (!player.getItemInHand(hand).is(ModItemTags.WRENCHES)) return InteractionResult.PASS;

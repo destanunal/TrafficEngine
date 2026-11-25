@@ -1,1 +1,1 @@
-{"parent":"trafficengine:block/street_sign"}
+{"parent":"trafficengine:block/street_sign","display":{"gui":{"rotation":[24,135,0],"translation":[-0.7051,-2.2397,0],"scale":[0.5482,0.5482,0.5482]}}}

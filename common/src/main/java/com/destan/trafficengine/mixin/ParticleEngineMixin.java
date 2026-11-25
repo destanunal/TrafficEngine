@@ -8,8 +8,12 @@ import com.destan.trafficengine.block.TrafficIslandBollardBlock;
 import com.destan.trafficengine.registry.ModBlockTags;
 import com.destan.trafficengine.block.ConcreteBarrierBlock;
 import com.destan.trafficengine.block.GuardrailBlock;
+import com.destan.trafficengine.block.LedDeviceBlock;
+import com.destan.trafficengine.block.LedDevicePartBlock;
 import com.destan.trafficengine.block.RetractableBarrierBlock;
 import com.destan.trafficengine.block.RoadBarrierFenceBlock;
+import com.destan.trafficengine.block.TrafficBollardBlock;
+import com.destan.trafficengine.block.TrafficConeBlock;
 import com.destan.trafficengine.block.TrafficLightBlock;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -54,8 +58,18 @@ public class ParticleEngineMixin {
             trafficengine$breakParticleDenominator = 4;
         } else if (state.getBlock() instanceof com.destan.trafficengine.block.CurvedTrafficPoleBlock) {
             trafficengine$breakParticleDenominator = 2;
-        } else if (state.getBlock() instanceof RetractableBarrierBlock
-                || state.getBlock() instanceof RoadBarrierFenceBlock
+        } else if (state.getBlock() instanceof LedDevicePartBlock) {
+            trafficengine$breakParticleDenominator = 8;
+        } else if (state.getBlock() instanceof LedDeviceBlock display && display.getDeviceType().isTrafficDisplay()) {
+            trafficengine$breakParticleDenominator = display.getDeviceType().getDisplaySize() > 2 ? 8 : 4;
+        } else if (state.getBlock().getClass() == TrafficConeBlock.class) {
+            trafficengine$breakParticleDenominator = 4;
+        } else if (state.getBlock() instanceof TrafficBollardBlock) {
+            trafficengine$breakParticleDenominator = 2;
+        } else if (state.getBlock() instanceof RetractableBarrierBlock) {
+            trafficengine$breakParticleNumerator = 3;
+            trafficengine$breakParticleDenominator = 10;
+        } else if (state.getBlock() instanceof RoadBarrierFenceBlock
                 || state.getBlock() instanceof ConcreteBarrierBlock
                 || state.getBlock() instanceof GuardrailBlock) {
             trafficengine$breakParticleNumerator = 7;

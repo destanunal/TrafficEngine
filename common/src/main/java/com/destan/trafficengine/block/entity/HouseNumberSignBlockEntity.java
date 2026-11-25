@@ -1,16 +1,15 @@
 package com.destan.trafficengine.block.entity;
 
-import com.destan.trafficengine.block.entity.WritableTrafficSignBlockEntity;
+import com.destan.trafficengine.block.HouseNumberSignBlock;
+import com.destan.trafficengine.data.SignTextConfig;
 import com.destan.trafficengine.data.SignTextConfig.ConfiguredLineData;
 import com.destan.trafficengine.data.SignTextConfig.WritableSignConfig;
 import com.destan.trafficengine.util.ColorValue;
-import com.destan.trafficengine.block.WritableTrafficSign;
 import com.destan.trafficengine.block.data.IColorBlockEntity;
 import com.destan.trafficengine.data.PaintColor;
 import com.destan.trafficengine.registry.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -18,7 +17,11 @@ import net.minecraft.world.phys.Vec2;
 
 public class HouseNumberSignBlockEntity extends WritableTrafficSignBlockEntity implements IColorBlockEntity {
 
+    private static final WritableSignConfig CONFIG = new WritableSignConfig(new ConfiguredLineData[]{
+        new ConfiguredLineData(0, .5F / 16, new Vec2(1, 1), new Vec2(3, 3), 8F / 16, 3, 0)
+    }, false, 0, 120, WritableSignConfig.DEFAULT_SCALE, 0, 0, 0, -.45F, SignTextConfig::facingRotation, 0);
     private PaintColor color = PaintColor.NONE;
+    private WritableSignConfig renderConfig;
 
     protected HouseNumberSignBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -30,13 +33,12 @@ public class HouseNumberSignBlockEntity extends WritableTrafficSignBlockEntity i
 
     @Override
     public WritableSignConfig getRenderConfig() {
-            int y = 120;
-            int maxScale = 3;
-            return new WritableSignConfig(new ConfiguredLineData[] {
-                new ConfiguredLineData(0, 1.0F / 16.0F * 0.5F, new Vec2(1, 1), new Vec2(maxScale, maxScale), 1.0F / 16.0F * 8, maxScale, 0)
-            }, false, 0, y, WritableSignConfig.DEFAULT_SCALE, 0, 0.0f, 0.0f, -0.45f, (blockState) -> {
-                return blockState.getValue(WritableTrafficSign.FACING) == Direction.EAST || blockState.getValue(WritableTrafficSign.FACING) == Direction.WEST ? blockState.getValue(WritableTrafficSign.FACING).getOpposite().toYRot() : blockState.getValue(WritableTrafficSign.FACING).toYRot(); 
-            }, ColorValue.pickBasedOnBrightness(this.getColor().getTextureColor(), ColorValue.WHITE, ColorValue.BLACK, 0.5f).getAsARGB());
+        if (renderConfig == null) {
+            ColorValue face = color == PaintColor.NONE ? HouseNumberSignBlock.DEFAULT_PANEL_COLOR : color.getTextureColor();
+            int textColor = ColorValue.pickBasedOnBrightness(face, ColorValue.WHITE, ColorValue.BLACK, .5F).getAsARGB();
+            renderConfig = CONFIG.withColor(textColor);
+        }
+        return renderConfig;
     }
 
     @Override
@@ -44,6 +46,7 @@ public class HouseNumberSignBlockEntity extends WritableTrafficSignBlockEntity i
         PaintColor previousColor = this.color;
         super.loadAdditional(compound, provider);
         this.color = PaintColor.getByIndex(compound.getInt(NBT_COLOR));
+        if (previousColor != this.color) renderConfig = null;
         // The block-state packet can rebuild Embeddium's mesh before the paint
         // data arrives. Invalidate it after reading the new colour, once per change.
         if (previousColor != this.color && level != null && level.isClientSide) {
@@ -61,6 +64,7 @@ public class HouseNumberSignBlockEntity extends WritableTrafficSignBlockEntity i
     public void setColor(PaintColor color) {
         if (this.color == color) return;
         this.color = color;
+        renderConfig = null;
         notifyUpdate();
         if (level != null && level.isClientSide) {
             level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);

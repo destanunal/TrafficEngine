@@ -3,28 +3,46 @@ package com.destan.trafficengine.client.ber;
 import com.destan.trafficengine.block.LedDeviceBlock;
 import com.destan.trafficengine.block.data.LedDeviceType;
 import com.destan.trafficengine.block.entity.LedDeviceBlockEntity;
+import com.destan.trafficengine.client.ScrollingText;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.Direction;
 import org.joml.Matrix4f;
+import org.joml.Quaternionf;
 
 public class LedDeviceBlockEntityRenderer implements BlockEntityRenderer<LedDeviceBlockEntity> {
+    private static final Quaternionf[] FACING_ROTATIONS = new Quaternionf[4];
+    static {
+        for (Direction direction : Direction.Plane.HORIZONTAL)
+            FACING_ROTATIONS[direction.get2DDataValue()] = Axis.YP.rotationDegrees(-direction.toYRot());
+    }
     private final Font font;
     private final Matrix4f textMatrix = new Matrix4f();
     public LedDeviceBlockEntityRenderer(BlockEntityRendererProvider.Context context) { this.font = context.getFont(); }
 
     @Override
     public void render(LedDeviceBlockEntity blockEntity, float partialTick, PoseStack pose, MultiBufferSource buffers, int light, int overlay) {
-        Direction facing = blockEntity.getBlockState().getValue(LedDeviceBlock.FACING);
-        LedDeviceType type = ((LedDeviceBlock)blockEntity.getBlockState().getBlock()).getDeviceType();
-        boolean hanging = blockEntity.getBlockState().getValue(LedDeviceBlock.POST_ABOVE);
-        boolean postMounted = blockEntity.getBlockState().getValue(LedDeviceBlock.POST_MOUNTED);
-        boolean sideMounted = blockEntity.getBlockState().getValue(LedDeviceBlock.POST_SIDE);
+        var state = blockEntity.getBlockState();
+        LedDeviceType type = ((LedDeviceBlock)state.getBlock()).getDeviceType();
+        String[] lines = blockEntity.getMessageLines();
+        int lineCount = Math.min(type.getMessageSlots(), lines.length);
+        long pixels = blockEntity.getPixels();
+        if (type.isTrafficDisplay()) {
+            int first = 0;
+            while (first < lineCount && lines[first].isEmpty()) first++;
+            if (first == lineCount) return;
+        } else if (pixels == 0) {
+            return;
+        }
+        if (!blockEntity.isLit()) return;
+        Direction facing = state.getValue(LedDeviceBlock.FACING);
+        boolean hanging = state.getValue(LedDeviceBlock.POST_ABOVE);
+        boolean postMounted = state.getValue(LedDeviceBlock.POST_MOUNTED);
+        boolean sideMounted = state.getValue(LedDeviceBlock.POST_SIDE);
         boolean compactLedSupport = type == LedDeviceType.LED_LIGHT && postMounted && !sideMounted;
         pose.pushPose();
         double centerY = type == LedDeviceType.LARGE_TRAFFIC_DISPLAY ? 0.5
@@ -39,52 +57,54 @@ public class LedDeviceBlockEntityRenderer implements BlockEntityRenderer<LedDevi
         }
         // Use the same orientation as Minecraft's sign text: the text plane
         // faces local +Z, then rotates toward the block's visible front.
-        pose.mulPose(Axis.YP.rotationDegrees(-facing.toYRot()));
-        boolean wallMounted = blockEntity.getBlockState().getValue(LedDeviceBlock.WALL_MOUNTED);
+        pose.mulPose(FACING_ROTATIONS[facing.get2DDataValue()]);
+        boolean wallMounted = state.getValue(LedDeviceBlock.WALL_MOUNTED);
         // The black display face is baked into the block model. Only the LED
         // text is dynamic and sits one thousandth of a block in front of it,
         // which removes both the side gap and distant z-fighting.
         pose.translate(0, 0, type.isTrafficDisplay()
             ? (wallMounted ? -0.40525 : 0.15725)
             : (wallMounted ? -0.34275 : 0.15725));
-        if (!blockEntity.isLit()) {
-            pose.popPose();
-            return;
-        }
         pose.scale(0.01F, -0.01F, 0.01F);
         Matrix4f matrix = pose.last().pose();
         int color = 0xFF000000 | (blockEntity.getLedColor() & 0xFFFFFF);
         int fullBright = 0xF000F0;
         if (type.isTrafficDisplay()) {
             float textArea = type.getDisplaySize() * 100.0F - 20.0F;
-            String[] lines = blockEntity.getMessageLines();
-            int lineCount = Math.min(type.getMessageSlots(), lines.length);
-            float lineStep = textArea / Math.max(1, lineCount);
+            float lineStep = textArea / lineCount;
+            float maxScale = lineStep / (font.lineHeight + 1.0F);
+            boolean scrolling = blockEntity.isScrolling();
+            var level = scrolling ? blockEntity.getLevel() : null;
+            double time = level == null ? 0 : level.getGameTime() + partialTick;
             for (int i = 0; i < lineCount; i++) {
-                float textScale = blockEntity.isScrolling() ? lineStep/(font.lineHeight+1F) : Math.min(lineStep / (font.lineHeight + 1.0F), textArea / Math.max(1, font.width(lines[i])));
+                String line = lines[i];
+                if (line.isEmpty()) continue;
+                int textWidth = scrolling ? 0 : font.width(line);
+                float textScale = scrolling ? maxScale : Math.min(maxScale, textArea / Math.max(1, textWidth));
                 float lineCenter = -textArea / 2.0F + lineStep * (i + 0.5F);
                 float lineTop = lineCenter - font.lineHeight * textScale / 2.0F;
-                if(blockEntity.isScrolling()) {
-                    double time=blockEntity.getLevel()==null?0:blockEntity.getLevel().getGameTime()+partialTick;
-                    var visible=com.destan.trafficengine.client.ScrollingText.window(lines[i],font::width,textArea/textScale,time,blockEntity.getScrollSpeed());
+                if (scrolling) {
+                    var visible = ScrollingText.window(line, font, textArea / textScale, time, blockEntity.getScrollSpeed());
+                    if (visible.text().isEmpty()) continue;
                     textMatrix.set(matrix).scale(textScale);
                     font.drawInBatch(visible.text(),-textArea/textScale/2+visible.x(),lineTop/textScale,color,false,textMatrix,buffers,Font.DisplayMode.POLYGON_OFFSET,0,fullBright);
-                } else drawCentered(matrix, buffers, lines[i], 0, lineTop, color, fullBright, textScale);
+                } else {
+                    textMatrix.set(matrix).scale(textScale);
+                    font.drawInBatch(line, -textWidth / 2.0F, lineTop / textScale, color, false,
+                        textMatrix, buffers, Font.DisplayMode.POLYGON_OFFSET, 0, fullBright);
+                }
             }
         } else {
-            long pixels = blockEntity.getPixels();
             pose.scale(0.82F, 0.82F, 0.82F);
             matrix = pose.last().pose();
-            for (int y = 0; y < 8; y++) for (int x = 0; x < 8; x++) {
-                if ((pixels & (1L << (y * 8 + x))) != 0)
-                    font.drawInBatch("■", x * 10 - 39, y * 10 - 39, blockEntity.getPixelColor(y * 8 + x), false, matrix, buffers, Font.DisplayMode.POLYGON_OFFSET, 0, fullBright);
+            while (pixels != 0) {
+                int pixel = Long.numberOfTrailingZeros(pixels);
+                font.drawInBatch("■", (pixel & 7) * 10 - 39, (pixel >>> 3) * 10 - 39,
+                    blockEntity.getPixelColor(pixel), false, matrix, buffers, Font.DisplayMode.POLYGON_OFFSET, 0, fullBright);
+                pixels &= pixels - 1;
             }
         }
         pose.popPose();
     }
 
-    private void drawCentered(Matrix4f matrix, MultiBufferSource buffers, String text, float x, float y, int color, int light, float scale) {
-        textMatrix.set(matrix).scale(scale);
-        font.drawInBatch(text, x / scale - font.width(text) / 2.0F, y / scale, color, false, textMatrix, buffers, Font.DisplayMode.POLYGON_OFFSET, 0, light);
-    }
 }

@@ -1,12 +1,15 @@
 {
   "type": "minecraft:crafting_shapeless",
-  "group": "small_double_small_street_lamp",
+  "group": "small_double_street_lamp",
   "ingredients": [
     {
-      "item": "trafficengine:small_street_lamp"
+      "item": "trafficengine:street_lamp"
     },
     {
-      "item": "trafficengine:small_street_lamp"
+      "item": "minecraft:glowstone"
+    },
+    {
+      "item": "minecraft:iron_ingot"
     }
   ],
   "result": {

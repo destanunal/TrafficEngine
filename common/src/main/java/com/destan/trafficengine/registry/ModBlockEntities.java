@@ -98,9 +98,7 @@ public class ModBlockEntities {
                     StreetLampBlockEntity::new,
                     ModBlocks.STREET_LAMP.get(),
                     ModBlocks.DOUBLE_STREET_LAMP.get(),
-                    ModBlocks.SMALL_STREET_LAMP.get(),
                     ModBlocks.SMALL_DOUBLE_STREET_LAMP.get(),
-                    ModBlocks.STREET_LIGHT.get(),
                     ModBlocks.FLUORESCENT_TUBE_LAMP.get()
             ).build(null)
     );

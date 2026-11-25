@@ -2,12 +2,15 @@ package com.destan.trafficengine.block;
 
 import com.destan.trafficengine.registry.ModItemTags;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.FenceBlock;
+import net.minecraft.world.level.block.PipeBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -21,11 +24,12 @@ public final class PedestrianRailingBlock extends FenceBlock implements com.dest
     public static final BooleanProperty DOWN = net.minecraft.world.level.block.state.properties.BlockStateProperties.DOWN;
     public static final net.minecraft.world.level.block.state.properties.IntegerProperty SINK=net.minecraft.world.level.block.state.properties.IntegerProperty.create("sink",0,7);
     private static final net.minecraft.world.phys.shapes.VoxelShape[][] OUTLINES=new net.minecraft.world.phys.shapes.VoxelShape[8][16],COLLISIONS=new net.minecraft.world.phys.shapes.VoxelShape[8][16];
+    public static final BooleanProperty ATTACH_TO_BLOCKS = BooleanProperty.create("attach_to_blocks");
     public static final BooleanProperty GRAY = BooleanProperty.create("gray");
     public PedestrianRailingBlock() {
         super(Properties.of().mapColor(MapColor.METAL).strength(2F).requiresCorrectToolForDrops()
             .sound(SoundType.METAL).noOcclusion());
-        registerDefaultState(defaultBlockState().setValue(SINK,0).setValue(GRAY, true).setValue(UP,false).setValue(DOWN,false));
+        registerDefaultState(defaultBlockState().setValue(SINK,0).setValue(GRAY, true).setValue(UP,false).setValue(DOWN,false).setValue(ATTACH_TO_BLOCKS,true));
     }
     @Override public void attack(BlockState state, net.minecraft.world.level.Level world, BlockPos pos, net.minecraft.world.entity.player.Player player) {
         onRemoveColor(state,world,pos,player);
@@ -34,7 +38,7 @@ public final class PedestrianRailingBlock extends FenceBlock implements com.dest
         com.destan.trafficengine.block.data.PaintableRailing.normalizePaintVariant(world,pos,state);
     }
     @Override protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        super.createBlockStateDefinition(builder); builder.add(GRAY,UP,DOWN,SINK);
+        super.createBlockStateDefinition(builder); builder.add(GRAY,UP,DOWN,SINK,ATTACH_TO_BLOCKS);
     }
     @Override public BlockState getStateForPlacement(net.minecraft.world.item.context.BlockPlaceContext context) {
         BlockState state=super.getStateForPlacement(context);
@@ -49,7 +53,13 @@ public final class PedestrianRailingBlock extends FenceBlock implements com.dest
         BlockState updated=super.updateShape(state,side,neighbour,world,pos,other);
         if(side==net.minecraft.core.Direction.UP)return updated.setValue(UP,neighbour.getBlock() instanceof PedestrianRailingBlock);
         if(side==net.minecraft.core.Direction.DOWN)return updated.setValue(DOWN,neighbour.getBlock() instanceof PedestrianRailingBlock).setValue(SINK,RailingGeometry.sinkFor(neighbour));
-        return updated;
+        return attachmentsAllowed(state, neighbour) ? updated
+            : updated.setValue(PipeBlock.PROPERTY_BY_DIRECTION.get(side), false);
+    }
+    private static boolean attachmentsAllowed(BlockState state, BlockState other) {
+        return state.getValue(ATTACH_TO_BLOCKS) || other.getBlock() instanceof PedestrianRailingBlock
+            || other.getBlock() instanceof SlopedPedestrianRailingBlock
+            || other.getBlock() instanceof PedestrianRailingGateBlock;
     }
     @Override public boolean connectsTo(BlockState other,boolean sturdy,net.minecraft.core.Direction side){
         if(other.getBlock() instanceof SlopedPedestrianRailingBlock)return side==other.getValue(SlopedPedestrianRailingBlock.FACING).getOpposite();
@@ -66,7 +76,25 @@ public final class PedestrianRailingBlock extends FenceBlock implements com.dest
         var found=COLLISIONS[sink][index];if(found==null)COLLISIONS[sink][index]=found=super.getCollisionShape(state,world,pos,context).move(0,-sink/8D,0);return found;
     }
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
-        return InteractionResult.PASS;
+        var tool = player.getItemInHand(hand);
+        if (!tool.is(ModItemTags.WRENCHES)) return InteractionResult.PASS;
+        if (!player.mayBuild() || !level.mayInteract(player, pos)
+                || !player.mayUseItemAt(pos, hit.getDirection(), tool)) return InteractionResult.FAIL;
+        if (!level.isClientSide) {
+            BlockState changed = state.cycle(ATTACH_TO_BLOCKS);
+            for (Direction side : Direction.Plane.HORIZONTAL) {
+                BlockPos next = pos.relative(side);
+                BlockState neighbour = level.getBlockState(next);
+                Direction face = side.getOpposite();
+                boolean connected = attachmentsAllowed(changed, neighbour)
+                    && connectsTo(neighbour, neighbour.isFaceSturdy(level, next, face), face);
+                changed = changed.setValue(PipeBlock.PROPERTY_BY_DIRECTION.get(side), connected);
+            }
+            level.setBlockAndUpdate(pos, changed);
+            player.displayClientMessage(Component.translatable(changed.getValue(ATTACH_TO_BLOCKS)
+                ? "message.trafficengine.railing.attach_on" : "message.trafficengine.railing.attach_off"), true);
+        }
+        return InteractionResult.sidedSuccess(level.isClientSide);
     }
     @Override protected net.minecraft.world.ItemInteractionResult useItemOn(net.minecraft.world.item.ItemStack stack, BlockState state,
             Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {

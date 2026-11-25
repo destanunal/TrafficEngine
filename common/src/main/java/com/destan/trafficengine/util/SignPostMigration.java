@@ -17,10 +17,20 @@ public final class SignPostMigration {
     }
 
     private static String legacyBlock(String id) {
+        String lamp = retiredLampReplacement(id);
+        if (lamp != null) return lamp;
         if (!id.startsWith("trafficcraft:")) return id;
         String replacement = "trafficengine:" + id.substring("trafficcraft:".length());
         var key = net.minecraft.resources.ResourceLocation.tryParse(replacement);
         return key != null && net.minecraft.core.registries.BuiltInRegistries.BLOCK.containsKey(key) ? replacement : id;
+    }
+
+    public static String retiredLampReplacement(String id) {
+        return switch (id) {
+            case "trafficengine:small_street_lamp", "trafficcraft:small_street_lamp" -> "trafficengine:street_lamp";
+            case "trafficengine:street_light", "trafficcraft:street_light" -> "trafficengine:fluorescent_tube_lamp";
+            default -> null;
+        };
     }
 
     public static void blockState(CompoundTag tag) {

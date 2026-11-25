@@ -2,14 +2,12 @@ package com.destan.trafficengine.block;
 
 import com.destan.trafficengine.block.entity.WritableTrafficSignBlockEntity;
 import com.destan.trafficengine.client.ClientWrapper;
-import com.destan.trafficengine.item.BrushItem;
 import com.destan.trafficengine.registry.ModItemTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
@@ -100,24 +98,24 @@ public abstract class WritableTrafficSign extends BaseEntityBlock implements Sim
         return false;
     }
 
-    public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {        
-        ItemStack stack = pPlayer.getInventory().getSelected();
-        Item item = stack.getItem();
+    protected static boolean wantsEditor(Player player, InteractionHand hand) {
+        ItemStack held = player.getItemInHand(hand);
+        return !player.isShiftKeyDown() && (held.is(ModItemTags.WRENCHES)
+            || hand == InteractionHand.MAIN_HAND && held.isEmpty() && player.getOffhandItem().isEmpty());
+    }
 
-        if (item instanceof BrushItem) {
-            return InteractionResult.FAIL;
-        }
+    public static boolean mayEdit(Player player, BlockPos pos) {
+        Level level = player.level();
+        return player.mayBuild() && !player.isSpectator() && level.isLoaded(pos) && level.isInWorldBounds(pos)
+            && player.distanceToSqr(pos.getX() + .5, pos.getY() + .5, pos.getZ() + .5) <= 64
+            && level.mayInteract(player, pos);
+    }
 
-        if (pLevel.isClientSide) {
-            if (stack.is(ModItemTags.WRENCHES) && pLevel.getBlockEntity(pPos) instanceof WritableTrafficSignBlockEntity blockEntity) {
-                if (!pPlayer.isShiftKeyDown()) {                
-                    ClientWrapper.showWritableSignScreen(blockEntity);
-                }
-                return InteractionResult.SUCCESS;
-            }
-        }
-        return InteractionResult.FAIL;
-
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        if (!wantsEditor(player, hand)) return InteractionResult.PASS;
+        if (!mayEdit(player, pos) || !(level.getBlockEntity(pos) instanceof WritableTrafficSignBlockEntity sign)) return InteractionResult.FAIL;
+        if (level.isClientSide) ClientWrapper.showWritableSignScreen(sign);
+        return InteractionResult.sidedSuccess(level.isClientSide);
     }
 
     @Override

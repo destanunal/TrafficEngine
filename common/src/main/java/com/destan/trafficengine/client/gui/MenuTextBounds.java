@@ -22,6 +22,7 @@ public final class MenuTextBounds {
     private static int cachedRevision;
     private MenuTextBounds(){}
     public static void invalidate(){revision++;}
+    public static int revision() { return revision; }
     public static Bounds of(Font font,Object caption) {
         MenuFontAccessor access=font instanceof MenuFontAccessor a?a:null;
         FontSet primary=access==null?null:access.trafficengine$fontSet(Style.DEFAULT_FONT);
