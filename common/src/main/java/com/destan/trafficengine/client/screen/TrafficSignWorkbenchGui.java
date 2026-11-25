@@ -338,6 +338,12 @@ public class TrafficSignWorkbenchGui extends AbstractContainerScreen<TrafficSign
     }
     @Override public boolean keyPressed(int code, int scan, int modifiers) {
         if (code == 256 && page != Page.MAIN && !busy) { go(page == Page.IMPORT || page == Page.COLOR || page == Page.DISCARD ? Page.EDIT : page == Page.EDIT ? Page.DISCARD : Page.MAIN); return true; }
+        if (getFocused() instanceof EditBox input && (input == nameBox || input == hexBox)
+                && input.canConsumeInput() && code != org.lwjgl.glfw.GLFW.GLFW_KEY_TAB && code != org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE) {
+            input.keyPressed(code, scan, modifiers);
+            // Character events arrive separately. Consume this key so the container cannot run hotkeys.
+            return true;
+        }
         return super.keyPressed(code, scan, modifiers);
     }
     @Override public void containerTick() {

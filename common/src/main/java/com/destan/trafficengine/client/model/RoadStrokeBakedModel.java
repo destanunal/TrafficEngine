@@ -43,21 +43,19 @@ public abstract class RoadStrokeBakedModel implements BakedModel {
         // Short dashed pieces must retain the same grain orientation as the whole stroke.
         boolean alongX=maxX-minX>maxZ-minZ;
         boolean straight=Math.min(maxX-minX,maxZ-minZ)<=.6251F;
+        float[] face=new float[12];
         for (int q=0;q+11<vertices.length;q+=12) {
-            float[] face=java.util.Arrays.copyOfRange(vertices,q,q+12);
             // Older saves contain two triangles for each rectangle. Join them at bake time,
             // retaining the stored footprint while avoiding a diagonal lighting seam.
-            if(q+23<vertices.length && legacyRectangle(vertices,q)) {
-                System.arraycopy(vertices,q+18,face,9,3);q+=12;
-            }
-            float[] ordered=face;
+            boolean joined=q+23<vertices.length && legacyRectangle(vertices,q);
+            int last=q+(joined?18:9);
             int first=0;
-            for(int i=1;i<4;i++)if(face[i*3]+face[i*3+2]<face[first*3]+face[first*3+2])first=i;
-            if(first!=0) {
-                ordered=new float[12];
-                for(int i=0;i<4;i++)System.arraycopy(face,((first+i)&3)*3,ordered,i*3,3);
+            for(int i=1;i<4;i++) {
+                int current=corner(q,last,i), selected=corner(q,last,first);
+                if(vertices[current]+vertices[current+2]<vertices[selected]+vertices[selected+2])first=i;
             }
-            face=ordered;
+            for(int i=0;i<4;i++)System.arraycopy(vertices,corner(q,last,(first+i)&3),face,i*3,3);
+            if(joined)q+=12;
             float ax=face[3]-face[0],ay=face[4]-face[1],az=face[5]-face[2];
             float bx=face[6]-face[0],by=face[7]-face[1],bz=face[8]-face[2];
             float cx=face[9]-face[0],cy=face[10]-face[1],cz=face[11]-face[2];
@@ -69,11 +67,13 @@ public abstract class RoadStrokeBakedModel implements BakedModel {
     private static boolean same(float[] mesh,int a,int b) {
         return mesh[a]==mesh[b]&&mesh[a+1]==mesh[b+1]&&mesh[a+2]==mesh[b+2];
     }
+    private static int corner(int start,int last,int index) {
+        return index==3 ? last : start+index*3;
+    }
     private static boolean legacyRectangle(float[] mesh,int q) {
         if(!same(mesh,q+6,q+9)||!same(mesh,q+18,q+21)||!same(mesh,q,q+12)||!same(mesh,q+6,q+15))return false;
-        int[] corners={q,q+3,q+6,q+18};
         for(int i=0;i<4;i++) {
-            int a=corners[i],b=corners[(i+1)&3],c=corners[(i+2)&3];
+            int a=corner(q,q+18,i),b=corner(q,q+18,(i+1)&3),c=corner(q,q+18,(i+2)&3);
             if(mesh[a+1]!=mesh[q+1])return false;
             double ax=mesh[b]-mesh[a],az=mesh[b+2]-mesh[a+2],bx=mesh[c]-mesh[b],bz=mesh[c+2]-mesh[b+2];
             if(ax*ax+az*az<1E-10||Math.abs(ax*bx+az*bz)>1E-6)return false;

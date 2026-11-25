@@ -4,16 +4,12 @@ import com.destan.trafficengine.block.data.ITrafficPostLike;
 import com.destan.trafficengine.block.data.TownSignVariant;
 import com.destan.trafficengine.block.entity.TownSignBlockEntity;
 import com.destan.trafficengine.client.ClientWrapper;
-import com.destan.trafficengine.item.BrushItem;
-import com.destan.trafficengine.registry.ModItemTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -37,6 +33,9 @@ public class TownSignBlock extends WritableTrafficSign implements ITrafficPostLi
     private static final VoxelShape SHAPE_EAST = Shapes.or(SHAPE_COMMON, Block.box(9, 4, 0, 9.5D, 16, 16));
     private static final VoxelShape SHAPE_WEST = Shapes.or(SHAPE_COMMON, Block.box(6.5D, 4, 0, 7, 16, 16));
 
+    private static final VoxelShape SHAPE_BOTH_NS = Shapes.or(SHAPE_NORTH, SHAPE_SOUTH);
+    private static final VoxelShape SHAPE_BOTH_EW = Shapes.or(SHAPE_EAST, SHAPE_WEST);
+
     public static final EnumProperty<TownSignVariant> VARIANT = EnumProperty.create("variant", TownSignVariant.class);
 
     public TownSignBlock() {
@@ -47,20 +46,20 @@ public class TownSignBlock extends WritableTrafficSign implements ITrafficPostLi
             .sound(SoundType.LANTERN)
         );
 
-        this.registerDefaultState(this.stateDefinition.any().setValue(VARIANT, TownSignVariant.FRONT));
+        registerDefaultState(defaultBlockState().setValue(VARIANT, TownSignVariant.FRONT));
     }
 
     @Override
     public VoxelShape getShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext) {
         switch (pState.getValue(FACING)) {
             case NORTH:
-                return pState.getValue(VARIANT) == TownSignVariant.BOTH ? Shapes.or(SHAPE_NORTH, SHAPE_SOUTH) : SHAPE_NORTH;
+                return pState.getValue(VARIANT) == TownSignVariant.BOTH ? SHAPE_BOTH_NS : SHAPE_NORTH;
             case SOUTH:
-                return pState.getValue(VARIANT) == TownSignVariant.BOTH ? Shapes.or(SHAPE_NORTH, SHAPE_SOUTH) : SHAPE_SOUTH;
+                return pState.getValue(VARIANT) == TownSignVariant.BOTH ? SHAPE_BOTH_NS : SHAPE_SOUTH;
             case EAST:
-                return pState.getValue(VARIANT) == TownSignVariant.BOTH ? Shapes.or(SHAPE_EAST, SHAPE_WEST) : SHAPE_EAST;
+                return pState.getValue(VARIANT) == TownSignVariant.BOTH ? SHAPE_BOTH_EW : SHAPE_EAST;
             case WEST:
-                return pState.getValue(VARIANT) == TownSignVariant.BOTH ? Shapes.or(SHAPE_EAST, SHAPE_WEST) : SHAPE_WEST;
+                return pState.getValue(VARIANT) == TownSignVariant.BOTH ? SHAPE_BOTH_EW : SHAPE_WEST;
             default:
                 return SHAPE_COMMON;
         }
@@ -73,43 +72,21 @@ public class TownSignBlock extends WritableTrafficSign implements ITrafficPostLi
     }
 
     @Override
-    public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
-        ItemStack stack = pPlayer.getInventory().getSelected();
-        Item item = stack.getItem();
-
-        if (item instanceof BrushItem) {
-            return InteractionResult.FAIL;
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        if (!wantsEditor(player, hand)) return InteractionResult.PASS;
+        if (!mayEdit(player, pos) || !(level.getBlockEntity(pos) instanceof TownSignBlockEntity sign)) return InteractionResult.FAIL;
+        if (level.isClientSide) {
+            Direction facing = state.getValue(FACING);
+            double facingOffset = (hit.getLocation().x - pos.getX() - .5) * facing.getStepX()
+                + (hit.getLocation().z - pos.getZ() - .5) * facing.getStepZ();
+            ETownSignSide side = switch (state.getValue(VARIANT)) {
+                case FRONT -> ETownSignSide.FRONT;
+                case BACK -> ETownSignSide.BACK;
+                case BOTH -> facingOffset < 0 ? ETownSignSide.BACK : ETownSignSide.FRONT;
+            };
+            ClientWrapper.showTownSignScreen(sign, side);
         }
-
-        ETownSignSide editSide;
-        switch (pState.getValue(VARIANT)) {
-            case BACK:
-                editSide = ETownSignSide.BACK;
-                break;
-            case BOTH:
-                if (pHit.getDirection() == pState.getValue(FACING))
-                    editSide = ETownSignSide.FRONT;
-                else if (pHit.getDirection() == pState.getValue(FACING).getOpposite())
-                    editSide = ETownSignSide.BACK;
-                else
-                    return InteractionResult.FAIL;
-                break;
-            case FRONT:
-            default:
-                editSide = ETownSignSide.FRONT;
-                break;
-        }
-
-        if(pLevel.isClientSide) {
-            if (stack.is(ModItemTags.WRENCHES) && pLevel.getBlockEntity(pPos) instanceof TownSignBlockEntity blockEntity) {
-                if(!pPlayer.isShiftKeyDown()) {                
-                    ClientWrapper.showTownSignScreen(blockEntity, editSide);
-                }
-                return InteractionResult.SUCCESS;
-            }
-        }
-        return InteractionResult.FAIL;
-
+        return InteractionResult.sidedSuccess(level.isClientSide);
     }
 
     @Override

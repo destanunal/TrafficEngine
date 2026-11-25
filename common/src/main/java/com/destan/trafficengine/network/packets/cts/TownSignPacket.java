@@ -1,78 +1,72 @@
 package com.destan.trafficengine.network.packets.cts;
 
-import com.destan.trafficengine.network.PacketStatus;
-import com.destan.trafficengine.network.NetworkPacketContext;
-import com.destan.trafficengine.network.NetworkPacketData;
-import com.destan.trafficengine.util.NbtPositions;
 import com.destan.trafficengine.block.TownSignBlock;
+import com.destan.trafficengine.block.WritableTrafficSign;
 import com.destan.trafficengine.block.data.TownSignVariant;
 import com.destan.trafficengine.block.entity.TownSignBlockEntity;
+import com.destan.trafficengine.data.WritableSignText;
+import com.destan.trafficengine.network.NetworkPacketContext;
+import com.destan.trafficengine.network.NetworkPacketData;
+import com.destan.trafficengine.network.PacketStatus;
+import com.destan.trafficengine.util.NbtPositions;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.block.state.BlockState;
 
 public class TownSignPacket extends NetworkPacketData {
-
-    private static final String NBT_MESSAGES = "Messages";
-    private static final String NBT_VARIANT = "Variant";
-    private static final String NBT_POS = "Pos";
-    private static final String NBT_SIDE = "Side";
-
-    private String[] messages;
+    private BlockPos pos;
+    private String[] front;
+    private String[] back;
     private TownSignVariant variant;
-    private BlockPos pos;    
-    private TownSignBlock.ETownSignSide side;
 
     public TownSignPacket(PacketStatus status) {
         super(status);
     }
 
-    public TownSignPacket(BlockPos pos, String[] messages, TownSignVariant variant, TownSignBlock.ETownSignSide side) {
+    public TownSignPacket(BlockPos pos, String[] front, String[] back, TownSignVariant variant) {
         super(PacketStatus.OK);
         this.pos = pos;
+        this.front = front;
+        this.back = back;
         this.variant = variant;
-        this.messages = messages;
-        this.side = side;
+    }
+
+    public TownSignPacket(BlockPos pos, String[] messages, TownSignVariant variant, TownSignBlock.ETownSignSide side) {
+        this(pos, side == TownSignBlock.ETownSignSide.FRONT ? messages : null,
+            side == TownSignBlock.ETownSignSide.BACK ? messages : null, variant);
     }
 
     @Override
-    protected void write(CompoundTag nbt) {
-        ListTag msgs = new ListTag();
-        for (String msg : messages) {
-            msgs.add(StringTag.valueOf(msg));
-        }
-        nbt.put(NBT_MESSAGES, msgs);
-        nbt.putInt(NBT_VARIANT, variant.getIndex());
-        NbtPositions.putNbtPos(nbt, NBT_POS, pos);
-        nbt.putInt(NBT_SIDE, side.getIndex());
+    protected void write(CompoundTag tag) {
+        NbtPositions.putNbtPos(tag, "Pos", pos);
+        if (front != null) WritableSignText.writeLines(tag, "Front", front);
+        if (back != null) WritableSignText.writeLines(tag, "Back", back);
+        if (variant != null) tag.putInt("Variant", variant.getIndex());
     }
 
     @Override
-    protected void read(CompoundTag nbt) {
-        this.messages = nbt.getList(NBT_MESSAGES, Tag.TAG_STRING).stream().map(x -> ((StringTag)x).getAsString()).toArray(String[]::new);
-        this.variant = TownSignVariant.getVariantByIndex(nbt.getInt(NBT_VARIANT));
-        this.pos = NbtPositions.getNbtBlockPos(nbt, NBT_POS);
-        this.side = TownSignBlock.ETownSignSide.getSideByIndex(nbt.getInt(NBT_SIDE));
-    }
-    
-    public static void handle(TownSignPacket packet, NetworkPacketContext context) {        
-        ServerPlayer sender = (ServerPlayer)context.getPlayer();
-        if (sender.level().getBlockState(packet.pos).getBlock() instanceof TownSignBlock && sender.level().getBlockEntity(packet.pos) instanceof TownSignBlockEntity blockEntity) {
-            switch (packet.side) {
-                case BACK:
-                    blockEntity.setBackTexts(packet.messages);
-                    break;
-                default:
-                case FRONT:
-                    blockEntity.setTexts(packet.messages);
-                    break;
+    protected void read(CompoundTag tag) {
+        pos = NbtPositions.getNbtBlockPos(tag, "Pos");
+        front = tag.contains("Front", Tag.TAG_LIST) ? WritableSignText.readLines(tag, "Front", WritableSignText.FRONT_LINES) : null;
+        back = tag.contains("Back", Tag.TAG_LIST) ? WritableSignText.readLines(tag, "Back", WritableSignText.BACK_LINES) : null;
+        variant = tag.contains("Variant", Tag.TAG_ANY_NUMERIC) ? TownSignVariant.getVariantByIndex(tag.getInt("Variant")) : null;
+        if (front == null && back == null && tag.contains("Messages", Tag.TAG_LIST)) {
+            if (TownSignBlock.ETownSignSide.getSideByIndex(tag.getInt("Side")) == TownSignBlock.ETownSignSide.BACK) {
+                back = WritableSignText.readLines(tag, "Messages", WritableSignText.BACK_LINES);
+            } else {
+                front = WritableSignText.readLines(tag, "Messages", WritableSignText.FRONT_LINES);
             }
-            BlockState state = sender.level().getBlockState(packet.pos);
-            sender.level().setBlockAndUpdate(packet.pos, state.setValue(TownSignBlock.VARIANT, packet.variant));
+        }
+    }
+
+    public static void handle(TownSignPacket packet, NetworkPacketContext context) {
+        if (!(context.getPlayer() instanceof ServerPlayer player) || !WritableTrafficSign.mayEdit(player, packet.pos)
+                || !(player.level().getBlockEntity(packet.pos) instanceof TownSignBlockEntity sign)) return;
+        sign.setFaceTexts(packet.front, packet.back);
+        var state = sign.getBlockState();
+        if (packet.variant != null && state.getValue(TownSignBlock.VARIANT) != packet.variant) {
+            player.level().setBlockAndUpdate(packet.pos, state.setValue(TownSignBlock.VARIANT, packet.variant));
         }
     }
 }

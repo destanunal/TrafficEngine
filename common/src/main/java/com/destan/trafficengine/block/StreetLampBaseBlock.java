@@ -81,7 +81,6 @@ public class StreetLampBaseBlock extends BaseEntityBlock implements SimpleWaterl
         return switch (lampType) {
             case NORMAL -> StreetLampShapes.NORMAL.get(facing);
             case DOUBLE -> StreetLampShapes.DOUBLE.get(facing);
-            case SMALL -> StreetLampShapes.SMALL.get(facing);
             case SMALL_DOUBLE -> StreetLampShapes.SMALL_DOUBLE.get(facing);
             case SINGLE_LIGHT -> StreetLampShapes.STREET_LIGHT.get(facing);
         };
@@ -191,7 +190,6 @@ public class StreetLampBaseBlock extends BaseEntityBlock implements SimpleWaterl
 
     public enum LampType {
         NORMAL,
-        SMALL,
         DOUBLE,
         SMALL_DOUBLE,
         SINGLE_LIGHT

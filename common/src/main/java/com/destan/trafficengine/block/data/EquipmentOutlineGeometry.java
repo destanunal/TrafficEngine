@@ -1,7 +1,9 @@
 package com.destan.trafficengine.block.data;
 
 import com.destan.trafficengine.block.*;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.level.EmptyBlockGetter;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import java.util.*;
@@ -12,7 +14,8 @@ public final class EquipmentOutlineGeometry {
     private EquipmentOutlineGeometry() {}
     public static boolean supports(BlockState state) {
         return state.getBlock() instanceof TrafficLightBlock || state.getBlock() instanceof RoadInformationSignBlock
-            || state.getBlock() instanceof ChevronPanelBlock || state.getBlock() instanceof SlopedPedestrianRailingBlock;
+            || state.getBlock() instanceof ChevronPanelBlock || state.getBlock() instanceof SlopedPedestrianRailingBlock
+            || state.getBlock() instanceof TrafficConeBlock;
     }
     public static float[] edges(BlockState state) {
         if(state.hasProperty(TrafficLightBlock.WATERLOGGED))state=state.setValue(TrafficLightBlock.WATERLOGGED,false);
@@ -39,6 +42,10 @@ public final class EquipmentOutlineGeometry {
         else if(state.getBlock() instanceof RoadInformationSignBlock)road(state,parts);
         else if(state.getBlock() instanceof ChevronPanelBlock)chevron(state,parts);
         else if(state.getBlock() instanceof SlopedPedestrianRailingBlock)railing(state,parts);
+        else if (state.getBlock() instanceof TrafficConeBlock) {
+            AABB bounds = state.getShape(EmptyBlockGetter.INSTANCE, BlockPos.ZERO).bounds();
+            parts.add(TrafficSignOutlineGeometry.box(bounds, Direction.NORTH, false));
+        }
         int size=0;for(float[] p:parts)size+=p.length;
         edges=new float[size];int offset=0;for(float[] p:parts){System.arraycopy(p,0,edges,offset,p.length);offset+=p.length;}
         if(CACHE.size()>=512)CACHE.clear();CACHE.put(state,edges);return edges;

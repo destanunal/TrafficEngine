@@ -19,14 +19,14 @@ import com.destan.trafficengine.block.AsphaltSlope;
 import com.destan.trafficengine.block.data.RoadType;
 import com.destan.trafficengine.item.RoadConstructionTool;
 import com.destan.trafficengine.item.RoadConstructionTool.RoadBuildingData;
+import com.destan.trafficengine.item.RoadConstructionUndo;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 
@@ -76,8 +76,8 @@ public class RoadBuilderBuildRoadPacket extends NetworkPacketData {
     }
 
     public static void handle(RoadBuilderBuildRoadPacket packet, NetworkPacketContext context) {        
-        if (!(context.getPlayer() instanceof ServerPlayer sender)) return;
-        final Level level = sender.level();
+        if (!(context.getPlayer() instanceof ServerPlayer sender) || sender.isSpectator() || !sender.isAlive()) return;
+        final ServerLevel level = sender.serverLevel();
         ItemStack item = null;
         InteractionHand hand = null;
 
@@ -91,7 +91,7 @@ public class RoadBuilderBuildRoadPacket extends NetworkPacketData {
             return;
         }
 
-        if (sender.getCooldowns().isOnCooldown(item.getItem())) return;
+        if (sender.getCooldowns().isOnCooldown(item.getItem()) || RoadConstructionUndo.isBuilding(sender)) return;
         if (packet.pos1 == null || packet.pos2 == null || packet.roadType == null
                 || packet.roadType == RoadType.NONE || packet.roadWidth < 1
                 || packet.roadWidth > ModCommonConfig.ROAD_BUILDER_MAX_ROAD_WIDTH.get()
@@ -117,20 +117,26 @@ public class RoadBuilderBuildRoadPacket extends NetworkPacketData {
             packet.roadType
         );
 
-        ScheduledTask.create(buildingData, level, RoadConstructionTool.BUILD_DELAY_TICKS, buildingData.blocks.size(), packet::run);
+        if (buildingData.blocks.isEmpty()) return;
+        var undo = RoadConstructionUndo.start(sender);
+        ScheduledTask.create(buildingData, level, RoadConstructionTool.BUILD_DELAY_TICKS, buildingData.blocks.size(),
+            (data, task) -> run(data, task, undo));
     }
 
-    private boolean run(RoadBuildingData data, ScheduledTaskContext context) {
-        if (!data.player.isAlive() || data.player.level() != context.level()) {
-            data.player.getCooldowns().removeCooldown(data.toolItem);
-            return false;
+    private static boolean run(RoadBuildingData data, ScheduledTaskContext context, RoadConstructionUndo.Build undo) {
+        ServerPlayer player = (ServerPlayer)data.player;
+        ServerLevel level = (ServerLevel)context.level();
+        if (!player.isAlive() || player.isSpectator() || player.hasDisconnected() || player.level() != level) {
+            return stop(data, undo, null);
         }
+        boolean creative = player.isCreative();
         for (Entry<BlockPos, Integer> block : data.blocks.get(context.iteration()).entrySet()) {
-            ItemStack tool = data.player.getItemInHand(data.hand);
-            if (tool.isEmpty() || !tool.is(data.toolItem)) return stop(data, "tool_changed");
-            BlockState existing = context.level().getBlockState(block.getKey());
+            ItemStack tool = player.getItemInHand(data.hand);
+            if (tool.isEmpty() || !tool.is(data.toolItem)) return stop(data, undo, "tool_changed");
+            BlockPos pos = block.getKey();
+            BlockState existing = level.getBlockState(pos);
             if (!data.replaceBlocks && !existing.isAir()) continue;
-            if (isPlayerCreative(data.player)
+            if (creative
                     ? existing.getBlock().defaultDestroyTime() == Block.INDESTRUCTIBLE
                     : !((RoadConstructionTool)tool.getItem()).canReplaceBlock(existing)) continue;
 
@@ -142,33 +148,39 @@ public class RoadBuilderBuildRoadPacket extends NetworkPacketData {
                 ? data.roadType.getSlope().defaultBlockState().setValue(AsphaltSlope.LAYERS, layers)
                 : data.roadType.getBlock().defaultBlockState();
             if (existing.equals(replacement)) continue;
-            if (!isPlayerCreative(data.player) && data.player.getInventory().countItem(material) < needed) {
-                return stop(data, "materials_missing");
+            if (!creative && player.getInventory().countItem(material) < needed) {
+                return stop(data, undo, "materials_missing");
             }
-            context.level().destroyBlock(block.getKey(), !isPlayerCreative(data.player));
-            context.level().setBlockAndUpdate(block.getKey(), replacement);
-            if (!isPlayerCreative(data.player)) {
-                consumeMaterial(data.player, material, needed);
+            var change = undo.capture(level, pos, existing, replacement, material, creative ? 0 : needed);
+            boolean removed = level.destroyBlock(pos, !creative);
+            if (!level.setBlockAndUpdate(pos, replacement)) {
+                if (removed) undo.record(null);
+                continue;
+            }
+            undo.record(change);
+            if (!creative) {
+                consumeMaterial(player, material, needed);
                 boolean[] broke = {false};
-                tool.hurtAndBreak(1, data.player, player -> {
-                    player.broadcastBreakEvent(data.hand == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND);
+                tool.hurtAndBreak(1, player, holder -> {
+                    holder.broadcastBreakEvent(data.hand == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND);
                     broke[0] = true;
                 });
-                if (broke[0]) return stop(data, "tool_broken");
+                if (broke[0]) return stop(data, undo, "tool_broken");
             }
         }
         if (context.iteration() >= data.blocks.size() - 1) {
-            data.player.getCooldowns().removeCooldown(data.toolItem);
-            if (context.level().dimension().location().equals(BuiltinDimensionTypes.NETHER.location())) {
-                ModUtils.giveAdvancement((ServerPlayer)data.player, TrafficEngine.MOD_ID, "highway_to_hell", "req");
-            } else if (context.level().dimension().location().equals(BuiltinDimensionTypes.END.location())) {
-                ModUtils.giveAdvancement((ServerPlayer)data.player, TrafficEngine.MOD_ID, "final_destination", "req");
+            undo.finish();
+            player.getCooldowns().removeCooldown(data.toolItem);
+            if (level.dimension().location().equals(BuiltinDimensionTypes.NETHER.location())) {
+                ModUtils.giveAdvancement(player, TrafficEngine.MOD_ID, "highway_to_hell", "req");
+            } else if (level.dimension().location().equals(BuiltinDimensionTypes.END.location())) {
+                ModUtils.giveAdvancement(player, TrafficEngine.MOD_ID, "final_destination", "req");
             }
         }
         return true;
     }
 
-    private static void consumeMaterial(Player player, Item material, int count) {
+    private static void consumeMaterial(ServerPlayer player, Item material, int count) {
         for (int slot = 0; slot < player.getInventory().getContainerSize() && count > 0; slot++) {
             ItemStack stack = player.getInventory().getItem(slot);
             if (!stack.is(material)) continue;
@@ -179,14 +191,13 @@ public class RoadBuilderBuildRoadPacket extends NetworkPacketData {
         player.getInventory().setChanged();
     }
 
-    private static boolean stop(RoadBuildingData data, String reason) {
+    private static boolean stop(RoadBuildingData data, RoadConstructionUndo.Build undo, String reason) {
+        undo.finish();
         data.player.getCooldowns().removeCooldown(data.toolItem);
-        data.player.displayClientMessage(Component.translatable(
-            "item.trafficengine.road_construction_tool.stopped." + reason).withStyle(ChatFormatting.YELLOW), true);
+        if (reason != null) {
+            data.player.displayClientMessage(Component.translatable(
+                "item.trafficengine.road_construction_tool.stopped." + reason).withStyle(ChatFormatting.YELLOW), true);
+        }
         return false;
-    }
-
-    private static boolean isPlayerCreative(Player pPlayer) {
-        return pPlayer.isCreative() || pPlayer.isSpectator();
     }
 }

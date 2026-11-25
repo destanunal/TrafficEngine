@@ -12,18 +12,18 @@ import net.minecraft.world.level.block.state.BlockState;
 public final class TrafficSignOutline {
     private TrafficSignOutline() {}
     public static boolean render(PoseStack pose,VertexConsumer lines,BlockState state,BlockPos pos,double cameraX,double cameraY,double cameraZ) {
+        if (GroundFeatureOutline.render(pose, lines, state, pos, cameraX, cameraY, cameraZ)) return true;
         if(com.destan.trafficengine.block.data.EquipmentOutlineGeometry.supports(state)) {
             draw(pose.last(),lines,com.destan.trafficengine.block.data.EquipmentOutlineGeometry.edges(state),pos.getX()-cameraX,pos.getY()-cameraY,pos.getZ()-cameraZ);
             return true;
         }
-        if(GroundFeatureOutline.supports(state))return GroundFeatureOutline.render(pose,lines,state,pos,cameraX,cameraY,cameraZ);
         if(!(state.getBlock() instanceof TrafficSignBlock) || state.getValue(TrafficSignBlock.DIRECT_MOUNTED)>0
                 || state.getValue(TrafficSignBlock.WALL_MOUNTED))return false;
         boolean tilted=state.getValue(TrafficSignBlock.POST_MOUNTED),diagonal=state.getValue(TrafficSignBlock.DIAGONAL);
         if(tilted&&state.getBlock() instanceof DoubleSidedTrafficSignBlock)return false;
         var facing=state.getValue(TrafficSignBlock.FACING);var shape=state.getValue(TrafficSignBlock.SHAPE);
         double x=pos.getX()-cameraX,y=pos.getY()-cameraY,z=pos.getZ()-cameraZ;
-        draw(pose.last(),lines,TrafficSignOutlineGeometry.plate(shape,facing,tilted,diagonal),x,y,z);
+        draw(pose.last(),lines,TrafficSignOutlineGeometry.plate(shape,facing,tilted,diagonal,TrafficSignBlock.hasSpacedDiagonalPlate(state)),x,y,z);
         if(!tilted) {
             var poleShape=shape;
             if(state.getBlock() instanceof DoubleSidedTrafficSignBlock) {

@@ -1,6 +1,7 @@
 package com.destan.trafficengine.block;
 
 import com.destan.trafficengine.block.data.IPaintableBlock;
+import com.destan.trafficengine.util.ColorValue;
 import com.destan.trafficengine.block.entity.HouseNumberSignBlockEntity;
 import com.destan.trafficengine.data.PaintColor;
 import com.destan.trafficengine.item.BrushItem;
@@ -19,6 +20,7 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.SupportType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
@@ -29,6 +31,12 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class HouseNumberSignBlock extends WritableTrafficSign implements IPaintableBlock {
+   public static final ColorValue DEFAULT_PANEL_COLOR = ColorValue.fromInt(0xFFFFF4DB);
+
+   @Override
+   public ColorValue getDefaultColor() {
+      return DEFAULT_PANEL_COLOR;
+   }
 
    public static final VoxelShape SHAPE_NORTH = Block.box(3, 5, 15, 13, 11, 16);
    public static final VoxelShape SHAPE_SOUTH = Block.box(3, 5, 0, 13, 11, 1);
@@ -123,8 +131,11 @@ public class HouseNumberSignBlock extends WritableTrafficSign implements IPainta
 
    @Override
    public boolean canSurvive(BlockState pState, LevelReader pLevel, BlockPos pPos) {
-      BlockPos below = pPos.relative(pState.getValue(FACING).getOpposite());
-      return pLevel.getBlockState(below).isFaceSturdy(pLevel, below, Direction.UP);
+      Direction facing = pState.getValue(FACING);
+      BlockPos supportPos = pPos.relative(facing.getOpposite());
+      BlockState support = pLevel.getBlockState(supportPos);
+      return support.isFaceSturdy(pLevel, supportPos, facing, SupportType.CENTER)
+          || support.isFaceSturdy(pLevel, supportPos, Direction.UP);
    }
 
    public BlockState getStateForPlacement(BlockPlaceContext pContext) {
@@ -140,6 +151,11 @@ public class HouseNumberSignBlock extends WritableTrafficSign implements IPainta
       LevelReader levelreader = pContext.getLevel();
       BlockPos blockpos = pContext.getClickedPos();
       FluidState fluidstate = pContext.getLevel().getFluidState(pContext.getClickedPos());
+      Direction clicked = pContext.getClickedFace();
+      if (!pContext.replacingClickedOnBlock() && clicked.getAxis().isHorizontal()) {
+         BlockState wall = blockstate1.setValue(FACING, clicked);
+         if (wall.canSurvive(levelreader, blockpos)) return wall.setValue(WATERLOGGED, fluidstate.getType() == Fluids.WATER);
+      }
 
       for (Direction direction : pContext.getNearestLookingDirections()) {
          if (direction.getAxis().isHorizontal()) {

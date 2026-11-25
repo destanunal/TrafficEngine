@@ -38,7 +38,7 @@ public enum PaintColor implements TranslatableEnum {
 	
 	private final int index;
 	private final String name;
-	private final int textureColor;
+	private final ColorValue textureColor;
 	private final MapColor materialColor;
 	private final int fireworkColor;
 	private final int textColor;
@@ -46,7 +46,7 @@ public enum PaintColor implements TranslatableEnum {
 	private PaintColor(int index, String name, int textureColor, MapColor materialColor, int fireworkColor, int textColor) {
 		this.index = index;
 		this.name = name;
-		this.textureColor = textureColor;
+		this.textureColor = ColorValue.fromInt(0xFF000000 | textureColor);
 		this.materialColor = materialColor;
 		this.fireworkColor = fireworkColor;
 		this.textColor = textColor;
@@ -60,11 +60,10 @@ public enum PaintColor implements TranslatableEnum {
 		return name;
 	}
 
-	public int getTextureARGB() { return 0xFF000000 | textureColor; }
+	public int getTextureARGB() { return textureColor.getAsARGB(); }
 
 	public ColorValue getTextureColor() {
-		// Dye RGB values have no alpha; item tints in 1.21 also use alpha.
-		return ColorValue.fromInt(0xFF000000 | textureColor);
+		return textureColor;
 	}
 
 	public MapColor getMaterialColor() {

@@ -67,6 +67,9 @@ public class TrafficSignPostBlock extends Block implements SimpleWaterloggedBloc
     private static final VoxelShape SHAPE_UP = Block.box(7, 9, 7, 9, 16, 9);
     private static final VoxelShape SHAPE_DOWN = Block.box(7, 0, 7, 9, 7, 9);
     private static final VoxelShape SHAPE_EXTEND_DOWN = Block.box(7, -16, 7, 9, 0, 9);
+    private static final VoxelShape STRAIGHT_POST = Block.box(7, 0, 7, 9, 16, 9);
+    private static final VoxelShape SHORT_POST = Block.box(7, 0, 7, 9, 12, 9);
+    private static final VoxelShape SHORT_POST_WITH_EXTENSION = Block.box(7, 0, 7, 9, 10, 9);
 
     private static final VoxelShape SUPPORT_SHAPE = Shapes.or(
         Block.box(5.75, 0, 5.75, 10.25, 1.5, 10.25),
@@ -88,7 +91,11 @@ public class TrafficSignPostBlock extends Block implements SimpleWaterloggedBloc
         } else if ((state.getValue(AXIS) == Axis.Z) && !state.getValue(EAST) && !state.getValue(WEST) && !state.getValue(UP) && !state.getValue(DOWN)) {
             shape = Shapes.or(shape, SHAPE_NORTH, SHAPE_SOUTH);
         } else if ((state.getValue(AXIS) == Axis.Y) && !state.getValue(EAST) && !state.getValue(WEST) && !state.getValue(NORTH) && !state.getValue(SOUTH)) {
-            shape = Shapes.or(shape, SHAPE_UP, SHAPE_DOWN);
+            if (state.getValue(UP) || state.getValue(CEILING_SUPPORT)) {
+                shape = STRAIGHT_POST;
+            } else {
+                shape = state.getValue(EXTEND_BOTTOM) ? SHORT_POST_WITH_EXTENSION : SHORT_POST;
+            }
         } else {
             if (state.getValue(NORTH)) {
                 shape = Shapes.or(shape, SHAPE_NORTH);

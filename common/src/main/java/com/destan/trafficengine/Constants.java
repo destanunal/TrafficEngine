@@ -13,7 +13,7 @@ public class Constants {
     public static final int MAX_PAINT = 128;
 
     public static final ColorValue METAL_COLOR = ColorValue.fromInt(0xFF828282);
-    public static final ColorValue TRAFFIC_CONE_BASE_COLOR = ColorValue.fromInt(0xFFD12725);
+    public static final ColorValue TRAFFIC_CONE_BASE_COLOR = ColorValue.fromInt(0xFFC24334);
 
     public static final MutableComponent CREATIVE_MODE_ONLY_TOOLTIP = Component.translatable("core.trafficengine.creative_only.tooltip").withStyle(ChatFormatting.GOLD);
     

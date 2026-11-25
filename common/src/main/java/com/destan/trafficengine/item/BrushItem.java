@@ -230,9 +230,11 @@ public class BrushItem extends Item {
             return InteractionResult.sidedSuccess(level.isClientSide);
         }
 
-        if (nbt.getBoolean(RoadPainting.BATCH) && RoadPainting.pathShape(stack)>0 && RoadPainting.areaStyle(stack)==0
-                && !(state.getBlock() instanceof PaintBucketBlock) && !(state.getBlock() instanceof com.destan.trafficengine.block.data.PaintableRailing)) return RoadPainting.use(pContext);
-        if (RoadPainting.areaStyle(stack)>0 && !(state.getBlock() instanceof PaintBucketBlock) && !(state.getBlock() instanceof com.destan.trafficengine.block.data.PaintableRailing)) {
+        boolean directPaint = state.getBlock() instanceof PaintBucketBlock
+            || state.getBlock() instanceof com.destan.trafficengine.block.data.PaintableRailing
+            || state.getBlock() instanceof com.destan.trafficengine.block.DelineatorBlock;
+        if (!directPaint && nbt.getBoolean(RoadPainting.BATCH) && RoadPainting.pathShape(stack)>0 && RoadPainting.areaStyle(stack)==0) return RoadPainting.use(pContext);
+        if (!directPaint && RoadPainting.areaStyle(stack)>0) {
             return RoadPainting.use(pContext);
         }
         if (RoadPainting.isRoad(state) && (nbt.getBoolean(RoadPainting.BATCH) || RoadPainting.style(stack) >= 0)) {

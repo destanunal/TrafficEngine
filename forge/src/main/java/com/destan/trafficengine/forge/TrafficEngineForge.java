@@ -33,21 +33,31 @@ public class TrafficEngineForge {
         for (MissingMappingsEvent.Mapping<Block> mapping : event.getMappings(ForgeRegistries.Keys.BLOCKS, "trafficengine")) {
             if (mapping.getKey().toString().equals("trafficengine:road_reflector")) mapping.remap(ModBlocks.REFLECTOR.get());
             else if (SignPostMigration.isRemoved(mapping.getKey().toString())) mapping.remap(ModBlocks.TRAFFIC_SIGN_POST.get());
+            else {
+                String lamp = SignPostMigration.retiredLampReplacement(mapping.getKey().toString());
+                if (lamp != null) mapping.remap(ForgeRegistries.BLOCKS.getValue(new ResourceLocation(lamp)));
+            }
         }
         for (MissingMappingsEvent.Mapping<Item> mapping : event.getMappings(ForgeRegistries.Keys.ITEMS, "trafficengine")) {
             if (mapping.getKey().toString().equals("trafficengine:road_reflector")) mapping.remap(ModBlocks.REFLECTOR.get().asItem());
             else if (SignPostMigration.isRemoved(mapping.getKey().toString())) mapping.remap(ModBlocks.TRAFFIC_SIGN_POST.get().asItem());
+            else {
+                String lamp = SignPostMigration.retiredLampReplacement(mapping.getKey().toString());
+                if (lamp != null) mapping.remap(ForgeRegistries.ITEMS.getValue(new ResourceLocation(lamp)));
+            }
         }
 
         // 1. BLOKLARI DÖNÜŞTÜR (Yerdeki asfaltlar, lambalar)
         for (MissingMappingsEvent.Mapping<Block> mapping : event.getMappings(ForgeRegistries.Keys.BLOCKS, "trafficcraft")) {
-            Block newBlock = ForgeRegistries.BLOCKS.getValue(new ResourceLocation("trafficengine", mapping.getKey().getPath()));
+            String lamp = SignPostMigration.retiredLampReplacement(mapping.getKey().toString());
+            Block newBlock = ForgeRegistries.BLOCKS.getValue(lamp != null ? new ResourceLocation(lamp) : new ResourceLocation("trafficengine", mapping.getKey().getPath()));
             if (newBlock != null) mapping.remap(newBlock);
         }
 
         // 2. EŞYALARI DÖNÜŞTÜR (Envanterdeki fırçalar, kataloglar)
         for (MissingMappingsEvent.Mapping<Item> mapping : event.getMappings(ForgeRegistries.Keys.ITEMS, "trafficcraft")) {
-            Item newItem = ForgeRegistries.ITEMS.getValue(new ResourceLocation("trafficengine", mapping.getKey().getPath()));
+            String lamp = SignPostMigration.retiredLampReplacement(mapping.getKey().toString());
+            Item newItem = ForgeRegistries.ITEMS.getValue(lamp != null ? new ResourceLocation(lamp) : new ResourceLocation("trafficengine", mapping.getKey().getPath()));
             if (newItem != null) mapping.remap(newItem);
         }
 

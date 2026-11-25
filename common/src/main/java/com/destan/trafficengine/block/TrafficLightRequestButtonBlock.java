@@ -69,6 +69,7 @@ public class TrafficLightRequestButtonBlock extends BaseEntityBlock implements S
         return state.setValue(SINK, supportSink(below, world, pos)).setValue(LOWER_POLE, hasLowerPole(below));
     }
     private static final VoxelShape[][][] SUNK_SHAPES = new VoxelShape[9][4][2];
+    private static final VoxelShape[][] HOUSING_SHAPES = new VoxelShape[9][4];
     private static final int PRESS_DURATION = 30;
 
     public static final VoxelShape SHAPE_COMMON = Block.box(7, 0, 7, 9, 16, 9);
@@ -89,8 +90,11 @@ public class TrafficLightRequestButtonBlock extends BaseEntityBlock implements S
                 default -> Block.box(3.5,1,5.5,9.22,15,10.5);
             };
             for(int sink=0;sink<=8;sink++) {
-                SUNK_SHAPES[sink][facing.get2DDataValue()][0]=Shapes.or(shape.move(0,-sink/8D,0),SHAPE_COMMON);
-                SUNK_SHAPES[sink][facing.get2DDataValue()][1]=Shapes.or(housing.move(0,-sink/8D,0),SHAPE_COMMON);
+                int index = facing.get2DDataValue();
+                VoxelShape lowered = housing.move(0, -sink / 8D, 0);
+                HOUSING_SHAPES[sink][index] = lowered;
+                SUNK_SHAPES[sink][index][0] = Shapes.or(shape.move(0, -sink / 8D, 0), SHAPE_COMMON);
+                SUNK_SHAPES[sink][index][1] = Shapes.or(lowered, SHAPE_COMMON);
             }
         }
     }
@@ -116,6 +120,10 @@ public class TrafficLightRequestButtonBlock extends BaseEntityBlock implements S
     public VoxelShape getShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext) {
         int sink=pState.getValue(SINK), facing=pState.getValue(FACING).get2DDataValue();
         return SUNK_SHAPES[sink][facing][pState.getValue(LOWER_POLE) ? 1 : 0];
+    }
+
+    public static VoxelShape housingShape(BlockState state) {
+        return HOUSING_SHAPES[state.getValue(SINK)][state.getValue(FACING).get2DDataValue()];
     }
 
     @Override

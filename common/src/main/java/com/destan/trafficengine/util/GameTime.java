@@ -10,7 +10,10 @@ public record GameTime(long ticks) {
         return format==ETimeFormat.HOURS_12 ? String.format("%02d:%02d %s",hour%12==0?12:hour%12,minute,hour>=12?"PM":"AM") : String.format("%02d:%02d",hour,minute);
     }
     public boolean isBetweenDaily(GameTime start,GameTime end) {
-        long now=Math.floorMod(ticks,TICKS_PER_DAY),a=Math.floorMod(start.ticks,TICKS_PER_DAY),b=Math.floorMod(end.ticks,TICKS_PER_DAY);
+        return isBetweenDaily(ticks,start.ticks,end.ticks);
+    }
+    public static boolean isBetweenDaily(long ticks,long start,long end) {
+        long now=Math.floorMod(ticks,TICKS_PER_DAY),a=Math.floorMod(start,TICKS_PER_DAY),b=Math.floorMod(end,TICKS_PER_DAY);
         return a<=b ? now>=a && now<=b : now>=a || now<=b;
     }
 }

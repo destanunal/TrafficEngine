@@ -17,6 +17,16 @@ def read(path):
     return json.loads(path.read_text(encoding='utf-8'))
 
 
+def read_model(path):
+    model = read(path)
+    parent = model.get('parent', '')
+    if parent.startswith('trafficengine:block/chevron_panel/') and not model.get('elements'):
+        parent_model = read_model(assets / f'models/{parent.split(":", 1)[1]}.json')
+        model['elements'] = parent_model['elements']
+        model['textures'] = {**parent_model.get('textures', {}), **model.get('textures', {})}
+    return model
+
+
 def matches(condition, state):
     if 'OR' in condition:
         return any(matches(c, state) for c in condition['OR'])
@@ -73,7 +83,9 @@ for facing, right, red, left_join, right_join, water, single in itertools.produc
 max_faces = 0
 for path in itertools.chain((assets/'models/block/chevron_panel').glob('*.json'), (assets/'models/block/temporary_pedestrian_fence').glob('*.json'),
                             [assets/'models/item/chevron_panel.json', assets/'models/item/temporary_pedestrian_fence.json']):
-    model = read(path)
+    if 'panel_geometry_' in path.stem:  # Validated with the texture bindings of each child.
+        continue
+    model = read_model(path)
     for texture in model.get('textures', {}).values():
         domain, name = texture.split(':')
         assert ((assets/'textures'/f'{name}.png').exists() if domain == 'trafficengine' else f'assets/minecraft/textures/{name}.png' in vanilla.namelist()), ('Missing texture', texture)
@@ -94,7 +106,7 @@ for path in itertools.chain((assets/'models/block/chevron_panel').glob('*.json')
                 assert face.get('trafficengine_data', {}).get('emissive', False) == reflective, 'Only the existing reflective front faces glow'
 screen = (root / 'common/src/main/java/com/destan/trafficengine/client/screen/ChevronPanelScreen.java').read_text(encoding='utf-8')
 for single, right in itertools.product((False, True), repeat=2):
-    model = read(assets / f'models/block/chevron_panel/{"single_" if single else ""}black_yellow_{"right" if right else "left"}.json')
+    model = read_model(assets / f'models/block/chevron_panel/{"single_" if single else ""}black_yellow_{"right" if right else "left"}.json')
     board = next(e for e in model['elements'] if e['name'] == 'steel_panel')
     board_top, board_bottom = board['to'][1], board['from'][1]
     board_middle = (board_top+board_bottom)/2
@@ -119,7 +131,7 @@ for single, right in itertools.product((False, True), repeat=2):
         actual = {(round(coords[j], 4), round(coords[j+1], 4)) for j in range(i*8, i*8+8, 2)}
         assert expected == actual, 'Preview and physical sign must have the same polygon proportions'
 item = read(assets / 'models/item/chevron_panel.json')
-default_model = read(assets / 'models/block/chevron_panel/red_white_right.json')
+default_model = read_model(assets / 'models/block/chevron_panel/red_white_right.json')
 assert [e for e in item['elements'] if not e['name'].endswith('_cap')] == default_model['elements'], 'Inventory has the same right-facing red/white default'
 for piece in ('post', 'arm', 'end'):
     model = read(assets / f'models/block/temporary_pedestrian_fence/{piece}.json')

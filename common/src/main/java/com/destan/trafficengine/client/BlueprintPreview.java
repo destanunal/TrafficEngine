@@ -4,6 +4,7 @@ import com.destan.trafficengine.blueprint.*;
 import com.destan.trafficengine.block.data.EquipmentOutlineGeometry;
 import com.destan.trafficengine.util.ItemData;
 import com.mojang.blaze3d.vertex.*;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -18,7 +19,7 @@ import java.util.*;
 /** One cached wire mesh per state, drawn into the existing selection buffer. No render-time world reads. */
 public final class BlueprintPreview {
     private BlueprintPreview(){}
-    private record Ghost(BlockPos relative,float[] edges,BlockState state){}
+    private record Ghost(BlockPos relative,float[] edges){}
     private static final Map<BlockState,float[]> MESHES=new HashMap<>();
     private static List<Ghost> ghosts=List.of();private static boolean[] valid=new boolean[0];
     private static Object identity,worldIdentity;private static BlockPos anchor;private static int ticks;private static boolean placing;
@@ -40,7 +41,14 @@ public final class BlueprintPreview {
             BlockPos nextAnchor=mc.hitResult instanceof BlockHitResult hit&&hit.getType()==net.minecraft.world.phys.HitResult.Type.BLOCK?(placementMode==2?hit.getBlockPos():hit.getBlockPos().relative(hit.getDirection())):null;
             if(!Objects.equals(anchor,nextAnchor)){
                 anchor=nextAnchor;dirty=true;chunkSignature=Long.MIN_VALUE;
-                if(anchor!=null){Set<Long> unique=new HashSet<>();for(Ghost g:ghosts){long x=(anchor.getX()+g.relative.getX())>>4,z=(anchor.getZ()+g.relative.getZ())>>4;unique.add((x<<32)|(z&0xffffffffL));}chunks=unique.stream().mapToLong(Long::longValue).toArray();}
+                if(anchor!=null){
+                    var unique=new LongOpenHashSet();
+                    for(Ghost g:ghosts){
+                        long x=(anchor.getX()+g.relative.getX())>>4,z=(anchor.getZ()+g.relative.getZ())>>4;
+                        unique.add((x<<32)|(z&0xffffffffL));
+                    }
+                    chunks=unique.toLongArray();
+                }
             }
         }
         if(anchor==null)return;
@@ -49,10 +57,12 @@ public final class BlueprintPreview {
             if(signature!=chunkSignature){chunkSignature=signature;dirty=true;}
         }
         if(!dirty)return;dirty=false;
-        BlockPos.MutableBlockPos p=new BlockPos.MutableBlockPos();Set<Long> occupied=new HashSet<>();
+        if(!placing)return;
+        BlockPos.MutableBlockPos p=new BlockPos.MutableBlockPos();
+        var occupied=new LongOpenHashSet(ghosts.size());
         for(int i=0;i<ghosts.size();i++){
             Ghost ghost=ghosts.get(i);p.setWithOffset(anchor,ghost.relative);
-            valid[i]=!placing||occupied.add(p.asLong())&&mc.level.hasChunkAt(p)&&mc.level.isInWorldBounds(p)&&mc.level.getWorldBorder().isWithinBounds(p)&&(placementMode!=0||mc.level.getBlockState(p).isAir())
+            valid[i]=occupied.add(p.asLong())&&mc.level.hasChunkAt(p)&&mc.level.isInWorldBounds(p)&&mc.level.getWorldBorder().isWithinBounds(p)&&(placementMode!=0||mc.level.getBlockState(p).isAir())
                 &&mc.player.distanceToSqr(p.getX()+.5,p.getY()+.5,p.getZ()+.5)<=128*128;
         }
     }
@@ -63,15 +73,15 @@ public final class BlueprintPreview {
             BlockPos first=BlockPos.of(tag.getLong("First")),second=tag.contains("Second")?BlockPos.of(tag.getLong("Second")):first;
             anchor=new BlockPos(Math.min(first.getX(),second.getX()),Math.min(first.getY(),second.getY()),Math.min(first.getZ(),second.getZ()));
             double x=Math.min(BlueprintPlan.MAX_EDGE,Math.abs(first.getX()-second.getX())+1),y=Math.min(BlueprintPlan.MAX_EDGE,Math.abs(first.getY()-second.getY())+1),z=Math.min(BlueprintPlan.MAX_EDGE,Math.abs(first.getZ()-second.getZ())+1);
-            ghosts=List.of(new Ghost(BlockPos.ZERO,shapeEdges(Shapes.box(0,0,0,x,y,z)),null));valid=new boolean[]{true};return;
+            ghosts=List.of(new Ghost(BlockPos.ZERO,shapeEdges(Shapes.box(0,0,0,x,y,z))));valid=new boolean[]{true};return;
         }
         BlueprintPlan plan=BlueprintToolItem.selected(tag);if(plan==null)return;
         int copies=BlueprintToolItem.copies(tag);if(copies*plan.cells().size()>BlueprintPlan.MAX_TOTAL)return;
         var cells=plan.rotated(tag.getInt("Rotation")&3);Direction direction=BlueprintToolItem.direction(tag.getInt("Direction"));int spacing=BlueprintPlan.repeatStep(cells,direction,BlueprintToolItem.spacing(tag));
-        List<Ghost> out=new ArrayList<>();
+        List<Ghost> out=new ArrayList<>(copies*cells.size());
         for(int copy=0;copy<copies;copy++)for(var cell:cells){
             float[] mesh=MESHES.computeIfAbsent(cell.state(),BlueprintPreview::mesh);
-            out.add(new Ghost(cell.pos().relative(direction,spacing*copy),mesh,cell.state()));
+            out.add(new Ghost(cell.pos().relative(direction,spacing*copy),mesh));
         }
         ghosts=List.copyOf(out);valid=new boolean[out.size()];
         minX=minY=minZ=Integer.MAX_VALUE;maxX=maxY=maxZ=Integer.MIN_VALUE;

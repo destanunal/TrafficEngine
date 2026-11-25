@@ -1,11 +1,12 @@
 package com.destan.trafficengine.block.data;
 
+import com.destan.trafficengine.block.TrafficSignBlock;
 import net.minecraft.core.Direction;
 import net.minecraft.world.phys.AABB;
 
 /** Bounded, lazily cached model edges. Picking/collision retain their precise voxel shapes. */
 public final class TrafficSignOutlineGeometry {
-    private static final float[][][][] PLATES=new float[TrafficSignShape.values().length][4][3][];
+    private static final float[][][][] PLATES=new float[TrafficSignShape.values().length][4][4][];
     private static final float[][][] POLES=new float[TrafficSignShape.values().length][4][];
     private static final double SIN=Math.sin(Math.PI/8), COS=Math.cos(Math.PI/8);
     private TrafficSignOutlineGeometry() {}
@@ -13,7 +14,10 @@ public final class TrafficSignOutlineGeometry {
         return plate(shape,facing,tilted,true);
     }
     public static float[] plate(TrafficSignShape shape,Direction facing,boolean tilted,boolean diagonal) {
-        int kind=shape.ordinal(), dir=facing.get2DDataValue(), mode=tilted?2:diagonal?1:0;
+        return plate(shape, facing, tilted, diagonal, false);
+    }
+    public static float[] plate(TrafficSignShape shape, Direction facing, boolean tilted, boolean diagonal, boolean spaced) {
+        int kind=shape.ordinal(), dir=facing.get2DDataValue(), mode=tilted?2:spaced?3:diagonal?1:0;
         float[] edges=PLATES[kind][dir][mode];
         if(edges==null) {
             AABB plate=null;
@@ -22,7 +26,7 @@ public final class TrafficSignOutlineGeometry {
                 plate=plate==null?box:plate.minmax(box);
             }
             if(plate==null)throw new IllegalArgumentException("No sign plate: "+shape);
-            PLATES[kind][dir][mode]=edges=edges(plate,facing,mode);
+            PLATES[kind][dir][mode]=edges=edges(plate,facing,spaced?4:mode);
         }
         return edges;
     }
@@ -56,7 +60,8 @@ public final class TrafficSignOutlineGeometry {
                 // Same rigid X rotation and pivot as sign_post_mounted models.
                 double dy=y-.5,dz=z-.5;
                 y=.5+COS*dy+SIN*dz;z=1.25-SIN*dy+COS*dz;
-            } else if(mode==1) {
+            } else if(mode==1 || mode==4) {
+                if(mode==4)z-=TrafficSignBlock.DIAGONAL_PLATE_OFFSET/16;
                 double dx=x-.5,dz=z-.5,cos=Math.sqrt(.5);
                 x=.5+(dx-dz)*cos;z=.5+(dx+dz)*cos;
             }

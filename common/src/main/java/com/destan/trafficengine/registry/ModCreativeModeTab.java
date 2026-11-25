@@ -51,9 +51,9 @@ public class ModCreativeModeTab {
         output.accept(ModBlocks.DOUBLE_TRAFFIC_LIGHT.get());
         output.accept(ModBlocks.HORIZONTAL_TRAFFIC_LIGHT.get());
         output.accept(ModBlocks.TRAFFIC_LIGHT_REQUEST_BUTTON.get());
+        output.accept(ModBlocks.TRAFFIC_POLE_BASE.get());
         output.accept(ModBlocks.TRAFFIC_SIGN_POST.get());
         output.accept(ModBlocks.CURVED_TRAFFIC_POLE.get());
-        output.accept(ModBlocks.TRAFFIC_POLE_BASE.get());
         output.accept(ModBlocks.TRAFFIC_SIGN.get());
         output.accept(ModBlocks.DOUBLE_TRAFFIC_SIGN.get());
         output.accept(ModBlocks.CHEVRON_PANEL.get());
@@ -72,8 +72,6 @@ public class ModCreativeModeTab {
         output.accept(ModBlocks.CONCRETE_BARRIER.get());
         output.accept(ModBlocks.GUARDRAIL.get());
         output.accept(ModBlocks.RETRACTABLE_BARRIER.get());
-        output.accept(ModBlocks.BOOM_BARRIER.get());
-        output.accept(ModItems.BOOM_BARRIER_ARM.get());
         output.accept(ModBlocks.TRAFFIC_CONE.get());
         output.accept(ModBlocks.TRAFFIC_BOLLARD.get());
         output.accept(ModBlocks.TRAFFIC_BARREL.get());
@@ -84,6 +82,8 @@ public class ModCreativeModeTab {
         output.accept(ModBlocks.PEDESTRIAN_RAILING_GATE.get());
         output.accept(ModBlocks.SLOPED_PEDESTRIAN_RAILING.get());
         output.accept(ModBlocks.TRAFFIC_ISLAND_BOLLARD.get());
+        output.accept(ModBlocks.BOOM_BARRIER.get());
+        output.accept(ModItems.BOOM_BARRIER_ARM.get());
         output.accept(ModBlocks.SPEED_BUMP.get());
         output.accept(ModBlocks.WIDE_SPEED_BUMP.get());
         output.accept(ModBlocks.ASPHALT_SPEED_BUMP.get());
@@ -93,9 +93,7 @@ public class ModCreativeModeTab {
         output.accept(ModBlocks.HOUSE_NUMBER_SIGN.get());
         output.accept(ModBlocks.STREET_LAMP.get());
         output.accept(ModBlocks.DOUBLE_STREET_LAMP.get());
-        output.accept(ModBlocks.SMALL_STREET_LAMP.get());
         output.accept(ModBlocks.SMALL_DOUBLE_STREET_LAMP.get());
-        output.accept(ModBlocks.STREET_LIGHT.get());
         output.accept(ModBlocks.FLUORESCENT_TUBE_LAMP.get());
         output.accept(ModBlocks.LED_LIGHT.get());
         output.accept(ModBlocks.VARIABLE_SPEED_SIGN.get());
@@ -105,10 +103,7 @@ public class ModCreativeModeTab {
         output.accept(ModBlocks.MANHOLE_COVER.get());
         output.accept(ModBlocks.ROAD_GULLY.get());
         output.accept(ModBlocks.WHITE_DELINEATOR.get());
-        output.accept(ModBlocks.YELLOW_DELINEATOR.get());
-        output.accept(ModBlocks.RED_DELINEATOR.get());
         output.accept(ModBlocks.SMALL_WHITE_DELINEATOR.get());
-        output.accept(ModBlocks.SMALL_YELLOW_DELINEATOR.get());
         output.accept(ModBlocks.ROAD_SALT.get());
         output.accept(ModBlocks.REFLECTOR.get());
     }

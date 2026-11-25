@@ -1,0 +1,38 @@
+{
+  "ambientocclusion": false,
+  "render_type": "cutout",
+  "textures": {
+    "particle": "minecraft:block/light_gray_concrete",
+    "amber": "trafficengine:block/hydraulic_bollard_ring_amber"
+  },
+  "elements": [
+    {
+      "name": "Amber movement indicator",
+      "from": [
+        3,
+        0.46,
+        3
+      ],
+      "to": [
+        13,
+        0.46,
+        13
+      ],
+      "shade": false,
+      "faces": {
+        "up": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": "#amber",
+          "trafficengine_data": {
+            "emissive": true
+          }
+        }
+      }
+    }
+  ]
+}

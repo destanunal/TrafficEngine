@@ -310,16 +310,18 @@ public class LedDeviceScreen extends TrafficEngineScreen {
         float step = (previewHeight - 6f) / count;
         for (int i = 0; i < count; i++) {
             String text = messageBoxes[i].getValue();
-            float scale = scrolling ? step/(font.lineHeight+1f) : Math.min(step / (font.lineHeight + 1f), (w - 10f) / Math.max(1, font.width(text)));
+            if (text.isEmpty()) continue;
+            int textWidth = scrolling ? 0 : font.width(text);
+            float scale = scrolling ? step/(font.lineHeight+1f) : Math.min(step / (font.lineHeight + 1f), (w - 10f) / Math.max(1, textWidth));
             graphics.pose().pushPose();
             graphics.pose().translate(x + w / 2f, previewY + 3 + step * (i + 0.5f) - font.lineHeight * scale / 2f, 0);
             graphics.pose().scale(scale, scale, 1);
             if(scrolling) {
                 double time=level.getGameTime();
-                var visible=com.destan.trafficengine.client.ScrollingText.window(text,font::width,(w-10f)/scale,time,scrollSpeed);
+                var visible=com.destan.trafficengine.client.ScrollingText.window(text,font,(w-10f)/scale,time,scrollSpeed);
                 graphics.pose().translate(-(w-10f)/scale/2+visible.x(),0,0);
                 TEText.drawString(graphics, font,visible.text(),0,0,0xFF000000|selectedColor,false);
-            } else TEText.drawString(graphics, font, text, -font.width(text) / 2, 0, 0xFF000000 | selectedColor, false);
+            } else TEText.drawString(graphics, font, text, -textWidth / 2, 0, 0xFF000000 | selectedColor, false);
             graphics.pose().popPose();
         }
     }

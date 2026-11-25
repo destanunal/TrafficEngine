@@ -112,6 +112,7 @@ public record BlueprintPlan(String name, BlockPos size, BlockPos source, String 
     }
     /** One item per actual placed assembly, never one per invisible carrier cell. */
     public static int cost(BlockState state) {
+        if (state.isAir()) return 0;
         if(state.getBlock() instanceof CurvedTrafficPoleBlock)return state.getValue(CurvedTrafficPoleBlock.PART)==0?1:0;
         if(state.getBlock() instanceof LedDevicePartBlock)return 0;
         if(state.hasProperty(BlockStateProperties.DOUBLE_BLOCK_HALF)&&state.getValue(BlockStateProperties.DOUBLE_BLOCK_HALF)==DoubleBlockHalf.UPPER)return 0;

@@ -76,8 +76,13 @@ public final class BlueprintScreen extends TrafficEngineScreen {
             addRenderableWidget(new PlanButton(x,y,half,20,text("rotation",rotation*90),b->{rotation=(rotation+1)&3;b.setMessage(text("rotation",rotation*90));localSettings();}));
             addRenderableWidget(new PlanButton(x+half+8,y,w-half-8,20,text("direction",directionText()),b->{direction=(direction+1)%6;b.setMessage(text("direction",directionText()));localSettings();}));
             y+=28;
-            var policy=addRenderableWidget(new PlanButton(x,y,w,20,text("mode."+mode),b->{mode=(mode+1)%3;b.setMessage(text("mode."+mode));localSettings();}));
-            policy.setTooltip(Tooltip.create(text("mode_hint")));
+            var policy=addRenderableWidget(new PlanButton(x,y,w,20,text("mode."+mode),b->{
+                mode=(mode+1)%3;
+                b.setMessage(text("mode."+mode));
+                b.setTooltip(Tooltip.create(text("mode_hint."+mode)));
+                localSettings();
+            }));
+            policy.setTooltip(Tooltip.create(text("mode_hint."+mode)));
             y+=28;
             addRenderableWidget(new PlanSlider(x,y,half,0,BlueprintPlan.MAX_SPACING,spacing,n->text("spacing",n),n->{spacing=n;localSettings();}));
             addRenderableWidget(new PlanSlider(x+half+8,y,w-half-8,1,BlueprintPlan.MAX_COPIES,copies,n->text("copies",n),n->{copies=n;localSettings();}));

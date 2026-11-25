@@ -18,112 +18,80 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 public class RoadBarrierFenceBlock extends TrafficConeBlock {
 
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
-    
-    private static final VoxelShape SHAPE_NORTH = Shapes.or(
-        Block.box(5, 0, 3, 11, 2, 13),
-        Block.box(7, 2, 7, 9, 16, 9),
-        Block.box(0, 12, 6, 16, 16, 7),
-        Block.box(0, 5, 6, 16, 9, 7)
-    );
-    private static final VoxelShape SHAPE_SOUTH = Shapes.or(
-        Block.box(5, 0, 3, 11, 2, 13),
-        Block.box(7, 2, 7, 9, 16, 9),
-        Block.box(0, 12, 9, 16, 16, 10),
-        Block.box(0, 5, 9, 16, 9, 10)
-    );
-    private static final VoxelShape SHAPE_WEST = Shapes.or(
-        Block.box(3, 0, 5, 13, 2, 11),
-        Block.box(7, 2, 7, 9, 16, 9),
-        Block.box(6, 12, 0, 7, 16, 16),
-        Block.box(6, 5, 0, 7, 9, 16)
-    );
-    private static final VoxelShape SHAPE_EAST = Shapes.or(
-        Block.box(3, 0, 5, 13, 2, 11),
-        Block.box(7, 2, 7, 9, 16, 9),
-        Block.box(9, 12, 0, 10, 16, 16),
-        Block.box(9, 5, 0, 10, 9, 16)
-    );
 
-    private static final VoxelShape COLLISION_NORTH = Shapes.or(
-        Block.box(5, 0, 3, 11, 2, 13),
-        Block.box(7, 2, 7, 9, 24, 9),
-        Block.box(0, 5, 6, 16, 24, 7)
+    // Each block supplies the inside half of the foot and post at either end.
+    // Aligned panels meet at the cell boundary without changing saved states.
+    private static final VoxelShape FEET = Shapes.or(
+        Block.box(0, 0, 3.3, 2.55, 1.24, 12.7),
+        Block.box(13.45, 0, 3.3, 16, 1.24, 12.7)
     );
-    private static final VoxelShape COLLISION_SOUTH = Shapes.or(
-        Block.box(5, 0, 3, 11, 2, 13),
-        Block.box(7, 2, 7, 9, 24, 9),
-        Block.box(0, 5, 9, 16, 24, 10)
-    );
-    private static final VoxelShape COLLISION_WEST = Shapes.or(
-        Block.box(3, 0, 5, 13, 2, 11),
-        Block.box(7, 2, 7, 9, 24, 9),
-        Block.box(6, 5, 0, 7, 24, 16)
-    );
-    private static final VoxelShape COLLISION_EAST = Shapes.or(
-        Block.box(3, 0, 5, 13, 2, 11),
-        Block.box(7, 2, 7, 9, 24, 9),
-        Block.box(9, 5, 0, 10, 24, 16)
-    );
-    
-    public RoadBarrierFenceBlock() {
-        super();
-        this.registerDefaultState(this.stateDefinition.any()
-            .setValue(FACING, Direction.NORTH)  
-            .setValue(WATERLOGGED, false)        
+    private static final VoxelShape[] OUTLINES = new VoxelShape[4];
+    private static final VoxelShape[] COLLISIONS = new VoxelShape[4];
+
+    static {
+        VoxelShape outline = Shapes.or(FEET, posts(15.75),
+            Block.box(1.18, 5, 6.82, 14.82, 8.68, 9.18),
+            Block.box(1.18, 11.62, 6.82, 14.82, 15.3, 9.18)).optimize();
+        VoxelShape collision = Shapes.or(FEET, posts(24),
+            Block.box(0, 5, 6.82, 16, 24, 9.18)).optimize();
+        for (Direction facing : Direction.Plane.HORIZONTAL) {
+            OUTLINES[facing.get2DDataValue()] = RailingGeometry.rotate(outline, facing);
+            COLLISIONS[facing.get2DDataValue()] = RailingGeometry.rotate(collision, facing);
+        }
+    }
+
+    private static VoxelShape posts(double top) {
+        return Shapes.or(
+            Block.box(0, 1.18, 6.58, 1.42, top, 9.42),
+            Block.box(14.58, 1.18, 6.58, 16, top, 9.42)
         );
     }
-    
+
+    public RoadBarrierFenceBlock() {
+        registerDefaultState(stateDefinition.any()
+            .setValue(FACING, Direction.NORTH)
+            .setValue(WATERLOGGED, false));
+    }
+
     @Override
-    public VoxelShape getShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext) {
-        switch (pState.getValue(FACING)) {
-            default:
-            case NORTH:
-                return SHAPE_NORTH;
-            case EAST:
-                return SHAPE_EAST;
-            case SOUTH:
-                return SHAPE_SOUTH;
-            case WEST:
-                return SHAPE_WEST;
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return OUTLINES[state.getValue(FACING).get2DDataValue()];
+    }
+
+    @Override
+    public VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return COLLISIONS[state.getValue(FACING).get2DDataValue()];
+    }
+
+    @Override
+    public boolean skipRendering(BlockState state, BlockState neighbor, Direction side) {
+        Direction.Axis axis = state.getValue(FACING).getAxis();
+        if (side.getAxis().isHorizontal() && side.getAxis() != axis
+                && neighbor.is(this) && neighbor.getValue(FACING).getAxis() == axis) {
+            return true;
         }
+        return super.skipRendering(state, neighbor, side);
     }
 
     @Override
-    public VoxelShape getCollisionShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext) {
-        switch (pState.getValue(FACING)) {
-            default:
-            case NORTH:
-                return COLLISION_NORTH;
-            case EAST:
-                return COLLISION_EAST;
-            case SOUTH:
-                return COLLISION_SOUTH;
-            case WEST:
-                return COLLISION_WEST;
-        }
+    public BlockState rotate(BlockState state, Rotation rotation) {
+        return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
     }
 
     @Override
-    public BlockState rotate(BlockState pState, Rotation pRotation) {
-        return pState.setValue(FACING, pRotation.rotate(pState.getValue(FACING)));
-    }    
-
-    @Override
-    public BlockState mirror(BlockState pState, Mirror pMirror) {
-        return pState.rotate(pMirror.getRotation(pState.getValue(FACING)));
+    public BlockState mirror(BlockState state, Mirror mirror) {
+        return state.rotate(mirror.getRotation(state.getValue(FACING)));
     }
 
     @Override
-    protected void createBlockStateDefinition(Builder<Block, BlockState> pBuilder) {
-        super.createBlockStateDefinition(pBuilder);
-        pBuilder.add(FACING);
+    protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
+        super.createBlockStateDefinition(builder);
+        builder.add(FACING);
     }
 
     @Override
-    public BlockState getStateForPlacement(BlockPlaceContext pContext) {
-
-        return super.getStateForPlacement(pContext)
-            .setValue(FACING, pContext.getHorizontalDirection().getOpposite())
-        ;
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
+        return super.getStateForPlacement(context)
+            .setValue(FACING, context.getHorizontalDirection().getOpposite());
     }
 }

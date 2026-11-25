@@ -62,17 +62,33 @@ public class RetractableBarrierBlock extends HorizontalDirectionalBlock {
         Block.box(6.35, 1.5, 4.5, 9.65, 15.5, 11.5),
         Block.box(6, 0, 4, 10, 1.5, 6.5), Block.box(6, 0, 9.5, 10, 1.5, 12)).optimize();
 
-    private static final VoxelShape[][] SHAPES = new VoxelShape[4][2];
+    private static final int FOLDED_SHAPE_INDEX = 2;
+    private static final double COLLISION_HEIGHT = 24;
+    private static final VoxelShape[][] SHAPES = new VoxelShape[4][3];
+    private static final VoxelShape[][] COLLISIONS = new VoxelShape[4][3];
 
     static {
+        VoxelShape northSouthTop = Block.box(-2, 15, 6.5, 18, COLLISION_HEIGHT, 9.5);
+        VoxelShape eastWestTop = Block.box(6.5, 15, -2, 9.5, COLLISION_HEIGHT, 18);
+        VoxelShape foldedNorthSouthCollision = Shapes.or(FOLDED_NORTH_SOUTH,
+            Block.box(4.5, 15.5, 6.35, 11.5, COLLISION_HEIGHT, 9.65)).optimize();
+        VoxelShape foldedEastWestCollision = Shapes.or(FOLDED_EAST_WEST,
+            Block.box(6.35, 15.5, 4.5, 9.65, COLLISION_HEIGHT, 11.5)).optimize();
         for (Direction facing : Direction.Plane.HORIZONTAL) {
-            VoxelShape core = facing.getAxis() == Direction.Axis.Z
-                ? NORTH_SOUTH_CORE_SHAPE : EAST_WEST_CORE_SHAPE;
+            int direction = facing.get2DDataValue();
+            boolean northSouth = facing.getAxis() == Direction.Axis.Z;
+            VoxelShape core = northSouth ? NORTH_SOUTH_CORE_SHAPE : EAST_WEST_CORE_SHAPE;
+            VoxelShape top = northSouth ? northSouthTop : eastWestTop;
             boolean positiveFacing = facing == Direction.NORTH || facing == Direction.EAST;
             Direction side = positiveFacing ? facing.getCounterClockWise() : facing.getClockWise();
             VoxelShape oneSupport = Shapes.or(core, supportShape(side.getOpposite())).optimize();
-            SHAPES[facing.get2DDataValue()][1] = oneSupport;
-            SHAPES[facing.get2DDataValue()][0] = Shapes.or(oneSupport, supportShape(side)).optimize();
+            VoxelShape bothSupports = Shapes.or(oneSupport, supportShape(side)).optimize();
+            SHAPES[direction][0] = bothSupports;
+            SHAPES[direction][1] = oneSupport;
+            SHAPES[direction][FOLDED_SHAPE_INDEX] = northSouth ? FOLDED_NORTH_SOUTH : FOLDED_EAST_WEST;
+            COLLISIONS[direction][0] = Shapes.or(bothSupports, top).optimize();
+            COLLISIONS[direction][1] = Shapes.or(oneSupport, top).optimize();
+            COLLISIONS[direction][FOLDED_SHAPE_INDEX] = northSouth ? foldedNorthSouthCollision : foldedEastWestCollision;
         }
     }
 
@@ -93,17 +109,19 @@ public class RetractableBarrierBlock extends HorizontalDirectionalBlock {
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         Direction facing = state.getValue(FACING);
-        if (state.getValue(FOLDED)) {
-            return facing.getAxis() == Direction.Axis.Z ? FOLDED_NORTH_SOUTH : FOLDED_EAST_WEST;
-        }
-        boolean positiveFacing = facing == Direction.NORTH || facing == Direction.EAST;
-        boolean connected = state.getValue(positiveFacing ? LEFT_CONNECTED : RIGHT_CONNECTED);
-        return SHAPES[facing.get2DDataValue()][connected ? 1 : 0];
+        return SHAPES[facing.get2DDataValue()][shapeIndex(state, facing)];
     }
 
     @Override
     public VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return getShape(state, level, pos, context);
+        Direction facing = state.getValue(FACING);
+        return COLLISIONS[facing.get2DDataValue()][shapeIndex(state, facing)];
+    }
+
+    private static int shapeIndex(BlockState state, Direction facing) {
+        if (state.getValue(FOLDED)) return FOLDED_SHAPE_INDEX;
+        boolean positiveFacing = facing == Direction.NORTH || facing == Direction.EAST;
+        return state.getValue(positiveFacing ? LEFT_CONNECTED : RIGHT_CONNECTED) ? 1 : 0;
     }
 
     private static VoxelShape supportShape(Direction direction) {

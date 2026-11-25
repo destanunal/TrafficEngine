@@ -22,6 +22,52 @@ public final class BlueprintCheck {
  }
  static BlueprintPlan plan(List<BlueprintPlan.Cell> cells){return new BlueprintPlan("Cadde • Şehir",new BlockPos(16,16,16),new BlockPos(-30,64,-80),"minecraft:overworld",cells);}
 
+ static void plantReplacement() throws Exception {
+  var method = BlueprintPlacement.class.getDeclaredMethod("plantCompanions", List.class, Set.class, java.util.function.Function.class);
+  method.setAccessible(true);
+  var lowerPos = new BlockPos(0, 0, 0);
+  var upperPos = lowerPos.above();
+  var lower = Blocks.LILAC.defaultBlockState().setValue(BlockStateProperties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.LOWER);
+  var upper = lower.setValue(BlockStateProperties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.UPPER);
+  var bottom = new BlueprintPlan.Cell(lowerPos, lower, null);
+  var top = new BlueprintPlan.Cell(upperPos, upper, null);
+  java.util.function.Function<BlockPos, BlockState> lookup = Map.of(lowerPos, lower, upperPos, upper)::get;
+  check(!BlueprintPlacement.complete(List.of(bottom)), "A copied plant still needs both halves in the source");
+  for (var first : List.of(bottom, top)) {
+   var second = first == bottom ? top : bottom;
+   var companion = List.of(second);
+   var completed = List.of(first, second);
+   check(method.invoke(null, List.of(first), Set.of(first.pos()), lookup).equals(companion),
+    "Replacing either half collects exactly the matching companion outside the footprint");
+   check(BlueprintPlacement.complete(completed), "Replacement records both plant halves for restoration");
+   check(method.invoke(null, List.of(first), Set.of(first.pos(), second.pos()), lookup).equals(List.of()),
+    "A companion inside the plan is never cleared separately");
+   java.util.function.Function<BlockPos, BlockState> denied = pos -> null;
+   check(method.invoke(null, List.of(first), Set.of(first.pos()), denied) == null,
+    "An unavailable or protected companion blocks the replacement");
+  }
+  java.util.function.Function<BlockPos, BlockState> mismatch = pos ->
+   Blocks.ROSE_BUSH.defaultBlockState().setValue(BlockStateProperties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.UPPER);
+  check(method.invoke(null, List.of(bottom), Set.of(lowerPos), mismatch) == null, "An unrelated plant is never cleared");
+  java.util.function.Function<BlockPos, BlockState> sameHalf = pos -> lower;
+  check(method.invoke(null, List.of(bottom), Set.of(lowerPos), sameHalf) == null, "Two lower halves do not form a pair");
+  var door = new BlueprintPlan.Cell(lowerPos, Blocks.OAK_DOOR.defaultBlockState(), null);
+  check(method.invoke(null, List.of(door), Set.of(lowerPos), lookup).equals(List.of())
+   && !BlueprintPlacement.complete(List.of(door)), "Doors still require a complete structure inside the footprint");
+  var clear = new BlueprintPlan.Cell(upperPos, Blocks.AIR.defaultBlockState(), null);
+  var road = new BlueprintPlan.Cell(lowerPos, Blocks.STONE.defaultBlockState(), null);
+  check(BlueprintPlan.materials(List.of(road, clear), 1).equals(Map.of(Items.STONE, 1)),
+   "Clearing a companion does not require or refund another item");
+  var oldLower = new BlueprintUndo.Cell(lowerPos, lower, null);
+  var oldUpper = new BlueprintUndo.Cell(upperPos, upper, null);
+  var removedUpper = new BlueprintUndo.Cell(upperPos, Blocks.AIR.defaultBlockState(), null);
+  var history = new BlueprintUndo.Copy(List.of(new BlueprintUndo.Cell(lowerPos, road.state(), null), removedUpper),
+   List.of(), 256, List.of(oldLower, oldUpper));
+  check(history.before().equals(List.of(oldLower, oldUpper)), "Undo includes both plant halves");
+  check(BlueprintUndo.unchanged(removedUpper, Blocks.AIR.defaultBlockState(), null)
+   && !BlueprintUndo.unchanged(removedUpper, Blocks.STONE.defaultBlockState(), null), "Undo protects a later edit at the cleared position");
+ }
+
  static void simplifiedToolAndUndo()throws Exception {
   var first=plan(List.of(new BlueprintPlan.Cell(BlockPos.ZERO,Blocks.STONE.defaultBlockState(),null))).save();
   var active=first.copy();active.putString("Name","Active plan");
@@ -185,7 +231,7 @@ public final class BlueprintCheck {
  }
  public static void main(String[] args)throws Exception{
   net.minecraft.SharedConstants.tryDetectVersion();net.minecraft.server.Bootstrap.bootStrap();long start=System.nanoTime();
-  simplifiedToolAndUndo();palette();repeatGaps();coordinates();links();assemblies(fixtures());preview();
+  simplifiedToolAndUndo();plantReplacement();palette();repeatGaps();coordinates();links();assemblies(fixtures());preview();
   System.out.println("PASS Blueprint: "+checks+" assertions; palette validation, 32 repeat offsets, material costs, four rotations, all display footprints, internal links and container exclusion ("+((System.nanoTime()-start)/1_000_000)+" ms; headless core check, not FPS benchmark)");
  }
 }

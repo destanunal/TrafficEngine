@@ -58,14 +58,9 @@ public class StreetLampBlockEntity extends SyncedBlockEntity implements com.dest
             return;
         }
 
-        if (new GameTime(level).isBetweenDaily(new GameTime(onTimeTicks), new GameTime(offTimeTicks))) {
-            if (!state.getValue(StreetLampBaseBlock.LIT)) {
-                level.setBlockAndUpdate(pos, state.setValue(StreetLampBaseBlock.LIT, true));
-            }
-        } else {
-            if (state.getValue(StreetLampBaseBlock.LIT)) {
-                level.setBlockAndUpdate(pos, state.setValue(StreetLampBaseBlock.LIT, false));
-            }
+        boolean lit = GameTime.isBetweenDaily(level.getDayTime(), onTimeTicks, offTimeTicks);
+        if (state.getValue(StreetLampBaseBlock.LIT) != lit) {
+            level.setBlockAndUpdate(pos, state.setValue(StreetLampBaseBlock.LIT, lit));
         }
     }
 
@@ -78,6 +73,7 @@ public class StreetLampBlockEntity extends SyncedBlockEntity implements com.dest
 
     @Override
     public void setColor(com.destan.trafficengine.data.PaintColor color) {
+        if (this.color == color) return;
         this.color = color;
         notifyUpdate();
         if (level != null) level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);

@@ -70,6 +70,11 @@ public class TrafficSignBlockEntity extends SyncedBlockEntity {
     @Override public void setLevel(net.minecraft.world.level.Level level) {
         super.setLevel(level);
         migratePendingLegacy();
+        BlockState state = getBlockState();
+        if (level instanceof net.minecraft.server.level.ServerLevel server
+                && state.getBlock() instanceof TrafficSignBlock && state.getValue(TrafficSignBlock.POST_MOUNTED)) {
+            com.destan.trafficengine.block.CurvedTrafficPoleBlock.queueSignMount(server, worldPosition);
+        }
     }
 
     /** One bounded conversion on the loading thread; never poll or load another chunk. */

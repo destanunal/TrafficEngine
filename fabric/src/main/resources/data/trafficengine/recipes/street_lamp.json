@@ -1,29 +1,29 @@
 {
-    "type": "minecraft:crafting_shaped",
-    "pattern": [
-        "II ",
-        "GR ",
-        " R "
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "II ",
+    "GR ",
+    " R "
+  ],
+  "key": {
+    "I": [
+      {
+        "item": "minecraft:iron_ingot"
+      }
     ],
-    "key": {
-        "I": [
-            {
-                "item": "minecraft:iron_ingot"
-            }
-        ],
-        "R": [
-            {
-                "item": "trafficengine:traffic_sign_post"
-            }
-        ],
-        "G": [
-            {
-                "item": "trafficengine:street_light"
-            }
-        ]
-    },
-    "result": {
-        "item": "trafficengine:street_lamp",
-        "count": 3
-    }
+    "R": [
+      {
+        "item": "trafficengine:traffic_sign_post"
+      }
+    ],
+    "G": [
+      {
+        "item": "minecraft:glowstone"
+      }
+    ]
+  },
+  "result": {
+    "item": "trafficengine:street_lamp",
+    "count": 3
+  }
 }

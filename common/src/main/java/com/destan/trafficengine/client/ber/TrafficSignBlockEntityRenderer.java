@@ -40,6 +40,9 @@ public class TrafficSignBlockEntityRenderer extends RotatableBlockEntityRenderer
             graphics.poseStack().translate(8.0f, 8.0f, 8.0f);
             graphics.poseStack().mulPose(Axis.YP.rotationDegrees(-45.0f));
             graphics.poseStack().translate(-8.0f, -8.0f, -8.0f);
+            if (TrafficSignBlock.hasSpacedDiagonalPlate(state)) {
+                graphics.poseStack().translate(0, 0, TrafficSignBlock.DIAGONAL_PLATE_OFFSET);
+            }
         } else if (postMounted) {
             graphics.poseStack().pushPose();
             // RotatableBlockEntityRenderer has already rotated the pose to the

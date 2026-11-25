@@ -1,5 +1,6 @@
 import com.destan.trafficengine.block.*;
 import com.destan.trafficengine.block.data.*;
+import com.destan.trafficengine.client.StreetLampTargeting;
 import net.minecraft.core.*;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.*;
@@ -7,6 +8,8 @@ import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.*;
 import net.minecraft.world.level.block.entity.*;
 import net.minecraft.world.level.material.*;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.*;
 import java.util.*;
 import java.lang.reflect.*;
@@ -27,7 +30,7 @@ public class Update221Check {
   var frozen=MappedRegistry.class.getDeclaredField("frozen");frozen.setAccessible(true);Object previous=holders.get(registry);boolean was=frozen.getBoolean(registry);
   Block[] b;
   try {frozen.setBoolean(registry,false);holders.set(registry,new IdentityHashMap<>());
-   b=new Block[]{new TrafficLightRequestButtonBlock(),new TrafficPoleBaseBlock(),new AsphaltSlope(RoadType.ASPHALT),new PaintedAsphaltSlope(RoadType.ASPHALT,null),new PedestrianRailingBlock(),new TrafficSignPostBlock(),new SlopedPedestrianRailingBlock()};
+   b=new Block[]{new TrafficLightRequestButtonBlock(),new TrafficPoleBaseBlock(),new AsphaltSlope(RoadType.ASPHALT),new PaintedAsphaltSlope(RoadType.ASPHALT,null),new PedestrianRailingBlock(),new TrafficSignPostBlock(),new SlopedPedestrianRailingBlock(),new LedDeviceBlock(LedDeviceType.TRAFFIC_DISPLAY),new LedDeviceBlock(LedDeviceType.LARGE_TRAFFIC_DISPLAY),new LedDevicePartBlock()};
   }finally{holders.set(registry,previous);frozen.setBoolean(registry,was);}
   var sink=TrafficLightRequestButtonBlock.class.getDeclaredMethod("supportSink",BlockState.class,BlockGetter.class,BlockPos.class);sink.setAccessible(true);
   World world=new World();BlockPos pos=BlockPos.ZERO;
@@ -53,6 +56,26 @@ public class Update221Check {
    check(!Shapes.joinIsNotEmpty(shape,expected,BooleanOp.NOT_SAME),"Picking matches the assembled housing and owned pole, without a duplicate stem");
    check(shape==state.getShape(world,pos)&&world.reads==reads,"All 72 button shapes are cached without terrain reads");
   }
+  var properHit=TrafficLightRequestButtonBlock.class.getDeclaredMethod("isProperHit",BlockState.class,Direction.class,double.class);
+  properHit.setAccessible(true);
+  for(int height=1;height<=8;height++)for(Direction facing:Direction.Plane.HORIZONTAL)for(boolean lower:new boolean[]{false,true}) {
+   var button=b[0].defaultBlockState().setValue(TrafficLightRequestButtonBlock.FACING,facing)
+    .setValue(TrafficLightRequestButtonBlock.SINK,height).setValue(TrafficLightRequestButtonBlock.LOWER_POLE,lower);
+   world.blocks.put(pos,button);
+   double touchY=4.3/16-height/8D;
+   Vec3 from=new Vec3(.5+2*facing.getStepX(),touchY,.5+2*facing.getStepZ());
+   Vec3 to=new Vec3(.5-2*facing.getStepX(),touchY,.5-2*facing.getStepZ());
+   BlockHitResult miss=BlockHitResult.miss(to,facing,BlockPos.containing(to));
+   var picked=(BlockHitResult)StreetLampTargeting.pick(world,from,to,CollisionContext.empty(),miss,List.of(pos));
+   check(picked!=miss&&picked.getBlockPos().equals(pos)&&picked.getDirection()==facing,"Lowered touch plate targets its own block in every direction");
+   BlockHitResult click=StreetLampTargeting.interactionHit(world,picked);
+   check(Math.abs(click.getLocation().y-.5)<=1&&click.getBlockPos().equals(pos),"Cross-cell button click fits the server's hit coordinate bounds");
+   check((boolean)properHit.invoke(b[0],button,click.getDirection(),click.getLocation().y+height/8D),"Normalized hit still presses the shifted front");
+   Vec3 obstacle=from.lerp(to,.1);
+   BlockHitResult wall=new BlockHitResult(obstacle,facing,BlockPos.containing(obstacle),false);
+   check(StreetLampTargeting.pick(world,from,to,CollisionContext.empty(),wall,List.of(pos))==wall,"Sunk button does not select through a nearer block");
+  }
+  world.blocks.clear();
   for(int layer=1;layer<=8;layer++) {
    var ground=b[3].defaultBlockState().setValue(AsphaltSlope.LAYERS,layer);world.blocks.put(pos.below(2),ground);
    BlockState[] supports={b[5].defaultBlockState(),b[1].defaultBlockState().setValue(TrafficPoleBaseBlock.SINK,9-layer),ground,b[4].defaultBlockState().setValue(PedestrianRailingBlock.SINK,8-layer),b[6].defaultBlockState()};
@@ -98,15 +121,28 @@ public class Update221Check {
   for(boolean floor:new boolean[]{false,true}) {
    var plain=b[5].defaultBlockState().setValue(TrafficSignPostBlock.BASE_SUPPORT,floor);
    var mounted=plain.setValue(TrafficSignPostBlock.CEILING_SUPPORT,true);
-   var expected=Shapes.or(plain.getShape(world,pos),Block.box(5.75,14.5,5.75,10.25,16,10.25),Block.box(6.5,13,6.5,9.5,14.5,9.5));
+   var full=plain.setValue(TrafficSignPostBlock.UP,true);
+   var expected=Shapes.or(full.getShape(world,pos),Block.box(5.75,14.5,5.75,10.25,16,10.25),Block.box(6.5,13,6.5,9.5,14.5,9.5));
    check(!Shapes.joinIsNotEmpty(mounted.getShape(world,pos),expected,BooleanOp.NOT_SAME),"Ceiling plate matches inverted model; floor mount preserved");
    check(mounted.getShape(world,pos)==mounted.getShape(world,pos),"Ceiling outline reuses cached geometry");
+  }
+  var openPost=b[5].defaultBlockState();
+  for(boolean extended:new boolean[]{false,true}) {
+   var open=openPost.setValue(TrafficSignPostBlock.EXTEND_BOTTOM,extended);
+   var connected=open.setValue(TrafficSignPostBlock.UP,true);
+   var outline=open.getShape(world,pos);
+   check(outline==open.getShape(world,pos)&&outline.max(Direction.Axis.Y)==(extended?10:12)/16D,"Short capped post reuses its matching shape");
+   check(outline.min(Direction.Axis.Y)==(extended?-1:0),"Short post preserves its lower support");
+   check(connected.getShape(world,pos).max(Direction.Axis.Y)==1,"Stacking equipment restores the full upper connection");
   }
   var instance=new com.destan.trafficengine.mixin.ParticleEngineMixin();
   var reduce=instance.getClass().getDeclaredMethod("trafficengine$reduceDestruction",BlockPos.class,BlockState.class,com.llamalad7.mixinextras.injector.wrapoperation.Operation.class);reduce.setAccessible(true);
   var skip=instance.getClass().getDeclaredMethod("trafficengine$skipSomeBreakParticles",net.minecraft.client.particle.Particle.class,org.spongepowered.asm.mixin.injection.callback.CallbackInfo.class);skip.setAccessible(true);
   int[] count={0};com.llamalad7.mixinextras.injector.wrapoperation.Operation<Void> emit=values->{for(int i=0;i<256;i++)try {var ci=new org.spongepowered.asm.mixin.injection.callback.CallbackInfo("add",true);skip.invoke(instance,null,ci);if(!ci.isCancelled())count[0]++;}catch(Exception e){throw new RuntimeException(e);}return null;};
   reduce.invoke(instance,pos,b[0].defaultBlockState(),emit);check(count[0]==64,"Request button retains 25 percent of break particles");
+  count[0]=0;reduce.invoke(instance,pos,b[7].defaultBlockState(),emit);check(count[0]==64,"Standard display retains 25 percent of break particles");
+  count[0]=0;reduce.invoke(instance,pos,b[8].defaultBlockState(),emit);check(count[0]==32,"Large display retains 12.5 percent of break particles");
+  count[0]=0;reduce.invoke(instance,pos,b[9].defaultBlockState(),emit);check(count[0]==32,"Display part retains 12.5 percent regardless of how it is broken");
   for(var state:b[6].getStateDefinition().getPossibleStates()){var shape=state.getShape(world,pos);check(shape==state.getShape(world,pos),"Flat atomic cache preserves shape identity");}
   System.out.println("PASS 2.2.1: "+checks+" terrain, cached shape, fence connection and 75% particle reduction assertions");
  }

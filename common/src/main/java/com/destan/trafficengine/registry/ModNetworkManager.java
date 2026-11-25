@@ -17,6 +17,7 @@ import com.destan.trafficengine.network.packets.cts.PatternCatalogueIndexPacketG
 import com.destan.trafficengine.network.packets.cts.RoadBuilderBuildRoadPacket;
 import com.destan.trafficengine.network.packets.cts.RoadBuilderDataPacket;
 import com.destan.trafficengine.network.packets.cts.RoadBuilderResetPacket;
+import com.destan.trafficengine.network.packets.cts.RoadBuilderUndoPacket;
 import com.destan.trafficengine.network.packets.cts.StreetLampConfigPacket;
 import com.destan.trafficengine.network.packets.cts.TownSignPacket;
 import com.destan.trafficengine.network.packets.cts.TrafficLightControllerPacket;
@@ -47,6 +48,7 @@ public class ModNetworkManager {
     public static final NetworkPacketType.Send<NetworkDirection.C2S, PaintBrushPacket> UPDATE_PAINT_BRUSH = NETWORK.registerSendOnlyPacket("update_paint_brush", NetworkDirection.C2S, PaintBrushPacket::handle, PaintBrushPacket::new);
     public static final NetworkPacketType.Send<NetworkDirection.C2S, PatternCatalogueIndexPacket> UPDATE_PATTERN_CATALOG_INDEX = NETWORK.registerSendOnlyPacket("update_pattern_catalog_index", NetworkDirection.C2S, PatternCatalogueIndexPacket::handle, PatternCatalogueIndexPacket::new);
     public static final NetworkPacketType.Send<NetworkDirection.C2S, RoadBuilderBuildRoadPacket> ROAD_BUILDER_BUILD_ROAD = NETWORK.registerSendOnlyPacket("road_builder_build_road", NetworkDirection.C2S, RoadBuilderBuildRoadPacket::handle, RoadBuilderBuildRoadPacket::new);
+    public static final NetworkPacketType.Send<NetworkDirection.C2S, RoadBuilderUndoPacket> ROAD_BUILDER_UNDO = NETWORK.registerSendOnlyPacket("road_builder_undo", NetworkDirection.C2S, RoadBuilderUndoPacket::handle, RoadBuilderUndoPacket::new);
     public static final NetworkPacketType.Send<NetworkDirection.C2S, RoadBuilderDataPacket> UPDATE_ROAD_BUILDER = NETWORK.registerSendOnlyPacket("update_road_builder", NetworkDirection.C2S, RoadBuilderDataPacket::handle, RoadBuilderDataPacket::new);
     public static final NetworkPacketType.Send<NetworkDirection.C2S, RoadBuilderResetPacket> RESET_ROAD_BUILDER = NETWORK.registerSendOnlyPacket("reset_road_builder", NetworkDirection.C2S, RoadBuilderResetPacket::handle, RoadBuilderResetPacket::new);
     public static final NetworkPacketType.Send<NetworkDirection.C2S, StreetLampConfigPacket> UPDATE_STREET_LAMP_CONFIG_CARD = NETWORK.registerSendOnlyPacket("update_street_lamp_config_card", NetworkDirection.C2S, StreetLampConfigPacket::handle, StreetLampConfigPacket::new);
