@@ -28,6 +28,8 @@ public class TrafficSignPatternSelectionScreen extends TrafficEngineScreen {
     private List<SignLibrary.Entry> entries = List.of();
     private int firstRow, columns, rows, cellSize, gridY, gridWidth;
     private boolean sent, draggingScrollbar;
+    private NamedTrafficSignTextureReference preview;
+    private Component previewName = Component.empty();
     private int maxFirstRow, scrollbarX, trackY, trackHeight, thumbHeight;
     private double scrollbarGrab;
     private final Component previewLabel = Component.translatable("gui.trafficengine.patterns.preview");
@@ -82,8 +84,9 @@ public class TrafficSignPatternSelectionScreen extends TrafficEngineScreen {
         trackHeight = rows * cellSize - 4;
         thumbHeight = Math.min(trackHeight, Math.max(18, trackHeight * rows / Math.max(rows, totalRows)));
         Set<String> needed = new HashSet<>();
-        var selected = ((PatternCatalogueItem)stack.getItem()).getSelectedImageData(stack);
-        if (selected != null) needed.add(selected.getTextureId());
+        preview = ((PatternCatalogueItem)stack.getItem()).getSelectedImageData(stack);
+        previewName = preview == null ? Component.empty() : Component.literal(preview.getName());
+        if (preview != null) needed.add(preview.getTextureId());
         for (int i = firstRow * columns; i < Math.min(count, (firstRow + rows) * columns); i++) {
             final int index = i;
             NamedTrafficSignTextureReference ref = category == null ? PatternCatalogueItem.getPatternAt(stack, i) : entries.get(i).reference();
@@ -98,12 +101,11 @@ public class TrafficSignPatternSelectionScreen extends TrafficEngineScreen {
                 rebuild();
             }) {
                 @Override public void renderWidget(GuiGraphics g, int mx, int my, float dt) {
-                    var current = ((PatternCatalogueItem)stack.getItem()).getSelectedImageData(stack);
-                    selected(current != null && current.getTextureId().equals(ref.getTextureId()));
                     super.renderWidget(g, mx, my, dt);
                     drawTexture(g, ref, getX() + 3, getY() + 3, cellSize - 8);
                 }
             });
+            button.setSelected(preview != null && preview.getTextureId().equals(ref.getTextureId()));
             button.setTooltip(Tooltip.create(Component.literal(ref.getName().isEmpty() ? "#" + (i + 1) : ref.getName())));
             cells.add(button);
         }
@@ -178,10 +180,13 @@ public class TrafficSignPatternSelectionScreen extends TrafficEngineScreen {
         }
         int px = left + windowWidth - 105;
         TEPanel.draw(g, px - 6, gridY, 99, rows * cellSize + 4);
-        TEText.drawCenteredString(g, font, previewLabel, px + 43.5F,
-                TEText.centeredY(g, font, previewLabel, gridY + 4, 16), TEColors.MUTED);
-        var ref = ((PatternCatalogueItem)stack.getItem()).getSelectedImageData(stack);
-        if (ref != null) { drawTexture(g, ref, px + 9, gridY + 30, 64); TEText.drawString(g, font, font.plainSubstrByWidth(ref.getName(), 88), px, gridY + 113, TEColors.TEXT, false); }
+        TEText.drawWrappedCentered(g, font, previewLabel, px, gridY + 4, 87, 20, TEColors.MUTED);
+        if (preview != null) {
+            int previewSize = Math.max(0, Math.min(64, rows * cellSize - 53));
+            if (previewSize > 0) drawTexture(g, preview, px + (87 - previewSize) / 2, gridY + 27, previewSize);
+            TEText.drawWrappedCentered(g, font, previewName, px, gridY + 30 + previewSize, 87,
+                Math.min(30, rows * cellSize - 30 - previewSize), TEColors.TEXT);
+        }
         super.render(g, mx, my, tick);
     }
 }

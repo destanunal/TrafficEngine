@@ -1,1 +1,1 @@
-{"parent":"item/generated","textures":{"layer0":"trafficengine:item/street_lamp_config_card"}}
+{"parent":"item/generated","textures":{"layer0":"trafficengine:item/street_lamp_config_card"},"display":{"gui":{"translation":[0,-0.5,0]}}}

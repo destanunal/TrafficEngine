@@ -2,17 +2,21 @@ package com.destan.trafficengine.client.gui;
 
 import com.destan.trafficengine.mixin.MenuFontAccessor;
 import com.destan.trafficengine.mixin.MenuGlyphAccessor;
+import java.util.ArrayList;
 import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Optional;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.font.FontSet;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.Style;
 import net.minecraft.util.FormattedCharSequence;
 
 /** Glyph bounds are measured only after a caption/resource change, with a 1,024-entry cap. */
 public final class MenuTextBounds {
-    public record Bounds(float top,float bottom,int width) {}
-    private static final Bounds FALLBACK=new Bounds(0,7,0);
+    public record Bounds(float top,float bottom,int width,boolean lineBreak) {}
+    private static final Bounds FALLBACK=new Bounds(0,7,0,false);
     private static final IdentityHashMap<Object,Bounds> CACHE=new IdentityHashMap<>();
     private static final IdentityHashMap<Object,MenuGlyphInk.Ink> GLYPHS=new IdentityHashMap<>();
     private static net.minecraft.locale.Language lastLanguage;
@@ -27,11 +31,13 @@ public final class MenuTextBounds {
         MenuFontAccessor access=font instanceof MenuFontAccessor a?a:null;
         FontSet primary=access==null?null:access.trafficengine$fontSet(Style.DEFAULT_FONT);
         if(font!=lastFont || primary!=lastSet || revision!=cachedRevision || lastLanguage!=net.minecraft.locale.Language.getInstance()) {
-            CACHE.clear();GLYPHS.clear();lastFont=font;lastSet=primary;cachedRevision=revision;lastLanguage=net.minecraft.locale.Language.getInstance();
+            CACHE.clear();GLYPHS.clear();WRAPPED.clear();lastFont=font;lastSet=primary;cachedRevision=revision;lastLanguage=net.minecraft.locale.Language.getInstance();
         }
         Bounds existing=CACHE.get(caption);if(existing!=null)return existing;
         FormattedCharSequence chars=caption instanceof Component c?c.getVisualOrderText()
             :caption instanceof FormattedCharSequence sequence?sequence:FormattedCharSequence.forward((String)caption,Style.EMPTY);
+        boolean lineBreak = caption instanceof Component component && component.visit(part ->
+            part.indexOf('\n') >= 0 ? Optional.of(Boolean.TRUE) : Optional.empty()).isPresent();
         float[] vertical={Float.POSITIVE_INFINITY,Float.NEGATIVE_INFINITY};
         chars.accept((index,style,codepoint)->{
             if(access!=null && !Character.isWhitespace(codepoint)) {
@@ -54,9 +60,45 @@ public final class MenuTextBounds {
             return true;
         });
         int width=font.width(chars);
-        Bounds result=Float.isFinite(vertical[0])?new Bounds(vertical[0],vertical[1],width):new Bounds(FALLBACK.top(),FALLBACK.bottom(),width);
+        Bounds result=Float.isFinite(vertical[0])?new Bounds(vertical[0],vertical[1],width,lineBreak):new Bounds(FALLBACK.top(),FALLBACK.bottom(),width,lineBreak);
         if(CACHE.size()>=1024)CACHE.clear();CACHE.put(caption,result);return result;
     }
+    record WrappedLine(FormattedCharSequence text, int width) {}
+    record Wrapped(int width, List<WrappedLine> lines, float top, float bottom, int widest) {}
+    private static final IdentityHashMap<FormattedText, List<Wrapped>> WRAPPED = new IdentityHashMap<>();
+
+    static Wrapped wrapped(Font font, FormattedText caption, int width) {
+        List<Wrapped> layouts = WRAPPED.get(caption);
+        if (layouts != null) {
+            for (int i = 0; i < layouts.size(); i++) {
+                Wrapped layout = layouts.get(i);
+                if (layout.width() == width) return layout;
+            }
+        } else {
+            if (WRAPPED.size() >= 256) WRAPPED.clear();
+            layouts = new ArrayList<>(2);
+            WRAPPED.put(caption, layouts);
+        }
+
+        var split = font.split(caption, width);
+        List<WrappedLine> lines = new ArrayList<>(split.size());
+        float top = Float.POSITIVE_INFINITY, bottom = Float.NEGATIVE_INFINITY;
+        int widest = 0;
+        for (int i = 0; i < split.size(); i++) {
+            var line = split.get(i);
+            Bounds ink = of(font, line);
+            int y = i * font.lineHeight;
+            top = Math.min(top, y + ink.top());
+            bottom = Math.max(bottom, y + ink.bottom());
+            widest = Math.max(widest, ink.width());
+            lines.add(new WrappedLine(line, ink.width()));
+        }
+        if (layouts.size() == 4) layouts.remove(0);
+        Wrapped layout = new Wrapped(width, List.copyOf(lines), top, bottom, widest);
+        layouts.add(layout);
+        return layout;
+    }
+
     private static final float GLYPH_ORIGIN=3;
     public static int centered(int top,int height,float scale,Bounds bounds) {
         return Math.round(centeredExact(top,height,scale,bounds));

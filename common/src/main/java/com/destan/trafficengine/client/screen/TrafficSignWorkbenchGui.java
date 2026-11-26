@@ -56,7 +56,8 @@ public class TrafficSignWorkbenchGui extends AbstractContainerScreen<TrafficSign
     private int editIndex = -1, tool, color = 0xFF000000, importRow, lastPixel = -1;
     private final int[] pixels = new int[1024];
     private int[] imported;
-    private String name = "", importError;
+    private String name = "";
+    private Component importError, selectedName = Component.empty();
     private boolean dirty, busy, drawingCanvas;
     private EditBox nameBox, hexBox;
     private DynamicTexture canvasTexture;
@@ -209,7 +210,7 @@ public class TrafficSignWorkbenchGui extends AbstractContainerScreen<TrafficSign
             int bx = 26 + i % cols * 24, by = 93 + (i / cols - importRow) * 24;
             TEButton b = addRenderableWidget(new TEButton(leftPos + bx, topPos + by, 22, 22, Component.empty(), a -> {
                 try (var in = minecraft.getResourceManager().getResource(entry.texture()).orElseThrow().open(); NativeImage image = NativeImage.read(in)) { imported = imagePixels(image); go(Page.IMPORT); }
-                catch (IOException ex) { importError = ex.getMessage(); }
+                catch (IOException ex) { importError = Component.literal(Objects.toString(ex.getMessage(), "")); }
             }) {
                 @Override public void renderWidget(GuiGraphics g, int mx, int my, float dt) { super.renderWidget(g, mx, my, dt); g.blit(entry.texture(), getX() + 2, getY() + 2, 18, 18, 0, 0, entry.width(), entry.height(), entry.width(), entry.height()); }
             });
@@ -222,6 +223,7 @@ public class TrafficSignWorkbenchGui extends AbstractContainerScreen<TrafficSign
         if (Objects.equals(ref, selected) && (ref == null || preview != null)) return;
         if (preview != null) preview.close();
         selected = ref;
+        selectedName = ref == null ? Component.empty() : Component.literal(ref.getName());
         preview = ref == null ? null : TrafficSignClientTexture.load(ref.getTextureId(), false, null);
     }
     private void switchPreview(int delta) {
@@ -270,7 +272,7 @@ public class TrafficSignWorkbenchGui extends AbstractContainerScreen<TrafficSign
             int[] result = new int[1024];
             for (int y = 0; y < 32; y++) for (int x = 0; x < 32; x++) if (shape.isPixelValid(x, y)) result[y * 32 + x] = image.getRGB(x * image.getWidth() / 32, y * image.getHeight() / 32);
             imported = result; importError = null; go(Page.IMPORT);
-        } catch (IOException ex) { importError = text("editor.import_error").getString(); TrafficEngine.LOGGER.warn("Cannot import sign", ex); }
+        } catch (IOException ex) { importError = text("editor.import_error"); TrafficEngine.LOGGER.warn("Cannot import sign", ex); }
         finally { minecraft.getSoundManager().resume(); for (int i = 0; i < filters.limit(); i++) MemoryUtil.nmemFree(filters.get(i)); MemoryUtil.memFree(filters); }
     }
     private void save() {
@@ -376,7 +378,7 @@ public class TrafficSignWorkbenchGui extends AbstractContainerScreen<TrafficSign
                 if (preview != null && preview.isFullyLoaded()) {
                     var d = preview.getRawData();
                     if (d.getWidth() > 0 && d.getHeight() > 0) g.blit(preview.getTextureLocation(), leftPos + 130, topPos + 90, 100, 100, 0, 0, d.getWidth(), d.getHeight(), d.getWidth(), d.getHeight());
-                    TEText.drawString(g, font, font.plainSubstrByWidth(selected.getName(), 164), leftPos + 111, topPos + 191, TEColors.TEXT, false);
+                    TEText.drawWrappedCentered(g, font, selectedName, leftPos + 100, topPos + 190, 160, 17, TEColors.TEXT);
                 }
                 TEText.drawCenteredString(g, font, selected == null ? "0" : Integer.toString(PatternCatalogueItem.getSelectedIndex(menu.patternSlot.getItem()) + 1), leftPos + 180, topPos + 208, TEColors.MUTED);
             }
@@ -395,10 +397,10 @@ public class TrafficSignWorkbenchGui extends AbstractContainerScreen<TrafficSign
             case IMPORT -> {
                 TEPanel.draw(g, leftPos + 234, topPos + 93, 100, 96);
                 if (imported != null) renderPixelPreview(g, imported, leftPos + 248, topPos + 105, 72);
-                if (importError != null) TEText.drawString(g, font, font.plainSubstrByWidth(importError, 304), leftPos + 26, topPos + 191, 0xFFFF8888, false);
+                if (importError != null) TEText.drawWrappedLeft(g, font, importError, leftPos + 26, topPos + 189, 304, 14, 0xFFFF8888);
             }
             case DISCARD -> TEText.drawWordWrap(g, font,text("discard.question"),leftPos+84,topPos+107,205,TEColors.TEXT);
-            case DELETE -> { TEText.drawWordWrap(g, font, text("delete.question"), leftPos + 84, topPos + 107, 205, TEColors.TEXT); if (selected != null) TEText.drawString(g, font, font.plainSubstrByWidth(selected.getName(), 205), leftPos + 84, topPos + 139, TEColors.MUTED, false); }
+            case DELETE -> { TEText.drawWordWrap(g, font, text("delete.question"), leftPos + 84, topPos + 107, 205, TEColors.TEXT); if (selected != null) TEText.drawWrappedCentered(g, font, selectedName, leftPos + 84, topPos + 137, 205, 22, TEColors.MUTED); }
         }
     }
     private void renderCatalogueHelp(GuiGraphics g, boolean missingCatalogue) {

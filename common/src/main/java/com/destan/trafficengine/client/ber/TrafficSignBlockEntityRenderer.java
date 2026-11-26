@@ -62,104 +62,56 @@ public class TrafficSignBlockEntityRenderer extends RotatableBlockEntityRenderer
         }
     }
 
+    private static final Vector3f ORIGIN = new Vector3f(0);
+    private static final float FREESTANDING_FRONT = 9.5f / 16;
+    private static final float WALL_FRONT = 0.5f / 16;
+    private static final float PLATE_DEPTH = 0.5f / 16;
+    private static final float FACE_OFFSET = 0.002f;
+
     private void renderOriented(RenderContext<TrafficSignBlockEntity> graphics) {
+        var entity = graphics.blockEntity();
+        if (entity == null || entity.isRemoved()) return;
 
-        if (graphics.blockEntity() == null || graphics.blockEntity().isRemoved()) {
-            return;
+        BlockState state = entity.getBlockState();
+        Direction facing = state.getValue(TrafficSignBlock.FACING);
+        boolean wall = state.getValue(TrafficSignBlock.WALL_MOUNTED);
+        var pose = graphics.poseStack();
+        pose.pushPose();
+        pose.scale(16, 16, 16);
+        renderFace(graphics, entity.getClientTexture(), state.getValue(TrafficSignBlock.SHAPE), facing, wall);
+        if (state.getBlock() instanceof DoubleSidedTrafficSignBlock) {
+            pose.translate(0.5, 0, 0.5);
+            pose.mulPose(Axis.YP.rotationDegrees(180));
+            pose.translate(-0.5, 0, -0.5);
+            renderFace(graphics, entity.getBackClientTexture(), state.getValue(DoubleSidedTrafficSignBlock.BACK_SHAPE),
+                facing.getOpposite(), false);
         }
-
-        BlockState blockstate = graphics.blockEntity().getBlockState();
-        if (blockstate == null) {
-            return;
-        }
-
-        if (blockstate.getBlock() instanceof DoubleSidedTrafficSignBlock) {
-            renderDoubleSided(graphics, blockstate);
-            return;
-        }
-
-        TrafficSignClientTexture tex = graphics.blockEntity().getClientTexture();
-
-        if (tex.isDisposed()) {
-            return;
-        }
-
-        double p = 1 / 16f;
-        boolean wall =
-                blockstate.hasProperty(TrafficSignBlock.WALL_MOUNTED)
-                        && blockstate.getValue(TrafficSignBlock.WALL_MOUNTED);
-        double z;
-        if (wall) {
-            // Wall sign: the plate is flush against the back edge, so the pattern plane is only one plate
-            // thickness (0.5px) away from that edge. The translate below adds 0.5 back, hence the - 0.5d.
-            z = 0.5d * p - 0.5d;
-        } else {
-            z = blockstate.getValue(TrafficSignBlock.SHAPE) == TrafficSignShape.MISC ? 1.0d * p : 1.5d * p;
-        }
-        graphics.poseStack().pushPose();
-        graphics.poseStack().scale(16, 16, 16);
-        graphics.poseStack().translate(0.5f, 0.5f, 0.5f);
-        graphics.poseStack().translate(-0.5d, -0.5d, z + 0.002d);
-
-        SignRenderUtils.renderTexture(tex.getTextureLocation(), graphics, new Vector3f(0), 1, 1, 0, 0, 1, 1, blockstate.getValue(TrafficSignBlock.FACING), ColorValue.WHITE, graphics.packedLight(), true);
-
-        graphics.poseStack().popPose();
-
-        if (!wall && tex.hasBackground()) {
-            z = 9.0d * p - 0.5d;
-            graphics.poseStack().pushPose();
-            graphics.poseStack().scale(16, 16, 16);
-            graphics.poseStack().translate(0.5f, 0.5f, 0.5f);
-            graphics.poseStack().mulPose(Axis.YP.rotationDegrees(180));
-            graphics.poseStack().translate(-0.5d, -0.5d, -(p * 2) + z - 0.002d);
-
-            SignRenderUtils.renderTexture(tex.getBackgroundTextureLocation(), graphics, new Vector3f(0), 1, 1, 0, 0, 1, 1, blockstate.getValue(TrafficSignBlock.FACING).getOpposite(), ColorValue.WHITE, graphics.packedLight(), true);
-
-            graphics.poseStack().popPose();
-        }
+        pose.popPose();
     }
 
-    /**
-     * Double sided sign = a plate on the FACING side of the center post
-     * plus a plate on the opposite side of the post.
-     *
-     * The front pattern uses exactly the same plane as a single sided sign
-     * (z = 0.5 + 1.5px, 1px for MISC). The back pattern is the same plane rotated
-     * 180 degrees around the block center, so it lines up with the back plate
-     * (see TrafficSignShape#getVoxelShape) and reads correctly from behind.
-     * Front and back have their own shape (SHAPE / BACK_SHAPE).
-     */
-    private void renderDoubleSided(RenderContext<TrafficSignBlockEntity> graphics, BlockState blockstate) {
-        double p = 1 / 16f;
-        double zFront = blockstate.getValue(TrafficSignBlock.SHAPE) == TrafficSignShape.MISC ? 1.0d * p : 1.5d * p;
-        double zBack = blockstate.getValue(DoubleSidedTrafficSignBlock.BACK_SHAPE) == TrafficSignShape.MISC ? 1.0d * p : 1.5d * p;
-        Direction facing = blockstate.getValue(TrafficSignBlock.FACING);
+    private static void renderFace(RenderContext<?> graphics, TrafficSignClientTexture texture,
+            TrafficSignShape shape, Direction facing, boolean wall) {
+        if (texture.isDisposed() || !texture.isFullyLoaded()) return;
+        float front = wall ? WALL_FRONT : FREESTANDING_FRONT;
+        var pose = graphics.poseStack();
 
-        // FRONT
-        TrafficSignClientTexture front = graphics.blockEntity().getClientTexture();
-        if (!front.isDisposed()) {
-            graphics.poseStack().pushPose();
-            graphics.poseStack().scale(16, 16, 16);
-            graphics.poseStack().translate(0.5f, 0.5f, 0.5f);
-            graphics.poseStack().translate(-0.5d, -0.5d, zFront + 0.002d);
-
-            SignRenderUtils.renderTexture(front.getTextureLocation(), graphics, new Vector3f(0), 1, 1, 0, 0, 1, 1, facing, ColorValue.WHITE, graphics.packedLight(), true);
-
-            graphics.poseStack().popPose();
+        if (shape == TrafficSignShape.MISC && texture.hasBackground()) {
+            float rear = front - PLATE_DEPTH;
+            SignRenderUtils.renderPlateEdges(texture, graphics, rear, front);
+            if (!wall) {
+                pose.pushPose();
+                pose.translate(1, 0, rear - FACE_OFFSET);
+                pose.mulPose(Axis.YP.rotationDegrees(180));
+                SignRenderUtils.renderTexture(texture.getBackgroundTextureLocation(), graphics, ORIGIN,
+                    1, 1, 0, 0, 1, 1, facing.getOpposite(), ColorValue.WHITE, graphics.packedLight(), true);
+                pose.popPose();
+            }
         }
 
-        // BACK
-        TrafficSignClientTexture back = graphics.blockEntity().getBackClientTexture();
-        if (!back.isDisposed()) {
-            graphics.poseStack().pushPose();
-            graphics.poseStack().scale(16, 16, 16);
-            graphics.poseStack().translate(0.5f, 0.5f, 0.5f);
-            graphics.poseStack().mulPose(Axis.YP.rotationDegrees(180));
-            graphics.poseStack().translate(-0.5d, -0.5d, zBack + 0.002d);
-
-            SignRenderUtils.renderTexture(back.getTextureLocation(), graphics, new Vector3f(0), 1, 1, 0, 0, 1, 1, facing.getOpposite(), ColorValue.WHITE, graphics.packedLight(), true);
-
-            graphics.poseStack().popPose();
-        }
+        pose.pushPose();
+        pose.translate(0, 0, front + FACE_OFFSET);
+        SignRenderUtils.renderTexture(texture.getTextureLocation(), graphics, ORIGIN,
+            1, 1, 0, 0, 1, 1, facing, ColorValue.WHITE, graphics.packedLight(), true);
+        pose.popPose();
     }
 }

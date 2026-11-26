@@ -2,7 +2,6 @@ package com.destan.trafficengine.client.gui.components;
 
 import com.destan.trafficengine.client.gui.TEText;
 import com.destan.trafficengine.client.gui.theme.TEColors;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -34,31 +33,7 @@ public class TEButton extends Button {
         renderLabel(g, !active ? TEColors.MUTED : primary ? TEColors.INK : selected ? TEColors.ACCENT : TEColors.TEXT);
     }
     protected void renderLabel(GuiGraphics g, int color) {
-        var font = Minecraft.getInstance().font;
-        float textScale = TEText.layoutScale(g);
-        int textWidth = Math.round(TEText.width(font,getMessage()) * textScale);
-        int available = Math.max(1, width - 8);
-        float y = TEText.centeredY(g, font, getMessage(), getY(), height);
-        if (textWidth <= available) {
-            drawCaption(g, getX() + (width - TEText.width(font,getMessage()) * textScale) / 2F, y, color);
-        } else {
-            // Match vanilla's smooth scrolling, with a crisp shadow-free caption.
-            double seconds = Util.getMillis() / 1000.0;
-            double period = Math.max(3, (textWidth - available) / 30.0);
-            int offset = (int)Math.round((Math.sin(Math.PI / 2 * Math.cos(2 * Math.PI * seconds / period)) / 2 + 0.5)
-                * (textWidth - available));
-            // Scissor coordinates are screen coordinates, even when a menu is scaled.
-            var transform = g.pose().last().pose();
-            g.enableScissor((int)Math.floor((getX() + 4) * transform.m00() + transform.m30()),
-                (int)Math.floor(getY() * transform.m11() + transform.m31()),
-                (int)Math.ceil((getX() + width - 4) * transform.m00() + transform.m30()),
-                (int)Math.ceil((getY() + height) * transform.m11() + transform.m31()));
-            drawCaption(g, getX() + 4 - offset, y, color);
-            g.disableScissor();
-        }
-    }
-    private void drawCaption(GuiGraphics g, float x, float y, int color) {
-        var font = Minecraft.getInstance().font;
-        TEText.drawString(g, font, getMessage(), x, y, color, false);
+        TEText.drawWrappedCentered(g, Minecraft.getInstance().font, getMessage(),
+            getX() + 4, getY() + 1, width - 8, height - 2, color);
     }
 }

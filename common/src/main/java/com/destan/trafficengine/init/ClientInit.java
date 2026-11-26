@@ -191,6 +191,8 @@ public class ClientInit {
                 ModBlocks.ROAD_BARRIER_FENCE,
                 ModBlocks.CONCRETE_BARRIER
             );
+            ColorHandlerRegistry.registerItemColors((stack, index) -> index == 0 ? 0xFFFFD32A : -1,
+                ModBlocks.WARNING_LIGHT);
             ColorHandlerRegistry.registerItemColors((stack, index) -> switch (index) {
                 case 100 -> 0xFF53616B;
                 case 101 -> 0xFFA8B4BC;

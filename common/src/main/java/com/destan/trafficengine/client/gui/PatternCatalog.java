@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Locale;
 import com.destan.trafficengine.TrafficEngine;
 import com.destan.trafficengine.data.RoadPatternNumbers;
+import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
@@ -24,15 +25,15 @@ public final class PatternCatalog {
         public int id() { return id; }
         public int displayNumber() { return RoadPatternNumbers.displayNumber(id); }
         public Category category() { return category; }
+        public int textureResolution() { return id == 299 || id == 315 ? 32 : 16; }
         public ResourceLocation texture() {
             return new ResourceLocation(TrafficEngine.MOD_ID,
                 id == 0 ? "textures/block/sign_blank.png" : "textures/block/patterns/" + id + ".png");
         }
         public Component name() {
             if (!custom.isEmpty()) return Component.translatable("gui.trafficengine.patterns.custom", -id);
-            if (id == 0 || id == 1 || id == 246 || id >= 297) {
-                return Component.translatable("gui.trafficengine.patterns.name." + id);
-            }
+            String translation = "gui.trafficengine.patterns.name." + id;
+            if (I18n.exists(translation)) return Component.translatable(translation);
             if (category == Category.LETTERS) return Component.literal(Character.toString((char)('A' + id - 261)));
             if (category == Category.NUMBERS) return Component.literal(Integer.toString(id - 287));
             return Component.translatable("gui.trafficengine.patterns.number", displayNumber());
@@ -56,7 +57,7 @@ public final class PatternCatalog {
         for (int id = 1; id <= 314; id++) {
             if (!RoadPatternNumbers.isVisible(id)) continue;
             entries.add(new Pattern(id, category(id)));
-            if (id == 1) entries.add(new Pattern(316, Category.LINES));
+            if (id == 1) entries.add(new Pattern(RoadPatternNumbers.NARROW_STRAIGHT_ID, Category.LINES));
             if (id == 246) entries.add(new Pattern(317, Category.ARROWS));
             if (id == 299) entries.add(new Pattern(315, Category.SYMBOLS));
         }
@@ -72,7 +73,7 @@ public final class PatternCatalog {
     }
     public static Pattern byId(int id) {
         if (id < 0 || id > 317) return null;
-        return new Pattern(id, id == 0 ? Category.SYMBOLS : id == 316 ? Category.LINES
+        return new Pattern(id, id == 0 ? Category.SYMBOLS : id == RoadPatternNumbers.NARROW_STRAIGHT_ID ? Category.LINES
             : id == 317 ? Category.ARROWS : category(id));
     }
 }

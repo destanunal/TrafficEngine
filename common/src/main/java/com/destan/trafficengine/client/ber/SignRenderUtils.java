@@ -2,6 +2,7 @@ package com.destan.trafficengine.client.ber;
 
 import java.util.BitSet;
 import org.joml.Vector3f;
+import com.destan.trafficengine.data.TrafficSignClientTexture;
 import com.destan.trafficengine.util.ColorValue;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
@@ -30,6 +31,20 @@ public final class SignRenderUtils {
         vertex(consumer, graphics, pos.x, pos.y + h, pos.z, u, v + vH, tint, ao ? AO.brightness[1] : 1, ao ? AO.lightmap[1] : light);
         vertex(consumer, graphics, pos.x + w, pos.y + h, pos.z, u + uW, v + vH, tint, ao ? AO.brightness[2] : 1, ao ? AO.lightmap[2] : light);
         vertex(consumer, graphics, pos.x + w, pos.y, pos.z, u + uW, v, tint, ao ? AO.brightness[3] : 1, ao ? AO.lightmap[3] : light);
+    }
+
+    static void renderPlateEdges(TrafficSignClientTexture texture, RenderContext<?> graphics, float rear, float front) {
+        var edges = texture.plateEdges();
+        if (edges.isEmpty()) return;
+        var consumer = graphics.multiBufferSource().getBuffer(RenderType.text(texture.getBackgroundTextureLocation()));
+        int light = graphics.packedLight();
+        for (int i = 0; i < edges.size(); i++) {
+            var edge = edges.get(i);
+            vertex(consumer, graphics, edge.x0(), edge.y0(), front, edge.u(), edge.v(), ColorValue.WHITE, edge.shade(), light);
+            vertex(consumer, graphics, edge.x1(), edge.y1(), front, edge.u(), edge.v(), ColorValue.WHITE, edge.shade(), light);
+            vertex(consumer, graphics, edge.x1(), edge.y1(), rear, edge.u(), edge.v(), ColorValue.WHITE, edge.shade(), light);
+            vertex(consumer, graphics, edge.x0(), edge.y0(), rear, edge.u(), edge.v(), ColorValue.WHITE, edge.shade(), light);
+        }
     }
 
     private static void vertex(VertexConsumer consumer, RenderContext<?> graphics, float x, float y, float z, float u, float v, ColorValue color, float brightness, int light) {

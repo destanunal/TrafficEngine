@@ -114,7 +114,7 @@ public final class BlueprintScreen extends TrafficEngineScreen {
         TEPanel.fillRounded(g,left+10,top+8,23,23,TEColors.ACCENT_SOFT);
         // A small blueprint grid uses the existing GUI buffer, without an image or effects pass.
         for(int i=0;i<3;i++){g.fill(left+16+i*5,top+13,left+17+i*5,top+27,TEColors.ACCENT);g.fill(left+16,top+13+i*5,left+27,top+14+i*5,TEColors.ACCENT);}
-        TEText.drawCenteredString(g,font,title,left+windowWidth/2F,TEText.centeredY(g,font,title,top+8,23),TEColors.TEXT);
+        TEText.drawWrappedCentered(g, font, title, left + 42, top + 8, windowWidth - 84, 23, TEColors.TEXT);
         if(!thumbnailPage&&!materialsPage){
             TEPanel.fillRounded(g,left+10,top+40,windowWidth-20,32,TEColors.FIELD);
             TEPanel.fillRounded(g,left+10,top+windowHeight-129,windowWidth-20,90,TEColors.FIELD);
@@ -134,18 +134,10 @@ public final class BlueprintScreen extends TrafficEngineScreen {
         }
     }
     private static final class PlanSlider extends TEIntegerSlider {
-        private Component source;
-        private MenuTextBounds.Bounds bounds;
-        private int fittedWidth;
-        private float fittedScale;
-        private String fitted="";
         PlanSlider(int x,int y,int w,int min,int max,int initial,java.util.function.IntFunction<Component> caption,java.util.function.IntConsumer change){super(x,y,w,min,max,1,initial,caption,change);}
         @Override public void renderWidget(GuiGraphics g,int mx,int my,float delta){
-            var font=Minecraft.getInstance().font;var next=MenuTextBounds.of(font,getMessage());float scale=TEText.layoutScale(g);
-            if(source!=getMessage()||bounds!=next||fittedWidth!=width||fittedScale!=scale){
-                source=getMessage();bounds=next;fittedWidth=width;fittedScale=scale;fitted=font.plainSubstrByWidth(source.getString(),Math.max(1,(int)((width-12)/scale)));
-            }
-            TEText.drawCenteredString(g,font,fitted,getX()+width/2F,TEText.centeredY(g,font,fitted,getY(),14),active?TEColors.TEXT:TEColors.MUTED);
+            TEText.drawWrappedCentered(g, Minecraft.getInstance().font, getMessage(),
+                getX() + 6, getY(), width - 12, 14, active ? TEColors.TEXT : TEColors.MUTED);
             int start=getX()+6,end=getX()+width-6,knob=start+(int)Math.round((end-start)*value),y=getY()+17;
             g.fill(start,y,end,y+2,TEColors.SUBTLE_BORDER);g.fill(start,y,knob,y+2,TEColors.ACCENT);
             TEPanel.fillRounded(g,knob-3,y-2,6,6,isHoveredOrFocused()?TEColors.SELECTION_BORDER:TEColors.ACCENT);

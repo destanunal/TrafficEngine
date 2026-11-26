@@ -3,6 +3,7 @@ package com.destan.trafficengine.data;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -57,6 +58,8 @@ public class TrafficSignClientTexture implements AutoCloseable {
     protected ResourceLocation backgroundTextureLocation = EMPTY_LOCATION;
     protected final String textureId;
 
+    private List<SignPlateEdges.Edge> plateEdges = List.of();
+
     private boolean isClosed = false;
     private boolean builtIn = false;
 
@@ -88,46 +91,49 @@ public class TrafficSignClientTexture implements AutoCloseable {
     }
 
     private void generateBgTexture() {
-        if (isClosed || hasBackground()) return;
-        SafeDynamicTexture originalTexture = EMPTY_TEXTURE;
-        NativeImage bg = null;
+        if (isClosed || hasBackground() || textureLocation.equals(EMPTY_LOCATION)) return;
+        NativeImage builtInImage = null;
+        NativeImage background = null;
+        var resources = Minecraft.getInstance().getResourceManager();
         try {
-            String idSuffix;
-            if (isBuiltIn()) {
-                BuildInTrafficSignCodec codec = BuildInTrafficSignCodec.decode(textureId);
-                idSuffix = codec.id() + "_bg";
-                originalTexture = new SafeDynamicTexture(NativeImage.read(Minecraft.getInstance().getResourceManager().getResource(getTextureLocation()).get().open()));
+            NativeImage source;
+            if (builtIn) {
+                try (var input = resources.getResourceOrThrow(textureLocation).open()) {
+                    builtInImage = NativeImage.read(input);
+                }
+                source = builtInImage;
             } else {
-                idSuffix = "_bg";
-                originalTexture = texture;
+                if (texture == EMPTY_TEXTURE) return;
+                source = texture.getPixels();
             }
-
-            if (originalTexture == null || originalTexture == EMPTY_TEXTURE) {
-                return;
-            }
-            bg = NativeImage.read(Minecraft.getInstance().getResourceManager().getResource(new ResourceLocation(TrafficEngine.MOD_ID, "textures/block/sign/blank.png")).get().open());
-            final int width = Math.min(bg.getWidth(), TrafficSignShape.MAX_WIDTH);
-            final int height = Math.min(bg.getHeight(), TrafficSignShape.MAX_HEIGHT);
-            for (int x = 0; x < width; x++) {
+            int width = source.getWidth(), height = source.getHeight();
+            if (width > TrafficSignShape.MAX_WIDTH || height > TrafficSignShape.MAX_HEIGHT) return;
+            background = new NativeImage(width, height, false);
+            int[] opaqueRows = new int[height];
+            try (var input = resources.getResourceOrThrow(new ResourceLocation(TrafficEngine.MOD_ID,
+                    "textures/block/sign/blank.png")).open(); var metal = NativeImage.read(input)) {
                 for (int y = 0; y < height; y++) {
-                    if (originalTexture.getPixels().getPixelRGBA(x, y) != 0)
-                        continue;
-
-                    bg.setPixelRGBA(width - 1 - x, y, 0);
+                    for (int x = 0; x < width; x++) {
+                        // Match the minimum alpha of the sign artwork shader.
+                        boolean opaque = (source.getPixelRGBA(x, y) >>> 24) >= 26;
+                        if (opaque) opaqueRows[y] |= 1 << x;
+                        int mirroredX = width - 1 - x;
+                        background.setPixelRGBA(mirroredX, y, opaque
+                            ? metal.getPixelRGBA(mirroredX * metal.getWidth() / width, y * metal.getHeight() / height) : 0);
+                    }
                 }
             }
-
-            this.backgroundTexture = new SafeDynamicTexture(bg);
-            bg = null; // SafeDynamicTexture now owns the native image.
-            this.backgroundTextureLocation = new ResourceLocation(TrafficEngine.MOD_ID, "sign_" + (isBuiltIn() ? rawData.getShape().getIndex() : rawData.getHash().toString()) + idSuffix);
+            plateEdges = SignPlateEdges.fromMask(opaqueRows, width);
+            backgroundTexture = new SafeDynamicTexture(background);
+            background = null; // Owned by the registered texture.
+            backgroundTextureLocation = new ResourceLocation(TrafficEngine.MOD_ID, textureLocation.getPath()
+                .replace("textures/block/sign/", "sign_").replace(".png", "") + "_bg");
             Minecraft.getInstance().getTextureManager().register(backgroundTextureLocation, backgroundTexture);
         } catch (Exception e) {
             TrafficEngine.LOGGER.error("Unable to create traffic sign background texture.", e);
         } finally {
-            if (bg != null) bg.close();
-            if (isBuiltIn() && originalTexture != null && originalTexture != EMPTY_TEXTURE) {
-                originalTexture.close();
-            }
+            if (background != null) background.close();
+            if (builtInImage != null) builtInImage.close();
         }
     }
 
@@ -238,6 +244,8 @@ public class TrafficSignClientTexture implements AutoCloseable {
     public boolean isBuiltIn() {
         return builtIn;
     }
+
+    public List<SignPlateEdges.Edge> plateEdges() { return plateEdges; }
 
     public boolean hasBackground() {
         return backgroundTexture != null && backgroundTexture != EMPTY_TEXTURE;

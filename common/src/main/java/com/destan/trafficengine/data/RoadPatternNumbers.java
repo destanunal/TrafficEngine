@@ -4,6 +4,8 @@ import com.destan.trafficengine.Constants;
 
 /** Contiguous menu numbers without changing persistent road-block or brush IDs. */
 public final class RoadPatternNumbers {
+    public static final int NARROW_STRAIGHT_ID = 316;
+
     private RoadPatternNumbers() {}
 
     public static boolean isVisible(int id) {
@@ -17,6 +19,8 @@ public final class RoadPatternNumbers {
 
     public static int displayNumber(int id) {
         id = canonicalId(id);
-        return id > 30 && id < Constants.MAX_ASPHALT_PATTERNS ? id - 2 : id;
+        if (id == NARROW_STRAIGHT_ID) return 2;
+        int oldNumber = id > 30 && id < Constants.MAX_ASPHALT_PATTERNS ? id - 2 : id;
+        return oldNumber >= 2 && oldNumber < NARROW_STRAIGHT_ID - 2 ? oldNumber + 1 : oldNumber;
     }
 }
