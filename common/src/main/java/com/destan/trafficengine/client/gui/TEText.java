@@ -70,6 +70,57 @@ public final class TEText {
     public static void drawCenteredString(GuiGraphics g, Font font, FormattedCharSequence text, float x, float y, int color) {
         drawString(g, font, text, x - width(font,text) * layoutScale(g) / 2F, y, color, false);
     }
+    public static void drawWrappedCentered(GuiGraphics g, Font font, Component caption,
+            int x, int y, int width, int height, int color) {
+        drawWrapped(g, font, caption, x, y, width, height, color, true);
+    }
+
+    public static void drawWrappedLeft(GuiGraphics g, Font font, Component caption,
+            int x, int y, int width, int height, int color) {
+        drawWrapped(g, font, caption, x, y, width, height, color, false);
+    }
+
+    private static void drawWrapped(GuiGraphics g, Font font, Component caption,
+            int x, int y, int width, int height, int color, boolean centered) {
+        if (width < 1 || height < 1) return;
+        var bounds = MenuTextBounds.of(font, caption);
+        float scale = layoutScale(g);
+        if (bounds.width() == 0 && !bounds.lineBreak()) return;
+        if (!bounds.lineBreak() && bounds.width() * scale <= width && (bounds.bottom() - bounds.top()) * scale <= height) {
+            drawString(g, font, caption, centered ? x + (width - bounds.width() * scale) / 2 : x,
+                MenuTextBounds.centeredExact(y, height, scale, bounds), color, false);
+            return;
+        }
+
+        // Fixed-height controls can fit several lines by scaling the whole paragraph if needed.
+        int wrapWidth = Math.max((int)(width / scale), (int)Math.ceil(bounds.width() / 3.0));
+        var layout = MenuTextBounds.wrapped(font, caption, Math.max(1, wrapWidth));
+        if (layout.lines().isEmpty()) return;
+        float inkHeight = Math.max(1, layout.bottom() - layout.top());
+        float fittedScale = Math.min(scale, Math.min(width / (float)Math.max(1, layout.widest()), height / inkHeight));
+        float firstY = y + (height - inkHeight * fittedScale) / 2 - layout.top() * fittedScale;
+        for (int i = 0; i < layout.lines().size(); i++) {
+            var line = layout.lines().get(i);
+            float lineX = centered ? x + (width - line.width() * fittedScale) / 2 : x;
+            float lineY = firstY + i * font.lineHeight * fittedScale;
+            if (fittedScale == scale) drawString(g, font, line.text(), lineX, lineY, color, false);
+            else drawFittedLine(g, font, line.text(), lineX, lineY, fittedScale, color);
+        }
+    }
+
+    private static void drawFittedLine(GuiGraphics g, Font font, FormattedCharSequence text,
+            float x, float y, float scale, int color) {
+        Matrix4f pose = g.pose().last().pose();
+        if (!aligned(pose)) return;
+        float sx = pose.m00(), sy = pose.m11(), tx = pose.m30(), ty = pose.m31();
+        double pixels = Minecraft.getInstance().getWindow().getGuiScale();
+        pose.m30((float)(Math.round((tx + x * sx) * pixels) / pixels));
+        pose.m31((float)(Math.round((ty + y * sy) * pixels) / pixels));
+        pose.m00(sx * scale).m11(sy * scale);
+        try { g.drawString(font, text, 0, 0, color, false); }
+        finally { pose.m00(sx).m11(sy).m30(tx).m31(ty); }
+    }
+
     public static void drawWordWrap(GuiGraphics g, Font font, FormattedText text, int x, int y, int width, int color) {
         float scale = layoutScale(g);
         for (FormattedCharSequence line : font.split(text, Math.max(1, (int)(width / scale)))) {

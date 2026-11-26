@@ -37,9 +37,10 @@ public class PaintBrushScreen extends TrafficEngineScreen {
     private final List<Pattern> patterns = PatternCatalog.all();
     private final Component previewLabel = Component.translatable("gui.trafficengine.patterns.preview");
     private Component emptyLabel;
-    private String colorLabel, selectionLabel;
-    private final String customCaption = Component.translatable("gui.trafficengine.stencil.custom").getString();
+    private Component colorLabel, selectionLabel;
+    private final Component customCaption = Component.translatable("gui.trafficengine.stencil.custom");
     private ResourceLocation previewTexture;
+    private int previewResolution, customButtonWidth;
     private final int tint;
     private int patternId;
     private boolean saved, customEnabled;
@@ -109,7 +110,7 @@ public class PaintBrushScreen extends TrafficEngineScreen {
         gridWidth = columns * CELL;
         gridHeight = rows * CELL;
         previewHeight = windowHeight - 141;
-        colorLabel = font.plainSubstrByWidth(color.getValueTranslation().getString(), 96);
+        colorLabel = color.getValueTranslation();
         select(patternId);
         search = addRenderableWidget(new TESearchBox(font, left + 17, top + 47, windowWidth - 34, 12,
             Component.translatable("gui.trafficengine.patterns.search")));
@@ -133,8 +134,8 @@ public class PaintBrushScreen extends TrafficEngineScreen {
         areaButton=addRenderableWidget(new TEButton(left + 20 + optionsWidth,top+windowHeight-30,areaWidth,20,
             Component.translatable("gui.trafficengine.paint_brush.area.title"),b->minecraft.setScreen(new PaintBrushAreaScreen(clearCustom())))
             .selected(areaStyle>0));
-        int customWidth = Math.max(64, font.width(Component.translatable("gui.trafficengine.stencil.custom")) + 16);
-        addRenderableWidget(new TEButton(left + windowWidth - 35 - customWidth, top + 8, customWidth, 19,
+        customButtonWidth = Math.min(110, Math.max(64, font.width(Component.translatable("gui.trafficengine.stencil.custom")) + 16));
+        addRenderableWidget(new TEButton(left + windowWidth - 35 - customButtonWidth, top + 8, customButtonWidth, 19,
             Component.translatable("gui.trafficengine.stencil.custom"), b -> minecraft.setScreen(new PixelPatternScreen(this, customPattern, value -> {
                 customPattern = value; customEnabled = !value.isEmpty(); areaStyle = 0; pathShape = 0; lineStyle = -1; batchPainting = false;
             }))));
@@ -235,8 +236,12 @@ public class PaintBrushScreen extends TrafficEngineScreen {
         areaPreview=areaStyle>0?RoadAreaPreview.sample(areaShape,areaStyle)
             :batchPainting && pathShape>0?RoadAreaPreview.curveSample(pathShape,paintWidth,lineStyle,dashGap,linePosition):null;
         previewTexture = areaPreview!=null || lineStyle>=0 ? null : selected==null ? null : selected.texture();
-        selectionLabel = areaStyle==0 && batchPainting && pathShape>0?Component.translatable("gui.trafficengine.paint_brush.path."+pathShape).getString():areaStyle>0?font.plainSubstrByWidth(Component.translatable("gui.trafficengine.paint_brush.area.style."+areaStyle).getString(),96)
-            :lineStyle >= 0 ? font.plainSubstrByWidth(Component.translatable("gui.trafficengine.paint_brush.connection." + (lineStyle + 1)).getString(), 96) : "#" + RoadPatternNumbers.displayNumber(id);
+        previewResolution = selected == null ? 16 : selected.textureResolution();
+        selectionLabel = areaStyle == 0 && batchPainting && pathShape > 0
+            ? Component.translatable("gui.trafficengine.paint_brush.path." + pathShape)
+            : areaStyle > 0 ? Component.translatable("gui.trafficengine.paint_brush.area.style." + areaStyle)
+            : lineStyle >= 0 ? Component.translatable("gui.trafficengine.paint_brush.connection." + (lineStyle + 1))
+            : Component.literal("#" + RoadPatternNumbers.displayNumber(id));
         updateFavoriteButton();
         if(areaButton!=null)areaButton.setSelected(areaStyle>0);
         patternButtons.forEach(b -> b.setSelected(isChosen(b.pattern)));
@@ -302,7 +307,7 @@ public class PaintBrushScreen extends TrafficEngineScreen {
         g.fill(0, 0, width, height, TEColors.OVERLAY);
         g.pose().pushPose();
         g.pose().scale((float)uiScale, (float)uiScale, 1);
-        TEChrome.draw(g, font, left, top, windowWidth, windowHeight, title);
+        TEChrome.draw(g, font, left, top, windowWidth, windowHeight, title, 41 + customButtonWidth);
         TEPanel.draw(g, gridX - 3, gridY - 3, gridWidth + 13, previewHeight + 6);
         TEPanel.draw(g, previewX, gridY - 3, 112, previewHeight + 6);
         if (filtered.isEmpty()) {
@@ -315,7 +320,7 @@ public class PaintBrushScreen extends TrafficEngineScreen {
             g.fill(gridX + gridWidth + 3, gridY, gridX + gridWidth + 7, gridY + gridHeight, TEColors.FIELD);
             g.fill(gridX + gridWidth + 3, thumbY, gridX + gridWidth + 7, thumbY + thumb, TEColors.ACCENT);
         }
-        TEText.drawString(g, font, previewLabel, previewX + 8, gridY + 5, TEColors.MUTED, false);
+        TEText.drawWrappedLeft(g, font, previewLabel, previewX + 8, gridY, 96, 18, TEColors.MUTED);
         int size = Math.max(24, Math.min(lineStyle>=0 || areaPreview!=null?96:66, previewHeight - (lineStyle>=0 || areaPreview!=null?55:78)));
         int px = previewX + (112 - size) / 2;
         g.fill(px, gridY + 19, px + size, gridY + 19 + size, TEColors.FIELD);
@@ -325,19 +330,38 @@ public class PaintBrushScreen extends TrafficEngineScreen {
                 px + 4 + (rect.x() + rect.width()) * drawSize / 16, gridY + 23 + (rect.y() + rect.height()) * drawSize / 16, tint);
         } else if(areaPreview!=null)RoadAreaPreview.draw(g,areaPreview,px+4,gridY+23,size-8,size-8,tint);
         else if(lineStyle>=0) com.destan.trafficengine.client.gui.RoadLinePreview.straight(g,px+4,gridY+23,size-8,size-8,lineStyle,batchPainting?paintWidth:1,dashGap,linePosition,true,tint);
-        if (!customEnabled && previewTexture != null) drawPattern(g, previewTexture, px + 4, gridY + 23, size - 8);
+        if (!customEnabled && previewTexture != null) drawPattern(g, previewTexture, px + 4, gridY + 23, size - 8, previewResolution);
         int detailsY = gridY + 22 + size;
-        TEText.drawString(g, font, !customEnabled ? selectionLabel : customCaption, previewX + 8, detailsY, TEColors.ACCENT, false);
-        TEText.drawString(g, font, colorLabel, previewX + 8,
-            detailsY + 11, TEColors.TEXT, false);
+        TEText.drawWrappedLeft(g, font, customEnabled ? customCaption : selectionLabel,
+            previewX + 8, detailsY - 2, 96, 12, TEColors.ACCENT);
+        TEText.drawWrappedLeft(g, font, colorLabel, previewX + 8, detailsY + 10, 96, 12, TEColors.TEXT);
         super.render(g, (int)(mouseX / uiScale), (int)(mouseY / uiScale), partialTick);
         g.pose().popPose();
     }
 
-    private void drawPattern(GuiGraphics g, ResourceLocation texture, int x, int y, int size) {
+    private void drawPattern(GuiGraphics g, ResourceLocation texture, int x, int y, int size, int resolution) {
         RenderSystem.enableBlend();
         g.setColor(((tint >> 16) & 255) / 255f, ((tint >> 8) & 255) / 255f, (tint & 255) / 255f, 1f);
-        g.blit(texture, x, y, size, size, 0, 0, 32, 32, 32, 32);
+        // Sample whole source pixels at inventory scale to keep diagonal steps even.
+        var pose = g.pose().last().pose();
+        double pixelsPerUnit = minecraft.getWindow().getGuiScale() * pose.m00();
+        int pixelSize = (int)(size * pixelsPerUnit) / resolution * resolution;
+        if (pixelSize == 0) {
+            g.blit(texture, x, y, size, size, 0, 0, resolution, resolution, resolution, resolution);
+        } else {
+            double drawnSize = pixelSize / pixelsPerUnit;
+            double pad = (size - drawnSize) / 2;
+            double guiScale = minecraft.getWindow().getGuiScale();
+            double alignedX = Math.round((x + pad) * pixelsPerUnit + pose.m30() * guiScale);
+            double alignedY = Math.round((y + pad) * pixelsPerUnit + pose.m31() * guiScale);
+            g.pose().pushPose();
+            g.pose().translate((alignedX - pose.m30() * guiScale) / pixelsPerUnit,
+                (alignedY - pose.m31() * guiScale) / pixelsPerUnit, 0);
+            float scale = (float)(drawnSize / resolution);
+            g.pose().scale(scale, scale, 1);
+            g.blit(texture, 0, 0, resolution, resolution, 0, 0, resolution, resolution, resolution, resolution);
+            g.pose().popPose();
+        }
         g.setColor(1f, 1f, 1f, 1f);
         RenderSystem.disableBlend();
     }
@@ -362,7 +386,7 @@ public class PaintBrushScreen extends TrafficEngineScreen {
         @Override protected void renderLabel(GuiGraphics g, int color) {
             // Keep road marking contrast even on the amber selection border.
             g.fill(getX() + 2, getY() + 2, getX() + width - 2, getY() + height - 2, TEColors.FIELD);
-            if (texture != null) drawPattern(g, texture, getX() + 4, getY() + 4, CELL - 10);
+            if (texture != null) drawPattern(g, texture, getX() + 4, getY() + 4, CELL - 10, pattern.textureResolution());
             else for (var r : pattern.custom().rectangles()) {
                 int size = CELL - 10;
                 g.fill(getX() + 4 + r.x() * size / 16, getY() + 4 + r.y() * size / 16,

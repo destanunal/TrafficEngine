@@ -32,11 +32,6 @@ public class TEIntegerSlider extends AbstractSliderButton {
     public void refreshCaption() { updateMessage(); }
     @Override protected void updateMessage() { if (caption != null) setMessage(caption.apply(intValue())); }
     @Override protected void applyValue() { change.accept(intValue()); }
-    private Component fittedSource;
-    private com.destan.trafficengine.client.gui.MenuTextBounds.Bounds fittedBounds;
-    private int fittedWidth;
-    private float fittedScale;
-    private String fittedText="";
     @Override public void renderWidget(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
         TEPanel.surface(g, getX(), getY(), width, height, TEColors.FIELD,
             isHoveredOrFocused() ? TEColors.SELECTION_BORDER : TEColors.BORDER);
@@ -44,13 +39,7 @@ public class TEIntegerSlider extends AbstractSliderButton {
         g.fill(getX() + 4, getY() + height - 4, getX() + width - 4, getY() + height - 2, TEColors.BORDER);
         g.fill(getX() + 4, getY() + height - 4, knob, getY() + height - 2, TEColors.ACCENT);
         TEPanel.fillRounded(g, knob - 3, getY() + height - 6, 6, 6, TEColors.ACCENT);
-        var font = Minecraft.getInstance().font;
-        var bounds=com.destan.trafficengine.client.gui.MenuTextBounds.of(font,getMessage());
-        float currentScale=TEText.layoutScale(g);
-        if(fittedSource!=getMessage() || fittedBounds!=bounds || fittedWidth!=width || fittedScale!=currentScale) {
-            fittedSource=getMessage();fittedBounds=bounds;fittedWidth=width;fittedScale=currentScale;
-            fittedText=font.plainSubstrByWidth(getMessage().getString(),Math.max(1,(int)((width-12)/TEText.layoutScale(g))));
-        }
-        TEText.drawCenteredString(g,font,fittedText,getX()+width/2,TEText.centeredY(g,font,fittedText,getY(),height-3),TEColors.TEXT);
+        TEText.drawWrappedCentered(g, Minecraft.getInstance().font, getMessage(),
+            getX() + 6, getY() + 1, width - 12, height - 6, active ? TEColors.TEXT : TEColors.MUTED);
     }
 }

@@ -99,7 +99,7 @@ public class ClientWrapper {
         }
     }
 
-    public static void showRoadConstructionToolScreen(ItemStack itemstack, int blocksCount, int slopesCount) {
-        Minecraft.getInstance().setScreen(new RoadConstructionToolScreen(itemstack, blocksCount, slopesCount));
+    public static void showRoadConstructionToolScreen(ItemStack itemstack) {
+        Minecraft.getInstance().setScreen(new RoadConstructionToolScreen(itemstack));
     }
 }

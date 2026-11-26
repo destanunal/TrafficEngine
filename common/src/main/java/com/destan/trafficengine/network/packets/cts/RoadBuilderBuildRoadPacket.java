@@ -15,7 +15,6 @@ import com.destan.trafficengine.util.ModUtils;
 import com.destan.trafficengine.util.ScheduledTask;
 import com.destan.trafficengine.util.ScheduledTask.ScheduledTaskContext;
 import com.destan.trafficengine.TrafficEngine;
-import com.destan.trafficengine.block.AsphaltSlope;
 import com.destan.trafficengine.block.data.RoadType;
 import com.destan.trafficengine.item.RoadConstructionTool;
 import com.destan.trafficengine.item.RoadConstructionTool.RoadBuildingData;
@@ -99,9 +98,7 @@ public class RoadBuilderBuildRoadPacket extends NetworkPacketData {
                 || !packet.pos2.dimension.equals(level.dimension().location())) return;
         PacketStatus validity = RoadConstructionTool.isLineValid(packet.pos1.getLocationVec3(), packet.pos2.getLocationVec3());
         if (validity.flag() != PacketStatus.FLAG_OK) {
-            sender.displayClientMessage(Component.translatable(validity.code() == 1
-                ? "item.trafficengine.road_construction_tool.status_too_far"
-                : "item.trafficengine.road_construction_tool.status_slope_too_steep").withStyle(ChatFormatting.RED), true);
+            sender.displayClientMessage(RoadConstructionTool.selectionError(validity).withStyle(ChatFormatting.RED), true);
             return;
         }
 
@@ -118,6 +115,8 @@ public class RoadBuilderBuildRoadPacket extends NetworkPacketData {
         );
 
         if (buildingData.blocks.isEmpty()) return;
+        RoadConstructionTool.clearSelection(item, true, true);
+        sender.getInventory().setChanged();
         var undo = RoadConstructionUndo.start(sender);
         ScheduledTask.create(buildingData, level, RoadConstructionTool.BUILD_DELAY_TICKS, buildingData.blocks.size(),
             (data, task) -> run(data, task, undo));
@@ -134,6 +133,7 @@ public class RoadBuilderBuildRoadPacket extends NetworkPacketData {
             ItemStack tool = player.getItemInHand(data.hand);
             if (tool.isEmpty() || !tool.is(data.toolItem)) return stop(data, undo, "tool_changed");
             BlockPos pos = block.getKey();
+            if (!level.hasChunkAt(pos)) return stop(data, undo, "area_unloaded");
             BlockState existing = level.getBlockState(pos);
             if (!data.replaceBlocks && !existing.isAir()) continue;
             if (creative
@@ -144,9 +144,7 @@ public class RoadBuilderBuildRoadPacket extends NetworkPacketData {
             boolean slope = layers > 0 && layers < 8;
             Item material = (slope ? data.roadType.getSlope() : data.roadType.getBlock()).asItem();
             int needed = slope ? layers : 1;
-            BlockState replacement = slope
-                ? data.roadType.getSlope().defaultBlockState().setValue(AsphaltSlope.LAYERS, layers)
-                : data.roadType.getBlock().defaultBlockState();
+            BlockState replacement = RoadConstructionTool.replacementState(data.roadType, layers);
             if (existing.equals(replacement)) continue;
             if (!creative && player.getInventory().countItem(material) < needed) {
                 return stop(data, undo, "materials_missing");

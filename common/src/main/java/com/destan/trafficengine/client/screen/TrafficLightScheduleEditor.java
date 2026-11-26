@@ -44,6 +44,13 @@ public class TrafficLightScheduleEditor extends TrafficEngineScreen {
     private String helpKey;
     private MultiLineLabel pedestrianHelpLabel = MultiLineLabel.EMPTY;
     private int helpTop, controllerHelpLines;
+    private static final Component TRANSITION = text("transition_light");
+    private static final Component TRANSITION_DURATION = text("red_yellow_seconds");
+    private static final Component PHASE_ID = text("phase_id");
+    private static final Component GREEN_SECONDS = text("green_seconds");
+    private static final Component RED_SECONDS = text("red_seconds");
+    private static final Component COLOR_LABEL = text("color");
+    private static final Component SECONDS_LABEL = text("seconds");
     public TrafficLightScheduleEditor(Screen parent, Level level, BlockPos pos) {
         super(Component.translatable(level.getBlockEntity(pos) instanceof TrafficLightControllerBlockEntity ? "gui.trafficengine.trafficlightschedule.title_controller" : "gui.trafficengine.trafficlightschedule.title"));
         this.parent = parent;
@@ -279,9 +286,9 @@ public class TrafficLightScheduleEditor extends TrafficEngineScreen {
     @Override public void render(GuiGraphics g, int mx, int my, float tick) {
         renderWindow(g);
         if (controller) {
-            TEText.drawString(g, font, text("transition_light"), left + 12, top + 98, TEColors.MUTED, false);
-            Component durationLabel = text("red_yellow_seconds");
-            TEText.drawString(g, font, durationLabel, left + windowWidth - 70 - font.width(durationLabel), top + 98, TEColors.MUTED, false);
+            TEText.drawWrappedLeft(g, font, TRANSITION, left + 12, top + 93, 85, 20, TEColors.MUTED);
+            TEText.drawWrappedCentered(g, font, TRANSITION_DURATION, left + 209, top + 93,
+                windowWidth - 279, 20, TEColors.MUTED);
         }
         String key = error != null ? error : controller ? schedule.isManualController() ? "help_manual" : "help_sequence" : "help_own";
         if (!key.equals(helpKey)) { helpLabel = MultiLineLabel.create(font, windowWidth - 24, 2, text(key)); helpKey = key; }
@@ -293,13 +300,12 @@ public class TrafficLightScheduleEditor extends TrafficEngineScreen {
         TEPanel.draw(g, left + 12, rowTop - 18, windowWidth - 24, visibleRows * ROW_HEIGHT + 22);
         g.fill(left + 13, rowTop - 1, left + windowWidth - 13, rowTop, TEColors.BORDER);
         if (controller) {
-            TEText.drawString(g, font, text("phase_id"), left + 20, headerY, TEColors.MUTED, false);
-            Component greenLabel = text("green_seconds"), redLabel = text("red_seconds");
-            TEText.drawString(g, font, greenLabel, left + 102 + (65 - font.width(greenLabel)) / 2, headerY, GREEN, false);
-            TEText.drawString(g, font, redLabel, left + 190 + (65 - font.width(redLabel)) / 2, headerY, RED, false);
+            TEText.drawWrappedCentered(g, font, PHASE_ID, left + 20, headerY - 2, 72, 15, TEColors.MUTED);
+            TEText.drawWrappedCentered(g, font, GREEN_SECONDS, left + 102, headerY - 2, 65, 15, GREEN);
+            TEText.drawWrappedCentered(g, font, RED_SECONDS, left + 190, headerY - 2, 65, 15, RED);
         } else {
-            TEText.drawString(g, font, text("color"), left + 24, headerY, TEColors.MUTED, false);
-            TEText.drawString(g, font, text("seconds"), left + 215, headerY, TEColors.MUTED, false);
+            TEText.drawWrappedLeft(g, font, COLOR_LABEL, left + 24, headerY - 2, 175, 15, TEColors.MUTED);
+            TEText.drawWrappedLeft(g, font, SECONDS_LABEL, left + 215, headerY - 2, windowWidth - 232, 15, TEColors.MUTED);
         }
         int cycleTicks = controller && !schedule.isManualController() ? schedule.getSequentialCycleTicks() : 0;
         for (int i = offset; i < Math.min(schedule.getEntries().size(), offset + visibleRows); i++) {

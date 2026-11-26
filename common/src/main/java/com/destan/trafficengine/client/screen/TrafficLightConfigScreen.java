@@ -54,15 +54,15 @@ public class TrafficLightConfigScreen extends TrafficEngineScreen {
         FormWidget(AbstractWidget widget, int y) { this.widget = widget; this.y = y; }
     }
     private static final class FormLabel {
-        final String text;
+        final Component text;
         final int y;
-        FormLabel(String text, int y) { this.text = text; this.y = y; }
+        FormLabel(Component text, int y) { this.text = text; this.y = y; }
     }
 
     private final TrafficLightConfig config;
     private final Component previewLabel = text("preview_label");
     private final ResourceLocation[] signalTextures = new ResourceLocation[TrafficLightModel.maxRequiredSlots()];
-    private String invalidIdLabel;
+    private final Component invalidIdLabel = text("invalid_id");
     private boolean idEdited;
     private BlockState previewState;
     private Tab tab = Tab.GENERAL;
@@ -102,7 +102,6 @@ public class TrafficLightConfigScreen extends TrafficEngineScreen {
         formY = top + 80;
         formWidth = left + windowWidth - 12 - formX;
         formHeight = previewY + previewHeight - formY - 3;
-        invalidIdLabel = font.plainSubstrByWidth(text("invalid_id").getString(), Math.max(60, windowWidth - 184));
         int tabWidth = formWidth / 3;
         for (Tab value : Tab.values()) {
             TEButton button = addRenderableWidget(new TEButton(formX + value.ordinal() * tabWidth, previewY,
@@ -126,7 +125,7 @@ public class TrafficLightConfigScreen extends TrafficEngineScreen {
     }
 
     public int getSignalFace(){return config.signalFace;}
-    private void label(Component text, int y) { labels.add(new FormLabel(font.plainSubstrByWidth(text.getString(), formWidth - 16), y)); }
+    private void label(Component text, int y) { labels.add(new FormLabel(text, y)); }
     private <T extends AbstractWidget> T field(T widget, int y) {
         form.add(new FormWidget(addRenderableWidget(widget), y));
         contentHeight = Math.max(contentHeight, y + widget.getHeight() + 5);
@@ -517,8 +516,8 @@ public class TrafficLightConfigScreen extends TrafficEngineScreen {
         for(TEButton tool:previewTools)tool.render(g,mouseX,mouseY,partialTick);
         g.enableScissor(formX + 1, formY, formX + formWidth - 1, formY + formHeight);
         for (FormLabel label : labels) {
-            TEText.drawString(g, font, label.text, formX + 5,
-                formY + label.y - scroll, TEColors.MUTED, false);
+            TEText.drawWrappedLeft(g, font, label.text, formX + 5,
+                formY + label.y - scroll, formWidth - 16, 12, TEColors.MUTED);
         }
         for (HelpLine line : helpLines) TEText.drawString(g, font, line.text, formX + 5, formY + line.y - scroll, TEColors.MUTED, false);
         for (FormWidget entry : form) entry.widget.render(g, mouseX, mouseY, partialTick);
@@ -531,8 +530,8 @@ public class TrafficLightConfigScreen extends TrafficEngineScreen {
         }
         for (TEButton widget : chrome) widget.render(g, mouseX, mouseY, partialTick);
         if (showIdWarning()) {
-            TEText.drawString(g, font, invalidIdLabel, left + 12,
-                top + windowHeight - 23, 0xFFE86A63, false);
+            TEText.drawWrappedLeft(g, font, invalidIdLabel, left + 12,
+                top + windowHeight - 30, windowWidth - 184, 20, 0xFFE86A63);
         }
     }
 
